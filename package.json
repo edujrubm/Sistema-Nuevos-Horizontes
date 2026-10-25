@@ -2,6 +2,7 @@
   "name": "sistema-nuevos-horizontes",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@11.25.0",
   "description": "Sistema de gestión institucional Nuevos Horizontes",
   "license": "UNLICENSED",
   "scripts": {
