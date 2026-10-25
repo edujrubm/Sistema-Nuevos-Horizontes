@@ -3,7 +3,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as Joi from 'joi';
 
-import { Expediente } from './entities/expediente.entity';
 
 @Module({
   imports: [
@@ -30,7 +29,7 @@ import { Expediente } from './entities/expediente.entity';
         username: config.getOrThrow<string>('DATABASE_USER'),
         password: config.getOrThrow<string>('DATABASE_PASSWORD'),
         schema: 'new_horizons',
-        entities: [Expediente],
+        entities: [],
         autoLoadEntities: true,
         synchronize: false,
         migrationsRun: false,

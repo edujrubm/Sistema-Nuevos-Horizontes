@@ -47,8 +47,7 @@ pnpm start:dev
 
 Completar `.env` con las credenciales locales de PostgreSQL. Nunca subir ese archivo al repositorio.
 
-- Página MVC: `http://localhost:3000/`
-- Estado del servicio: `http://localhost:3000/api/health`
+- El servidor queda preparado para registrar rutas después de definir los contratos funcionales.
 
 ### Verificación local
 

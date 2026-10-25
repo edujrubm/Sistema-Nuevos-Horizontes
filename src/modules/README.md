@@ -13,3 +13,5 @@ nombre-modulo/
 ```
 
 No importar repositorios de otro módulo para saltarse reglas de negocio. Un módulo expone servicios o contratos explícitos.
+
+En esta fase los módulos contienen únicamente su archivo `.module.ts`. No se han definido rutas, controladores, servicios, entidades ni DTOs funcionales; esos elementos se agregarán después de aprobar los contratos de cada área.
