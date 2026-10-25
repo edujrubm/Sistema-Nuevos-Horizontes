@@ -1,6 +1,40 @@
 # Sistema Nuevos Horizontes
 
-Repositorio de colaboración del equipo.
+Sistema institucional para atención de beneficiarias, expedientes permanentes, niñas y niños, formularios por área, albergue y documentos.
+
+## Arquitectura inicial
+
+El backend usa NestJS con MVC modular y PostgreSQL:
+
+```text
+src/
+├── common/                 # Guardias, filtros, decoradores y utilidades
+├── database/               # Configuración TypeORM y entidades PostgreSQL
+├── modules/                # Módulos de dominio por área
+│   ├── beneficiarias/
+│   ├── expedientes/
+│   ├── ninos/
+│   ├── formularios/
+│   ├── albergue/
+│   ├── seguridad/
+│   ├── health/
+│   └── home/
+├── views/                  # Plantillas Handlebars
+└── main.ts
+```
+
+PostgreSQL y sus scripts SQL versionados son la fuente de verdad. TypeORM se usa para acceso a datos; `synchronize` y `migrationsRun` están desactivados para impedir cambios automáticos al esquema clínico.
+
+## Inicio local
+
+```sh
+cp .env.example .env
+pnpm install
+pnpm start:dev
+```
+
+- Página MVC: `http://localhost:3000/`
+- Estado del servicio: `http://localhost:3000/api/health`
 
 ## Organización del trabajo
 
@@ -30,3 +64,11 @@ git pull --ff-only origin medicina
 Reemplazar `medicina` por la rama correspondiente. Antes de integrar cambios, revisar y resolver los posibles conflictos con `main`.
 
 Cada integrante debe configurar su propio nombre y correo en Git antes de realizar commits.
+
+## Flujo recomendado
+
+- `main`: solo integración revisada y funcional.
+- `infraestructura/nestjs-bootstrap`: base técnica inicial y decisiones transversales.
+- Ramas por área: implementan módulos sobre la base integrada, sin modificar directamente el modelo clínico compartido.
+- Cambios a base de datos: una migración SQL nueva; nunca editar ni volver a ejecutar una ya aplicada.
+- Todo cambio se integra mediante Pull Request.
