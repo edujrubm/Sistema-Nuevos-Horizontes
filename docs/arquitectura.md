@@ -34,3 +34,11 @@ Cada migración SQL nueva necesita respaldo, prevalidación, prueba en copia y p
 3. Formularios: cabecera, detalles y autorización por área.
 4. Albergue: estancias y movimientos.
 5. Documentos, auditoría y reportes.
+
+## Puesta en marcha del equipo
+
+Cada integrante debe clonar el repositorio, ubicarse en la rama indicada por su área, ejecutar `pnpm install`, copiar `.env.example` a `.env` y configurar una base PostgreSQL local. La compilación de referencia es `pnpm run build`.
+
+El archivo `.env` es local y nunca se versiona. Las credenciales de desarrollo deben ser distintas de las de producción. TypeORM no crea tablas ni sincroniza columnas: el esquema `new_horizons` se prepara mediante migraciones SQL revisadas.
+
+Si el workflow de GitHub Actions no puede iniciar por una incidencia de facturación, el equipo puede continuar con la verificación local. El bloqueo afecta al check automático, no a la rama ni a los commits.
