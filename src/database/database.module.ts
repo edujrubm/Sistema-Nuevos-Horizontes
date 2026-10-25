@@ -4,6 +4,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import * as Joi from 'joi';
 
 import { Expediente } from './entities/expediente.entity';
+import { Beneficiaria } from './entities/beneficiaria.entity';
+import { FormularioArea } from './entities/formulario-area.entity';
+import { Nino } from './entities/nino.entity';
 
 @Module({
   imports: [
@@ -30,7 +33,7 @@ import { Expediente } from './entities/expediente.entity';
         username: config.getOrThrow<string>('DATABASE_USER'),
         password: config.getOrThrow<string>('DATABASE_PASSWORD'),
         schema: 'new_horizons',
-        entities: [Expediente],
+        entities: [Beneficiaria, Expediente, FormularioArea, Nino],
         autoLoadEntities: true,
         synchronize: false,
         migrationsRun: false,
