@@ -76,4 +76,13 @@ export class BeneficiariaEntity {
 
   @Column({ name: "estado_estudio_id", type: "bigint", nullable: true })
   estadoEstudioId!: string | null;
+
+  @Column({ type: "integer", default: 1 })
+  version!: number;
+
+  @Column({ name: "creado_en", type: "timestamptz" })
+  creadoEn!: Date;
+
+  @Column({ name: "actualizado_en", type: "timestamptz" })
+  actualizadoEn!: Date;
 }
