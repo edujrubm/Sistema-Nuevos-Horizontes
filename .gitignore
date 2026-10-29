@@ -4,6 +4,7 @@
 !.env.example
 *.pem
 *.key
+docker-compose.yml
 
 # Archivos locales y temporales
 .codex*
