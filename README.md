@@ -54,24 +54,23 @@ Completar `.env` con las credenciales locales de PostgreSQL. Nunca subir ese arc
 
 - El servidor queda preparado para registrar rutas después de definir los contratos funcionales.
 
-### Verificación local
+### Verificación
 
 ```sh
 pnpm run build
 ```
 
-Si GitHub Actions está temporalmente bloqueado por facturación, esta compilación local es la verificación mínima para continuar trabajando. El bloqueo de Actions no elimina ni invalida los commits del Pull Request.
-
-### Política temporal de verificación
-
-El repositorio utiliza GitHub de forma gratuita y actualmente no se dispone de ejecución funcional de GitHub Actions por una restricción de facturación de la cuenta. Hasta que esa restricción cambie, la verificación oficial será local:
+Este repositorio no ejecuta actualmente flujos de GitHub Actions. Antes de crear
+un Pull Request o integrar cambios, ejecutar localmente:
 
 ```sh
 pnpm install --frozen-lockfile
 pnpm run build
 ```
 
-El responsable del Pull Request debe adjuntar la salida de esos comandos o indicar que fueron ejecutados correctamente. La revisión de código y la ausencia de conflictos continúan siendo obligatorias.
+El responsable del Pull Request debe adjuntar la salida de esos comandos o
+indicar que fueron ejecutados correctamente. La revisión de código y la ausencia
+de conflictos continúan siendo obligatorias.
 
 ### Problemas comunes
 
