@@ -25,6 +25,11 @@ src/
 
 PostgreSQL y sus scripts SQL versionados son la fuente de verdad. TypeORM se usa para acceso a datos; `synchronize` y `migrationsRun` están desactivados para impedir cambios automáticos al esquema clínico.
 
+Para distinguir el estado actual del código de la documentación histórica,
+consultar [Estado técnico comprobado](docs/ESTADO_TECNICO_ACTUAL.md). En
+particular, Persona 1 ya agregó migraciones SQL versionadas; la verificación de
+una instancia concreta de PostgreSQL sigue siendo una actividad independiente.
+
 ## Inicio local
 
 ### Requisitos
