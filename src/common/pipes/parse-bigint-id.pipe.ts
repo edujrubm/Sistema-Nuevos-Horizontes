@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
 
+/** Valida identificadores PostgreSQL bigint sin convertirlos a Number y perder precisión. */
 @Injectable()
 export class ParseBigIntIdPipe implements PipeTransform<string, string> {
   transform(value: string): string {

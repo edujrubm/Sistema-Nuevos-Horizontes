@@ -19,6 +19,7 @@ async function bootstrap() {
   );
   app.setBaseViewsDir(join(__dirname, 'views'));
   app.setViewEngine('hbs');
+  // Mantiene una versión explícita y uniforme para todos los contratos HTTP.
   app.setGlobalPrefix('api/v1');
 
   await app.listen(process.env.PORT ?? 3000);

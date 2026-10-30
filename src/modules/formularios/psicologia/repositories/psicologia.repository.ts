@@ -7,6 +7,7 @@ import {
   ResumenHijo,
 } from '../views/psicologia.responses';
 
+/** Representación interna de una fila compuesta devuelta por PostgreSQL. */
 interface FichaPsicologicaRow
   extends Omit<
     FichaPsicologica,
@@ -18,10 +19,12 @@ interface FichaPsicologicaRow
   examenMental: Record<string, unknown> | null;
 }
 
+/** Centraliza las consultas de solo lectura al esquema clínico de Psicología. */
 @Injectable()
 export class PsicologiaRepository {
   constructor(private readonly dataSource: DataSource) {}
 
+  /** Resuelve la identidad vigente y su expediente permanente. */
   async buscarResumenBeneficiaria(id: string): Promise<ResumenBeneficiaria | null> {
     const rows = await this.dataSource.query<ResumenBeneficiaria[]>(
       `
@@ -43,6 +46,7 @@ export class PsicologiaRepository {
     return rows[0] ?? null;
   }
 
+  /** Resuelve la identidad infantil y la beneficiaria propietaria del expediente. */
   async buscarResumenHijo(id: string): Promise<ResumenHijo | null> {
     const rows = await this.dataSource.query<ResumenHijo[]>(
       `
@@ -71,6 +75,10 @@ export class PsicologiaRepository {
     return rows[0] ?? null;
   }
 
+  /**
+   * Compone cada ficha de mujer desde la cabecera, el detalle tipado y sus complementos.
+   * La paginación usa el ID descendente para mantener un orden determinista.
+   */
   async listarFichasBeneficiaria(
     beneficiariaId: string,
     limit: number,
@@ -133,6 +141,7 @@ export class PsicologiaRepository {
     return rows.map((row) => this.presentarFicha(row));
   }
 
+  /** Compone fichas infantiles completas sin recuperar formularios de otros hijos. */
   async listarFichasHijo(
     hijoId: string,
     limit: number,
@@ -192,6 +201,7 @@ export class PsicologiaRepository {
     return rows.map((row) => this.presentarFicha(row));
   }
 
+  /** Adapta la fila SQL a la representación JSON pública del módulo. */
   private presentarFicha(row: FichaPsicologicaRow): FichaPsicologica {
     return {
       ...row,
@@ -209,6 +219,7 @@ export class PsicologiaRepository {
 
   private toCamelCaseDeep(value: Record<string, unknown>): Record<string, unknown>;
   private toCamelCaseDeep(value: unknown): unknown;
+  /** Convierte recursivamente claves snake_case sin alterar fechas ni valores escalares. */
   private toCamelCaseDeep(value: unknown): unknown {
     if (Array.isArray(value)) {
       return value.map((item) => this.toCamelCaseDeep(item));

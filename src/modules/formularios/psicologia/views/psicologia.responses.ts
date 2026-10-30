@@ -1,3 +1,4 @@
+/** Identificación mínima de una beneficiaria para la vista de Psicología. */
 export interface ResumenBeneficiaria {
   id: string;
   expedienteId: string;
@@ -6,6 +7,7 @@ export interface ResumenBeneficiaria {
   fechaNacimiento: string | null;
 }
 
+/** Identificación infantil y referencia a la beneficiaria responsable. */
 export interface ResumenHijo {
   id: string;
   expedienteId: string;
@@ -19,6 +21,7 @@ export interface ResumenHijo {
   };
 }
 
+/** Representación completa de una ficha psicológica de mujer o niñez. */
 export interface FichaPsicologica {
   id: string;
   tipo: 'PSICOLOGIA_MUJER' | 'PSICOLOGIA_NINEZ';
@@ -43,6 +46,7 @@ export interface FichaPsicologica {
   examenMental: Record<string, unknown> | null;
 }
 
+/** Contrato paginado utilizado por ambos listados de fichas. */
 export interface ListadoFichasPsicologia {
   data: FichaPsicologica[];
   page: {
