@@ -23,6 +23,20 @@
 
 La primera solicitud genera CUI y nombres sintéticos únicos. Las solicitudes posteriores guardan automáticamente `beneficiariaId`, `expedienteVersion`, `fichaId`, `fichaVersion`, `hijoId` y `hijoVersion`.
 
+Las solicitudes de catálogos también seleccionan automáticamente `paisId`, `departamentoId`, `municipioId` y `ocupacionId`. Estos valores se reutilizan en el ejemplo completo de alta y actualización de beneficiaria y dentro de las secciones correspondientes de la ficha inicial.
+
+## Ejemplos completos incluidos
+
+- Alta y actualización de beneficiaria con todos los campos admitidos actualmente por el DTO.
+- Alta y actualización de hija o hijo con todos los campos admitidos actualmente.
+- Cabecera de ficha inicial y ejemplos editables para sus 19 secciones.
+- Identificación, residencia, contacto, datos generales, escolaridad y salud.
+- Grupo familiar, personas agresoras, motivo, violencia, medios y situaciones de riesgo.
+- Referencias, apoyo previo, episodio reciente, análisis de riesgo y plan de seguridad.
+- Evaluación, entrevista inicial, seguimiento y observaciones.
+
+Los ejemplos contienen únicamente datos sintéticos. Los campos internos de `contenido` representan el inventario funcional preliminar de la ficha institucional. El backend los conserva como JSON de la sección; la obligatoriedad y los catálogos definitivos aún deben aprobarse antes de convertirlos en DTO estrictos por sección.
+
 ## Resultado esperado
 
 - Todas las solicitudes funcionales deben responder `200` o `201`.

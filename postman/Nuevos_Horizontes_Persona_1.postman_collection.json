@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Nuevos Horizontes - Persona 1",
-    "description": "Pruebas encadenadas para las APIs de beneficiarias, catálogos, ficha inicial e hijos. Ejecutar en orden con Collection Runner y únicamente contra PostgreSQL de desarrollo/ensayo.",
+    "description": "Colección ejecutable de Persona 1 con ejemplos sintéticos completos para beneficiarias, catálogos, hijas e hijos y los 19 apartados de ficha inicial. Los campos internos de cada sección siguen el inventario funcional preliminar y se almacenan como contenido JSON del borrador.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -129,7 +129,7 @@
                   "pm.test(\"Respuesta JSON\", function () {",
                   "  pm.response.to.be.json;",
                   "});",
-                  "pm.expect(pm.response.json().data).to.be.an(\"array\");"
+                  "const json=pm.response.json(); pm.expect(json.data).to.be.an(\"array\"); if (json.data.length) pm.collectionVariables.set(\"municipioId\",json.data[0].id);"
                 ]
               }
             }
@@ -165,7 +165,7 @@
                   "pm.test(\"Respuesta JSON\", function () {",
                   "  pm.response.to.be.json;",
                   "});",
-                  "pm.expect(pm.response.json().data).to.be.an(\"array\");"
+                  "const json=pm.response.json(); pm.expect(json.data).to.be.an(\"array\"); if (json.data.length) pm.collectionVariables.set(\"ocupacionId\",json.data[0].id);"
                 ]
               }
             }
@@ -199,7 +199,7 @@
             "description": "Prueba POST /beneficiarias",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"{{beneficiariaNombre}}\",\n  \"cui\": \"{{beneficiariaCui}}\",\n  \"fechaNacimiento\": \"1992-06-15\",\n  \"alfabetismo\": true\n}",
+              "raw": "{\n  \"nombre\": \"{{beneficiariaNombre}}\",\n  \"cui\": \"{{beneficiariaCui}}\",\n  \"fechaNacimiento\": \"1992-06-15\",\n  \"alfabetismo\": true,\n  \"paisOrigenId\": \"{{paisId}}\",\n  \"departamentoOrigenId\": \"{{departamentoId}}\",\n  \"municipioOrigenId\": \"{{municipioId}}\",\n  \"ocupacionId\": \"{{ocupacionId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -377,7 +377,7 @@
             "description": "Prueba PATCH /beneficiarias/{{beneficiariaId}}",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"{{beneficiariaNombre}} Actualizada\",\n  \"version\": {{beneficiariaVersion}},\n  \"motivo\": \"Prueba Postman de actualización\"\n}",
+              "raw": "{\n  \"nombre\": \"{{beneficiariaNombre}} Actualizada\",\n  \"cui\": \"{{beneficiariaCui}}\",\n  \"fechaNacimiento\": \"1992-06-15\",\n  \"alfabetismo\": true,\n  \"paisOrigenId\": \"{{paisId}}\",\n  \"departamentoOrigenId\": \"{{departamentoId}}\",\n  \"municipioOrigenId\": \"{{municipioId}}\",\n  \"ocupacionId\": \"{{ocupacionId}}\",\n  \"version\": {{beneficiariaVersion}},\n  \"motivo\": \"Prueba Postman de actualización completa\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -981,10 +981,10 @@
                 "identificacion"
               ]
             },
-            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/identificacion",
+            "description": "Ejemplo sintético completo para la sección identificacion. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"identificacion\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección identificacion\"\n}",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"nombreCompleto\": \"{{beneficiariaNombre}} Actualizada\",\n    \"cui\": \"{{beneficiariaCui}}\",\n    \"documentoAusente\": false,\n    \"tipoDocumento\": \"DPI_CUI\",\n    \"paisEmisionId\": \"{{paisId}}\",\n    \"fechaNacimiento\": \"1992-06-15\",\n    \"paisOrigenId\": \"{{paisId}}\",\n    \"departamentoOrigenId\": \"{{departamentoId}}\",\n    \"municipioOrigenId\": \"{{municipioId}}\",\n    \"nacionalidad\": \"Guatemalteca\",\n    \"esMenorEdad\": false,\n    \"acompanante\": {\n      \"aplica\": false,\n      \"nombreCompleto\": null,\n      \"parentesco\": null,\n      \"cui\": null\n    }\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección identificacion\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1036,10 +1036,10 @@
                 "residencia"
               ]
             },
-            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/residencia",
+            "description": "Ejemplo sintético completo para la sección residencia. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"residencia\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección residencia\"\n}",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"paisResidenciaId\": \"{{paisId}}\",\n    \"departamentoResidenciaId\": \"{{departamentoId}}\",\n    \"municipioResidenciaId\": \"{{municipioId}}\",\n    \"direccionActual\": \"Zona 1, dirección sintética de pruebas\",\n    \"telefonoCasa\": \"22000001\",\n    \"telefonoCelular\": \"55000001\",\n    \"direccionAlternativa\": \"Zona 2, dirección alternativa sintética\",\n    \"personaEnlace\": {\n      \"nombreCompleto\": \"Contacto Sintético\",\n      \"relacion\": \"Hermana\",\n      \"telefonoPrincipal\": \"55000002\",\n      \"telefonoAlternativo\": \"22000002\"\n    },\n    \"areaResidencial\": \"URBANA\",\n    \"clasificacionResidencial\": {\n      \"tipo\": \"ZONA\",\n      \"nombre\": \"Zona 1\",\n      \"otroDetalle\": null\n    }\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección residencia\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1091,10 +1091,10 @@
                 "datos-generales"
               ]
             },
-            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/datos-generales",
+            "description": "Ejemplo sintético completo para la sección datos-generales. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"datos-generales\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección datos-generales\"\n}",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"estadoCivil\": \"Soltera\",\n    \"etnias\": [\n      \"Maya\"\n    ],\n    \"ocupacionId\": \"{{ocupacionId}}\",\n    \"estudiaActualmente\": true,\n    \"lugarTrabajoOEstudio\": \"Centro educativo sintético\",\n    \"direccionTrabajoOEstudio\": \"Zona 3, dirección sintética\",\n    \"telefonoTrabajoOEstudio\": \"22000003\",\n    \"contactoTrabajoOEstudio\": {\n      \"nombreCompleto\": \"Responsable Sintético\",\n      \"cargo\": \"Coordinación\",\n      \"telefono\": \"55000003\"\n    },\n    \"alfabetismo\": {\n      \"lee\": true,\n      \"escribe\": true\n    },\n    \"escolaridad\": {\n      \"nivel\": \"Diversificado\",\n      \"ultimoGradoAprobado\": \"Sexto\",\n      \"estudiaActualmente\": true\n    }\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección datos-generales\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1146,10 +1146,10 @@
                 "salud"
               ]
             },
-            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/salud",
+            "description": "Ejemplo sintético completo para la sección salud. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"salud\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección salud\"\n}",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"enfermedadPermanente\": false,\n    \"nombreEnfermedad\": null,\n    \"recibeTratamiento\": false,\n    \"tipoTratamiento\": null,\n    \"otrosPadecimientos\": \"Ninguno informado en datos sintéticos\",\n    \"medicamentosActuales\": [],\n    \"alergiasInformadas\": [],\n    \"observacionesSalud\": \"Ejemplo sintético; no representa información clínica real\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección salud\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1201,10 +1201,10 @@
                 "grupo-familiar"
               ]
             },
-            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/grupo-familiar",
+            "description": "Ejemplo sintético completo para la sección grupo-familiar. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"grupo-familiar\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección grupo-familiar\"\n}",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"hijasEHijos\": [\n      {\n        \"nombreCompleto\": \"{{hijoNombre}} Actualizada\",\n        \"cui\": \"{{hijoCui}}\",\n        \"fechaNacimiento\": \"2017-04-12\",\n        \"genero\": \"F\",\n        \"reconocido\": true,\n        \"vinculadoComoRegistro\": true\n      }\n    ],\n    \"otrasPersonasDelGrupoFamiliar\": [\n      {\n        \"nombreCompleto\": \"Familiar Sintético\",\n        \"parentesco\": \"Madre\",\n        \"edadCalculadaOReferencial\": 58,\n        \"conviveActualmente\": true\n      }\n    ],\n    \"violenciaSexual\": {\n      \"reportada\": false,\n      \"agresorConocido\": null,\n      \"nombreAgresor\": null,\n      \"relacionOParentesco\": null\n    }\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección grupo-familiar\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1256,10 +1256,10 @@
                 "agresores"
               ]
             },
-            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/agresores",
+            "description": "Ejemplo sintético completo para la sección agresores. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"agresores\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección agresores\"\n}",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"personasAgresoras\": [\n      {\n        \"nombreCompleto\": \"Persona Agresora Sintética\",\n        \"edad\": 35,\n        \"tipoDocumento\": \"DPI_CUI\",\n        \"numeroDocumento\": \"TEST-AGRESOR-0001\",\n        \"ocupacion\": \"Ocupación sintética\",\n        \"lugarTrabajo\": \"Lugar sintético\",\n        \"horarioTrabajo\": \"08:00-17:00\",\n        \"direccionTrabajo\": \"Dirección laboral sintética\",\n        \"direccionResidencia\": \"Dirección residencial sintética\",\n        \"telefonoPrincipal\": \"55000004\",\n        \"telefonoAlternativo\": \"22000004\",\n        \"ingresoMensual\": 3500,\n        \"monedaIngreso\": \"GTQ\"\n      }\n    ]\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección agresores\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1311,10 +1311,10 @@
                 "motivo-consulta"
               ]
             },
-            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/motivo-consulta",
+            "description": "Ejemplo sintético completo para la sección motivo-consulta. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"motivo-consulta\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección motivo-consulta\"\n}",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"motivoVisita\": \"Relato completamente sintético utilizado para probar el formulario.\",\n    \"relatoEnPalabrasDeLaBeneficiaria\": true,\n    \"fechaAtencion\": \"2026-10-31\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección motivo-consulta\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1366,10 +1366,10 @@
                 "tipos-violencia"
               ]
             },
-            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/tipos-violencia",
+            "description": "Ejemplo sintético completo para la sección tipos-violencia. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"tipos-violencia\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección tipos-violencia\"\n}",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seleccionMultiple\": [\n      \"FISICA\",\n      \"PSICOLOGICA\",\n      \"VERBAL\",\n      \"ECONOMICA\"\n    ],\n    \"opcionesEvaluadas\": {\n      \"fisica\": true,\n      \"psicologica\": true,\n      \"verbal\": true,\n      \"sexual\": false,\n      \"patrimonial\": false,\n      \"economica\": true,\n      \"trata\": false,\n      \"violacion\": false,\n      \"amenazaMuerte\": false,\n      \"misoginia\": false,\n      \"femicidio\": false,\n      \"otra\": false\n    },\n    \"otraDescripcion\": null\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección tipos-violencia\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1421,10 +1421,10 @@
                 "objetos-agresion"
               ]
             },
-            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/objetos-agresion",
+            "description": "Ejemplo sintético completo para la sección objetos-agresion. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"objetos-agresion\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección objetos-agresion\"\n}",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seleccionMultiple\": [\n      \"MANOS\",\n      \"PIES\"\n    ],\n    \"opcionesEvaluadas\": {\n      \"manos\": true,\n      \"pies\": true,\n      \"armaBlanca\": false,\n      \"brazos\": false,\n      \"armaFuego\": false,\n      \"objeto\": false,\n      \"todas\": false,\n      \"otra\": false\n    },\n    \"objetoDescripcion\": null,\n    \"otraDescripcion\": null\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección objetos-agresion\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1476,10 +1476,10 @@
                 "situaciones-riesgo"
               ]
             },
-            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/situaciones-riesgo",
+            "description": "Ejemplo sintético completo para la sección situaciones-riesgo. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"situaciones-riesgo\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección situaciones-riesgo\"\n}",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"conviveConAgresor\": false,\n    \"agresionesFrecuentes\": true,\n    \"requirioHospitalizacion\": false,\n    \"agresorConsumeAlcohol\": true,\n    \"agresorConsumeDrogas\": false,\n    \"embarazoActual\": false,\n    \"tiempoEmbarazoSemanas\": null,\n    \"existeSeparacion\": true,\n    \"fechaAproximadaSeparacion\": \"2026-09-01\",\n    \"agresorParticipaAgrupacionIlicita\": false,\n    \"otrasSituaciones\": [\n      \"Dependencia económica parcial\"\n    ]\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección situaciones-riesgo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1531,10 +1531,10 @@
                 "referencias"
               ]
             },
-            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/referencias",
+            "description": "Ejemplo sintético completo para la sección referencias. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"referencias\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección referencias\"\n}",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"origenReferencia\": {\n      \"tipo\": \"INSTITUCION\",\n      \"institucionOMedio\": \"Institución sintética de referencia\",\n      \"otraDescripcion\": null\n    },\n    \"referenciasInternas\": [\n      \"PSICOLOGIA\",\n      \"TRABAJO_SOCIAL\",\n      \"LEGAL\"\n    ],\n    \"otraReferenciaInterna\": null,\n    \"referenciasExternas\": [\n      {\n        \"institucionDestino\": \"Institución externa sintética\",\n        \"motivo\": \"Seguimiento de prueba\",\n        \"otraDescripcion\": null\n      }\n    ]\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección referencias\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1586,10 +1586,10 @@
                 "apoyo-recibido"
               ]
             },
-            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/apoyo-recibido",
+            "description": "Ejemplo sintético completo para la sección apoyo-recibido. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"apoyo-recibido\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección apoyo-recibido\"\n}",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"recibioApoyoPrevio\": true,\n    \"lugarApoyo\": \"Centro sintético de atención\",\n    \"tipoApoyo\": [\n      \"ORIENTACION\",\n      \"PSICOLOGICO\"\n    ],\n    \"fechaApoyo\": \"2026-10-15\",\n    \"traeDenuncia\": false,\n    \"numeroDenuncia\": null,\n    \"observaciones\": \"Información completamente sintética\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección apoyo-recibido\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1641,10 +1641,10 @@
                 "episodio-reciente"
               ]
             },
-            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/episodio-reciente",
+            "description": "Ejemplo sintético completo para la sección episodio-reciente. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"episodio-reciente\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección episodio-reciente\"\n}",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"fechaAproximada\": \"2026-10-20\",\n    \"lugar\": \"Lugar sintético\",\n    \"historiaUltimoEpisodio\": \"Relato sintético del último episodio para pruebas funcionales.\",\n    \"personasPresentes\": [\n      \"Familiar sintético\"\n    ],\n    \"accionesPosteriores\": [\n      \"Solicitó orientación\"\n    ]\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección episodio-reciente\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1696,10 +1696,10 @@
                 "analisis-riesgo"
               ]
             },
-            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/analisis-riesgo",
+            "description": "Ejemplo sintético completo para la sección analisis-riesgo. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"analisis-riesgo\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección analisis-riesgo\"\n}",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"tiempoAgresion\": {\n      \"cantidad\": 2,\n      \"unidad\": \"ANIOS\",\n      \"otroPeriodo\": null\n    },\n    \"vinculoConAgresor\": \"EXCONVIVIENTE\",\n    \"otroVinculo\": null,\n    \"agresionAOtrosFamiliares\": true,\n    \"familiaresAgredidos\": [\n      {\n        \"parentesco\": \"Hermana\",\n        \"formaAgresion\": \"Amenazas verbales sintéticas\"\n      }\n    ],\n    \"nivelRiesgoRegistradoPorProfesional\": \"MEDIO\",\n    \"factoresProtectores\": [\n      \"Red familiar de apoyo\"\n    ],\n    \"factoresRiesgo\": [\n      \"Amenazas recurrentes\"\n    ],\n    \"justificacion\": \"Ejemplo sintético; no constituye valoración profesional real\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección analisis-riesgo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1751,10 +1751,10 @@
                 "plan-seguridad"
               ]
             },
-            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/plan-seguridad",
+            "description": "Ejemplo sintético completo para la sección plan-seguridad. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"plan-seguridad\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección plan-seguridad\"\n}",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"planSeguimientoInmediato\": \"Plan sintético acordado para validar persistencia.\",\n    \"accionesAcordadas\": [\n      \"Contactar red de apoyo\",\n      \"Mantener documentos importantes accesibles\",\n      \"Acudir a institución de apoyo si fuera necesario\"\n    ],\n    \"contactosEmergencia\": [\n      {\n        \"nombre\": \"Contacto Sintético\",\n        \"relacion\": \"Hermana\",\n        \"telefono\": \"55000005\"\n      }\n    ],\n    \"lugarSeguroIdentificado\": true,\n    \"descripcionLugarSeguro\": \"Ubicación sintética identificada\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección plan-seguridad\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1806,10 +1806,10 @@
                 "evaluacion"
               ]
             },
-            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/evaluacion",
+            "description": "Ejemplo sintético completo para la sección evaluacion. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"evaluacion\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección evaluacion\"\n}",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"estadoActual\": \"Estable durante la entrevista de prueba\",\n    \"estadoEmocionalObservado\": \"Orientada\",\n    \"necesidadesInmediatas\": [\n      \"Orientación institucional\"\n    ],\n    \"recursosDisponibles\": [\n      \"Red familiar\"\n    ],\n    \"evaluacionProfesional\": \"Evaluación sintética sin validez clínica ni jurídica\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección evaluacion\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1861,10 +1861,10 @@
                 "entrevista-inicial"
               ]
             },
-            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/entrevista-inicial",
+            "description": "Ejemplo sintético completo para la sección entrevista-inicial. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"entrevista-inicial\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección entrevista-inicial\"\n}",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"lugarAtencion\": \"Centro de pruebas Postman\",\n    \"fechaEntrevista\": \"2026-10-31\",\n    \"horaInicio\": \"09:00\",\n    \"horaFin\": \"10:00\",\n    \"nombreEntrevistador\": \"Entrevistador Sintético\",\n    \"cargoEntrevistador\": \"Digitalizador de ficha inicial\",\n    \"resumenEntrevista\": \"Resumen completamente sintético de la entrevista inicial.\",\n    \"informacionProporcionadaPor\": \"BENEFICIARIA\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección entrevista-inicial\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1916,10 +1916,10 @@
                 "seguimiento"
               ]
             },
-            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/seguimiento",
+            "description": "Ejemplo sintético completo para la sección seguimiento. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"seguimiento\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección seguimiento\"\n}",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"requiereSeguimiento\": true,\n    \"fechaPropuesta\": \"2026-11-07\",\n    \"areasSeguimiento\": [\n      \"PSICOLOGIA\",\n      \"TRABAJO_SOCIAL\",\n      \"LEGAL\"\n    ],\n    \"accionesPendientes\": [\n      \"Coordinar cita sintética\"\n    ],\n    \"responsableSeguimiento\": \"Responsable Sintético\",\n    \"notasSeguimiento\": \"Notas sintéticas para comprobar el guardado\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección seguimiento\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1971,10 +1971,10 @@
                 "observaciones"
               ]
             },
-            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/observaciones",
+            "description": "Ejemplo sintético completo para la sección observaciones. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"observaciones\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección observaciones\"\n}",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"observacionesGenerales\": \"Ficha creada exclusivamente con datos sintéticos de prueba.\",\n    \"informacionPendiente\": [],\n    \"restriccionesDeUso\": \"No utilizar como información real de una beneficiaria.\",\n    \"nombreQuienEntrevista\": \"Entrevistador Sintético\",\n    \"nombreQuienCaptura\": \"Capturista Sintético\",\n    \"fechaCierreCaptura\": \"2026-10-31\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección observaciones\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2334,6 +2334,14 @@
     },
     {
       "key": "departamentoId",
+      "value": ""
+    },
+    {
+      "key": "municipioId",
+      "value": ""
+    },
+    {
+      "key": "ocupacionId",
       "value": ""
     }
   ]
