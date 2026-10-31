@@ -8,6 +8,6 @@ Actualizado: 29 de octubre de 2026. El usuario aclara que la división de trabaj
 - Reutilizar la BD y SQL acordados, con sus relaciones. Autonomía de código no significa duplicar personas/expedientes/tablas ni alterar el esquema compartido.
 - Las utilidades internas de persona3 son parte de nuestra entrega; no se imponen como tarea a otro integrante.
 - Mantener Legal, Social, Guardería, evolución y documentos organizados por sus módulos. La integración por ramas/revisión en Jira se realiza para nuestra entrega y no bloquea las pruebas locales.
-- No hubo push ni modificación de la base compartida. Todo se prepara en la rama local persona3/ciclo2-local.
+- El trabajo se publica en legal, social, guarderia y evolucion por autorización del usuario. No se cambia main ni la base compartida.
 
 El antiguo plan que exigía coordinar un soporte transversal o almacenamiento con otros compañeros queda sustituido por esta aclaración.

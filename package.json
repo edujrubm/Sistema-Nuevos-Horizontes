@@ -16,7 +16,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:persona3": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-persona3.ps1",
-    "postman:persona3": "node scripts/generate-persona3.cjs",
+    "postman:persona3": "node -r ts-node/register scripts/generate-persona3.cjs",
     "start:persona3": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-persona3.ps1"
   },
   "dependencies": {

@@ -1,3 +1,4 @@
+import { LIMITE_PDF_BYTES } from "./limites";
 import {
   Body,
   Controller,
@@ -19,7 +20,7 @@ export class DocumentosController {
   @UseInterceptors(
     FileInterceptor("archivo", {
       limits: {
-        fileSize: 20 * 1024 * 1024,
+        fileSize: LIMITE_PDF_BYTES,
         files: 1,
         fields: 2,
         fieldSize: 1000,
