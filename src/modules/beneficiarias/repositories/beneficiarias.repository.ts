@@ -1,7 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
-import { DataSource, EntityManager, Repository } from "typeorm";
+import {
+  DataSource,
+  EntityManager,
+  QueryFailedError,
+  Repository,
+} from "typeorm";
 
 import { ActualizarBeneficiariaDto } from "../dto/actualizar-beneficiaria.dto";
 import { BuscarCoincidenciasDto } from "../dto/buscar-coincidencias.dto";
@@ -255,74 +260,139 @@ export class BeneficiariasRepository {
   }
 
   async crear(entrada: CrearBeneficiariaDto) {
-    return this.dataSource.transaction(async (manager) => {
-      await this.prepararAuditoria(manager, "Registro inicial de beneficiaria");
-      const repositorio = manager.getRepository(BeneficiariaEntity);
-      if (entrada.cui) {
-        const duplicada = await repositorio.findOne({
-          where: { cui: entrada.cui },
-        });
-        if (duplicada) return { conflictoCui: true as const };
-      }
-      const residenciaId = await this.guardarResidencia(
-        manager,
-        entrada.residencia,
-      );
-      const lugarOcupacionId = await this.guardarLugarOcupacion(
-        manager,
-        entrada.lugarOcupacion,
-      );
-      const beneficiaria = await repositorio.save(
-        repositorio.create({
-          nombre: entrada.nombre.trim(),
-          cui: entrada.cui?.trim() ?? null,
-          fechaNacimiento: entrada.fechaNacimiento ?? null,
-          alfabetismo: entrada.alfabetismo ?? null,
-          paisOrigenId: entrada.paisOrigenId ?? null,
-          departamentoOrigenId: entrada.departamentoOrigenId ?? null,
-          municipioOrigenId: entrada.municipioOrigenId ?? null,
-          ocupacionId: entrada.ocupacionId ?? null,
-          enfermedadPermanente: entrada.enfermedadPermanente ?? null,
-          nombreEnfermedad: entrada.nombreEnfermedad?.trim() ?? null,
-          tipoTratamiento: entrada.tipoTratamiento?.trim() ?? null,
-          otrosPadecimientos: entrada.otrosPadecimientos?.trim() ?? null,
-          paisCuiId: entrada.paisCuiId ?? null,
-          tipoAcompananteId: entrada.tipoAcompananteId ?? null,
-          lugarOcupacionId,
-          estadoCivilId: entrada.estadoCivilId ?? null,
-          nivelEstudioId: entrada.nivelEstudioId ?? null,
-          residenciaId,
-          estadoEstudioId: entrada.estadoEstudioId ?? null,
-        }),
-      );
-      const expediente = await manager.getRepository(ExpedienteEntity).save({
-        beneficiariaId: beneficiaria.id,
-      });
-      const fichaInicial = await manager
-        .getRepository(FichaInicialEntity)
-        .save({
-          expedienteId: expediente.id,
-          lugar: entrada.fichaInicial.lugar?.trim() ?? null,
-          fecha: entrada.fichaInicial.fechaEntrevista
-            ? new Date(`${entrada.fichaInicial.fechaEntrevista}T12:00:00.000Z`)
-            : new Date(),
-        });
-      for (const [seccion, contenido] of Object.entries(
-        entrada.fichaInicial.seccionesIniciales ?? {},
-      )) {
-        await manager.query(
-          `INSERT INTO new_horizons.ficha_inicial_seccion
-            (ficha_inicial_id,seccion,contenido) VALUES ($1::bigint,$2,$3::jsonb)`,
-          [fichaInicial.id, seccion, JSON.stringify(contenido)],
+    return this.dataSource
+      .transaction(async (manager) => {
+        await this.prepararAuditoria(
+          manager,
+          "Registro inicial de beneficiaria",
         );
-      }
-      return {
-        conflictoCui: false as const,
-        beneficiaria,
-        expediente,
-        fichaInicial,
-      };
-    });
+        const repositorio = manager.getRepository(BeneficiariaEntity);
+        if (entrada.cui) {
+          const duplicada = await repositorio.findOne({
+            where: { cui: entrada.cui },
+          });
+          if (duplicada) return { conflictoCui: true as const };
+        }
+        const residenciaId = await this.guardarResidencia(
+          manager,
+          entrada.residencia,
+        );
+        const lugarOcupacionId = await this.guardarLugarOcupacion(
+          manager,
+          entrada.lugarOcupacion,
+        );
+        const beneficiaria = await repositorio.save(
+          repositorio.create({
+            nombre: entrada.nombre.trim(),
+            cui: entrada.cui?.trim() ?? null,
+            fechaNacimiento: entrada.fechaNacimiento ?? null,
+            alfabetismo: entrada.alfabetismo ?? null,
+            paisOrigenId: entrada.paisOrigenId ?? null,
+            departamentoOrigenId: entrada.departamentoOrigenId ?? null,
+            municipioOrigenId: entrada.municipioOrigenId ?? null,
+            ocupacionId: entrada.ocupacionId ?? null,
+            enfermedadPermanente: entrada.enfermedadPermanente ?? null,
+            nombreEnfermedad: entrada.nombreEnfermedad?.trim() ?? null,
+            tipoTratamiento: entrada.tipoTratamiento?.trim() ?? null,
+            otrosPadecimientos: entrada.otrosPadecimientos?.trim() ?? null,
+            paisCuiId: entrada.paisCuiId ?? null,
+            tipoAcompananteId: entrada.tipoAcompananteId ?? null,
+            lugarOcupacionId,
+            estadoCivilId: entrada.estadoCivilId ?? null,
+            nivelEstudioId: entrada.nivelEstudioId ?? null,
+            residenciaId,
+            estadoEstudioId: entrada.estadoEstudioId ?? null,
+          }),
+        );
+        const expediente = await manager.getRepository(ExpedienteEntity).save({
+          beneficiariaId: beneficiaria.id,
+        });
+        const fichaInicial = await manager
+          .getRepository(FichaInicialEntity)
+          .save({
+            expedienteId: expediente.id,
+            lugar: entrada.fichaInicial.lugar?.trim() ?? null,
+            fecha: entrada.fichaInicial.fechaEntrevista
+              ? new Date(
+                  `${entrada.fichaInicial.fechaEntrevista}T12:00:00.000Z`,
+                )
+              : new Date(),
+          });
+        for (const [seccion, contenido] of Object.entries(
+          entrada.fichaInicial.seccionesIniciales ?? {},
+        )) {
+          await manager.query(
+            `INSERT INTO new_horizons.ficha_inicial_seccion
+            (ficha_inicial_id,seccion,contenido) VALUES ($1::bigint,$2,$3::jsonb)`,
+            [fichaInicial.id, seccion, JSON.stringify(contenido)],
+          );
+        }
+        return {
+          conflictoCui: false as const,
+          beneficiaria,
+          expediente,
+          fichaInicial,
+        };
+      })
+      .catch((error: unknown) => {
+        if (error instanceof QueryFailedError) {
+          const codigo = (error.driverError as { code?: string }).code;
+          if (codigo === "23503" || codigo === "23514")
+            return {
+              conflictoCui: false as const,
+              relacionIncompatible: true as const,
+            };
+        }
+        throw error;
+      });
+  }
+
+  async validarReferencias(entrada: CrearBeneficiariaDto): Promise<string[]> {
+    const residencia = entrada.residencia;
+    const parametros = [
+      entrada.paisCuiId ?? null,
+      entrada.tipoAcompananteId ?? null,
+      entrada.estadoCivilId ?? null,
+      entrada.ocupacionId ?? null,
+      entrada.nivelEstudioId ?? null,
+      entrada.estadoEstudioId ?? null,
+      entrada.paisOrigenId ?? null,
+      entrada.departamentoOrigenId ?? null,
+      entrada.municipioOrigenId ?? null,
+      residencia?.paisResidenciaId ?? null,
+      residencia?.departamentoResidenciaId ?? null,
+      residencia?.municipioResidenciaId ?? null,
+    ];
+    const filas = await this.dataSource.query<Array<{ campo: string }>>(
+      `SELECT campo FROM (
+        SELECT 'paisCuiId' campo WHERE $1::text IS NOT NULL AND NOT EXISTS
+          (SELECT 1 FROM new_horizons.pais WHERE pais_id=$1::bigint)
+        UNION ALL SELECT 'tipoAcompananteId' WHERE $2::text IS NOT NULL AND NOT EXISTS
+          (SELECT 1 FROM new_horizons.tipo_acompanante WHERE tipo_acompanante_id=$2::bigint)
+        UNION ALL SELECT 'estadoCivilId' WHERE $3::text IS NOT NULL AND NOT EXISTS
+          (SELECT 1 FROM new_horizons.estado_civil WHERE estado_civil_id=$3::bigint)
+        UNION ALL SELECT 'ocupacionId' WHERE $4::text IS NOT NULL AND NOT EXISTS
+          (SELECT 1 FROM new_horizons.ocupacion WHERE ocupacion_id=$4::bigint)
+        UNION ALL SELECT 'nivelEstudioId' WHERE $5::text IS NOT NULL AND NOT EXISTS
+          (SELECT 1 FROM new_horizons.nivel_estudio WHERE nivel_estudio_id=$5::bigint)
+        UNION ALL SELECT 'estadoEstudioId' WHERE $6::text IS NOT NULL AND NOT EXISTS
+          (SELECT 1 FROM new_horizons.estado_estudio WHERE estado_estudio_id=$6::bigint)
+        UNION ALL SELECT 'paisOrigenId' WHERE $7::text IS NOT NULL AND NOT EXISTS
+          (SELECT 1 FROM new_horizons.pais WHERE pais_id=$7::bigint)
+        UNION ALL SELECT 'departamentoOrigenId' WHERE $8::text IS NOT NULL AND NOT EXISTS
+          (SELECT 1 FROM new_horizons.departamento WHERE departamento_id=$8::bigint AND pais_id=$7::bigint)
+        UNION ALL SELECT 'municipioOrigenId' WHERE $9::text IS NOT NULL AND NOT EXISTS
+          (SELECT 1 FROM new_horizons.municipio WHERE municipio_id=$9::bigint AND departamento_id=$8::bigint)
+        UNION ALL SELECT 'residencia.paisResidenciaId' WHERE $10::text IS NOT NULL AND NOT EXISTS
+          (SELECT 1 FROM new_horizons.pais WHERE pais_id=$10::bigint)
+        UNION ALL SELECT 'residencia.departamentoResidenciaId' WHERE $11::text IS NOT NULL AND NOT EXISTS
+          (SELECT 1 FROM new_horizons.departamento WHERE departamento_id=$11::bigint AND pais_id=$10::bigint)
+        UNION ALL SELECT 'residencia.municipioResidenciaId' WHERE $12::text IS NOT NULL AND NOT EXISTS
+          (SELECT 1 FROM new_horizons.municipio WHERE municipio_id=$12::bigint AND departamento_id=$11::bigint)
+      ) validaciones`,
+      parametros,
+    );
+    return [...new Set(filas.map((fila) => fila.campo))];
   }
 
   async actualizar(id: string, entrada: ActualizarBeneficiariaDto) {

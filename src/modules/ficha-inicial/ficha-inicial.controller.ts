@@ -7,9 +7,17 @@ import {
   Post,
   Query,
 } from "@nestjs/common";
-import { ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
+import {
+  ApiBadRequestResponse,
+  ApiConflictResponse,
+  ApiInternalServerErrorResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from "@nestjs/swagger";
 
 import { ParseBigIntIdPipe } from "../../common/pipes/parse-bigint-id.pipe";
+import { ErrorApiDto } from "../../common/errors/error-api.dto";
 import { IniciarFichaInicialDto } from "../beneficiarias/dto/crear-beneficiaria.dto";
 
 import { ActualizarPaginaDto } from "./dto/actualizar-pagina.dto";
@@ -27,6 +35,18 @@ export class FichaInicialController {
   @ApiOperation({
     summary:
       "Inicia una ficha: crea beneficiaria, expediente y borrador en una sola transacción",
+  })
+  @ApiBadRequestResponse({
+    description: "Datos obligatorios, formato o geografía incompletos",
+    type: ErrorApiDto,
+  })
+  @ApiConflictResponse({
+    description: "Registro duplicado o relación de catálogo incompatible",
+    type: ErrorApiDto,
+  })
+  @ApiInternalServerErrorResponse({
+    description: "Fallo inesperado normalizado sin detalles internos",
+    type: ErrorApiDto,
   })
   iniciar(@Body() entrada: IniciarFichaInicialDto) {
     return this.service.iniciar(entrada);

@@ -1643,7 +1643,15 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Responde 404\",()=>pm.response.to.have.status(404));"
+                  "pm.test(\"Responde 404\",()=>pm.response.to.have.status(404));",
+                  "const error=pm.response.json();",
+                  "pm.test(\"Código REGISTRO_NO_ENCONTRADO\",()=>pm.expect(error.codigo).to.eql(\"REGISTRO_NO_ENCONTRADO\"));",
+                  "pm.test(\"Cumple sobre común de error\",()=>{",
+                  "  pm.expect(Object.keys(error).sort()).to.eql([\"codigo\",\"errores\",\"estado\",\"idSolicitud\",\"mensaje\"]);",
+                  "  pm.expect(error.estado).to.eql(pm.response.code);",
+                  "  pm.expect(error.errores).to.be.an(\"array\");",
+                  "  pm.expect(error.idSolicitud).to.eql(pm.response.headers.get(\"X-Id-Solicitud\"));",
+                  "});"
                 ]
               }
             }
@@ -1688,7 +1696,14 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Responde 409\",()=>pm.response.to.have.status(409));",
-                  "pm.test(\"Código DUPLICATE_CUI\",()=>pm.expect(pm.response.json().code || pm.response.json().message?.code).to.exist);"
+                  "const error=pm.response.json();",
+                  "pm.test(\"Código REGISTRO_DUPLICADO\",()=>pm.expect(error.codigo).to.eql(\"REGISTRO_DUPLICADO\"));",
+                  "pm.test(\"Cumple sobre común de error\",()=>{",
+                  "  pm.expect(Object.keys(error).sort()).to.eql([\"codigo\",\"errores\",\"estado\",\"idSolicitud\",\"mensaje\"]);",
+                  "  pm.expect(error.estado).to.eql(pm.response.code);",
+                  "  pm.expect(error.errores).to.be.an(\"array\");",
+                  "  pm.expect(error.idSolicitud).to.eql(pm.response.headers.get(\"X-Id-Solicitud\"));",
+                  "});"
                 ]
               }
             }
@@ -1733,7 +1748,15 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Responde 409\",()=>pm.response.to.have.status(409));"
+                  "pm.test(\"Responde 409\",()=>pm.response.to.have.status(409));",
+                  "const error=pm.response.json();",
+                  "pm.test(\"Código VERSION_DESACTUALIZADA\",()=>pm.expect(error.codigo).to.eql(\"VERSION_DESACTUALIZADA\"));",
+                  "pm.test(\"Cumple sobre común de error\",()=>{",
+                  "  pm.expect(Object.keys(error).sort()).to.eql([\"codigo\",\"errores\",\"estado\",\"idSolicitud\",\"mensaje\"]);",
+                  "  pm.expect(error.estado).to.eql(pm.response.code);",
+                  "  pm.expect(error.errores).to.be.an(\"array\");",
+                  "  pm.expect(error.idSolicitud).to.eql(pm.response.headers.get(\"X-Id-Solicitud\"));",
+                  "});"
                 ]
               }
             }
@@ -1780,7 +1803,275 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Responde 409\",()=>pm.response.to.have.status(409));"
+                  "pm.test(\"Responde 409\",()=>pm.response.to.have.status(409));",
+                  "const error=pm.response.json();",
+                  "pm.test(\"Código ESTADO_NO_PERMITIDO\",()=>pm.expect(error.codigo).to.eql(\"ESTADO_NO_PERMITIDO\"));",
+                  "pm.test(\"Cumple sobre común de error\",()=>{",
+                  "  pm.expect(Object.keys(error).sort()).to.eql([\"codigo\",\"errores\",\"estado\",\"idSolicitud\",\"mensaje\"]);",
+                  "  pm.expect(error.estado).to.eql(pm.response.code);",
+                  "  pm.expect(error.errores).to.be.an(\"array\");",
+                  "  pm.expect(error.idSolicitud).to.eql(pm.response.headers.get(\"X-Id-Solicitud\"));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 - Campo obligatorio ausente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales"
+              ]
+            },
+            "description": "Valida el contrato común: 400 CAMPO_OBLIGATORIO.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fichaInicial\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\",()=>pm.response.to.have.status(400));",
+                  "const error=pm.response.json();",
+                  "pm.test(\"Código CAMPO_OBLIGATORIO\",()=>pm.expect(error.codigo).to.eql(\"CAMPO_OBLIGATORIO\"));",
+                  "pm.test(\"Cumple sobre común de error\",()=>{",
+                  "  pm.expect(Object.keys(error).sort()).to.eql([\"codigo\",\"errores\",\"estado\",\"idSolicitud\",\"mensaje\"]);",
+                  "  pm.expect(error.estado).to.eql(pm.response.code);",
+                  "  pm.expect(error.errores).to.be.an(\"array\");",
+                  "  pm.expect(error.idSolicitud).to.eql(pm.response.headers.get(\"X-Id-Solicitud\"));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 - Geografía incompleta",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales"
+              ]
+            },
+            "description": "Valida el contrato común: 400 DATOS_INVALIDOS.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Prueba inválida Postman\",\n  \"departamentoOrigenId\": \"{{departamentoId}}\",\n  \"fichaInicial\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\",()=>pm.response.to.have.status(400));",
+                  "const error=pm.response.json();",
+                  "pm.test(\"Código DATOS_INVALIDOS\",()=>pm.expect(error.codigo).to.eql(\"DATOS_INVALIDOS\"));",
+                  "pm.test(\"Cumple sobre común de error\",()=>{",
+                  "  pm.expect(Object.keys(error).sort()).to.eql([\"codigo\",\"errores\",\"estado\",\"idSolicitud\",\"mensaje\"]);",
+                  "  pm.expect(error.estado).to.eql(pm.response.code);",
+                  "  pm.expect(error.errores).to.be.an(\"array\");",
+                  "  pm.expect(error.idSolicitud).to.eql(pm.response.headers.get(\"X-Id-Solicitud\"));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 - Catálogo inexistente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales"
+              ]
+            },
+            "description": "Valida el contrato común: 409 RELACION_INCOMPATIBLE.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Prueba inválida Postman\",\n  \"ocupacionId\": \"999999999\",\n  \"fichaInicial\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\",()=>pm.response.to.have.status(409));",
+                  "const error=pm.response.json();",
+                  "pm.test(\"Código RELACION_INCOMPATIBLE\",()=>pm.expect(error.codigo).to.eql(\"RELACION_INCOMPATIBLE\"));",
+                  "pm.test(\"Cumple sobre común de error\",()=>{",
+                  "  pm.expect(Object.keys(error).sort()).to.eql([\"codigo\",\"errores\",\"estado\",\"idSolicitud\",\"mensaje\"]);",
+                  "  pm.expect(error.estado).to.eql(pm.response.code);",
+                  "  pm.expect(error.errores).to.be.an(\"array\");",
+                  "  pm.expect(error.idSolicitud).to.eql(pm.response.headers.get(\"X-Id-Solicitud\"));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "08 - Sección inicial vacía",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales"
+              ]
+            },
+            "description": "Valida el contrato común: 400 DATOS_INVALIDOS.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Prueba inválida Postman\",\n  \"fichaInicial\": {\n    \"seccionesIniciales\": {\n      \"identificacion\": {}\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\",()=>pm.response.to.have.status(400));",
+                  "const error=pm.response.json();",
+                  "pm.test(\"Código DATOS_INVALIDOS\",()=>pm.expect(error.codigo).to.eql(\"DATOS_INVALIDOS\"));",
+                  "pm.test(\"Cumple sobre común de error\",()=>{",
+                  "  pm.expect(Object.keys(error).sort()).to.eql([\"codigo\",\"errores\",\"estado\",\"idSolicitud\",\"mensaje\"]);",
+                  "  pm.expect(error.estado).to.eql(pm.response.code);",
+                  "  pm.expect(error.errores).to.be.an(\"array\");",
+                  "  pm.expect(error.idSolicitud).to.eql(pm.response.headers.get(\"X-Id-Solicitud\"));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "09 - JSON inválido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales"
+              ]
+            },
+            "description": "Valida el contrato común: 400 JSON_INVALIDO.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\":",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\",()=>pm.response.to.have.status(400));",
+                  "const error=pm.response.json();",
+                  "pm.test(\"Código JSON_INVALIDO\",()=>pm.expect(error.codigo).to.eql(\"JSON_INVALIDO\"));",
+                  "pm.test(\"Cumple sobre común de error\",()=>{",
+                  "  pm.expect(Object.keys(error).sort()).to.eql([\"codigo\",\"errores\",\"estado\",\"idSolicitud\",\"mensaje\"]);",
+                  "  pm.expect(error.estado).to.eql(pm.response.code);",
+                  "  pm.expect(error.errores).to.be.an(\"array\");",
+                  "  pm.expect(error.idSolicitud).to.eql(pm.response.headers.get(\"X-Id-Solicitud\"));",
+                  "});"
                 ]
               }
             }

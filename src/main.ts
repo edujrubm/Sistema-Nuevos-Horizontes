@@ -6,16 +6,22 @@ import helmet from "helmet";
 import { join } from "node:path";
 
 import { AppModule } from "./app.module";
+import { ApiExceptionFilter } from "./common/errors/api-exception.filter";
+import { idSolicitudMiddleware } from "./common/errors/id-solicitud.middleware";
+import { crearExcepcionValidacion } from "./common/errors/validation-exception.factory";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
+  app.use(idSolicitudMiddleware);
   app.use(helmet({ contentSecurityPolicy: false }));
+  app.useGlobalFilters(new ApiExceptionFilter());
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+      exceptionFactory: crearExcepcionValidacion,
     }),
   );
   app.setBaseViewsDir(join(__dirname, "views"));

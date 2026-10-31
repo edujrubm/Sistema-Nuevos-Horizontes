@@ -16,6 +16,7 @@ import { CrearLugarOcupacionDto } from "./crear-lugar-ocupacion.dto";
 import { CrearResidenciaDto } from "./crear-residencia.dto";
 
 export class IniciarFichaInicialDto {
+  @IsDefined()
   @IsString()
   @Length(2, 60)
   nombre!: string;
