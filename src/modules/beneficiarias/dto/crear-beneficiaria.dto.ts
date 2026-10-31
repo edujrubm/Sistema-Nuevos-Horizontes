@@ -15,7 +15,7 @@ import { CrearBorradorFichaDto } from "./crear-borrador-ficha.dto";
 import { CrearLugarOcupacionDto } from "./crear-lugar-ocupacion.dto";
 import { CrearResidenciaDto } from "./crear-residencia.dto";
 
-export class CrearBeneficiariaDto {
+export class IniciarFichaInicialDto {
   @IsString()
   @Length(2, 60)
   nombre!: string;
@@ -77,3 +77,6 @@ export class CrearBeneficiariaDto {
   @Type(() => CrearBorradorFichaDto)
   fichaInicial!: CrearBorradorFichaDto;
 }
+
+/** @deprecated Alias interno para evitar romper los adaptadores existentes. */
+export { IniciarFichaInicialDto as CrearBeneficiariaDto };

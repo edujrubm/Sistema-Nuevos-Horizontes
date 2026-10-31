@@ -15,7 +15,6 @@ import { BeneficiariasService } from "./beneficiarias.service";
 import { ActualizarBeneficiariaDto } from "./dto/actualizar-beneficiaria.dto";
 import { BuscarCoincidenciasDto } from "./dto/buscar-coincidencias.dto";
 import { CambiarEstadoDto } from "./dto/cambiar-estado.dto";
-import { CrearBeneficiariaDto } from "./dto/crear-beneficiaria.dto";
 import { ListarBeneficiariasDto } from "./dto/listar-beneficiarias.dto";
 
 @Controller("v1/beneficiarias")
@@ -37,15 +36,6 @@ export class BeneficiariasController {
   })
   buscarCoincidencias(@Body() filtros: BuscarCoincidenciasDto) {
     return this.service.buscarCoincidencias(filtros);
-  }
-
-  @Post()
-  @ApiOperation({
-    summary:
-      "Inicia la admisión: crea beneficiaria, residencia, expediente y ficha inicial en borrador",
-  })
-  crear(@Body() entrada: CrearBeneficiariaDto) {
-    return this.service.crear(entrada);
   }
 
   @Get(":id")

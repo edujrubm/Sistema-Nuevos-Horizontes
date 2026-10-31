@@ -122,6 +122,40 @@ export class FichaInicialRepository {
     });
   }
 
+  async guardarPagina(
+    id: string,
+    secciones: Record<string, Record<string, unknown>>,
+    version: number,
+    motivo: string,
+  ) {
+    return this.dataSource.transaction(async (manager) => {
+      await this.auditoria(manager, motivo);
+      const fichas = manager.getRepository(FichaInicialEntity);
+      const ficha = await fichas.findOne({
+        where: { id },
+        lock: { mode: "pessimistic_write" },
+      });
+      if (!ficha) return { estado: "NO_ENCONTRADA" as const };
+      if (ficha.estado !== "BORRADOR") return { estado: "CONFIRMADA" as const };
+      if (ficha.version !== version)
+        return { estado: "CONFLICTO_VERSION" as const };
+
+      for (const [seccion, contenido] of Object.entries(secciones)) {
+        await manager.query(
+          `INSERT INTO new_horizons.ficha_inicial_seccion(ficha_inicial_id,seccion,contenido)
+           VALUES ($1::bigint,$2,$3::jsonb)
+           ON CONFLICT (ficha_inicial_id,seccion) DO UPDATE SET contenido=EXCLUDED.contenido`,
+          [id, seccion, JSON.stringify(contenido)],
+        );
+      }
+      await fichas.update({ id }, { actualizadoEn: new Date() });
+      return {
+        estado: "ACTUALIZADA" as const,
+        ficha: await fichas.findOneByOrFail({ id }),
+      };
+    });
+  }
+
   async confirmar(
     id: string,
     version: number,

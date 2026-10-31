@@ -1,4 +1,5 @@
 import { BadRequestException, ConflictException } from "@nestjs/common";
+import { BeneficiariasService } from "../beneficiarias/beneficiarias.service";
 
 import { SECCIONES_FICHA } from "./ficha-inicial.constants";
 import { FichaInicialService } from "./ficha-inicial.service";
@@ -7,13 +8,33 @@ import { FichaInicialRepository } from "./repositories/ficha-inicial.repository"
 describe("FichaInicialService", () => {
   const repository = {
     guardarSeccion: jest.fn(),
+    guardarPagina: jest.fn(),
     confirmar: jest.fn(),
+  };
+  const beneficiarias = {
+    crear: jest.fn(),
   };
   const service = new FichaInicialService(
     repository as unknown as FichaInicialRepository,
+    beneficiarias as unknown as BeneficiariasService,
   );
 
   beforeEach(() => jest.clearAllMocks());
+
+  it("inicia la ficha y la beneficiaria como una sola admisión", async () => {
+    const entrada = {
+      nombre: "Beneficiaria sintética",
+      fichaInicial: { lugar: "Sede de prueba" },
+    };
+    beneficiarias.crear.mockResolvedValue({
+      data: { fichaInicial: { id: "10", estado: "BORRADOR" } },
+    });
+
+    await expect(service.iniciar(entrada)).resolves.toMatchObject({
+      data: { fichaInicial: { id: "10", estado: "BORRADOR" } },
+    });
+    expect(beneficiarias.crear).toHaveBeenCalledWith(entrada);
+  });
 
   it("rechaza una sección ajena a las 19 institucionales", async () => {
     await expect(
@@ -24,6 +45,40 @@ describe("FichaInicialService", () => {
       }),
     ).rejects.toBeInstanceOf(BadRequestException);
     expect(repository.guardarSeccion).not.toHaveBeenCalled();
+  });
+
+  it("guarda juntas las secciones de una página visible", async () => {
+    repository.guardarPagina.mockResolvedValue({
+      estado: "ACTUALIZADA",
+      ficha: { id: "1", estado: "BORRADOR", version: 4 },
+    });
+    await expect(
+      service.guardarPagina("1", "datos-salud", {
+        secciones: {
+          "datos-generales": { alfabetismo: true },
+          salud: { enfermedadPermanente: false },
+        },
+        versionFicha: 3,
+        motivo: "Guardar página de prueba",
+      }),
+    ).resolves.toMatchObject({
+      data: {
+        pagina: "datos-salud",
+        seccionesGuardadas: ["datos-generales", "salud"],
+      },
+    });
+  });
+
+  it("rechaza secciones que no pertenecen a la página", async () => {
+    await expect(
+      service.guardarPagina("1", "residencia", {
+        secciones: { salud: { valor: true } },
+        versionFicha: 1,
+        motivo: "Prueba de validación",
+      }),
+    ).rejects.toMatchObject({
+      response: expect.objectContaining({ code: "INVALID_PAGE_SECTIONS" }),
+    });
   });
 
   it("informa exactamente las secciones faltantes al confirmar", async () => {

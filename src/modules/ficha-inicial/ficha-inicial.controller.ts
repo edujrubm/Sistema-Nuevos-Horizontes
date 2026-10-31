@@ -10,10 +10,10 @@ import {
 import { ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 
 import { ParseBigIntIdPipe } from "../../common/pipes/parse-bigint-id.pipe";
+import { IniciarFichaInicialDto } from "../beneficiarias/dto/crear-beneficiaria.dto";
 
-import { ActualizarSeccionDto } from "./dto/actualizar-seccion.dto";
+import { ActualizarPaginaDto } from "./dto/actualizar-pagina.dto";
 import { ConfirmarFichaDto } from "./dto/confirmar-ficha.dto";
-import { CrearFichaDto } from "./dto/crear-ficha.dto";
 import { CrearNinoFichaDto } from "./dto/crear-nino-ficha.dto";
 import { ListarFichasDto } from "./dto/listar-fichas.dto";
 import { FichaInicialService } from "./ficha-inicial.service";
@@ -23,19 +23,19 @@ import { FichaInicialService } from "./ficha-inicial.service";
 export class FichaInicialController {
   constructor(private readonly service: FichaInicialService) {}
 
+  @Post("fichas-iniciales")
+  @ApiOperation({
+    summary:
+      "Inicia una ficha: crea beneficiaria, expediente y borrador en una sola transacción",
+  })
+  iniciar(@Body() entrada: IniciarFichaInicialDto) {
+    return this.service.iniciar(entrada);
+  }
+
   @Get("fichas-iniciales")
   @ApiOperation({ summary: "Lista fichas iniciales con cursor y estado" })
   listar(@Query() filtro: ListarFichasDto) {
     return this.service.listar(filtro);
-  }
-
-  @Post("beneficiarias/:id/fichas-iniciales")
-  @ApiOperation({ summary: "Crea el único borrador activo de ficha inicial" })
-  crear(
-    @Param("id", ParseBigIntIdPipe) id: string,
-    @Body() entrada: CrearFichaDto,
-  ) {
-    return this.service.crear(id, entrada);
   }
 
   @Get("fichas-iniciales/:id")
@@ -44,18 +44,21 @@ export class FichaInicialController {
     return this.service.consultar(id);
   }
 
-  @Patch("fichas-iniciales/:id/secciones/:seccion")
-  @ApiOperation({ summary: "Crea o reemplaza una sección del borrador" })
-  @ApiParam({
-    name: "seccion",
-    description: "Una de las 19 secciones institucionales",
+  @Patch("fichas-iniciales/:id/paginas/:pagina")
+  @ApiOperation({
+    summary: "Guarda una de las 8 páginas visibles de la ficha en borrador",
   })
-  seccion(
+  @ApiParam({
+    name: "pagina",
+    description:
+      "identificacion, residencia, datos-salud, familia, violencia, riesgo, referencias o entrevista-cierre",
+  })
+  pagina(
     @Param("id", ParseBigIntIdPipe) id: string,
-    @Param("seccion") seccion: string,
-    @Body() entrada: ActualizarSeccionDto,
+    @Param("pagina") pagina: string,
+    @Body() entrada: ActualizarPaginaDto,
   ) {
-    return this.service.guardarSeccion(id, seccion, entrada);
+    return this.service.guardarPagina(id, pagina, entrada);
   }
 
   @Post("fichas-iniciales/:id/confirmar")

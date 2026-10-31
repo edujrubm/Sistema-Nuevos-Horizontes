@@ -15,8 +15,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/catalogos/paises",
-              "host": ["{{baseUrl}}"],
-              "path": ["catalogos", "paises"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalogos",
+                "paises"
+              ]
             },
             "description": "Prueba GET /catalogos/paises"
           },
@@ -63,8 +68,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/catalogos/departamentos?paisId={{paisId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["catalogos", "departamentos?paisId={{paisId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalogos",
+                "departamentos?paisId={{paisId}}"
+              ]
             },
             "description": "Prueba GET /catalogos/departamentos?paisId={{paisId}}"
           },
@@ -96,7 +106,9 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/catalogos/municipios?departamentoId={{departamentoId}}",
-              "host": ["{{baseUrl}}"],
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "catalogos",
                 "municipios?departamentoId={{departamentoId}}"
@@ -130,8 +142,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/catalogos/ocupaciones",
-              "host": ["{{baseUrl}}"],
-              "path": ["catalogos", "ocupaciones"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalogos",
+                "ocupaciones"
+              ]
             },
             "description": "Prueba GET /catalogos/ocupaciones"
           },
@@ -161,8 +178,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/catalogos/estados-civiles",
-              "host": ["{{baseUrl}}"],
-              "path": ["catalogos", "estados-civiles"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalogos",
+                "estados-civiles"
+              ]
             },
             "description": "Obtiene estados-civiles y conserva un ID sintético para la admisión completa."
           },
@@ -192,8 +214,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/catalogos/niveles-estudio",
-              "host": ["{{baseUrl}}"],
-              "path": ["catalogos", "niveles-estudio"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalogos",
+                "niveles-estudio"
+              ]
             },
             "description": "Obtiene niveles-estudio y conserva un ID sintético para la admisión completa."
           },
@@ -223,8 +250,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/catalogos/tipos-acompanante",
-              "host": ["{{baseUrl}}"],
-              "path": ["catalogos", "tipos-acompanante"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalogos",
+                "tipos-acompanante"
+              ]
             },
             "description": "Obtiene tipos-acompanante y conserva un ID sintético para la admisión completa."
           },
@@ -254,8 +286,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/catalogos/estados-estudio",
-              "host": ["{{baseUrl}}"],
-              "path": ["catalogos", "estados-estudio"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalogos",
+                "estados-estudio"
+              ]
             },
             "description": "Obtiene estados-estudio y conserva un ID sintético para la admisión completa."
           },
@@ -281,10 +318,10 @@
       ]
     },
     {
-      "name": "01 - Beneficiarias y expediente",
+      "name": "01 - Iniciar ficha y consultar beneficiarias",
       "item": [
         {
-          "name": "01 - Iniciar admisión: beneficiaria y ficha",
+          "name": "01 - Iniciar ficha inicial",
           "request": {
             "method": "POST",
             "header": [
@@ -295,11 +332,15 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/beneficiarias",
-              "host": ["{{baseUrl}}"],
-              "path": ["beneficiarias"]
+              "raw": "{{baseUrl}}/fichas-iniciales",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales"
+              ]
             },
-            "description": "Crea en una sola transacción la beneficiaria, residencia, lugar de ocupación, expediente permanente y ficha inicial en BORRADOR.",
+            "description": "Inicia una sola ficha de admisión. Internamente crea en la misma transacción la beneficiaria, residencia, lugar de ocupación, expediente permanente y ficha inicial en BORRADOR; no existe un alta independiente de beneficiarias.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"nombre\": \"{{beneficiariaNombre}}\",\n  \"cui\": \"{{beneficiariaCui}}\",\n  \"fechaNacimiento\": \"1992-06-15\",\n  \"alfabetismo\": true,\n  \"enfermedadPermanente\": true,\n  \"nombreEnfermedad\": \"Condición sintética controlada\",\n  \"tipoTratamiento\": \"Tratamiento sintético de prueba\",\n  \"otrosPadecimientos\": \"Ninguno informado\",\n  \"paisCuiId\": \"{{paisId}}\",\n  \"tipoAcompananteId\": \"{{tipoAcompananteId}}\",\n  \"estadoCivilId\": \"{{estadoCivilId}}\",\n  \"ocupacionId\": \"{{ocupacionId}}\",\n  \"nivelEstudioId\": \"{{nivelEstudioId}}\",\n  \"paisOrigenId\": \"{{paisId}}\",\n  \"departamentoOrigenId\": \"{{departamentoId}}\",\n  \"municipioOrigenId\": \"{{municipioId}}\",\n  \"estadoEstudioId\": \"{{estadoEstudioId}}\",\n  \"lugarOcupacion\": {\n    \"nombre\": \"Centro educativo sintético\",\n    \"direccion\": \"Zona 3, dirección sintética\",\n    \"telefono\": \"22000003\",\n    \"personaContacto\": \"Responsable Sintético\",\n    \"cargoPersonaContacto\": \"Coordinación\"\n  },\n  \"residencia\": {\n    \"direccionActual\": \"Zona 1, dirección sintética de pruebas\",\n    \"numeroCasa\": \"A-12\",\n    \"telefonoCasa\": \"22000001\",\n    \"telefonoCelular\": \"55000001\",\n    \"direccionAlternativa\": \"Zona 2, dirección alternativa sintética\",\n    \"personaEnlace\": \"Contacto Sintético\",\n    \"relacionPersonaEnlace\": \"Hermana\",\n    \"urbano\": true,\n    \"paisResidenciaId\": \"{{paisId}}\",\n    \"departamentoResidenciaId\": \"{{departamentoId}}\",\n    \"municipioResidenciaId\": \"{{municipioId}}\",\n    \"areaResidencial\": {\n      \"colonia\": \"Colonia sintética\",\n      \"barrioPopular\": \"Barrio sintético\",\n      \"asentamiento\": \"Asentamiento sintético\",\n      \"zona\": \"1\",\n      \"aldea\": \"Aldea sintética\",\n      \"caserio\": \"Caserío sintético\",\n      \"canton\": \"Cantón sintético\",\n      \"otro\": \"Sector sintético\"\n    }\n  },\n  \"fichaInicial\": {\n    \"lugar\": \"Centro de pruebas Postman\",\n    \"fechaEntrevista\": \"2026-10-31\",\n    \"seccionesIniciales\": {\n      \"identificacion\": {\n        \"nacionalidad\": \"Guatemalteca\",\n        \"tipoDocumento\": \"DPI_CUI\",\n        \"paisEmisionId\": \"{{paisId}}\",\n        \"acompanante\": {\n          \"nombreCompleto\": \"Acompañante Sintético\",\n          \"parentesco\": \"Familiar\",\n          \"cui\": \"TEST-ACOMP-0001\"\n        }\n      },\n      \"residencia\": {\n        \"telefonoCasa\": \"22000001\",\n        \"telefonoCelular\": \"55000001\",\n        \"areaResidencial\": \"URBANA\"\n      },\n      \"datos-generales\": {\n        \"etnia\": \"Etnia sintética\",\n        \"sabeLeer\": true,\n        \"sabeEscribir\": true\n      },\n      \"salud\": {\n        \"enfermedadPermanente\": true,\n        \"nombreEnfermedad\": \"Condición sintética controlada\",\n        \"tipoTratamiento\": \"Tratamiento sintético de prueba\",\n        \"otrosPadecimientos\": \"Ninguno informado\"\n      }\n    }\n  }\n}",
@@ -336,8 +377,12 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/beneficiarias?limite=25&nombre={{beneficiariaNombre}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["beneficiarias?limite=25&nombre={{beneficiariaNombre}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beneficiarias?limite=25&nombre={{beneficiariaNombre}}"
+              ]
             },
             "description": "Prueba GET /beneficiarias?limite=25&nombre={{beneficiariaNombre}}"
           },
@@ -373,8 +418,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/beneficiarias/buscar-coincidencias",
-              "host": ["{{baseUrl}}"],
-              "path": ["beneficiarias", "buscar-coincidencias"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beneficiarias",
+                "buscar-coincidencias"
+              ]
             },
             "description": "Prueba POST /beneficiarias/buscar-coincidencias",
             "body": {
@@ -413,8 +463,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["beneficiarias", "{{beneficiariaId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beneficiarias",
+                "{{beneficiariaId}}"
+              ]
             },
             "description": "Prueba GET /beneficiarias/{{beneficiariaId}}"
           },
@@ -450,8 +505,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["beneficiarias", "{{beneficiariaId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beneficiarias",
+                "{{beneficiariaId}}"
+              ]
             },
             "description": "Prueba PATCH /beneficiarias/{{beneficiariaId}}",
             "body": {
@@ -496,8 +556,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/inactivar",
-              "host": ["{{baseUrl}}"],
-              "path": ["beneficiarias", "{{beneficiariaId}}", "inactivar"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beneficiarias",
+                "{{beneficiariaId}}",
+                "inactivar"
+              ]
             },
             "description": "Prueba POST /beneficiarias/{{beneficiariaId}}/inactivar",
             "body": {
@@ -542,8 +608,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/reactivar",
-              "host": ["{{baseUrl}}"],
-              "path": ["beneficiarias", "{{beneficiariaId}}", "reactivar"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beneficiarias",
+                "{{beneficiariaId}}",
+                "reactivar"
+              ]
             },
             "description": "Prueba POST /beneficiarias/{{beneficiariaId}}/reactivar",
             "body": {
@@ -582,8 +654,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/historial",
-              "host": ["{{baseUrl}}"],
-              "path": ["beneficiarias", "{{beneficiariaId}}", "historial"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beneficiarias",
+                "{{beneficiariaId}}",
+                "historial"
+              ]
             },
             "description": "Prueba GET /beneficiarias/{{beneficiariaId}}/historial"
           },
@@ -618,8 +696,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["fichas-iniciales", "{{fichaId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}"
+              ]
             },
             "description": "Comprueba que el inicio de admisión ya creó la ficha BORRADOR en la misma operación."
           },
@@ -649,8 +732,12 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales?estado=BORRADOR&limite=25",
-              "host": ["{{baseUrl}}"],
-              "path": ["fichas-iniciales?estado=BORRADOR&limite=25"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales?estado=BORRADOR&limite=25"
+              ]
             },
             "description": "Prueba GET /fichas-iniciales?estado=BORRADOR&limite=25"
           },
@@ -680,8 +767,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["fichas-iniciales", "{{fichaId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}"
+              ]
             },
             "description": "Prueba GET /fichas-iniciales/{{fichaId}}"
           },
@@ -717,8 +809,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/hijos",
-              "host": ["{{baseUrl}}"],
-              "path": ["fichas-iniciales", "{{fichaId}}", "hijos"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}",
+                "hijos"
+              ]
             },
             "description": "Prueba POST /fichas-iniciales/{{fichaId}}/hijos",
             "body": {
@@ -757,8 +855,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/hijos",
-              "host": ["{{baseUrl}}"],
-              "path": ["beneficiarias", "{{beneficiariaId}}", "hijos"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beneficiarias",
+                "{{beneficiariaId}}",
+                "hijos"
+              ]
             },
             "description": "Prueba GET /beneficiarias/{{beneficiariaId}}/hijos"
           },
@@ -788,8 +892,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/hijos/{{hijoId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["hijos", "{{hijoId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "hijos",
+                "{{hijoId}}"
+              ]
             },
             "description": "Prueba GET /hijos/{{hijoId}}"
           },
@@ -825,8 +934,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/hijos/{{hijoId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["hijos", "{{hijoId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "hijos",
+                "{{hijoId}}"
+              ]
             },
             "description": "Prueba PATCH /hijos/{{hijoId}}",
             "body": {
@@ -871,8 +985,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/hijos/{{hijoId}}/inactivar",
-              "host": ["{{baseUrl}}"],
-              "path": ["hijos", "{{hijoId}}", "inactivar"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "hijos",
+                "{{hijoId}}",
+                "inactivar"
+              ]
             },
             "description": "Prueba POST /hijos/{{hijoId}}/inactivar",
             "body": {
@@ -917,8 +1037,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/hijos/{{hijoId}}/reactivar",
-              "host": ["{{baseUrl}}"],
-              "path": ["hijos", "{{hijoId}}", "reactivar"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "hijos",
+                "{{hijoId}}",
+                "reactivar"
+              ]
             },
             "description": "Prueba POST /hijos/{{hijoId}}/reactivar",
             "body": {
@@ -953,10 +1079,10 @@
       ]
     },
     {
-      "name": "03 - Completar las 19 secciones",
+      "name": "03 - Completar las 8 páginas de la ficha",
       "item": [
         {
-          "name": "01 - identificacion",
+          "name": "01 - Identificación",
           "request": {
             "method": "PATCH",
             "header": [
@@ -967,19 +1093,21 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/identificacion",
-              "host": ["{{baseUrl}}"],
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/paginas/identificacion",
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
-                "secciones",
+                "paginas",
                 "identificacion"
               ]
             },
-            "description": "Ejemplo sintético completo para la sección identificacion. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
+            "description": "Guarda la página Identificación de la ficha. Agrupa internamente los apartados institucionales: identificacion.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"nombreCompleto\": \"{{beneficiariaNombre}} Actualizada\",\n    \"cui\": \"{{beneficiariaCui}}\",\n    \"documentoAusente\": false,\n    \"tipoDocumento\": \"DPI_CUI\",\n    \"paisEmisionId\": \"{{paisId}}\",\n    \"fechaNacimiento\": \"1992-06-15\",\n    \"paisOrigenId\": \"{{paisId}}\",\n    \"departamentoOrigenId\": \"{{departamentoId}}\",\n    \"municipioOrigenId\": \"{{municipioId}}\",\n    \"nacionalidad\": \"Guatemalteca\",\n    \"esMenorEdad\": false,\n    \"acompanante\": {\n      \"aplica\": false,\n      \"nombreCompleto\": null,\n      \"parentesco\": null,\n      \"cui\": null\n    }\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección identificacion\"\n}",
+              "raw": "{\n  \"secciones\": {\n    \"identificacion\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"nombreCompleto\": \"{{beneficiariaNombre}} Actualizada\",\n      \"cui\": \"{{beneficiariaCui}}\",\n      \"documentoAusente\": false,\n      \"tipoDocumento\": \"DPI_CUI\",\n      \"paisEmisionId\": \"{{paisId}}\",\n      \"fechaNacimiento\": \"1992-06-15\",\n      \"paisOrigenId\": \"{{paisId}}\",\n      \"departamentoOrigenId\": \"{{departamentoId}}\",\n      \"municipioOrigenId\": \"{{municipioId}}\",\n      \"nacionalidad\": \"Guatemalteca\",\n      \"esMenorEdad\": false,\n      \"acompanante\": {\n        \"aplica\": false,\n        \"nombreCompleto\": null,\n        \"parentesco\": null,\n        \"cui\": null\n      }\n    }\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - página identificacion\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1001,7 +1129,7 @@
                   "  pm.response.to.be.json;",
                   "});",
                   "const responseData=pm.response.json().data;",
-                  "pm.expect(responseData.seccion).to.eql(\"identificacion\");",
+                  "pm.expect(responseData.pagina).to.eql(\"identificacion\");",
                   "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
                 ]
               }
@@ -1009,7 +1137,7 @@
           ]
         },
         {
-          "name": "02 - residencia",
+          "name": "02 - Residencia",
           "request": {
             "method": "PATCH",
             "header": [
@@ -1020,19 +1148,21 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/residencia",
-              "host": ["{{baseUrl}}"],
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/paginas/residencia",
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
-                "secciones",
+                "paginas",
                 "residencia"
               ]
             },
-            "description": "Ejemplo sintético completo para la sección residencia. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
+            "description": "Guarda la página Residencia de la ficha. Agrupa internamente los apartados institucionales: residencia.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"paisResidenciaId\": \"{{paisId}}\",\n    \"departamentoResidenciaId\": \"{{departamentoId}}\",\n    \"municipioResidenciaId\": \"{{municipioId}}\",\n    \"direccionActual\": \"Zona 1, dirección sintética de pruebas\",\n    \"telefonoCasa\": \"22000001\",\n    \"telefonoCelular\": \"55000001\",\n    \"direccionAlternativa\": \"Zona 2, dirección alternativa sintética\",\n    \"personaEnlace\": {\n      \"nombreCompleto\": \"Contacto Sintético\",\n      \"relacion\": \"Hermana\",\n      \"telefonoPrincipal\": \"55000002\",\n      \"telefonoAlternativo\": \"22000002\"\n    },\n    \"areaResidencial\": \"URBANA\",\n    \"clasificacionResidencial\": {\n      \"tipo\": \"ZONA\",\n      \"nombre\": \"Zona 1\",\n      \"otroDetalle\": null\n    }\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección residencia\"\n}",
+              "raw": "{\n  \"secciones\": {\n    \"residencia\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"paisResidenciaId\": \"{{paisId}}\",\n      \"departamentoResidenciaId\": \"{{departamentoId}}\",\n      \"municipioResidenciaId\": \"{{municipioId}}\",\n      \"direccionActual\": \"Zona 1, dirección sintética de pruebas\",\n      \"telefonoCasa\": \"22000001\",\n      \"telefonoCelular\": \"55000001\",\n      \"direccionAlternativa\": \"Zona 2, dirección alternativa sintética\",\n      \"personaEnlace\": {\n        \"nombreCompleto\": \"Contacto Sintético\",\n        \"relacion\": \"Hermana\",\n        \"telefonoPrincipal\": \"55000002\",\n        \"telefonoAlternativo\": \"22000002\"\n      },\n      \"areaResidencial\": \"URBANA\",\n      \"clasificacionResidencial\": {\n        \"tipo\": \"ZONA\",\n        \"nombre\": \"Zona 1\",\n        \"otroDetalle\": null\n      }\n    }\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - página residencia\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1054,7 +1184,7 @@
                   "  pm.response.to.be.json;",
                   "});",
                   "const responseData=pm.response.json().data;",
-                  "pm.expect(responseData.seccion).to.eql(\"residencia\");",
+                  "pm.expect(responseData.pagina).to.eql(\"residencia\");",
                   "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
                 ]
               }
@@ -1062,7 +1192,7 @@
           ]
         },
         {
-          "name": "03 - datos-generales",
+          "name": "03 - Datos generales y salud",
           "request": {
             "method": "PATCH",
             "header": [
@@ -1073,19 +1203,21 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/datos-generales",
-              "host": ["{{baseUrl}}"],
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/paginas/datos-salud",
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
-                "secciones",
-                "datos-generales"
+                "paginas",
+                "datos-salud"
               ]
             },
-            "description": "Ejemplo sintético completo para la sección datos-generales. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
+            "description": "Guarda la página Datos generales y salud de la ficha. Agrupa internamente los apartados institucionales: datos-generales, salud.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"estadoCivil\": \"Soltera\",\n    \"etnias\": [\n      \"Maya\"\n    ],\n    \"ocupacionId\": \"{{ocupacionId}}\",\n    \"estudiaActualmente\": true,\n    \"lugarTrabajoOEstudio\": \"Centro educativo sintético\",\n    \"direccionTrabajoOEstudio\": \"Zona 3, dirección sintética\",\n    \"telefonoTrabajoOEstudio\": \"22000003\",\n    \"contactoTrabajoOEstudio\": {\n      \"nombreCompleto\": \"Responsable Sintético\",\n      \"cargo\": \"Coordinación\",\n      \"telefono\": \"55000003\"\n    },\n    \"alfabetismo\": {\n      \"lee\": true,\n      \"escribe\": true\n    },\n    \"escolaridad\": {\n      \"nivel\": \"Diversificado\",\n      \"ultimoGradoAprobado\": \"Sexto\",\n      \"estudiaActualmente\": true\n    }\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección datos-generales\"\n}",
+              "raw": "{\n  \"secciones\": {\n    \"datos-generales\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"estadoCivil\": \"Soltera\",\n      \"etnias\": [\n        \"Maya\"\n      ],\n      \"ocupacionId\": \"{{ocupacionId}}\",\n      \"estudiaActualmente\": true,\n      \"lugarTrabajoOEstudio\": \"Centro educativo sintético\",\n      \"direccionTrabajoOEstudio\": \"Zona 3, dirección sintética\",\n      \"telefonoTrabajoOEstudio\": \"22000003\",\n      \"contactoTrabajoOEstudio\": {\n        \"nombreCompleto\": \"Responsable Sintético\",\n        \"cargo\": \"Coordinación\",\n        \"telefono\": \"55000003\"\n      },\n      \"alfabetismo\": {\n        \"lee\": true,\n        \"escribe\": true\n      },\n      \"escolaridad\": {\n        \"nivel\": \"Diversificado\",\n        \"ultimoGradoAprobado\": \"Sexto\",\n        \"estudiaActualmente\": true\n      }\n    },\n    \"salud\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"enfermedadPermanente\": false,\n      \"nombreEnfermedad\": null,\n      \"recibeTratamiento\": false,\n      \"tipoTratamiento\": null,\n      \"otrosPadecimientos\": \"Ninguno informado en datos sintéticos\",\n      \"medicamentosActuales\": [],\n      \"alergiasInformadas\": [],\n      \"observacionesSalud\": \"Ejemplo sintético; no representa información clínica real\"\n    }\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - página datos-salud\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1107,7 +1239,7 @@
                   "  pm.response.to.be.json;",
                   "});",
                   "const responseData=pm.response.json().data;",
-                  "pm.expect(responseData.seccion).to.eql(\"datos-generales\");",
+                  "pm.expect(responseData.pagina).to.eql(\"datos-salud\");",
                   "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
                 ]
               }
@@ -1115,7 +1247,7 @@
           ]
         },
         {
-          "name": "04 - salud",
+          "name": "04 - Grupo familiar y personas agresoras",
           "request": {
             "method": "PATCH",
             "header": [
@@ -1126,67 +1258,21 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/salud",
-              "host": ["{{baseUrl}}"],
-              "path": ["fichas-iniciales", "{{fichaId}}", "secciones", "salud"]
-            },
-            "description": "Ejemplo sintético completo para la sección salud. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"enfermedadPermanente\": false,\n    \"nombreEnfermedad\": null,\n    \"recibeTratamiento\": false,\n    \"tipoTratamiento\": null,\n    \"otrosPadecimientos\": \"Ninguno informado en datos sintéticos\",\n    \"medicamentosActuales\": [],\n    \"alergiasInformadas\": [],\n    \"observacionesSalud\": \"Ejemplo sintético; no representa información clínica real\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección salud\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Estado HTTP esperado\", function () {",
-                  "  pm.expect([200,201]).to.include(pm.response.code);",
-                  "});",
-                  "pm.test(\"Respuesta JSON\", function () {",
-                  "  pm.response.to.be.json;",
-                  "});",
-                  "const responseData=pm.response.json().data;",
-                  "pm.expect(responseData.seccion).to.eql(\"salud\");",
-                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "05 - grupo-familiar",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/grupo-familiar",
-              "host": ["{{baseUrl}}"],
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/paginas/familia",
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
-                "secciones",
-                "grupo-familiar"
+                "paginas",
+                "familia"
               ]
             },
-            "description": "Ejemplo sintético completo para la sección grupo-familiar. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
+            "description": "Guarda la página Grupo familiar y personas agresoras de la ficha. Agrupa internamente los apartados institucionales: grupo-familiar, agresores.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"hijasEHijos\": [\n      {\n        \"nombreCompleto\": \"{{hijoNombre}} Actualizada\",\n        \"cui\": \"{{hijoCui}}\",\n        \"fechaNacimiento\": \"2017-04-12\",\n        \"genero\": \"F\",\n        \"reconocido\": true,\n        \"vinculadoComoRegistro\": true\n      }\n    ],\n    \"otrasPersonasDelGrupoFamiliar\": [\n      {\n        \"nombreCompleto\": \"Familiar Sintético\",\n        \"parentesco\": \"Madre\",\n        \"edadCalculadaOReferencial\": 58,\n        \"conviveActualmente\": true\n      }\n    ],\n    \"violenciaSexual\": {\n      \"reportada\": false,\n      \"agresorConocido\": null,\n      \"nombreAgresor\": null,\n      \"relacionOParentesco\": null\n    }\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección grupo-familiar\"\n}",
+              "raw": "{\n  \"secciones\": {\n    \"grupo-familiar\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"hijasEHijos\": [\n        {\n          \"nombreCompleto\": \"{{hijoNombre}} Actualizada\",\n          \"cui\": \"{{hijoCui}}\",\n          \"fechaNacimiento\": \"2017-04-12\",\n          \"genero\": \"F\",\n          \"reconocido\": true,\n          \"vinculadoComoRegistro\": true\n        }\n      ],\n      \"otrasPersonasDelGrupoFamiliar\": [\n        {\n          \"nombreCompleto\": \"Familiar Sintético\",\n          \"parentesco\": \"Madre\",\n          \"edadCalculadaOReferencial\": 58,\n          \"conviveActualmente\": true\n        }\n      ],\n      \"violenciaSexual\": {\n        \"reportada\": false,\n        \"agresorConocido\": null,\n        \"nombreAgresor\": null,\n        \"relacionOParentesco\": null\n      }\n    },\n    \"agresores\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"personasAgresoras\": [\n        {\n          \"nombreCompleto\": \"Persona Agresora Sintética\",\n          \"edad\": 35,\n          \"tipoDocumento\": \"DPI_CUI\",\n          \"numeroDocumento\": \"TEST-AGRESOR-0001\",\n          \"ocupacion\": \"Ocupación sintética\",\n          \"lugarTrabajo\": \"Lugar sintético\",\n          \"horarioTrabajo\": \"08:00-17:00\",\n          \"direccionTrabajo\": \"Dirección laboral sintética\",\n          \"direccionResidencia\": \"Dirección residencial sintética\",\n          \"telefonoPrincipal\": \"55000004\",\n          \"telefonoAlternativo\": \"22000004\",\n          \"ingresoMensual\": 3500,\n          \"monedaIngreso\": \"GTQ\"\n        }\n      ]\n    }\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - página familia\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1208,7 +1294,7 @@
                   "  pm.response.to.be.json;",
                   "});",
                   "const responseData=pm.response.json().data;",
-                  "pm.expect(responseData.seccion).to.eql(\"grupo-familiar\");",
+                  "pm.expect(responseData.pagina).to.eql(\"familia\");",
                   "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
                 ]
               }
@@ -1216,7 +1302,7 @@
           ]
         },
         {
-          "name": "06 - agresores",
+          "name": "05 - Motivo y violencia",
           "request": {
             "method": "PATCH",
             "header": [
@@ -1227,19 +1313,21 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/agresores",
-              "host": ["{{baseUrl}}"],
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/paginas/violencia",
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
-                "secciones",
-                "agresores"
+                "paginas",
+                "violencia"
               ]
             },
-            "description": "Ejemplo sintético completo para la sección agresores. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
+            "description": "Guarda la página Motivo y violencia de la ficha. Agrupa internamente los apartados institucionales: motivo-consulta, tipos-violencia, objetos-agresion.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"personasAgresoras\": [\n      {\n        \"nombreCompleto\": \"Persona Agresora Sintética\",\n        \"edad\": 35,\n        \"tipoDocumento\": \"DPI_CUI\",\n        \"numeroDocumento\": \"TEST-AGRESOR-0001\",\n        \"ocupacion\": \"Ocupación sintética\",\n        \"lugarTrabajo\": \"Lugar sintético\",\n        \"horarioTrabajo\": \"08:00-17:00\",\n        \"direccionTrabajo\": \"Dirección laboral sintética\",\n        \"direccionResidencia\": \"Dirección residencial sintética\",\n        \"telefonoPrincipal\": \"55000004\",\n        \"telefonoAlternativo\": \"22000004\",\n        \"ingresoMensual\": 3500,\n        \"monedaIngreso\": \"GTQ\"\n      }\n    ]\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección agresores\"\n}",
+              "raw": "{\n  \"secciones\": {\n    \"motivo-consulta\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"motivoVisita\": \"Relato completamente sintético utilizado para probar el formulario.\",\n      \"relatoEnPalabrasDeLaBeneficiaria\": true,\n      \"fechaAtencion\": \"2026-10-31\"\n    },\n    \"tipos-violencia\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"seleccionMultiple\": [\n        \"FISICA\",\n        \"PSICOLOGICA\",\n        \"VERBAL\",\n        \"ECONOMICA\"\n      ],\n      \"opcionesEvaluadas\": {\n        \"fisica\": true,\n        \"psicologica\": true,\n        \"verbal\": true,\n        \"sexual\": false,\n        \"patrimonial\": false,\n        \"economica\": true,\n        \"trata\": false,\n        \"violacion\": false,\n        \"amenazaMuerte\": false,\n        \"misoginia\": false,\n        \"femicidio\": false,\n        \"otra\": false\n      },\n      \"otraDescripcion\": null\n    },\n    \"objetos-agresion\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"seleccionMultiple\": [\n        \"MANOS\",\n        \"PIES\"\n      ],\n      \"opcionesEvaluadas\": {\n        \"manos\": true,\n        \"pies\": true,\n        \"armaBlanca\": false,\n        \"brazos\": false,\n        \"armaFuego\": false,\n        \"objeto\": false,\n        \"todas\": false,\n        \"otra\": false\n      },\n      \"objetoDescripcion\": null,\n      \"otraDescripcion\": null\n    }\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - página violencia\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1261,7 +1349,7 @@
                   "  pm.response.to.be.json;",
                   "});",
                   "const responseData=pm.response.json().data;",
-                  "pm.expect(responseData.seccion).to.eql(\"agresores\");",
+                  "pm.expect(responseData.pagina).to.eql(\"violencia\");",
                   "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
                 ]
               }
@@ -1269,7 +1357,7 @@
           ]
         },
         {
-          "name": "07 - motivo-consulta",
+          "name": "06 - Situación y análisis de riesgo",
           "request": {
             "method": "PATCH",
             "header": [
@@ -1280,19 +1368,21 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/motivo-consulta",
-              "host": ["{{baseUrl}}"],
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/paginas/riesgo",
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
-                "secciones",
-                "motivo-consulta"
+                "paginas",
+                "riesgo"
               ]
             },
-            "description": "Ejemplo sintético completo para la sección motivo-consulta. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
+            "description": "Guarda la página Situación y análisis de riesgo de la ficha. Agrupa internamente los apartados institucionales: situaciones-riesgo, episodio-reciente, analisis-riesgo, plan-seguridad.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"motivoVisita\": \"Relato completamente sintético utilizado para probar el formulario.\",\n    \"relatoEnPalabrasDeLaBeneficiaria\": true,\n    \"fechaAtencion\": \"2026-10-31\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección motivo-consulta\"\n}",
+              "raw": "{\n  \"secciones\": {\n    \"situaciones-riesgo\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"conviveConAgresor\": false,\n      \"agresionesFrecuentes\": true,\n      \"requirioHospitalizacion\": false,\n      \"agresorConsumeAlcohol\": true,\n      \"agresorConsumeDrogas\": false,\n      \"embarazoActual\": false,\n      \"tiempoEmbarazoSemanas\": null,\n      \"existeSeparacion\": true,\n      \"fechaAproximadaSeparacion\": \"2026-09-01\",\n      \"agresorParticipaAgrupacionIlicita\": false,\n      \"otrasSituaciones\": [\n        \"Dependencia económica parcial\"\n      ]\n    },\n    \"episodio-reciente\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"fechaAproximada\": \"2026-10-20\",\n      \"lugar\": \"Lugar sintético\",\n      \"historiaUltimoEpisodio\": \"Relato sintético del último episodio para pruebas funcionales.\",\n      \"personasPresentes\": [\n        \"Familiar sintético\"\n      ],\n      \"accionesPosteriores\": [\n        \"Solicitó orientación\"\n      ]\n    },\n    \"analisis-riesgo\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"tiempoAgresion\": {\n        \"cantidad\": 2,\n        \"unidad\": \"ANIOS\",\n        \"otroPeriodo\": null\n      },\n      \"vinculoConAgresor\": \"EXCONVIVIENTE\",\n      \"otroVinculo\": null,\n      \"agresionAOtrosFamiliares\": true,\n      \"familiaresAgredidos\": [\n        {\n          \"parentesco\": \"Hermana\",\n          \"formaAgresion\": \"Amenazas verbales sintéticas\"\n        }\n      ],\n      \"nivelRiesgoRegistradoPorProfesional\": \"MEDIO\",\n      \"factoresProtectores\": [\n        \"Red familiar de apoyo\"\n      ],\n      \"factoresRiesgo\": [\n        \"Amenazas recurrentes\"\n      ],\n      \"justificacion\": \"Ejemplo sintético; no constituye valoración profesional real\"\n    },\n    \"plan-seguridad\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"planSeguimientoInmediato\": \"Plan sintético acordado para validar persistencia.\",\n      \"accionesAcordadas\": [\n        \"Contactar red de apoyo\",\n        \"Mantener documentos importantes accesibles\",\n        \"Acudir a institución de apoyo si fuera necesario\"\n      ],\n      \"contactosEmergencia\": [\n        {\n          \"nombre\": \"Contacto Sintético\",\n          \"relacion\": \"Hermana\",\n          \"telefono\": \"55000005\"\n        }\n      ],\n      \"lugarSeguroIdentificado\": true,\n      \"descripcionLugarSeguro\": \"Ubicación sintética identificada\"\n    }\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - página riesgo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1314,7 +1404,7 @@
                   "  pm.response.to.be.json;",
                   "});",
                   "const responseData=pm.response.json().data;",
-                  "pm.expect(responseData.seccion).to.eql(\"motivo-consulta\");",
+                  "pm.expect(responseData.pagina).to.eql(\"riesgo\");",
                   "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
                 ]
               }
@@ -1322,7 +1412,7 @@
           ]
         },
         {
-          "name": "08 - tipos-violencia",
+          "name": "07 - Referencias y apoyo",
           "request": {
             "method": "PATCH",
             "header": [
@@ -1333,178 +1423,21 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/tipos-violencia",
-              "host": ["{{baseUrl}}"],
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/paginas/referencias",
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
-                "secciones",
-                "tipos-violencia"
-              ]
-            },
-            "description": "Ejemplo sintético completo para la sección tipos-violencia. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seleccionMultiple\": [\n      \"FISICA\",\n      \"PSICOLOGICA\",\n      \"VERBAL\",\n      \"ECONOMICA\"\n    ],\n    \"opcionesEvaluadas\": {\n      \"fisica\": true,\n      \"psicologica\": true,\n      \"verbal\": true,\n      \"sexual\": false,\n      \"patrimonial\": false,\n      \"economica\": true,\n      \"trata\": false,\n      \"violacion\": false,\n      \"amenazaMuerte\": false,\n      \"misoginia\": false,\n      \"femicidio\": false,\n      \"otra\": false\n    },\n    \"otraDescripcion\": null\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección tipos-violencia\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Estado HTTP esperado\", function () {",
-                  "  pm.expect([200,201]).to.include(pm.response.code);",
-                  "});",
-                  "pm.test(\"Respuesta JSON\", function () {",
-                  "  pm.response.to.be.json;",
-                  "});",
-                  "const responseData=pm.response.json().data;",
-                  "pm.expect(responseData.seccion).to.eql(\"tipos-violencia\");",
-                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "09 - objetos-agresion",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/objetos-agresion",
-              "host": ["{{baseUrl}}"],
-              "path": [
-                "fichas-iniciales",
-                "{{fichaId}}",
-                "secciones",
-                "objetos-agresion"
-              ]
-            },
-            "description": "Ejemplo sintético completo para la sección objetos-agresion. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seleccionMultiple\": [\n      \"MANOS\",\n      \"PIES\"\n    ],\n    \"opcionesEvaluadas\": {\n      \"manos\": true,\n      \"pies\": true,\n      \"armaBlanca\": false,\n      \"brazos\": false,\n      \"armaFuego\": false,\n      \"objeto\": false,\n      \"todas\": false,\n      \"otra\": false\n    },\n    \"objetoDescripcion\": null,\n    \"otraDescripcion\": null\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección objetos-agresion\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Estado HTTP esperado\", function () {",
-                  "  pm.expect([200,201]).to.include(pm.response.code);",
-                  "});",
-                  "pm.test(\"Respuesta JSON\", function () {",
-                  "  pm.response.to.be.json;",
-                  "});",
-                  "const responseData=pm.response.json().data;",
-                  "pm.expect(responseData.seccion).to.eql(\"objetos-agresion\");",
-                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "10 - situaciones-riesgo",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/situaciones-riesgo",
-              "host": ["{{baseUrl}}"],
-              "path": [
-                "fichas-iniciales",
-                "{{fichaId}}",
-                "secciones",
-                "situaciones-riesgo"
-              ]
-            },
-            "description": "Ejemplo sintético completo para la sección situaciones-riesgo. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"conviveConAgresor\": false,\n    \"agresionesFrecuentes\": true,\n    \"requirioHospitalizacion\": false,\n    \"agresorConsumeAlcohol\": true,\n    \"agresorConsumeDrogas\": false,\n    \"embarazoActual\": false,\n    \"tiempoEmbarazoSemanas\": null,\n    \"existeSeparacion\": true,\n    \"fechaAproximadaSeparacion\": \"2026-09-01\",\n    \"agresorParticipaAgrupacionIlicita\": false,\n    \"otrasSituaciones\": [\n      \"Dependencia económica parcial\"\n    ]\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección situaciones-riesgo\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Estado HTTP esperado\", function () {",
-                  "  pm.expect([200,201]).to.include(pm.response.code);",
-                  "});",
-                  "pm.test(\"Respuesta JSON\", function () {",
-                  "  pm.response.to.be.json;",
-                  "});",
-                  "const responseData=pm.response.json().data;",
-                  "pm.expect(responseData.seccion).to.eql(\"situaciones-riesgo\");",
-                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "11 - referencias",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/referencias",
-              "host": ["{{baseUrl}}"],
-              "path": [
-                "fichas-iniciales",
-                "{{fichaId}}",
-                "secciones",
+                "paginas",
                 "referencias"
               ]
             },
-            "description": "Ejemplo sintético completo para la sección referencias. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
+            "description": "Guarda la página Referencias y apoyo de la ficha. Agrupa internamente los apartados institucionales: referencias, apoyo-recibido.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"origenReferencia\": {\n      \"tipo\": \"INSTITUCION\",\n      \"institucionOMedio\": \"Institución sintética de referencia\",\n      \"otraDescripcion\": null\n    },\n    \"referenciasInternas\": [\n      \"PSICOLOGIA\",\n      \"TRABAJO_SOCIAL\",\n      \"LEGAL\"\n    ],\n    \"otraReferenciaInterna\": null,\n    \"referenciasExternas\": [\n      {\n        \"institucionDestino\": \"Institución externa sintética\",\n        \"motivo\": \"Seguimiento de prueba\",\n        \"otraDescripcion\": null\n      }\n    ]\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección referencias\"\n}",
+              "raw": "{\n  \"secciones\": {\n    \"referencias\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"origenReferencia\": {\n        \"tipo\": \"INSTITUCION\",\n        \"institucionOMedio\": \"Institución sintética de referencia\",\n        \"otraDescripcion\": null\n      },\n      \"referenciasInternas\": [\n        \"PSICOLOGIA\",\n        \"TRABAJO_SOCIAL\",\n        \"LEGAL\"\n      ],\n      \"otraReferenciaInterna\": null,\n      \"referenciasExternas\": [\n        {\n          \"institucionDestino\": \"Institución externa sintética\",\n          \"motivo\": \"Seguimiento de prueba\",\n          \"otraDescripcion\": null\n        }\n      ]\n    },\n    \"apoyo-recibido\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"recibioApoyoPrevio\": true,\n      \"lugarApoyo\": \"Centro sintético de atención\",\n      \"tipoApoyo\": [\n        \"ORIENTACION\",\n        \"PSICOLOGICO\"\n      ],\n      \"fechaApoyo\": \"2026-10-15\",\n      \"traeDenuncia\": false,\n      \"numeroDenuncia\": null,\n      \"observaciones\": \"Información completamente sintética\"\n    }\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - página referencias\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1526,7 +1459,7 @@
                   "  pm.response.to.be.json;",
                   "});",
                   "const responseData=pm.response.json().data;",
-                  "pm.expect(responseData.seccion).to.eql(\"referencias\");",
+                  "pm.expect(responseData.pagina).to.eql(\"referencias\");",
                   "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
                 ]
               }
@@ -1534,7 +1467,7 @@
           ]
         },
         {
-          "name": "12 - apoyo-recibido",
+          "name": "08 - Entrevista y cierre",
           "request": {
             "method": "PATCH",
             "header": [
@@ -1545,19 +1478,21 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/apoyo-recibido",
-              "host": ["{{baseUrl}}"],
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/paginas/entrevista-cierre",
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
-                "secciones",
-                "apoyo-recibido"
+                "paginas",
+                "entrevista-cierre"
               ]
             },
-            "description": "Ejemplo sintético completo para la sección apoyo-recibido. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
+            "description": "Guarda la página Entrevista y cierre de la ficha. Agrupa internamente los apartados institucionales: evaluacion, entrevista-inicial, seguimiento, observaciones.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"recibioApoyoPrevio\": true,\n    \"lugarApoyo\": \"Centro sintético de atención\",\n    \"tipoApoyo\": [\n      \"ORIENTACION\",\n      \"PSICOLOGICO\"\n    ],\n    \"fechaApoyo\": \"2026-10-15\",\n    \"traeDenuncia\": false,\n    \"numeroDenuncia\": null,\n    \"observaciones\": \"Información completamente sintética\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección apoyo-recibido\"\n}",
+              "raw": "{\n  \"secciones\": {\n    \"evaluacion\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"estadoActual\": \"Estable durante la entrevista de prueba\",\n      \"estadoEmocionalObservado\": \"Orientada\",\n      \"necesidadesInmediatas\": [\n        \"Orientación institucional\"\n      ],\n      \"recursosDisponibles\": [\n        \"Red familiar\"\n      ],\n      \"evaluacionProfesional\": \"Evaluación sintética sin validez clínica ni jurídica\"\n    },\n    \"entrevista-inicial\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"lugarAtencion\": \"Centro de pruebas Postman\",\n      \"fechaEntrevista\": \"2026-10-31\",\n      \"horaInicio\": \"09:00\",\n      \"horaFin\": \"10:00\",\n      \"nombreEntrevistador\": \"Entrevistador Sintético\",\n      \"cargoEntrevistador\": \"Digitalizador de ficha inicial\",\n      \"resumenEntrevista\": \"Resumen completamente sintético de la entrevista inicial.\",\n      \"informacionProporcionadaPor\": \"BENEFICIARIA\"\n    },\n    \"seguimiento\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"requiereSeguimiento\": true,\n      \"fechaPropuesta\": \"2026-11-07\",\n      \"areasSeguimiento\": [\n        \"PSICOLOGIA\",\n        \"TRABAJO_SOCIAL\",\n        \"LEGAL\"\n      ],\n      \"accionesPendientes\": [\n        \"Coordinar cita sintética\"\n      ],\n      \"responsableSeguimiento\": \"Responsable Sintético\",\n      \"notasSeguimiento\": \"Notas sintéticas para comprobar el guardado\"\n    },\n    \"observaciones\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"observacionesGenerales\": \"Ficha creada exclusivamente con datos sintéticos de prueba.\",\n      \"informacionPendiente\": [],\n      \"restriccionesDeUso\": \"No utilizar como información real de una beneficiaria.\",\n      \"nombreQuienEntrevista\": \"Entrevistador Sintético\",\n      \"nombreQuienCaptura\": \"Capturista Sintético\",\n      \"fechaCierreCaptura\": \"2026-10-31\"\n    }\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - página entrevista-cierre\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1579,378 +1514,7 @@
                   "  pm.response.to.be.json;",
                   "});",
                   "const responseData=pm.response.json().data;",
-                  "pm.expect(responseData.seccion).to.eql(\"apoyo-recibido\");",
-                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "13 - episodio-reciente",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/episodio-reciente",
-              "host": ["{{baseUrl}}"],
-              "path": [
-                "fichas-iniciales",
-                "{{fichaId}}",
-                "secciones",
-                "episodio-reciente"
-              ]
-            },
-            "description": "Ejemplo sintético completo para la sección episodio-reciente. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"fechaAproximada\": \"2026-10-20\",\n    \"lugar\": \"Lugar sintético\",\n    \"historiaUltimoEpisodio\": \"Relato sintético del último episodio para pruebas funcionales.\",\n    \"personasPresentes\": [\n      \"Familiar sintético\"\n    ],\n    \"accionesPosteriores\": [\n      \"Solicitó orientación\"\n    ]\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección episodio-reciente\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Estado HTTP esperado\", function () {",
-                  "  pm.expect([200,201]).to.include(pm.response.code);",
-                  "});",
-                  "pm.test(\"Respuesta JSON\", function () {",
-                  "  pm.response.to.be.json;",
-                  "});",
-                  "const responseData=pm.response.json().data;",
-                  "pm.expect(responseData.seccion).to.eql(\"episodio-reciente\");",
-                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "14 - analisis-riesgo",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/analisis-riesgo",
-              "host": ["{{baseUrl}}"],
-              "path": [
-                "fichas-iniciales",
-                "{{fichaId}}",
-                "secciones",
-                "analisis-riesgo"
-              ]
-            },
-            "description": "Ejemplo sintético completo para la sección analisis-riesgo. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"tiempoAgresion\": {\n      \"cantidad\": 2,\n      \"unidad\": \"ANIOS\",\n      \"otroPeriodo\": null\n    },\n    \"vinculoConAgresor\": \"EXCONVIVIENTE\",\n    \"otroVinculo\": null,\n    \"agresionAOtrosFamiliares\": true,\n    \"familiaresAgredidos\": [\n      {\n        \"parentesco\": \"Hermana\",\n        \"formaAgresion\": \"Amenazas verbales sintéticas\"\n      }\n    ],\n    \"nivelRiesgoRegistradoPorProfesional\": \"MEDIO\",\n    \"factoresProtectores\": [\n      \"Red familiar de apoyo\"\n    ],\n    \"factoresRiesgo\": [\n      \"Amenazas recurrentes\"\n    ],\n    \"justificacion\": \"Ejemplo sintético; no constituye valoración profesional real\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección analisis-riesgo\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Estado HTTP esperado\", function () {",
-                  "  pm.expect([200,201]).to.include(pm.response.code);",
-                  "});",
-                  "pm.test(\"Respuesta JSON\", function () {",
-                  "  pm.response.to.be.json;",
-                  "});",
-                  "const responseData=pm.response.json().data;",
-                  "pm.expect(responseData.seccion).to.eql(\"analisis-riesgo\");",
-                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "15 - plan-seguridad",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/plan-seguridad",
-              "host": ["{{baseUrl}}"],
-              "path": [
-                "fichas-iniciales",
-                "{{fichaId}}",
-                "secciones",
-                "plan-seguridad"
-              ]
-            },
-            "description": "Ejemplo sintético completo para la sección plan-seguridad. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"planSeguimientoInmediato\": \"Plan sintético acordado para validar persistencia.\",\n    \"accionesAcordadas\": [\n      \"Contactar red de apoyo\",\n      \"Mantener documentos importantes accesibles\",\n      \"Acudir a institución de apoyo si fuera necesario\"\n    ],\n    \"contactosEmergencia\": [\n      {\n        \"nombre\": \"Contacto Sintético\",\n        \"relacion\": \"Hermana\",\n        \"telefono\": \"55000005\"\n      }\n    ],\n    \"lugarSeguroIdentificado\": true,\n    \"descripcionLugarSeguro\": \"Ubicación sintética identificada\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección plan-seguridad\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Estado HTTP esperado\", function () {",
-                  "  pm.expect([200,201]).to.include(pm.response.code);",
-                  "});",
-                  "pm.test(\"Respuesta JSON\", function () {",
-                  "  pm.response.to.be.json;",
-                  "});",
-                  "const responseData=pm.response.json().data;",
-                  "pm.expect(responseData.seccion).to.eql(\"plan-seguridad\");",
-                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "16 - evaluacion",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/evaluacion",
-              "host": ["{{baseUrl}}"],
-              "path": [
-                "fichas-iniciales",
-                "{{fichaId}}",
-                "secciones",
-                "evaluacion"
-              ]
-            },
-            "description": "Ejemplo sintético completo para la sección evaluacion. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"estadoActual\": \"Estable durante la entrevista de prueba\",\n    \"estadoEmocionalObservado\": \"Orientada\",\n    \"necesidadesInmediatas\": [\n      \"Orientación institucional\"\n    ],\n    \"recursosDisponibles\": [\n      \"Red familiar\"\n    ],\n    \"evaluacionProfesional\": \"Evaluación sintética sin validez clínica ni jurídica\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección evaluacion\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Estado HTTP esperado\", function () {",
-                  "  pm.expect([200,201]).to.include(pm.response.code);",
-                  "});",
-                  "pm.test(\"Respuesta JSON\", function () {",
-                  "  pm.response.to.be.json;",
-                  "});",
-                  "const responseData=pm.response.json().data;",
-                  "pm.expect(responseData.seccion).to.eql(\"evaluacion\");",
-                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "17 - entrevista-inicial",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/entrevista-inicial",
-              "host": ["{{baseUrl}}"],
-              "path": [
-                "fichas-iniciales",
-                "{{fichaId}}",
-                "secciones",
-                "entrevista-inicial"
-              ]
-            },
-            "description": "Ejemplo sintético completo para la sección entrevista-inicial. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"lugarAtencion\": \"Centro de pruebas Postman\",\n    \"fechaEntrevista\": \"2026-10-31\",\n    \"horaInicio\": \"09:00\",\n    \"horaFin\": \"10:00\",\n    \"nombreEntrevistador\": \"Entrevistador Sintético\",\n    \"cargoEntrevistador\": \"Digitalizador de ficha inicial\",\n    \"resumenEntrevista\": \"Resumen completamente sintético de la entrevista inicial.\",\n    \"informacionProporcionadaPor\": \"BENEFICIARIA\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección entrevista-inicial\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Estado HTTP esperado\", function () {",
-                  "  pm.expect([200,201]).to.include(pm.response.code);",
-                  "});",
-                  "pm.test(\"Respuesta JSON\", function () {",
-                  "  pm.response.to.be.json;",
-                  "});",
-                  "const responseData=pm.response.json().data;",
-                  "pm.expect(responseData.seccion).to.eql(\"entrevista-inicial\");",
-                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "18 - seguimiento",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/seguimiento",
-              "host": ["{{baseUrl}}"],
-              "path": [
-                "fichas-iniciales",
-                "{{fichaId}}",
-                "secciones",
-                "seguimiento"
-              ]
-            },
-            "description": "Ejemplo sintético completo para la sección seguimiento. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"requiereSeguimiento\": true,\n    \"fechaPropuesta\": \"2026-11-07\",\n    \"areasSeguimiento\": [\n      \"PSICOLOGIA\",\n      \"TRABAJO_SOCIAL\",\n      \"LEGAL\"\n    ],\n    \"accionesPendientes\": [\n      \"Coordinar cita sintética\"\n    ],\n    \"responsableSeguimiento\": \"Responsable Sintético\",\n    \"notasSeguimiento\": \"Notas sintéticas para comprobar el guardado\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección seguimiento\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Estado HTTP esperado\", function () {",
-                  "  pm.expect([200,201]).to.include(pm.response.code);",
-                  "});",
-                  "pm.test(\"Respuesta JSON\", function () {",
-                  "  pm.response.to.be.json;",
-                  "});",
-                  "const responseData=pm.response.json().data;",
-                  "pm.expect(responseData.seccion).to.eql(\"seguimiento\");",
-                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "19 - observaciones",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/observaciones",
-              "host": ["{{baseUrl}}"],
-              "path": [
-                "fichas-iniciales",
-                "{{fichaId}}",
-                "secciones",
-                "observaciones"
-              ]
-            },
-            "description": "Ejemplo sintético completo para la sección observaciones. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"observacionesGenerales\": \"Ficha creada exclusivamente con datos sintéticos de prueba.\",\n    \"informacionPendiente\": [],\n    \"restriccionesDeUso\": \"No utilizar como información real de una beneficiaria.\",\n    \"nombreQuienEntrevista\": \"Entrevistador Sintético\",\n    \"nombreQuienCaptura\": \"Capturista Sintético\",\n    \"fechaCierreCaptura\": \"2026-10-31\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - sección observaciones\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Estado HTTP esperado\", function () {",
-                  "  pm.expect([200,201]).to.include(pm.response.code);",
-                  "});",
-                  "pm.test(\"Respuesta JSON\", function () {",
-                  "  pm.response.to.be.json;",
-                  "});",
-                  "const responseData=pm.response.json().data;",
-                  "pm.expect(responseData.seccion).to.eql(\"observaciones\");",
+                  "pm.expect(responseData.pagina).to.eql(\"entrevista-cierre\");",
                   "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
                 ]
               }
@@ -1975,8 +1539,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/confirmar",
-              "host": ["{{baseUrl}}"],
-              "path": ["fichas-iniciales", "{{fichaId}}", "confirmar"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}",
+                "confirmar"
+              ]
             },
             "description": "Prueba POST /fichas-iniciales/{{fichaId}}/confirmar",
             "body": {
@@ -2015,8 +1585,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["fichas-iniciales", "{{fichaId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}"
+              ]
             },
             "description": "Prueba GET /fichas-iniciales/{{fichaId}}"
           },
@@ -2051,8 +1626,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/catalogos/no-permitido",
-              "host": ["{{baseUrl}}"],
-              "path": ["catalogos", "no-permitido"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalogos",
+                "no-permitido"
+              ]
             },
             "description": "Prueba GET /catalogos/no-permitido"
           },
@@ -2081,11 +1661,15 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/beneficiarias",
-              "host": ["{{baseUrl}}"],
-              "path": ["beneficiarias"]
+              "raw": "{{baseUrl}}/fichas-iniciales",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales"
+              ]
             },
-            "description": "Prueba POST /beneficiarias",
+            "description": "Prueba que POST /fichas-iniciales rechaza un CUI ya asociado a otra ficha",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"nombre\": \"Duplicada Postman\",\n  \"cui\": \"{{beneficiariaCui}}\",\n  \"fichaInicial\": {\n    \"lugar\": \"Centro de pruebas Postman\"\n  }\n}",
@@ -2123,8 +1707,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/hijos/{{hijoId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["hijos", "{{hijoId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "hijos",
+                "{{hijoId}}"
+              ]
             },
             "description": "Prueba PATCH /hijos/{{hijoId}}",
             "body": {
@@ -2162,14 +1751,21 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/salud",
-              "host": ["{{baseUrl}}"],
-              "path": ["fichas-iniciales", "{{fichaId}}", "secciones", "salud"]
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/paginas/datos-salud",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}",
+                "paginas",
+                "datos-salud"
+              ]
             },
             "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/salud",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": {\n    \"nota\": \"No debe persistirse\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba de ficha cerrada\"\n}",
+              "raw": "{\n  \"secciones\": {\n    \"salud\": {\n      \"nota\": \"No debe persistirse\"\n    }\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba de ficha cerrada\"\n}",
               "options": {
                 "raw": {
                   "language": "json"

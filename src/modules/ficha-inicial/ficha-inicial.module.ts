@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { BeneficiariasModule } from "../beneficiarias/beneficiarias.module";
 
 import { FichaInicialEntity } from "./entities/ficha-inicial.entity";
 import { FichaSeccionEntity } from "./entities/ficha-seccion.entity";
@@ -8,7 +9,10 @@ import { FichaInicialService } from "./ficha-inicial.service";
 import { FichaInicialRepository } from "./repositories/ficha-inicial.repository";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([FichaInicialEntity, FichaSeccionEntity])],
+  imports: [
+    TypeOrmModule.forFeature([FichaInicialEntity, FichaSeccionEntity]),
+    BeneficiariasModule,
+  ],
   controllers: [FichaInicialController],
   providers: [FichaInicialService, FichaInicialRepository],
 })
