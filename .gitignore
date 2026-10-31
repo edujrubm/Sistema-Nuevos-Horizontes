@@ -21,3 +21,5 @@ venv/
 __pycache__/
 dist/
 build/
+
+test-results/

@@ -118,3 +118,9 @@ Cada integrante debe configurar su propio nombre y correo en Git antes de realiz
 - Las migraciones aplicadas se conservan intactas; un cambio posterior se expresa en otro archivo secuencial.
 - Las pruebas con datos ficticios se ejecutan únicamente en una base de desarrollo o copia desechable.
 - Antes de una migración real se requiere respaldo, prevalidación y ventana de mantenimiento.
+
+## Avance local Persona 3 - ciclo 2
+
+Implementación de 14 rutas de Social, Legal/referencias, Guardería y evolución transversal. Consulte [avance y ejecución](docs/persona3/AVANCE.md), [preguntas al grupo](docs/persona3/PREGUNTAS_AL_GRUPO.md), [OpenAPI provisional](docs/persona3/openapi.json) y [Postman](postman/Persona3.postman_collection.json). Las rutas se sirven bajo /api/v1 solo en laboratorio local, sin autenticación en este ciclo. No se han aprobado los estados ni las reglas institucionales de confirmación.
+
+Comandos: pnpm test:persona3 y pnpm start:persona3.
