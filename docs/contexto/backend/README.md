@@ -32,6 +32,11 @@ Este directorio define la base funcional y técnica para implementar el backend 
 
 La matriz vigente reemplaza la asignación de permisos de la V3 cuando exista contradicción. La ampliación v2 concreta expedientes, formularios de área, evolución, documentos, estancias infantiles y revisiones, pero declara estar pendiente de ejecución en PostgreSQL de ensayo. Solo la migración aplicada y verificada puede considerarse fuente de verdad operacional.
 
+Esta advertencia se refiere al DDL unificado v2, no a las migraciones
+específicas de Persona 1 agregadas posteriormente en `database/migrations/`.
+El estado comprobado de esas migraciones y del código actual está en
+`../../ESTADO_TECNICO_ACTUAL.md`.
+
 ## Convenciones de estado
 
 - **Confirmado:** regla institucional que el servidor debe aplicar.
