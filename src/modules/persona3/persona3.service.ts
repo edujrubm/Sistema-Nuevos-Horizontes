@@ -76,7 +76,7 @@ export class Persona3Service {
       [id],
     );
     const [ficha] = await this.repo.data.query(
-      "SELECT f.id,f.estado_codigo,f.fecha_atencion,f.actualizado_en,f.version,f.profesional_id,p.nombre AS profesional_nombre,d.historia_violencia,d.diagnostico_social,d.riesgos_identificados,d.plan_eliminacion_riesgos,d.objetivo_general,d.actividades,d.evaluacion FROM new_horizons.formulario_area f JOIN new_horizons.ficha_social d ON d.formulario_id=f.id JOIN new_horizons.empleado p ON p.id_empleado=f.profesional_id WHERE f.expediente_id=$1 AND f.tipo='SOCIAL' ORDER BY f.fecha_atencion DESC,f.id DESC LIMIT 1",
+      "SELECT f.id,f.estado_codigo,f.fecha_atencion,f.actualizado_en,f.version,f.profesional_id,p.nombre AS profesional_nombre,to_jsonb(d)-'formulario_id'-'tipo' AS detalle FROM new_horizons.formulario_area f JOIN new_horizons.ficha_social d ON d.formulario_id=f.id JOIN new_horizons.empleado p ON p.id_empleado=f.profesional_id WHERE f.expediente_id=$1 AND f.tipo='SOCIAL' ORDER BY f.fecha_atencion DESC,f.id DESC LIMIT 1",
       [expediente],
     );
     const seguimientos = await this.repo.data.query(
@@ -88,18 +88,11 @@ export class Persona3Service {
       expedienteId: expediente,
       ...camel(rows[0]),
       beneficiaria: camel(persona),
-      ultimaFicha: ficha ? camel(ficha) : null,
+      ultimaFicha: ficha
+        ? { ...camel(ficha), detalle: camel(ficha.detalle as Record<string, unknown>) }
+        : null,
       historialReciente: seguimientos.map(camel),
-      camposSinSoporte: [
-        "tipoVivienda",
-        "redesApoyo",
-        "dependenciaEconomica",
-        "responsablePlan",
-        "fechaRevision",
-        "fechaCierre",
-        "resultadosCierre",
-        "observacionesCierre",
-      ],
+      camposSinSoporte: [],
       totalRiesgos: null,
     };
   }
@@ -158,13 +151,14 @@ export class Persona3Service {
           ],
         );
         await m.query(
-          "INSERT INTO new_horizons.referencia_legal(formulario_id,destino,origen,motivo_referencia,recomendaciones) VALUES($1,$2,$3,$4,$5)",
+          "INSERT INTO new_horizons.referencia_legal(formulario_id,destino,origen,motivo_referencia,recomendaciones,medio_entrega) VALUES($1,$2,$3,$4,$5,$6)",
           [
             f.id,
             dto.detalle.destino ?? null,
             dto.detalle.origen ?? null,
             dto.detalle.motivoReferencia ?? null,
             dto.detalle.recomendaciones ?? null,
+            dto.detalle.medioEntrega ?? null,
           ],
         );
         return this.repo.referencia(f.id, m);
@@ -221,6 +215,7 @@ export class Persona3Service {
         origen: "origen",
         motivoReferencia: "motivo_referencia",
         recomendaciones: "recomendaciones",
+        medioEntrega: "medio_entrega",
       };
       const pairs = Object.entries(dto.detalle).filter(
         ([k, v]) => names[k] && v !== undefined,
