@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Nuevos Horizontes - Persona 1",
-    "description": "Colección ejecutable de Persona 1 con ejemplos sintéticos completos para beneficiarias, catálogos, hijas e hijos y los 19 apartados de ficha inicial. Los campos internos de cada sección siguen el inventario funcional preliminar y se almacenan como contenido JSON del borrador.",
+    "description": "Flujo ejecutable de admisión de Persona 1. El primer POST crea coordinadamente beneficiaria, residencia, lugar de ocupación, expediente y ficha inicial BORRADOR; luego se completan las 19 secciones, hijos y confirmación.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -15,13 +15,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/catalogos/paises",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "catalogos",
-                "paises"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["catalogos", "paises"]
             },
             "description": "Prueba GET /catalogos/paises"
           },
@@ -68,13 +63,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/catalogos/departamentos?paisId={{paisId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "catalogos",
-                "departamentos?paisId={{paisId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["catalogos", "departamentos?paisId={{paisId}}"]
             },
             "description": "Prueba GET /catalogos/departamentos?paisId={{paisId}}"
           },
@@ -106,9 +96,7 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/catalogos/municipios?departamentoId={{departamentoId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
+              "host": ["{{baseUrl}}"],
               "path": [
                 "catalogos",
                 "municipios?departamentoId={{departamentoId}}"
@@ -142,13 +130,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/catalogos/ocupaciones",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "catalogos",
-                "ocupaciones"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["catalogos", "ocupaciones"]
             },
             "description": "Prueba GET /catalogos/ocupaciones"
           },
@@ -170,6 +153,130 @@
               }
             }
           ]
+        },
+        {
+          "name": "05 - Estados civiles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/catalogos/estados-civiles",
+              "host": ["{{baseUrl}}"],
+              "path": ["catalogos", "estados-civiles"]
+            },
+            "description": "Obtiene estados-civiles y conserva un ID sintético para la admisión completa."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const json=pm.response.json(); pm.expect(json.data).to.be.an(\"array\"); pm.expect(json.data.length).to.be.above(0); pm.collectionVariables.set(\"estadoCivilId\",json.data[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 - Niveles de estudio",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/catalogos/niveles-estudio",
+              "host": ["{{baseUrl}}"],
+              "path": ["catalogos", "niveles-estudio"]
+            },
+            "description": "Obtiene niveles-estudio y conserva un ID sintético para la admisión completa."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const json=pm.response.json(); pm.expect(json.data).to.be.an(\"array\"); pm.expect(json.data.length).to.be.above(0); pm.collectionVariables.set(\"nivelEstudioId\",json.data[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 - Tipos de acompañante",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/catalogos/tipos-acompanante",
+              "host": ["{{baseUrl}}"],
+              "path": ["catalogos", "tipos-acompanante"]
+            },
+            "description": "Obtiene tipos-acompanante y conserva un ID sintético para la admisión completa."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const json=pm.response.json(); pm.expect(json.data).to.be.an(\"array\"); pm.expect(json.data.length).to.be.above(0); pm.collectionVariables.set(\"tipoAcompananteId\",json.data[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "08 - Estados de estudio",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/catalogos/estados-estudio",
+              "host": ["{{baseUrl}}"],
+              "path": ["catalogos", "estados-estudio"]
+            },
+            "description": "Obtiene estados-estudio y conserva un ID sintético para la admisión completa."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const json=pm.response.json(); pm.expect(json.data).to.be.an(\"array\"); pm.expect(json.data.length).to.be.above(0); pm.collectionVariables.set(\"estadoEstudioId\",json.data[0].id);"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -177,7 +284,7 @@
       "name": "01 - Beneficiarias y expediente",
       "item": [
         {
-          "name": "01 - Registrar beneficiaria",
+          "name": "01 - Iniciar admisión: beneficiaria y ficha",
           "request": {
             "method": "POST",
             "header": [
@@ -189,17 +296,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/beneficiarias",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "beneficiarias"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["beneficiarias"]
             },
-            "description": "Prueba POST /beneficiarias",
+            "description": "Crea en una sola transacción la beneficiaria, residencia, lugar de ocupación, expediente permanente y ficha inicial en BORRADOR.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"{{beneficiariaNombre}}\",\n  \"cui\": \"{{beneficiariaCui}}\",\n  \"fechaNacimiento\": \"1992-06-15\",\n  \"alfabetismo\": true,\n  \"paisOrigenId\": \"{{paisId}}\",\n  \"departamentoOrigenId\": \"{{departamentoId}}\",\n  \"municipioOrigenId\": \"{{municipioId}}\",\n  \"ocupacionId\": \"{{ocupacionId}}\"\n}",
+              "raw": "{\n  \"nombre\": \"{{beneficiariaNombre}}\",\n  \"cui\": \"{{beneficiariaCui}}\",\n  \"fechaNacimiento\": \"1992-06-15\",\n  \"alfabetismo\": true,\n  \"enfermedadPermanente\": true,\n  \"nombreEnfermedad\": \"Condición sintética controlada\",\n  \"tipoTratamiento\": \"Tratamiento sintético de prueba\",\n  \"otrosPadecimientos\": \"Ninguno informado\",\n  \"paisCuiId\": \"{{paisId}}\",\n  \"tipoAcompananteId\": \"{{tipoAcompananteId}}\",\n  \"estadoCivilId\": \"{{estadoCivilId}}\",\n  \"ocupacionId\": \"{{ocupacionId}}\",\n  \"nivelEstudioId\": \"{{nivelEstudioId}}\",\n  \"paisOrigenId\": \"{{paisId}}\",\n  \"departamentoOrigenId\": \"{{departamentoId}}\",\n  \"municipioOrigenId\": \"{{municipioId}}\",\n  \"estadoEstudioId\": \"{{estadoEstudioId}}\",\n  \"lugarOcupacion\": {\n    \"nombre\": \"Centro educativo sintético\",\n    \"direccion\": \"Zona 3, dirección sintética\",\n    \"telefono\": \"22000003\",\n    \"personaContacto\": \"Responsable Sintético\",\n    \"cargoPersonaContacto\": \"Coordinación\"\n  },\n  \"residencia\": {\n    \"direccionActual\": \"Zona 1, dirección sintética de pruebas\",\n    \"numeroCasa\": \"A-12\",\n    \"telefonoCasa\": \"22000001\",\n    \"telefonoCelular\": \"55000001\",\n    \"direccionAlternativa\": \"Zona 2, dirección alternativa sintética\",\n    \"personaEnlace\": \"Contacto Sintético\",\n    \"relacionPersonaEnlace\": \"Hermana\",\n    \"urbano\": true,\n    \"paisResidenciaId\": \"{{paisId}}\",\n    \"departamentoResidenciaId\": \"{{departamentoId}}\",\n    \"municipioResidenciaId\": \"{{municipioId}}\",\n    \"areaResidencial\": {\n      \"colonia\": \"Colonia sintética\",\n      \"barrioPopular\": \"Barrio sintético\",\n      \"asentamiento\": \"Asentamiento sintético\",\n      \"zona\": \"1\",\n      \"aldea\": \"Aldea sintética\",\n      \"caserio\": \"Caserío sintético\",\n      \"canton\": \"Cantón sintético\",\n      \"otro\": \"Sector sintético\"\n    }\n  },\n  \"fichaInicial\": {\n    \"lugar\": \"Centro de pruebas Postman\",\n    \"fechaEntrevista\": \"2026-10-31\",\n    \"seccionesIniciales\": {\n      \"identificacion\": {\n        \"nacionalidad\": \"Guatemalteca\",\n        \"tipoDocumento\": \"DPI_CUI\",\n        \"paisEmisionId\": \"{{paisId}}\",\n        \"acompanante\": {\n          \"nombreCompleto\": \"Acompañante Sintético\",\n          \"parentesco\": \"Familiar\",\n          \"cui\": \"TEST-ACOMP-0001\"\n        }\n      },\n      \"residencia\": {\n        \"telefonoCasa\": \"22000001\",\n        \"telefonoCelular\": \"55000001\",\n        \"areaResidencial\": \"URBANA\"\n      },\n      \"datos-generales\": {\n        \"etnia\": \"Etnia sintética\",\n        \"sabeLeer\": true,\n        \"sabeEscribir\": true\n      },\n      \"salud\": {\n        \"enfermedadPermanente\": true,\n        \"nombreEnfermedad\": \"Condición sintética controlada\",\n        \"tipoTratamiento\": \"Tratamiento sintético de prueba\",\n        \"otrosPadecimientos\": \"Ninguno informado\"\n      }\n    }\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -220,12 +323,7 @@
                   "pm.test(\"Respuesta JSON\", function () {",
                   "  pm.response.to.be.json;",
                   "});",
-                  "const responseData = pm.response.json().data;",
-                  "pm.expect(responseData.id).to.exist;",
-                  "pm.collectionVariables.set(\"beneficiariaId\", responseData.id);",
-                  "pm.collectionVariables.set(\"beneficiariaVersion\", responseData.version);",
-                  "pm.collectionVariables.set(\"expedienteId\", responseData.expediente.id);",
-                  "pm.collectionVariables.set(\"expedienteVersion\", responseData.expediente.version);"
+                  "const responseData=pm.response.json().data; pm.collectionVariables.set(\"beneficiariaId\",responseData.id); pm.collectionVariables.set(\"beneficiariaVersion\",responseData.version); pm.collectionVariables.set(\"expedienteId\",responseData.expediente.id); pm.collectionVariables.set(\"expedienteVersion\",responseData.expediente.version); pm.collectionVariables.set(\"fichaId\",responseData.fichaInicial.id); pm.collectionVariables.set(\"fichaVersion\",responseData.fichaInicial.version); pm.expect(responseData.fichaInicial.estado).to.eql(\"BORRADOR\"); pm.expect(responseData.residencia).to.be.an(\"object\");"
                 ]
               }
             }
@@ -238,12 +336,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/beneficiarias?limite=25&nombre={{beneficiariaNombre}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "beneficiarias?limite=25&nombre={{beneficiariaNombre}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["beneficiarias?limite=25&nombre={{beneficiariaNombre}}"]
             },
             "description": "Prueba GET /beneficiarias?limite=25&nombre={{beneficiariaNombre}}"
           },
@@ -279,13 +373,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/beneficiarias/buscar-coincidencias",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "beneficiarias",
-                "buscar-coincidencias"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["beneficiarias", "buscar-coincidencias"]
             },
             "description": "Prueba POST /beneficiarias/buscar-coincidencias",
             "body": {
@@ -324,13 +413,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "beneficiarias",
-                "{{beneficiariaId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["beneficiarias", "{{beneficiariaId}}"]
             },
             "description": "Prueba GET /beneficiarias/{{beneficiariaId}}"
           },
@@ -366,18 +450,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "beneficiarias",
-                "{{beneficiariaId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["beneficiarias", "{{beneficiariaId}}"]
             },
             "description": "Prueba PATCH /beneficiarias/{{beneficiariaId}}",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"{{beneficiariaNombre}} Actualizada\",\n  \"cui\": \"{{beneficiariaCui}}\",\n  \"fechaNacimiento\": \"1992-06-15\",\n  \"alfabetismo\": true,\n  \"paisOrigenId\": \"{{paisId}}\",\n  \"departamentoOrigenId\": \"{{departamentoId}}\",\n  \"municipioOrigenId\": \"{{municipioId}}\",\n  \"ocupacionId\": \"{{ocupacionId}}\",\n  \"version\": {{beneficiariaVersion}},\n  \"motivo\": \"Prueba Postman de actualización completa\"\n}",
+              "raw": "{\n  \"nombre\": \"{{beneficiariaNombre}} Actualizada\",\n  \"cui\": \"{{beneficiariaCui}}\",\n  \"fechaNacimiento\": \"1992-06-15\",\n  \"alfabetismo\": true,\n  \"paisOrigenId\": \"{{paisId}}\",\n  \"departamentoOrigenId\": \"{{departamentoId}}\",\n  \"municipioOrigenId\": \"{{municipioId}}\",\n  \"ocupacionId\": \"{{ocupacionId}}\",\n  \"version\": {{beneficiariaVersion}},\n  \"motivo\": \"Prueba Postman de actualización completa\",\n  \"enfermedadPermanente\": true,\n  \"nombreEnfermedad\": \"Condición sintética controlada\",\n  \"tipoTratamiento\": \"Tratamiento sintético actualizado\",\n  \"otrosPadecimientos\": \"Ninguno informado\",\n  \"paisCuiId\": \"{{paisId}}\",\n  \"tipoAcompananteId\": \"{{tipoAcompananteId}}\",\n  \"estadoCivilId\": \"{{estadoCivilId}}\",\n  \"nivelEstudioId\": \"{{nivelEstudioId}}\",\n  \"estadoEstudioId\": \"{{estadoEstudioId}}\",\n  \"residencia\": {\n    \"direccionActual\": \"Zona 1, dirección sintética actualizada\",\n    \"numeroCasa\": \"A-12\",\n    \"telefonoCelular\": \"55000009\",\n    \"direccionAlternativa\": \"Zona 2, dirección alternativa sintética\",\n    \"personaEnlace\": \"Contacto Sintético Actualizado\",\n    \"relacionPersonaEnlace\": \"Hermana\",\n    \"urbano\": true,\n    \"paisResidenciaId\": \"{{paisId}}\",\n    \"departamentoResidenciaId\": \"{{departamentoId}}\",\n    \"municipioResidenciaId\": \"{{municipioId}}\",\n    \"areaResidencial\": {\n      \"zona\": \"1\",\n      \"colonia\": \"Colonia actualizada\"\n    }\n  },\n  \"lugarOcupacion\": {\n    \"nombre\": \"Centro educativo sintético actualizado\",\n    \"direccion\": \"Zona 3, dirección sintética\",\n    \"telefono\": \"22000009\",\n    \"personaContacto\": \"Responsable Sintético\",\n    \"cargoPersonaContacto\": \"Coordinación\"\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -417,14 +496,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/inactivar",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "beneficiarias",
-                "{{beneficiariaId}}",
-                "inactivar"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["beneficiarias", "{{beneficiariaId}}", "inactivar"]
             },
             "description": "Prueba POST /beneficiarias/{{beneficiariaId}}/inactivar",
             "body": {
@@ -469,14 +542,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/reactivar",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "beneficiarias",
-                "{{beneficiariaId}}",
-                "reactivar"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["beneficiarias", "{{beneficiariaId}}", "reactivar"]
             },
             "description": "Prueba POST /beneficiarias/{{beneficiariaId}}/reactivar",
             "body": {
@@ -515,14 +582,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/historial",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "beneficiarias",
-                "{{beneficiariaId}}",
-                "historial"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["beneficiarias", "{{beneficiariaId}}", "historial"]
             },
             "description": "Prueba GET /beneficiarias/{{beneficiariaId}}/historial"
           },
@@ -551,37 +612,16 @@
       "name": "02 - Ficha inicial e hijos",
       "item": [
         {
-          "name": "01 - Crear ficha inicial",
+          "name": "01 - Verificar ficha creada con la beneficiaria",
           "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
+            "method": "GET",
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/fichas-iniciales",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "beneficiarias",
-                "{{beneficiariaId}}",
-                "fichas-iniciales"
-              ]
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["fichas-iniciales", "{{fichaId}}"]
             },
-            "description": "Prueba POST /beneficiarias/{{beneficiariaId}}/fichas-iniciales",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"lugar\": \"Centro de pruebas Postman\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
+            "description": "Comprueba que el inicio de admisión ya creó la ficha BORRADOR en la misma operación."
           },
           "response": [],
           "event": [
@@ -591,12 +631,12 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Estado HTTP esperado\", function () {",
-                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "  pm.expect(pm.response.code).to.eql(200);",
                   "});",
                   "pm.test(\"Respuesta JSON\", function () {",
                   "  pm.response.to.be.json;",
                   "});",
-                  "const responseData=pm.response.json().data; pm.collectionVariables.set(\"fichaId\",responseData.id); pm.expect(responseData.id).to.exist;"
+                  "const responseData=pm.response.json().data; pm.expect(responseData.estado).to.eql(\"BORRADOR\"); pm.expect(responseData.id).to.eql(pm.collectionVariables.get(\"fichaId\")); pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
                 ]
               }
             }
@@ -609,12 +649,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales?estado=BORRADOR&limite=25",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "fichas-iniciales?estado=BORRADOR&limite=25"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["fichas-iniciales?estado=BORRADOR&limite=25"]
             },
             "description": "Prueba GET /fichas-iniciales?estado=BORRADOR&limite=25"
           },
@@ -644,13 +680,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "fichas-iniciales",
-                "{{fichaId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["fichas-iniciales", "{{fichaId}}"]
             },
             "description": "Prueba GET /fichas-iniciales/{{fichaId}}"
           },
@@ -686,14 +717,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/hijos",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "fichas-iniciales",
-                "{{fichaId}}",
-                "hijos"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["fichas-iniciales", "{{fichaId}}", "hijos"]
             },
             "description": "Prueba POST /fichas-iniciales/{{fichaId}}/hijos",
             "body": {
@@ -732,14 +757,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/hijos",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "beneficiarias",
-                "{{beneficiariaId}}",
-                "hijos"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["beneficiarias", "{{beneficiariaId}}", "hijos"]
             },
             "description": "Prueba GET /beneficiarias/{{beneficiariaId}}/hijos"
           },
@@ -769,13 +788,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/hijos/{{hijoId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "hijos",
-                "{{hijoId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["hijos", "{{hijoId}}"]
             },
             "description": "Prueba GET /hijos/{{hijoId}}"
           },
@@ -811,13 +825,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/hijos/{{hijoId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "hijos",
-                "{{hijoId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["hijos", "{{hijoId}}"]
             },
             "description": "Prueba PATCH /hijos/{{hijoId}}",
             "body": {
@@ -862,14 +871,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/hijos/{{hijoId}}/inactivar",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "hijos",
-                "{{hijoId}}",
-                "inactivar"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["hijos", "{{hijoId}}", "inactivar"]
             },
             "description": "Prueba POST /hijos/{{hijoId}}/inactivar",
             "body": {
@@ -914,14 +917,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/hijos/{{hijoId}}/reactivar",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "hijos",
-                "{{hijoId}}",
-                "reactivar"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["hijos", "{{hijoId}}", "reactivar"]
             },
             "description": "Prueba POST /hijos/{{hijoId}}/reactivar",
             "body": {
@@ -971,9 +968,7 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/identificacion",
-              "host": [
-                "{{baseUrl}}"
-              ],
+              "host": ["{{baseUrl}}"],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
@@ -1026,9 +1021,7 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/residencia",
-              "host": [
-                "{{baseUrl}}"
-              ],
+              "host": ["{{baseUrl}}"],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
@@ -1081,9 +1074,7 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/datos-generales",
-              "host": [
-                "{{baseUrl}}"
-              ],
+              "host": ["{{baseUrl}}"],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
@@ -1136,15 +1127,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/salud",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "fichas-iniciales",
-                "{{fichaId}}",
-                "secciones",
-                "salud"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["fichas-iniciales", "{{fichaId}}", "secciones", "salud"]
             },
             "description": "Ejemplo sintético completo para la sección salud. Los campos funcionales son preliminares hasta aprobar obligatoriedad y catálogos definitivos.",
             "body": {
@@ -1191,9 +1175,7 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/grupo-familiar",
-              "host": [
-                "{{baseUrl}}"
-              ],
+              "host": ["{{baseUrl}}"],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
@@ -1246,9 +1228,7 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/agresores",
-              "host": [
-                "{{baseUrl}}"
-              ],
+              "host": ["{{baseUrl}}"],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
@@ -1301,9 +1281,7 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/motivo-consulta",
-              "host": [
-                "{{baseUrl}}"
-              ],
+              "host": ["{{baseUrl}}"],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
@@ -1356,9 +1334,7 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/tipos-violencia",
-              "host": [
-                "{{baseUrl}}"
-              ],
+              "host": ["{{baseUrl}}"],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
@@ -1411,9 +1387,7 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/objetos-agresion",
-              "host": [
-                "{{baseUrl}}"
-              ],
+              "host": ["{{baseUrl}}"],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
@@ -1466,9 +1440,7 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/situaciones-riesgo",
-              "host": [
-                "{{baseUrl}}"
-              ],
+              "host": ["{{baseUrl}}"],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
@@ -1521,9 +1493,7 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/referencias",
-              "host": [
-                "{{baseUrl}}"
-              ],
+              "host": ["{{baseUrl}}"],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
@@ -1576,9 +1546,7 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/apoyo-recibido",
-              "host": [
-                "{{baseUrl}}"
-              ],
+              "host": ["{{baseUrl}}"],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
@@ -1631,9 +1599,7 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/episodio-reciente",
-              "host": [
-                "{{baseUrl}}"
-              ],
+              "host": ["{{baseUrl}}"],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
@@ -1686,9 +1652,7 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/analisis-riesgo",
-              "host": [
-                "{{baseUrl}}"
-              ],
+              "host": ["{{baseUrl}}"],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
@@ -1741,9 +1705,7 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/plan-seguridad",
-              "host": [
-                "{{baseUrl}}"
-              ],
+              "host": ["{{baseUrl}}"],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
@@ -1796,9 +1758,7 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/evaluacion",
-              "host": [
-                "{{baseUrl}}"
-              ],
+              "host": ["{{baseUrl}}"],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
@@ -1851,9 +1811,7 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/entrevista-inicial",
-              "host": [
-                "{{baseUrl}}"
-              ],
+              "host": ["{{baseUrl}}"],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
@@ -1906,9 +1864,7 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/seguimiento",
-              "host": [
-                "{{baseUrl}}"
-              ],
+              "host": ["{{baseUrl}}"],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
@@ -1961,9 +1917,7 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/observaciones",
-              "host": [
-                "{{baseUrl}}"
-              ],
+              "host": ["{{baseUrl}}"],
               "path": [
                 "fichas-iniciales",
                 "{{fichaId}}",
@@ -2021,14 +1975,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/confirmar",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "fichas-iniciales",
-                "{{fichaId}}",
-                "confirmar"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["fichas-iniciales", "{{fichaId}}", "confirmar"]
             },
             "description": "Prueba POST /fichas-iniciales/{{fichaId}}/confirmar",
             "body": {
@@ -2067,13 +2015,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "fichas-iniciales",
-                "{{fichaId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["fichas-iniciales", "{{fichaId}}"]
             },
             "description": "Prueba GET /fichas-iniciales/{{fichaId}}"
           },
@@ -2108,13 +2051,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/catalogos/no-permitido",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "catalogos",
-                "no-permitido"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["catalogos", "no-permitido"]
             },
             "description": "Prueba GET /catalogos/no-permitido"
           },
@@ -2144,17 +2082,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/beneficiarias",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "beneficiarias"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["beneficiarias"]
             },
             "description": "Prueba POST /beneficiarias",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Duplicada Postman\",\n  \"cui\": \"{{beneficiariaCui}}\"\n}",
+              "raw": "{\n  \"nombre\": \"Duplicada Postman\",\n  \"cui\": \"{{beneficiariaCui}}\",\n  \"fichaInicial\": {\n    \"lugar\": \"Centro de pruebas Postman\"\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2189,13 +2123,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/hijos/{{hijoId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "hijos",
-                "{{hijoId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["hijos", "{{hijoId}}"]
             },
             "description": "Prueba PATCH /hijos/{{hijoId}}",
             "body": {
@@ -2234,15 +2163,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/salud",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "fichas-iniciales",
-                "{{fichaId}}",
-                "secciones",
-                "salud"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["fichas-iniciales", "{{fichaId}}", "secciones", "salud"]
             },
             "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/salud",
             "body": {
@@ -2342,6 +2264,22 @@
     },
     {
       "key": "ocupacionId",
+      "value": ""
+    },
+    {
+      "key": "estadoCivilId",
+      "value": ""
+    },
+    {
+      "key": "nivelEstudioId",
+      "value": ""
+    },
+    {
+      "key": "tipoAcompananteId",
+      "value": ""
+    },
+    {
+      "key": "estadoEstudioId",
       "value": ""
     }
   ]

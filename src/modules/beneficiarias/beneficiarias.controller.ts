@@ -41,7 +41,8 @@ export class BeneficiariasController {
 
   @Post()
   @ApiOperation({
-    summary: "Registra una beneficiaria y crea su expediente permanente",
+    summary:
+      "Inicia la admisión: crea beneficiaria, residencia, expediente y ficha inicial en borrador",
   })
   crear(@Body() entrada: CrearBeneficiariaDto) {
     return this.service.crear(entrada);

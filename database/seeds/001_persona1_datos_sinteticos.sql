@@ -80,6 +80,41 @@ INSERT INTO new_horizons.parentesco(nombre)
 SELECT dato.nombre FROM (VALUES ('Hija/o'), ('Madre'), ('Responsable sintético')) dato(nombre)
 WHERE NOT EXISTS (SELECT 1 FROM new_horizons.parentesco p WHERE p.nombre = dato.nombre);
 
+INSERT INTO new_horizons.estado_civil(nombre)
+SELECT dato.nombre FROM (VALUES
+  ('Soltera - prueba'), ('Casada - prueba'), ('Unida - prueba')
+) dato(nombre)
+WHERE NOT EXISTS (
+  SELECT 1 FROM new_horizons.estado_civil c WHERE c.nombre = dato.nombre
+);
+
+INSERT INTO new_horizons.nivel_estudio(nombre)
+SELECT dato.nombre FROM (VALUES
+  ('Primaria completa - prueba'),
+  ('Diversificado completo - prueba'),
+  ('Universidad incompleta - prueba')
+) dato(nombre)
+WHERE NOT EXISTS (
+  SELECT 1 FROM new_horizons.nivel_estudio n WHERE n.nombre = dato.nombre
+);
+
+INSERT INTO new_horizons.tipo_acompanante(nombre)
+SELECT dato.nombre FROM (VALUES
+  ('Familiar - prueba'), ('Responsable - prueba'), ('Sin acompañante - prueba')
+) dato(nombre)
+WHERE NOT EXISTS (
+  SELECT 1 FROM new_horizons.tipo_acompanante t WHERE t.nombre = dato.nombre
+);
+
+INSERT INTO new_horizons.estado_estudio(nombre)
+SELECT dato.nombre FROM (VALUES
+  ('Estudia actualmente - prueba'),
+  ('No estudia actualmente - prueba')
+) dato(nombre)
+WHERE NOT EXISTS (
+  SELECT 1 FROM new_horizons.estado_estudio e WHERE e.nombre = dato.nombre
+);
+
 INSERT INTO new_horizons.beneficiaria(cui, nombre, fecha_nac, alfabetismo)
 SELECT dato.cui, dato.nombre, dato.fecha_nac::date, dato.alfabetismo
 FROM (VALUES

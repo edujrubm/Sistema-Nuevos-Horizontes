@@ -1,10 +1,10 @@
-import { PartialType } from "@nestjs/swagger";
+import { OmitType, PartialType } from "@nestjs/swagger";
 import { IsInt, IsString, Length, Min } from "class-validator";
 
 import { CrearBeneficiariaDto } from "./crear-beneficiaria.dto";
 
 export class ActualizarBeneficiariaDto extends PartialType(
-  CrearBeneficiariaDto,
+  OmitType(CrearBeneficiariaDto, ["fichaInicial"] as const),
 ) {
   @IsInt()
   @Min(1)

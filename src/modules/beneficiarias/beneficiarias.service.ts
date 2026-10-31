@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -11,6 +12,7 @@ import { CrearBeneficiariaDto } from "./dto/crear-beneficiaria.dto";
 import { ListarBeneficiariasDto } from "./dto/listar-beneficiarias.dto";
 import { BeneficiariaEntity } from "./entities/beneficiaria.entity";
 import { BeneficiariasRepository } from "./repositories/beneficiarias.repository";
+import { esSeccionFicha } from "../ficha-inicial/ficha-inicial.constants";
 
 function enmascararCui(cui: string | null): string | null {
   if (!cui) return null;
@@ -45,12 +47,19 @@ export class BeneficiariasService {
   }
 
   async consultar(id: string) {
-    const beneficiaria = await this.repository.buscarPorId(id);
-    if (!beneficiaria) {
+    const detalle = await this.repository.buscarDetallePorId(id);
+    if (!detalle) {
       throw new NotFoundException("Beneficiaria no encontrada.");
     }
-    const { cui, ...perfil } = beneficiaria;
-    return { ...perfil, cuiEnmascarado: enmascararCui(cui) };
+    const { cui, ...perfil } = detalle.beneficiaria;
+    return {
+      ...perfil,
+      cuiEnmascarado: enmascararCui(cui),
+      residencia: detalle.residencia ?? null,
+      lugarOcupacion: detalle.lugarOcupacion ?? null,
+      expediente: detalle.expediente ?? null,
+      fichaInicial: detalle.fichaInicial ?? null,
+    };
   }
 
   async buscarCoincidencias(filtros: BuscarCoincidenciasDto) {
@@ -59,6 +68,17 @@ export class BeneficiariasService {
   }
 
   async crear(entrada: CrearBeneficiariaDto) {
+    const seccionesInvalidas = Object.keys(
+      entrada.fichaInicial.seccionesIniciales ?? {},
+    ).filter((seccion) => !esSeccionFicha(seccion));
+    if (seccionesInvalidas.length) {
+      throw new BadRequestException({
+        code: "INVALID_SECTION",
+        message:
+          "La admisión contiene secciones que no pertenecen a la ficha inicial.",
+        invalidSections: seccionesInvalidas,
+      });
+    }
     const resultado = await this.repository.crear(entrada);
     if (resultado.conflictoCui) {
       throw new ConflictException({
@@ -66,15 +86,22 @@ export class BeneficiariasService {
         message: "El CUI ya está registrado.",
       });
     }
+    const detalle = await this.repository.buscarDetallePorId(
+      resultado.beneficiaria.id,
+    );
+    if (!detalle)
+      throw new NotFoundException(
+        "No fue posible recuperar la admisión creada.",
+      );
+    const { cui, ...perfil } = detalle.beneficiaria;
     return {
       data: {
-        ...resumen(resultado.beneficiaria),
-        version: resultado.beneficiaria.version,
-        expediente: {
-          id: resultado.expediente.id,
-          activo: resultado.expediente.activo,
-          version: resultado.expediente.version,
-        },
+        ...perfil,
+        cuiEnmascarado: enmascararCui(cui),
+        residencia: detalle.residencia ?? null,
+        lugarOcupacion: detalle.lugarOcupacion ?? null,
+        expediente: detalle.expediente,
+        fichaInicial: detalle.fichaInicial,
       },
     };
   }

@@ -27,6 +27,7 @@ Las solicitudes de catálogos también seleccionan automáticamente `paisId`, `d
 
 ## Ejemplos completos incluidos
 
+- Inicio de admisión transaccional: beneficiaria, residencia, lugar de ocupación, expediente y ficha inicial en borrador.
 - Alta y actualización de beneficiaria con todos los campos admitidos actualmente por el DTO.
 - Alta y actualización de hija o hijo con todos los campos admitidos actualmente.
 - Cabecera de ficha inicial y ejemplos editables para sus 19 secciones.
@@ -36,6 +37,8 @@ Las solicitudes de catálogos también seleccionan automáticamente `paisId`, `d
 - Evaluación, entrevista inicial, seguimiento y observaciones.
 
 Los ejemplos contienen únicamente datos sintéticos. Los campos internos de `contenido` representan el inventario funcional preliminar de la ficha institucional. El backend los conserva como JSON de la sección; la obligatoriedad y los catálogos definitivos aún deben aprobarse antes de convertirlos en DTO estrictos por sección.
+
+El flujo normal ya no crea primero una beneficiaria aislada y después la ficha. La solicitud `01 - Iniciar admisión: beneficiaria y ficha` crea el agregado completo en una sola transacción. Las solicitudes posteriores continúan llenando el mismo borrador por secciones.
 
 ## Resultado esperado
 
