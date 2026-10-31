@@ -795,286 +795,6 @@
               }
             }
           ]
-        },
-        {
-          "name": "04 - Registrar hija desde ficha",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/hijos",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "fichas-iniciales",
-                "{{fichaId}}",
-                "hijos"
-              ]
-            },
-            "description": "Prueba POST /fichas-iniciales/{{fichaId}}/hijos",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nombre\": \"{{hijoNombre}}\",\n  \"cui\": \"{{hijoCui}}\",\n  \"fechaNacimiento\": \"2017-04-12\",\n  \"reconocido\": true,\n  \"genero\": \"F\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Estado HTTP esperado\", function () {",
-                  "  pm.expect([200,201]).to.include(pm.response.code);",
-                  "});",
-                  "pm.test(\"Respuesta JSON\", function () {",
-                  "  pm.response.to.be.json;",
-                  "});",
-                  "const responseData=pm.response.json().data; pm.collectionVariables.set(\"hijoId\",responseData.id); pm.collectionVariables.set(\"hijoVersion\",responseData.version);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "05 - Listar hijos de beneficiaria",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/hijos",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "beneficiarias",
-                "{{beneficiariaId}}",
-                "hijos"
-              ]
-            },
-            "description": "Prueba GET /beneficiarias/{{beneficiariaId}}/hijos"
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Estado HTTP esperado\", function () {",
-                  "  pm.expect([200,201]).to.include(pm.response.code);",
-                  "});",
-                  "pm.test(\"Respuesta JSON\", function () {",
-                  "  pm.response.to.be.json;",
-                  "});",
-                  "const responseData=pm.response.json().data; pm.expect(responseData.map(x=>String(x.id))).to.include(String(pm.collectionVariables.get(\"hijoId\")));"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "06 - Consultar hija",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/hijos/{{hijoId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "hijos",
-                "{{hijoId}}"
-              ]
-            },
-            "description": "Prueba GET /hijos/{{hijoId}}"
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Estado HTTP esperado\", function () {",
-                  "  pm.expect([200,201]).to.include(pm.response.code);",
-                  "});",
-                  "pm.test(\"Respuesta JSON\", function () {",
-                  "  pm.response.to.be.json;",
-                  "});",
-                  "const responseData=pm.response.json().data; pm.expect(String(responseData.id)).to.eql(String(pm.collectionVariables.get(\"hijoId\"))); pm.expect(responseData.cuiEnmascarado).to.exist;"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "07 - Actualizar hija",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/hijos/{{hijoId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "hijos",
-                "{{hijoId}}"
-              ]
-            },
-            "description": "Prueba PATCH /hijos/{{hijoId}}",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nombre\": \"{{hijoNombre}} Actualizada\",\n  \"version\": {{hijoVersion}},\n  \"motivo\": \"Prueba Postman de actualización\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Estado HTTP esperado\", function () {",
-                  "  pm.expect([200,201]).to.include(pm.response.code);",
-                  "});",
-                  "pm.test(\"Respuesta JSON\", function () {",
-                  "  pm.response.to.be.json;",
-                  "});",
-                  "const responseData=pm.response.json().data; pm.collectionVariables.set(\"hijoVersion\",responseData.version);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "08 - Inactivar hija",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/hijos/{{hijoId}}/inactivar",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "hijos",
-                "{{hijoId}}",
-                "inactivar"
-              ]
-            },
-            "description": "Prueba POST /hijos/{{hijoId}}/inactivar",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"version\": {{hijoVersion}},\n  \"motivo\": \"Prueba Postman de inactivación\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Estado HTTP esperado\", function () {",
-                  "  pm.expect([200,201]).to.include(pm.response.code);",
-                  "});",
-                  "pm.test(\"Respuesta JSON\", function () {",
-                  "  pm.response.to.be.json;",
-                  "});",
-                  "const responseData=pm.response.json().data; pm.expect(responseData.activo).to.eql(false); pm.collectionVariables.set(\"hijoVersion\",responseData.version);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "09 - Reactivar hija",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/hijos/{{hijoId}}/reactivar",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "hijos",
-                "{{hijoId}}",
-                "reactivar"
-              ]
-            },
-            "description": "Prueba POST /hijos/{{hijoId}}/reactivar",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"version\": {{hijoVersion}},\n  \"motivo\": \"Prueba Postman de reactivación\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Estado HTTP esperado\", function () {",
-                  "  pm.expect([200,201]).to.include(pm.response.code);",
-                  "});",
-                  "pm.test(\"Respuesta JSON\", function () {",
-                  "  pm.response.to.be.json;",
-                  "});",
-                  "const responseData=pm.response.json().data; pm.expect(responseData.activo).to.eql(true); pm.collectionVariables.set(\"hijoVersion\",responseData.version);"
-                ]
-              }
-            }
-          ]
         }
       ]
     },
@@ -1269,10 +989,10 @@
                 "familia"
               ]
             },
-            "description": "Guarda la página Grupo familiar y personas agresoras de la ficha. Agrupa internamente los apartados institucionales: grupo-familiar, agresores.",
+            "description": "Guarda la página Grupo familiar y personas agresoras de la ficha. Agrupa internamente los apartados institucionales: grupo-familiar, agresores. En esta misma transacción crea o actualiza las hijas e hijos vinculados al expediente.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"secciones\": {\n    \"grupo-familiar\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"hijasEHijos\": [\n        {\n          \"nombreCompleto\": \"{{hijoNombre}} Actualizada\",\n          \"cui\": \"{{hijoCui}}\",\n          \"fechaNacimiento\": \"2017-04-12\",\n          \"genero\": \"F\",\n          \"reconocido\": true,\n          \"vinculadoComoRegistro\": true\n        }\n      ],\n      \"otrasPersonasDelGrupoFamiliar\": [\n        {\n          \"nombreCompleto\": \"Familiar Sintético\",\n          \"parentesco\": \"Madre\",\n          \"edadCalculadaOReferencial\": 58,\n          \"conviveActualmente\": true\n        }\n      ],\n      \"violenciaSexual\": {\n        \"reportada\": false,\n        \"agresorConocido\": null,\n        \"nombreAgresor\": null,\n        \"relacionOParentesco\": null\n      }\n    },\n    \"agresores\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"personasAgresoras\": [\n        {\n          \"nombreCompleto\": \"Persona Agresora Sintética\",\n          \"edad\": 35,\n          \"tipoDocumento\": \"DPI_CUI\",\n          \"numeroDocumento\": \"TEST-AGRESOR-0001\",\n          \"ocupacion\": \"Ocupación sintética\",\n          \"lugarTrabajo\": \"Lugar sintético\",\n          \"horarioTrabajo\": \"08:00-17:00\",\n          \"direccionTrabajo\": \"Dirección laboral sintética\",\n          \"direccionResidencia\": \"Dirección residencial sintética\",\n          \"telefonoPrincipal\": \"55000004\",\n          \"telefonoAlternativo\": \"22000004\",\n          \"ingresoMensual\": 3500,\n          \"monedaIngreso\": \"GTQ\"\n        }\n      ]\n    }\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - página familia\"\n}",
+              "raw": "{\n  \"secciones\": {\n    \"grupo-familiar\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"otrasPersonasDelGrupoFamiliar\": [\n        {\n          \"nombreCompleto\": \"Familiar Sintético\",\n          \"parentesco\": \"Madre\",\n          \"edadCalculadaOReferencial\": 58,\n          \"conviveActualmente\": true\n        }\n      ],\n      \"violenciaSexual\": {\n        \"reportada\": false,\n        \"agresorConocido\": null,\n        \"nombreAgresor\": null,\n        \"relacionOParentesco\": null\n      }\n    },\n    \"agresores\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"personasAgresoras\": [\n        {\n          \"nombreCompleto\": \"Persona Agresora Sintética\",\n          \"edad\": 35,\n          \"tipoDocumento\": \"DPI_CUI\",\n          \"numeroDocumento\": \"TEST-AGRESOR-0001\",\n          \"ocupacion\": \"Ocupación sintética\",\n          \"lugarTrabajo\": \"Lugar sintético\",\n          \"horarioTrabajo\": \"08:00-17:00\",\n          \"direccionTrabajo\": \"Dirección laboral sintética\",\n          \"direccionResidencia\": \"Dirección residencial sintética\",\n          \"telefonoPrincipal\": \"55000004\",\n          \"telefonoAlternativo\": \"22000004\",\n          \"ingresoMensual\": 3500,\n          \"monedaIngreso\": \"GTQ\"\n        }\n      ]\n    }\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - página familia\",\n  \"hijos\": [\n    {\n      \"nombre\": \"{{hijoNombre}}\",\n      \"cui\": \"{{hijoCui}}\",\n      \"fechaNacimiento\": \"2017-04-12\",\n      \"genero\": \"F\",\n      \"reconocido\": true\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1295,7 +1015,10 @@
                   "});",
                   "const responseData=pm.response.json().data;",
                   "pm.expect(responseData.pagina).to.eql(\"familia\");",
-                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
+                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);",
+                  "const hijoGuardado=responseData.hijos[0];",
+                  "pm.collectionVariables.set(\"hijoId\",hijoGuardado.id);",
+                  "pm.collectionVariables.set(\"hijoVersion\",hijoGuardado.version);"
                 ]
               }
             }
@@ -1524,7 +1247,240 @@
       ]
     },
     {
-      "name": "04 - Confirmación",
+      "name": "04 - Consultas y mantenimiento posterior de hijos",
+      "item": [
+        {
+          "name": "01 - Listar hijos de beneficiaria",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/hijos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beneficiarias",
+                "{{beneficiariaId}}",
+                "hijos"
+              ]
+            },
+            "description": "Prueba GET /beneficiarias/{{beneficiariaId}}/hijos"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data; pm.expect(responseData.map(x=>String(x.id))).to.include(String(pm.collectionVariables.get(\"hijoId\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 - Consultar hija",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/hijos/{{hijoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "hijos",
+                "{{hijoId}}"
+              ]
+            },
+            "description": "Prueba GET /hijos/{{hijoId}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data; pm.expect(String(responseData.id)).to.eql(String(pm.collectionVariables.get(\"hijoId\"))); pm.expect(responseData.cuiEnmascarado).to.exist;"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 - Actualizar hija",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/hijos/{{hijoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "hijos",
+                "{{hijoId}}"
+              ]
+            },
+            "description": "Prueba PATCH /hijos/{{hijoId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{hijoNombre}} Actualizada\",\n  \"version\": {{hijoVersion}},\n  \"motivo\": \"Prueba Postman de actualización\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data; pm.collectionVariables.set(\"hijoVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 - Inactivar hija",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/hijos/{{hijoId}}/inactivar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "hijos",
+                "{{hijoId}}",
+                "inactivar"
+              ]
+            },
+            "description": "Prueba POST /hijos/{{hijoId}}/inactivar",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"version\": {{hijoVersion}},\n  \"motivo\": \"Prueba Postman de inactivación\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data; pm.expect(responseData.activo).to.eql(false); pm.collectionVariables.set(\"hijoVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 - Reactivar hija",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/hijos/{{hijoId}}/reactivar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "hijos",
+                "{{hijoId}}",
+                "reactivar"
+              ]
+            },
+            "description": "Prueba POST /hijos/{{hijoId}}/reactivar",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"version\": {{hijoVersion}},\n  \"motivo\": \"Prueba Postman de reactivación\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data; pm.expect(responseData.activo).to.eql(true); pm.collectionVariables.set(\"hijoVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 - Confirmación",
       "item": [
         {
           "name": "01 - Confirmar ficha completa",
@@ -1617,7 +1573,7 @@
       ]
     },
     {
-      "name": "05 - Validaciones negativas",
+      "name": "06 - Validaciones negativas",
       "item": [
         {
           "name": "01 - Catálogo no permitido devuelve 404",

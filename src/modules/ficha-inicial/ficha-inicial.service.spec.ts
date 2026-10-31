@@ -69,6 +69,47 @@ describe("FichaInicialService", () => {
     });
   });
 
+  it("crea hijos dentro del guardado transaccional de la página Familia", async () => {
+    repository.guardarPagina.mockResolvedValue({
+      estado: "ACTUALIZADA",
+      ficha: { id: "1", estado: "BORRADOR", version: 5 },
+      hijos: [{ id: "20", nombre: "Hija sintética", version: 1 }],
+    });
+    const entrada = {
+      secciones: {
+        "grupo-familiar": { otrasPersonasDelGrupoFamiliar: [] },
+        agresores: { personasAgresoras: [] },
+      },
+      hijos: [{ nombre: "Hija sintética", genero: "F" }],
+      versionFicha: 4,
+      motivo: "Guardar familia de prueba",
+    };
+
+    await expect(
+      service.guardarPagina("1", "familia", entrada),
+    ).resolves.toMatchObject({
+      data: { hijos: [{ id: "20", version: 1 }] },
+    });
+    expect(repository.guardarPagina).toHaveBeenCalledWith(
+      "1",
+      entrada.secciones,
+      entrada.hijos,
+      4,
+      "Guardar familia de prueba",
+    );
+  });
+
+  it("no permite crear hijos desde otra página", async () => {
+    await expect(
+      service.guardarPagina("1", "residencia", {
+        secciones: { residencia: { urbano: true } },
+        hijos: [{ nombre: "Hija sintética" }],
+        versionFicha: 1,
+        motivo: "Prueba controlada",
+      }),
+    ).rejects.toMatchObject({ codigo: "CAMPO_NO_PERMITIDO" });
+  });
+
   it("rechaza secciones que no pertenecen a la página", async () => {
     await expect(
       service.guardarPagina("1", "residencia", {

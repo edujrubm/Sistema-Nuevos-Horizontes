@@ -22,7 +22,6 @@ import { IniciarFichaInicialDto } from "../beneficiarias/dto/crear-beneficiaria.
 
 import { ActualizarPaginaDto } from "./dto/actualizar-pagina.dto";
 import { ConfirmarFichaDto } from "./dto/confirmar-ficha.dto";
-import { CrearNinoFichaDto } from "./dto/crear-nino-ficha.dto";
 import { ListarFichasDto } from "./dto/listar-fichas.dto";
 import { FichaInicialService } from "./ficha-inicial.service";
 
@@ -88,16 +87,5 @@ export class FichaInicialController {
     @Body() entrada: ConfirmarFichaDto,
   ) {
     return this.service.confirmar(id, entrada);
-  }
-
-  @Post("fichas-iniciales/:id/hijos")
-  @ApiOperation({
-    summary: "Registra una hija o hijo en el expediente de la ficha",
-  })
-  agregarNino(
-    @Param("id", ParseBigIntIdPipe) id: string,
-    @Body() entrada: CrearNinoFichaDto,
-  ) {
-    return this.service.agregarNino(id, entrada);
   }
 }

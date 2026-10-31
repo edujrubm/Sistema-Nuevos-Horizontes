@@ -8,11 +8,11 @@ import {
   Repository,
 } from "typeorm";
 
-import { CrearFichaDto } from "../dto/crear-ficha.dto";
-import { CrearNinoFichaDto } from "../dto/crear-nino-ficha.dto";
+import { GuardarHijoPaginaDto } from "../dto/actualizar-pagina.dto";
 import { ListarFichasDto } from "../dto/listar-fichas.dto";
 import { FichaInicialEntity } from "../entities/ficha-inicial.entity";
 import { FichaSeccionEntity } from "../entities/ficha-seccion.entity";
+import { NinoEntity } from "../../ninos/entities/nino.entity";
 
 @Injectable()
 export class FichaInicialRepository {
@@ -65,31 +65,6 @@ export class FichaInicialRepository {
     return { ficha, secciones };
   }
 
-  async crear(beneficiariaId: string, entrada: CrearFichaDto) {
-    return this.dataSource.transaction(async (manager) => {
-      await this.auditoria(manager, "Creación de borrador de ficha inicial");
-      const expedientes = await manager.query<Array<{ id: string }>>(
-        `SELECT id_expediente::text AS id FROM new_horizons.expediente WHERE beneficiaria_id=$1::bigint AND activo=true`,
-        [beneficiariaId],
-      );
-      if (!expedientes[0]) return { estado: "SIN_EXPEDIENTE" as const };
-      const repository = manager.getRepository(FichaInicialEntity);
-      const existente = await repository.findOne({
-        where: { expedienteId: expedientes[0].id, estado: "BORRADOR" },
-      });
-      if (existente)
-        return { estado: "BORRADOR_EXISTENTE" as const, ficha: existente };
-      const ficha = await repository.save(
-        repository.create({
-          expedienteId: expedientes[0].id,
-          lugar: entrada.lugar?.trim() ?? null,
-          fecha: new Date(),
-        }),
-      );
-      return { estado: "CREADA" as const, ficha };
-    });
-  }
-
   async guardarSeccion(
     id: string,
     seccion: string,
@@ -125,35 +100,113 @@ export class FichaInicialRepository {
   async guardarPagina(
     id: string,
     secciones: Record<string, Record<string, unknown>>,
+    hijos: GuardarHijoPaginaDto[],
     version: number,
     motivo: string,
   ) {
-    return this.dataSource.transaction(async (manager) => {
-      await this.auditoria(manager, motivo);
-      const fichas = manager.getRepository(FichaInicialEntity);
-      const ficha = await fichas.findOne({
-        where: { id },
-        lock: { mode: "pessimistic_write" },
-      });
-      if (!ficha) return { estado: "NO_ENCONTRADA" as const };
-      if (ficha.estado !== "BORRADOR") return { estado: "CONFIRMADA" as const };
-      if (ficha.version !== version)
-        return { estado: "CONFLICTO_VERSION" as const };
+    return this.dataSource
+      .transaction(async (manager) => {
+        await this.auditoria(manager, motivo);
+        const fichas = manager.getRepository(FichaInicialEntity);
+        const ficha = await fichas.findOne({
+          where: { id },
+          lock: { mode: "pessimistic_write" },
+        });
+        if (!ficha) return { estado: "NO_ENCONTRADA" as const };
+        if (ficha.estado !== "BORRADOR")
+          return { estado: "CONFIRMADA" as const };
+        if (ficha.version !== version)
+          return { estado: "CONFLICTO_VERSION" as const };
 
-      for (const [seccion, contenido] of Object.entries(secciones)) {
-        await manager.query(
-          `INSERT INTO new_horizons.ficha_inicial_seccion(ficha_inicial_id,seccion,contenido)
+        const ninos = manager.getRepository(NinoEntity);
+        const hijosGuardados: NinoEntity[] = [];
+        for (const entrada of hijos) {
+          if (entrada.id) {
+            const nino = await ninos.findOne({
+              where: { id: entrada.id },
+              lock: { mode: "pessimistic_write" },
+            });
+            if (!nino) return { estado: "HIJO_NO_ENCONTRADO" as const };
+            if (nino.expedienteId !== ficha.expedienteId)
+              return { estado: "HIJO_OTRO_EXPEDIENTE" as const };
+            if (nino.version !== entrada.version)
+              return { estado: "CONFLICTO_VERSION_HIJO" as const };
+            if (entrada.cui && entrada.cui !== nino.cui) {
+              const duplicado = await ninos.findOne({
+                where: { cui: entrada.cui },
+              });
+              if (duplicado) return { estado: "CUI_DUPLICADO" as const };
+            }
+            Object.assign(nino, {
+              ...(entrada.nombre !== undefined && {
+                nombre: entrada.nombre.trim(),
+              }),
+              ...(entrada.cui !== undefined && { cui: entrada.cui.trim() }),
+              ...(entrada.fechaNacimiento !== undefined && {
+                fechaNacimiento: entrada.fechaNacimiento,
+              }),
+              ...(entrada.reconocido !== undefined && {
+                reconocido: entrada.reconocido,
+              }),
+              ...(entrada.genero !== undefined && { genero: entrada.genero }),
+            });
+            hijosGuardados.push(await ninos.save(nino));
+            continue;
+          }
+          if (entrada.cui) {
+            const duplicado = await ninos.findOne({
+              where: { cui: entrada.cui },
+            });
+            if (duplicado) return { estado: "CUI_DUPLICADO" as const };
+          }
+          hijosGuardados.push(
+            await ninos.save(
+              ninos.create({
+                expedienteId: ficha.expedienteId,
+                nombre: entrada.nombre!.trim(),
+                cui: entrada.cui?.trim() ?? null,
+                fechaNacimiento: entrada.fechaNacimiento ?? null,
+                reconocido: entrada.reconocido ?? null,
+                genero: entrada.genero ?? null,
+              }),
+            ),
+          );
+        }
+
+        for (const [seccion, contenido] of Object.entries(secciones)) {
+          await manager.query(
+            `INSERT INTO new_horizons.ficha_inicial_seccion(ficha_inicial_id,seccion,contenido)
            VALUES ($1::bigint,$2,$3::jsonb)
            ON CONFLICT (ficha_inicial_id,seccion) DO UPDATE SET contenido=EXCLUDED.contenido`,
-          [id, seccion, JSON.stringify(contenido)],
+            [id, seccion, JSON.stringify(contenido)],
+          );
+        }
+        await fichas.update({ id }, { actualizadoEn: new Date() });
+        const hijosActualizados = await Promise.all(
+          hijosGuardados.map((nino) => ninos.findOneByOrFail({ id: nino.id })),
         );
-      }
-      await fichas.update({ id }, { actualizadoEn: new Date() });
-      return {
-        estado: "ACTUALIZADA" as const,
-        ficha: await fichas.findOneByOrFail({ id }),
-      };
-    });
+        return {
+          estado: "ACTUALIZADA" as const,
+          ficha: await fichas.findOneByOrFail({ id }),
+          hijos: hijosActualizados.map((nino) => ({
+            id: nino.id,
+            nombre: nino.nombre,
+            fechaNacimiento: nino.fechaNacimiento,
+            reconocido: nino.reconocido,
+            genero: nino.genero,
+            activo: nino.activo,
+            version: nino.version,
+          })),
+        };
+      })
+      .catch((error: unknown) => {
+        if (
+          error instanceof QueryFailedError &&
+          (error.driverError as { code?: string }).code === "23505"
+        )
+          return { estado: "CUI_DUPLICADO" as const };
+        throw error;
+      });
   }
 
   async confirmar(
@@ -192,53 +245,5 @@ export class FichaInicialRepository {
         ficha: await repository.findOneByOrFail({ id }),
       };
     });
-  }
-
-  async agregarNino(id: string, entrada: CrearNinoFichaDto) {
-    return this.dataSource
-      .transaction(async (manager) => {
-        await this.auditoria(
-          manager,
-          "Registro de hija o hijo desde ficha inicial",
-        );
-        const fichas = manager.getRepository(FichaInicialEntity);
-        const ficha = await fichas.findOne({
-          where: { id },
-          lock: { mode: "pessimistic_write" },
-        });
-        if (!ficha) return { estado: "NO_ENCONTRADA" as const };
-        if (ficha.estado !== "BORRADOR")
-          return { estado: "CONFIRMADA" as const };
-        if (entrada.cui) {
-          const duplicado = await manager.query(
-            `SELECT 1 FROM new_horizons.nino WHERE cui=$1 LIMIT 1`,
-            [entrada.cui],
-          );
-          if (duplicado[0]) return { estado: "CUI_DUPLICADO" as const };
-        }
-        const rows = await manager.query<Array<Record<string, unknown>>>(
-          `INSERT INTO new_horizons.nino(cui,nombre,fecha_nac,reconocido,genero,expediente_id)
-         VALUES ($1,$2,$3::date,$4,$5,$6::bigint)
-         RETURNING nino_id::text AS id,nombre,fecha_nac AS "fechaNacimiento",reconocido,genero,activo,version`,
-          [
-            entrada.cui?.trim() ?? null,
-            entrada.nombre.trim(),
-            entrada.fechaNacimiento ?? null,
-            entrada.reconocido ?? null,
-            entrada.genero ?? null,
-            ficha.expedienteId,
-          ],
-        );
-        return { estado: "CREADO" as const, nino: rows[0] };
-      })
-      .catch((error: unknown) => {
-        if (
-          error instanceof QueryFailedError &&
-          (error.driverError as { code?: string }).code === "23505"
-        ) {
-          return { estado: "CUI_DUPLICADO" as const };
-        }
-        throw error;
-      });
   }
 }

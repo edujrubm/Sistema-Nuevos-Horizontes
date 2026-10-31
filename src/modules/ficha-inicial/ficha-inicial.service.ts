@@ -4,13 +4,13 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import { ErrorPublicoException } from "../../common/errors/error-publico.exception";
 import { BeneficiariasService } from "../beneficiarias/beneficiarias.service";
 import { IniciarFichaInicialDto } from "../beneficiarias/dto/crear-beneficiaria.dto";
 
 import { ActualizarPaginaDto } from "./dto/actualizar-pagina.dto";
 import { ActualizarSeccionDto } from "./dto/actualizar-seccion.dto";
 import { ConfirmarFichaDto } from "./dto/confirmar-ficha.dto";
-import { CrearNinoFichaDto } from "./dto/crear-nino-ficha.dto";
 import { ListarFichasDto } from "./dto/listar-fichas.dto";
 import {
   esPaginaFicha,
@@ -101,6 +101,42 @@ export class FichaInicialService {
         message: "La página no pertenece a la ficha inicial.",
         allowed: Object.keys(PAGINAS_FICHA),
       });
+    if (entrada.hijos?.length && pagina !== "familia")
+      throw new ErrorPublicoException(
+        400,
+        "CAMPO_NO_PERMITIDO",
+        "La solicitud contiene campos que esta operación no admite.",
+        [
+          {
+            campo: "hijos",
+            mensaje: "Las hijas e hijos solo se guardan en la página Familia.",
+          },
+        ],
+      );
+    const hijosInvalidos = (entrada.hijos ?? []).flatMap((hijo, indice) => {
+      if (!hijo.id && !hijo.nombre)
+        return [
+          {
+            campo: `hijos[${indice}].nombre`,
+            mensaje: "Escribe el nombre para registrar a la hija o hijo.",
+          },
+        ];
+      if (hijo.id && !hijo.version)
+        return [
+          {
+            campo: `hijos[${indice}].version`,
+            mensaje: "Consulta la versión vigente antes de guardar cambios.",
+          },
+        ];
+      return [];
+    });
+    if (hijosInvalidos.length)
+      throw new ErrorPublicoException(
+        400,
+        "DATOS_INVALIDOS",
+        "Revisa los datos señalados antes de continuar.",
+        hijosInvalidos,
+      );
 
     const permitidas: readonly string[] = PAGINAS_FICHA[pagina];
     const recibidas = Object.keys(entrada.secciones);
@@ -119,6 +155,7 @@ export class FichaInicialService {
     const resultado = await this.repository.guardarPagina(
       id,
       entrada.secciones,
+      entrada.hijos ?? [],
       entrada.versionFicha,
       entrada.motivo,
     );
@@ -134,6 +171,30 @@ export class FichaInicialService {
         code: "VERSION_CONFLICT",
         message: "La ficha cambió desde que fue consultada.",
       });
+    if (resultado.estado === "HIJO_NO_ENCONTRADO")
+      throw new ErrorPublicoException(
+        404,
+        "REGISTRO_NO_ENCONTRADO",
+        "No se encontró el registro solicitado.",
+      );
+    if (resultado.estado === "HIJO_OTRO_EXPEDIENTE")
+      throw new ErrorPublicoException(
+        409,
+        "RELACION_INCOMPATIBLE",
+        "Los registros seleccionados no corresponden entre sí. Revisa tu selección.",
+      );
+    if (resultado.estado === "CONFLICTO_VERSION_HIJO")
+      throw new ErrorPublicoException(
+        409,
+        "VERSION_DESACTUALIZADA",
+        "Otra persona modificó este registro. Vuelve a consultarlo antes de guardar.",
+      );
+    if (resultado.estado === "CUI_DUPLICADO")
+      throw new ErrorPublicoException(
+        409,
+        "REGISTRO_DUPLICADO",
+        "Ya existe un registro con estos datos. Revisa el registro existente antes de continuar.",
+      );
     return {
       data: {
         id: resultado.ficha.id,
@@ -141,6 +202,7 @@ export class FichaInicialService {
         version: resultado.ficha.version,
         pagina,
         seccionesGuardadas: recibidas,
+        hijos: resultado.hijos,
       },
     };
   }
@@ -171,22 +233,5 @@ export class FichaInicialService {
         missingSections: resultado.faltantes,
       });
     return { data: resultado.ficha };
-  }
-
-  async agregarNino(id: string, entrada: CrearNinoFichaDto) {
-    const resultado = await this.repository.agregarNino(id, entrada);
-    if (resultado.estado === "NO_ENCONTRADA")
-      throw new NotFoundException("Ficha inicial no encontrada.");
-    if (resultado.estado === "CONFIRMADA")
-      throw new ConflictException({
-        code: "STATE_CONFLICT",
-        message: "No se pueden agregar hijos a una ficha confirmada.",
-      });
-    if (resultado.estado === "CUI_DUPLICADO")
-      throw new ConflictException({
-        code: "DUPLICATE_CUI",
-        message: "El CUI ya está registrado.",
-      });
-    return { data: resultado.nino };
   }
 }
