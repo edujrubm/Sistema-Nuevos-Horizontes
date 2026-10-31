@@ -1,6 +1,6 @@
 # Decisiones vigentes de nuestra asignación
 
-Actualizado: 29 de octubre de 2026. Fuente: respuestas directas del usuario. Este documento sustituye los pendientes antiguos de los días 26 y 27 donde haya diferencias.
+Actualizado: 30 de octubre de 2026. Fuente: respuestas directas del usuario. Este documento sustituye los pendientes antiguos de los días 26 y 27 donde haya diferencias.
 
 ## Acuerdos cerrados
 
@@ -17,8 +17,8 @@ Actualizado: 29 de octubre de 2026. Fuente: respuestas directas del usuario. Est
 11. El funcionamiento de nuestras áreas no depende de servicios, endpoints, código pendiente ni almacenamiento de otros compañeros. El soporte `persona3` es interno de nuestra entrega.
 12. Los PDF se guardan de forma privada en nuestro almacenamiento local configurable y se vinculan a la ficha/expediente/área. No es requisito esperar una integración documental externa. La BD común conserva sus tablas y relaciones: no se duplican beneficiarias ni se cambia el SQL.
 13. La entrega es de APIs; la pantalla de laboratorio se usa para verificarlas, sin sustituir el frontend aprobado.
-14. La guía de errores en `../CONTRATO_ERRORES_API.md` define el formato a adoptar. Tener el documento no equivale a haber normalizado todas las excepciones existentes; esa implementación técnica debe verificarse aparte.
-15. No hay push ni cambio de la BD compartida. La organización de entrega se hace para nuestras áreas, sin imponer a otros integrantes una tarea transversal como condición para funcionar.
+14. El contrato de errores en `../CONTRATO_ERRORES_API.md` está implementado en nuestra entrega. Ver ERRORES_IMPLEMENTADOS.md para alcance, pruebas y límites. Las funciones futuras del catálogo no se adelantan por este cambio.
+15. El usuario autorizó publicar en las ramas de nuestras áreas y evolución. No se modifica la BD compartida ni se integra a main. No se crea una rama adicional de persona 3.
 
 ## Única duda funcional que permanece abierta
 

@@ -1,6 +1,6 @@
 # Avance vigente de persona 3
 
-Actualizado el 29 de octubre de 2026. Copia de trabajo: `Sistema-Nuevos-Horizontes-Persona3`. Rama de preparación local: `persona3/ciclo2-local`. Sin push. Las decisiones del usuario están en DECISIONES_VIGENTES.md.
+Actualizado el 30 de octubre de 2026. Entrega: `Sistema-Nuevos-Horizontes-Entrega`, ramas `legal`, `social`, `guarderia` y `evolucion`. Las decisiones del usuario están en DECISIONES_VIGENTES.md.
 
 ## APIs implementadas
 
@@ -43,7 +43,7 @@ Pantalla de comprobación: http://127.0.0.1:3003/laboratorio/persona3.html . No 
 - Confirmación con destino y motivo de referencia obligatorios. Corrección de confirmadas con motivo/historial, conservando los obligatorios.
 - Sin dependencia de otros compañeros para código o almacenamiento.
 - Pendiente funcional: campos del mockup Social que no existen en SQL.
-- La guía de errores está documentada; su normalización general en el código es una tarea técnica distinta y no se declara completada por estos acuerdos.
+- El contrato de errores está integrado en nuestras APIs: sobre uniforme, mensajes en español, correlación, validación, reglas de negocio, parser, PDF y respaldo seguro. Ver ERRORES_IMPLEMENTADOS.md.
 
 ## Entregables
 
