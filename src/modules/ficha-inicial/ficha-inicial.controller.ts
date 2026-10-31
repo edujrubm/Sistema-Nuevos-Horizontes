@@ -18,11 +18,11 @@ import {
 
 import { ParseBigIntIdPipe } from "../../common/pipes/parse-bigint-id.pipe";
 import { ErrorApiDto } from "../../common/errors/error-api.dto";
-import { IniciarFichaInicialDto } from "../beneficiarias/dto/crear-beneficiaria.dto";
 
 import { ActualizarPaginaDto } from "./dto/actualizar-pagina.dto";
 import { ConfirmarFichaDto } from "./dto/confirmar-ficha.dto";
 import { ListarFichasDto } from "./dto/listar-fichas.dto";
+import { IniciarFichaInicialDto } from "./dto/iniciar-ficha-inicial.dto";
 import { FichaInicialService } from "./ficha-inicial.service";
 
 @Controller("v1")

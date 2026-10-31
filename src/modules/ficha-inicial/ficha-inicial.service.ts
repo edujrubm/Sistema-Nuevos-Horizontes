@@ -6,12 +6,13 @@ import {
 } from "@nestjs/common";
 import { ErrorPublicoException } from "../../common/errors/error-publico.exception";
 import { BeneficiariasService } from "../beneficiarias/beneficiarias.service";
-import { IniciarFichaInicialDto } from "../beneficiarias/dto/crear-beneficiaria.dto";
+import { CrearBeneficiariaDto } from "../beneficiarias/dto/crear-beneficiaria.dto";
 
 import { ActualizarPaginaDto } from "./dto/actualizar-pagina.dto";
 import { ActualizarSeccionDto } from "./dto/actualizar-seccion.dto";
 import { ConfirmarFichaDto } from "./dto/confirmar-ficha.dto";
 import { ListarFichasDto } from "./dto/listar-fichas.dto";
+import { IniciarFichaInicialDto } from "./dto/iniciar-ficha-inicial.dto";
 import {
   esPaginaFicha,
   esSeccionFicha,
@@ -28,7 +29,21 @@ export class FichaInicialService {
   ) {}
 
   iniciar(entrada: IniciarFichaInicialDto) {
-    return this.beneficiarias.crear(entrada);
+    const admision: CrearBeneficiariaDto = {
+      nombre: entrada.nombre,
+      cui: entrada.cui,
+      fechaNacimiento: entrada.fechaNacimiento,
+      paisCuiId: entrada.paisCuiId,
+      tipoAcompananteId: entrada.tipoAcompananteId,
+      paisOrigenId: entrada.paisOrigenId,
+      departamentoOrigenId: entrada.departamentoOrigenId,
+      municipioOrigenId: entrada.municipioOrigenId,
+      fichaInicial: {
+        lugar: entrada.lugar,
+        fechaEntrevista: entrada.fechaEntrevista,
+      },
+    };
+    return this.beneficiarias.crear(admision);
   }
 
   async listar(filtro: ListarFichasDto) {
@@ -154,6 +169,7 @@ export class FichaInicialService {
 
     const resultado = await this.repository.guardarPagina(
       id,
+      pagina,
       entrada.secciones,
       entrada.hijos ?? [],
       entrada.versionFicha,
@@ -194,6 +210,12 @@ export class FichaInicialService {
         409,
         "REGISTRO_DUPLICADO",
         "Ya existe un registro con estos datos. Revisa el registro existente antes de continuar.",
+      );
+    if (resultado.estado === "RELACION_INCOMPATIBLE")
+      throw new ErrorPublicoException(
+        409,
+        "RELACION_INCOMPATIBLE",
+        "Los registros seleccionados no corresponden entre sí. Revisa tu selección.",
       );
     return {
       data: {

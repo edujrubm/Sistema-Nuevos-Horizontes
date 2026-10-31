@@ -343,7 +343,7 @@
             "description": "Inicia una sola ficha de admisión. Internamente crea en la misma transacción la beneficiaria, residencia, lugar de ocupación, expediente permanente y ficha inicial en BORRADOR; no existe un alta independiente de beneficiarias.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"{{beneficiariaNombre}}\",\n  \"cui\": \"{{beneficiariaCui}}\",\n  \"fechaNacimiento\": \"1992-06-15\",\n  \"alfabetismo\": true,\n  \"enfermedadPermanente\": true,\n  \"nombreEnfermedad\": \"Condición sintética controlada\",\n  \"tipoTratamiento\": \"Tratamiento sintético de prueba\",\n  \"otrosPadecimientos\": \"Ninguno informado\",\n  \"paisCuiId\": \"{{paisId}}\",\n  \"tipoAcompananteId\": \"{{tipoAcompananteId}}\",\n  \"estadoCivilId\": \"{{estadoCivilId}}\",\n  \"ocupacionId\": \"{{ocupacionId}}\",\n  \"nivelEstudioId\": \"{{nivelEstudioId}}\",\n  \"paisOrigenId\": \"{{paisId}}\",\n  \"departamentoOrigenId\": \"{{departamentoId}}\",\n  \"municipioOrigenId\": \"{{municipioId}}\",\n  \"estadoEstudioId\": \"{{estadoEstudioId}}\",\n  \"lugarOcupacion\": {\n    \"nombre\": \"Centro educativo sintético\",\n    \"direccion\": \"Zona 3, dirección sintética\",\n    \"telefono\": \"22000003\",\n    \"personaContacto\": \"Responsable Sintético\",\n    \"cargoPersonaContacto\": \"Coordinación\"\n  },\n  \"residencia\": {\n    \"direccionActual\": \"Zona 1, dirección sintética de pruebas\",\n    \"numeroCasa\": \"A-12\",\n    \"telefonoCasa\": \"22000001\",\n    \"telefonoCelular\": \"55000001\",\n    \"direccionAlternativa\": \"Zona 2, dirección alternativa sintética\",\n    \"personaEnlace\": \"Contacto Sintético\",\n    \"relacionPersonaEnlace\": \"Hermana\",\n    \"urbano\": true,\n    \"paisResidenciaId\": \"{{paisId}}\",\n    \"departamentoResidenciaId\": \"{{departamentoId}}\",\n    \"municipioResidenciaId\": \"{{municipioId}}\",\n    \"areaResidencial\": {\n      \"colonia\": \"Colonia sintética\",\n      \"barrioPopular\": \"Barrio sintético\",\n      \"asentamiento\": \"Asentamiento sintético\",\n      \"zona\": \"1\",\n      \"aldea\": \"Aldea sintética\",\n      \"caserio\": \"Caserío sintético\",\n      \"canton\": \"Cantón sintético\",\n      \"otro\": \"Sector sintético\"\n    }\n  },\n  \"fichaInicial\": {\n    \"lugar\": \"Centro de pruebas Postman\",\n    \"fechaEntrevista\": \"2026-10-31\",\n    \"seccionesIniciales\": {\n      \"identificacion\": {\n        \"nacionalidad\": \"Guatemalteca\",\n        \"tipoDocumento\": \"DPI_CUI\",\n        \"paisEmisionId\": \"{{paisId}}\",\n        \"acompanante\": {\n          \"nombreCompleto\": \"Acompañante Sintético\",\n          \"parentesco\": \"Familiar\",\n          \"cui\": \"TEST-ACOMP-0001\"\n        }\n      },\n      \"residencia\": {\n        \"telefonoCasa\": \"22000001\",\n        \"telefonoCelular\": \"55000001\",\n        \"areaResidencial\": \"URBANA\"\n      },\n      \"datos-generales\": {\n        \"etnia\": \"Etnia sintética\",\n        \"sabeLeer\": true,\n        \"sabeEscribir\": true\n      },\n      \"salud\": {\n        \"enfermedadPermanente\": true,\n        \"nombreEnfermedad\": \"Condición sintética controlada\",\n        \"tipoTratamiento\": \"Tratamiento sintético de prueba\",\n        \"otrosPadecimientos\": \"Ninguno informado\"\n      }\n    }\n  }\n}",
+              "raw": "{\n  \"nombre\": \"{{beneficiariaNombre}}\",\n  \"cui\": \"{{beneficiariaCui}}\",\n  \"fechaNacimiento\": \"1992-06-15\",\n  \"paisCuiId\": \"{{paisId}}\",\n  \"paisOrigenId\": \"{{paisId}}\",\n  \"departamentoOrigenId\": \"{{departamentoId}}\",\n  \"municipioOrigenId\": \"{{municipioId}}\",\n  \"lugar\": \"Centro de pruebas Postman\",\n  \"fechaEntrevista\": \"2026-10-31\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -364,7 +364,7 @@
                   "pm.test(\"Respuesta JSON\", function () {",
                   "  pm.response.to.be.json;",
                   "});",
-                  "const responseData=pm.response.json().data; pm.collectionVariables.set(\"beneficiariaId\",responseData.id); pm.collectionVariables.set(\"beneficiariaVersion\",responseData.version); pm.collectionVariables.set(\"expedienteId\",responseData.expediente.id); pm.collectionVariables.set(\"expedienteVersion\",responseData.expediente.version); pm.collectionVariables.set(\"fichaId\",responseData.fichaInicial.id); pm.collectionVariables.set(\"fichaVersion\",responseData.fichaInicial.version); pm.expect(responseData.fichaInicial.estado).to.eql(\"BORRADOR\"); pm.expect(responseData.residencia).to.be.an(\"object\");"
+                  "const responseData=pm.response.json().data; pm.collectionVariables.set(\"beneficiariaId\",responseData.id); pm.collectionVariables.set(\"beneficiariaVersion\",responseData.version); pm.collectionVariables.set(\"expedienteId\",responseData.expediente.id); pm.collectionVariables.set(\"expedienteVersion\",responseData.expediente.version); pm.collectionVariables.set(\"fichaId\",responseData.fichaInicial.id); pm.collectionVariables.set(\"fichaVersion\",responseData.fichaInicial.version); pm.expect(responseData.fichaInicial.estado).to.eql(\"BORRADOR\");"
                 ]
               }
             }
@@ -937,7 +937,7 @@
             "description": "Guarda la página Datos generales y salud de la ficha. Agrupa internamente los apartados institucionales: datos-generales, salud.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"secciones\": {\n    \"datos-generales\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"estadoCivil\": \"Soltera\",\n      \"etnias\": [\n        \"Maya\"\n      ],\n      \"ocupacionId\": \"{{ocupacionId}}\",\n      \"estudiaActualmente\": true,\n      \"lugarTrabajoOEstudio\": \"Centro educativo sintético\",\n      \"direccionTrabajoOEstudio\": \"Zona 3, dirección sintética\",\n      \"telefonoTrabajoOEstudio\": \"22000003\",\n      \"contactoTrabajoOEstudio\": {\n        \"nombreCompleto\": \"Responsable Sintético\",\n        \"cargo\": \"Coordinación\",\n        \"telefono\": \"55000003\"\n      },\n      \"alfabetismo\": {\n        \"lee\": true,\n        \"escribe\": true\n      },\n      \"escolaridad\": {\n        \"nivel\": \"Diversificado\",\n        \"ultimoGradoAprobado\": \"Sexto\",\n        \"estudiaActualmente\": true\n      }\n    },\n    \"salud\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"enfermedadPermanente\": false,\n      \"nombreEnfermedad\": null,\n      \"recibeTratamiento\": false,\n      \"tipoTratamiento\": null,\n      \"otrosPadecimientos\": \"Ninguno informado en datos sintéticos\",\n      \"medicamentosActuales\": [],\n      \"alergiasInformadas\": [],\n      \"observacionesSalud\": \"Ejemplo sintético; no representa información clínica real\"\n    }\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - página datos-salud\"\n}",
+              "raw": "{\n  \"secciones\": {\n    \"datos-generales\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"etnias\": [\n        \"Maya\"\n      ],\n      \"ocupacionId\": \"{{ocupacionId}}\",\n      \"estudiaActualmente\": true,\n      \"lugarTrabajoOEstudio\": \"Centro educativo sintético\",\n      \"direccionTrabajoOEstudio\": \"Zona 3, dirección sintética\",\n      \"telefonoTrabajoOEstudio\": \"22000003\",\n      \"contactoTrabajoOEstudio\": {\n        \"nombreCompleto\": \"Responsable Sintético\",\n        \"cargo\": \"Coordinación\",\n        \"telefono\": \"55000003\"\n      },\n      \"alfabetismo\": true,\n      \"escolaridad\": {\n        \"nivel\": \"Diversificado\",\n        \"ultimoGradoAprobado\": \"Sexto\",\n        \"estudiaActualmente\": true\n      },\n      \"estadoCivilId\": \"{{estadoCivilId}}\",\n      \"nivelEstudioId\": \"{{nivelEstudioId}}\",\n      \"estadoEstudioId\": \"{{estadoEstudioId}}\"\n    },\n    \"salud\": {\n      \"fuente\": \"POSTMAN\",\n      \"completada\": true,\n      \"enfermedadPermanente\": false,\n      \"nombreEnfermedad\": null,\n      \"recibeTratamiento\": false,\n      \"tipoTratamiento\": null,\n      \"otrosPadecimientos\": \"Ninguno informado en datos sintéticos\",\n      \"medicamentosActuales\": [],\n      \"alergiasInformadas\": [],\n      \"observacionesSalud\": \"Ejemplo sintético; no representa información clínica real\"\n    }\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman con ejemplo completo - página datos-salud\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1636,7 +1636,7 @@
             "description": "Prueba que POST /fichas-iniciales rechaza un CUI ya asociado a otra ficha",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Duplicada Postman\",\n  \"cui\": \"{{beneficiariaCui}}\",\n  \"fichaInicial\": {\n    \"lugar\": \"Centro de pruebas Postman\"\n  }\n}",
+              "raw": "{\n  \"nombre\": \"Duplicada Postman\",\n  \"cui\": \"{{beneficiariaCui}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1796,7 +1796,7 @@
             "description": "Valida el contrato común: 400 CAMPO_OBLIGATORIO.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fichaInicial\": {}\n}",
+              "raw": "{}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1848,7 +1848,7 @@
             "description": "Valida el contrato común: 400 DATOS_INVALIDOS.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Prueba inválida Postman\",\n  \"departamentoOrigenId\": \"{{departamentoId}}\",\n  \"fichaInicial\": {}\n}",
+              "raw": "{\n  \"nombre\": \"Prueba inválida Postman\",\n  \"departamentoOrigenId\": \"{{departamentoId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1900,7 +1900,7 @@
             "description": "Valida el contrato común: 409 RELACION_INCOMPATIBLE.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Prueba inválida Postman\",\n  \"ocupacionId\": \"999999999\",\n  \"fichaInicial\": {}\n}",
+              "raw": "{\n  \"nombre\": \"Prueba inválida Postman\",\n  \"paisCuiId\": \"999999999\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1930,7 +1930,7 @@
           ]
         },
         {
-          "name": "08 - Sección inicial vacía",
+            "name": "08 - Campo no permitido al iniciar",
           "request": {
             "method": "POST",
             "header": [
@@ -1952,7 +1952,7 @@
             "description": "Valida el contrato común: 400 DATOS_INVALIDOS.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Prueba inválida Postman\",\n  \"fichaInicial\": {\n    \"seccionesIniciales\": {\n      \"identificacion\": {}\n    }\n  }\n}",
+              "raw": "{\n  \"nombre\": \"Prueba inválida Postman\",\n  \"campoInventado\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"

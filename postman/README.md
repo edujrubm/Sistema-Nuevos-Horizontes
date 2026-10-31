@@ -27,7 +27,7 @@ Las solicitudes de catálogos también seleccionan automáticamente `paisId`, `d
 
 ## Ejemplos completos incluidos
 
-- Inicio de admisión transaccional: beneficiaria, residencia, lugar de ocupación, expediente y ficha inicial en borrador.
+- Inicio de admisión transaccional: beneficiaria, expediente y ficha inicial en borrador.
 - Alta y actualización de beneficiaria con todos los campos admitidos actualmente por el DTO.
 - Alta y actualización de hija o hijo con todos los campos admitidos actualmente.
 - Cabecera de ficha inicial y ejemplos editables para sus 19 secciones.
@@ -40,11 +40,15 @@ Los ejemplos contienen únicamente datos sintéticos. Los campos internos de `co
 
 El flujo normal ya no crea primero una beneficiaria aislada y después la ficha. La solicitud `01 - Iniciar admisión: beneficiaria y ficha` crea el agregado completo en una sola transacción. Las solicitudes posteriores continúan llenando el mismo borrador por secciones.
 
+### Fuente única de los datos
+
+La colección usa una sola fuente persistente para cada dato. Identidad, origen, estado civil, escolaridad, alfabetismo, salud, residencia y lugar de ocupación se actualizan en sus tablas estructuradas (`beneficiaria`, `residencia` y `lugar_ocupacion`). La sección JSONB conserva exclusivamente los campos propios de la entrevista que no tienen columna estructurada. Por ello, al consultar una ficha no deben aparecer en el JSON de una sección copias de esos datos canónicos.
+
 ## Resultado esperado
 
 - Todas las solicitudes funcionales deben responder `200` o `201`.
 - La confirmación de ficha debe finalizar en estado `CONFIRMADA`.
-- Los casos de la carpeta `05 - Validaciones negativas` deben devolver los errores `404` o `409` indicados; esos resultados representan pruebas aprobadas.
+- Los casos de la carpeta `05 - Validaciones negativas` deben devolver los errores `400`, `404` o `409` indicados; esos resultados representan pruebas aprobadas.
 
 ## Advertencias
 

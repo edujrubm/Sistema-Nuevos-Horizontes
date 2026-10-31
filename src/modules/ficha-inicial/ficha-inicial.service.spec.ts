@@ -33,7 +33,12 @@ describe("FichaInicialService", () => {
     await expect(service.iniciar(entrada)).resolves.toMatchObject({
       data: { fichaInicial: { id: "10", estado: "BORRADOR" } },
     });
-    expect(beneficiarias.crear).toHaveBeenCalledWith(entrada);
+    expect(beneficiarias.crear).toHaveBeenCalledWith(
+      expect.objectContaining({
+        nombre: "Beneficiaria sintética",
+        fichaInicial: expect.any(Object),
+      }),
+    );
   });
 
   it("rechaza una sección ajena a las 19 institucionales", async () => {
@@ -92,6 +97,7 @@ describe("FichaInicialService", () => {
     });
     expect(repository.guardarPagina).toHaveBeenCalledWith(
       "1",
+      "familia",
       entrada.secciones,
       entrada.hijos,
       4,
