@@ -23,3 +23,11 @@ Las pruebas completas y Postman incluyen varias áreas: no deben ejecutarse como
 La autenticación real queda para la integración final. El ámbito local de pruebas no es autenticación de producción. El contrato de errores está documentado, pero su normalización global sigue pendiente. Las propuestas de cambios de BD por diferencias con mockups están en `REVISION_BD_MOCKUPS_PERSONA3.md` y no se aplicaron al esquema compartido.
 
 Los PDF de prueba son sintéticos. El almacenamiento real, archivos subidos, credenciales, dependencias y resultados de pruebas se excluyen del repositorio.
+
+## Resultado verificado el 30 de octubre de 2026
+
+- Instalación en un clon nuevo con lockfile congelado: correcta.
+- Integración `persona3/ciclo2`: compilación correcta y 26 pruebas HTTP/BD aprobadas, cero fallos.
+- Postman ejecutado con Newman dentro de las pruebas: 14 peticiones y 21 comprobaciones aprobadas.
+- Compilación independiente de `evolucion`, `legal`, `social` y `guarderia`: correcta.
+- No se ejecutaron cambios sobre la base compartida.
