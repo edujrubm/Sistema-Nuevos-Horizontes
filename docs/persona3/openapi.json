@@ -1,0 +1,3307 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Persona 3 - Ciclo 2",
+    "version": "0.2.0",
+    "description": "Asignación P3 autónoma: 14 rutas del PDF y una carga PDF autorizada. Referencia identificada por formulario_area.id; listas con datos/pagina/limite/total; borrador mínimo y confirmación con destino/motivo."
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:3003/api/v1"
+    }
+  ],
+  "paths": {
+    "/trabajo-social/beneficiarias/{id}/resumen": {
+      "get": {
+        "summary": "Resumen social",
+        "description": "Ruta de persona 3 según el PDF; contrato local de la asignación.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$",
+              "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación correcta; respuesta camelCase"
+          },
+          "400": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trabajo-social/beneficiarias/{id}/fichas": {
+      "get": {
+        "summary": "Fichas sociales",
+        "description": "Ruta de persona 3 según el PDF; contrato local de la asignación.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$",
+              "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+            }
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000,
+              "default": 1
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación correcta; respuesta camelCase",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListaPaginada"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/legal/beneficiarias/{id}/fichas": {
+      "get": {
+        "summary": "Fichas legales",
+        "description": "Ruta de persona 3 según el PDF; contrato local de la asignación.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$",
+              "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+            }
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000,
+              "default": 1
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación correcta; respuesta camelCase",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListaPaginada"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/legal/beneficiarias/{id}/referencias": {
+      "get": {
+        "summary": "Listar referencias",
+        "description": "Ruta de persona 3 según el PDF; contrato local de la asignación.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$",
+              "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+            }
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000,
+              "default": 1
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación correcta; respuesta camelCase",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListaPaginada"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear referencia",
+        "description": "Ruta de persona 3 según el PDF; contrato local de la asignación.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$",
+              "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Operación correcta; respuesta camelCase"
+          },
+          "400": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearReferencia"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/legal/referencias/{id}": {
+      "get": {
+        "summary": "Consultar referencia",
+        "description": "id es formulario_area.id, representado como texto bigint. La referencia no tiene otro identificador público.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$",
+              "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación correcta; respuesta camelCase"
+          },
+          "400": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Editar referencia",
+        "description": "Borrador o confirmada: exige versión actual y motivo, conserva historial. En confirmadas no permite vaciar destino ni motivoReferencia.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$",
+              "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación correcta; respuesta camelCase"
+          },
+          "400": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditarReferencia"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/legal/referencias/{id}/confirmar": {
+      "post": {
+        "summary": "Confirmar referencia",
+        "description": "Valida los datos ya guardados: destino y motivoReferencia no vacíos. Origen y recomendaciones opcionales. Una confirmación fallida no cambia estado, versión ni historial.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$",
+              "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Operación correcta; respuesta camelCase"
+          },
+          "400": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Transicion"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/guarderia/beneficiarias/{id}/hijos": {
+      "get": {
+        "summary": "Hijos del expediente",
+        "description": "Ruta de persona 3 según el PDF; contrato local de la asignación.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$",
+              "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+            }
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000,
+              "default": 1
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación correcta; respuesta camelCase",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListaPaginada"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/guarderia/hijos/{id}/fichas": {
+      "get": {
+        "summary": "Ficha Guardería",
+        "description": "Ruta de persona 3 según el PDF; contrato local de la asignación.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$",
+              "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+            }
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000,
+              "default": 1
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación correcta; respuesta camelCase",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListaPaginada"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/beneficiarias/{id}/hoja-evolutiva": {
+      "post": {
+        "summary": "Crear entrada",
+        "description": "Ruta de persona 3 según el PDF; contrato local de la asignación.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$",
+              "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Operación correcta; respuesta camelCase"
+          },
+          "400": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearEntrada"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Hoja evolutiva",
+        "description": "Limitada al área activa del servidor, manteniendo filtros por área, formulario e hijo. Legal corresponde solo a la beneficiaria.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$",
+              "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+            }
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000,
+              "default": 1
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "name": "area",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "Nombre exacto del área, provisional"
+            }
+          },
+          {
+            "name": "formularioId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$",
+              "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+            }
+          },
+          {
+            "name": "hijoId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$",
+              "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación correcta; respuesta camelCase",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListaPaginada"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/entradas-evolutivas/{id}": {
+      "patch": {
+        "summary": "Corregir entrada",
+        "description": "Ruta de persona 3 según el PDF; contrato local de la asignación.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$",
+              "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación correcta; respuesta camelCase"
+          },
+          "400": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CorregirEntrada"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/entradas-evolutivas/{id}/revisiones": {
+      "get": {
+        "summary": "Revisiones de entrada",
+        "description": "Solo coordinación del área propia (contexto de laboratorio por ahora). Devuelve autor, fecha, motivo y cambios campo/antes/despues; incluye creación.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$",
+              "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+            }
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000,
+              "default": 1
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación correcta; respuesta camelCase",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListaPaginada"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/beneficiarias/{id}/documentos/cargas": {
+      "post": {
+        "summary": "Adjuntar PDF a la ficha del área",
+        "description": "Ruta documental del PDF añadida al alcance por el usuario; funcionamiento propio sin servicio externo de compañeros. Original privado, máximo 20 MiB.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$",
+              "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "archivo",
+                  "formularioId",
+                  "categoria"
+                ],
+                "properties": {
+                  "archivo": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "formularioId": {
+                    "type": "string",
+                    "pattern": "^[1-9][0-9]{0,18}$",
+                    "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+                  },
+                  "categoria": {
+                    "type": "string",
+                    "maxLength": 200
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Metadatos del documento asociado; no expone la ruta privada"
+          },
+          "400": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CrearReferencia": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "fechaAtencion": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Instante ISO8601 con zona horaria explícita"
+          },
+          "profesionalId": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{0,18}$",
+            "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+          },
+          "detalle": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "destino": {
+                "type": "string",
+                "maxLength": 20000,
+                "nullable": true
+              },
+              "origen": {
+                "type": "string",
+                "maxLength": 20000,
+                "nullable": true
+              },
+              "motivoReferencia": {
+                "type": "string",
+                "maxLength": 20000,
+                "nullable": true
+              },
+              "recomendaciones": {
+                "type": "string",
+                "maxLength": 20000,
+                "nullable": true
+              }
+            },
+            "required": [],
+            "description": "Opcional al crear borrador; se genera un detalle vacío cuando se omite."
+          }
+        },
+        "required": [
+          "fechaAtencion",
+          "profesionalId"
+        ]
+      },
+      "EditarReferencia": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "motivo": {
+            "type": "string",
+            "maxLength": 2000,
+            "pattern": "\\S"
+          },
+          "detalle": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "destino": {
+                "type": "string",
+                "maxLength": 20000,
+                "nullable": true
+              },
+              "origen": {
+                "type": "string",
+                "maxLength": 20000,
+                "nullable": true
+              },
+              "motivoReferencia": {
+                "type": "string",
+                "maxLength": 20000,
+                "nullable": true
+              },
+              "recomendaciones": {
+                "type": "string",
+                "maxLength": 20000,
+                "nullable": true
+              }
+            },
+            "required": []
+          }
+        },
+        "required": [
+          "version",
+          "motivo",
+          "detalle"
+        ]
+      },
+      "Transicion": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "motivo": {
+            "type": "string",
+            "maxLength": 2000,
+            "pattern": "\\S"
+          }
+        },
+        "required": [
+          "version",
+          "motivo"
+        ]
+      },
+      "CrearEntrada": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "formularioId": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{0,18}$",
+            "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+          },
+          "accion": {
+            "type": "string",
+            "maxLength": 200,
+            "pattern": "\\S"
+          },
+          "contenido": {
+            "type": "string",
+            "maxLength": 20000,
+            "pattern": "\\S"
+          },
+          "fechaAtencion": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Instante ISO8601 con zona horaria explícita"
+          },
+          "profesionalId": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{0,18}$",
+            "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+          },
+          "planSeguimiento": {
+            "type": "string",
+            "maxLength": 20000,
+            "nullable": true
+          },
+          "resultado": {
+            "type": "string",
+            "maxLength": 20000,
+            "nullable": true
+          }
+        },
+        "required": [
+          "formularioId",
+          "accion",
+          "contenido",
+          "fechaAtencion",
+          "profesionalId"
+        ]
+      },
+      "CorregirEntrada": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "accion": {
+            "type": "string",
+            "maxLength": 200,
+            "pattern": "\\S"
+          },
+          "contenido": {
+            "type": "string",
+            "maxLength": 20000,
+            "pattern": "\\S"
+          },
+          "fechaAtencion": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Instante ISO8601 con zona horaria explícita"
+          },
+          "profesionalId": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{0,18}$",
+            "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+          },
+          "planSeguimiento": {
+            "type": "string",
+            "maxLength": 20000,
+            "nullable": true
+          },
+          "resultado": {
+            "type": "string",
+            "maxLength": 20000,
+            "nullable": true
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "motivo": {
+            "type": "string",
+            "maxLength": 2000,
+            "pattern": "\\S"
+          }
+        },
+        "required": [
+          "version",
+          "motivo"
+        ]
+      },
+      "ListaPaginada": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "datos",
+          "pagina",
+          "limite",
+          "total"
+        ],
+        "properties": {
+          "datos": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "pagina": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "limite": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Cantidad de resultados que cumplen los filtros, sin LIMIT/OFFSET; puede superar datos.length."
+          }
+        }
+      },
+      "ErrorApi": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "estado",
+          "codigo",
+          "mensaje",
+          "errores",
+          "idSolicitud"
+        ],
+        "properties": {
+          "estado": {
+            "type": "integer",
+            "minimum": 400,
+            "maximum": 599
+          },
+          "codigo": {
+            "type": "string",
+            "enum": [
+              "JSON_INVALIDO",
+              "DATOS_INVALIDOS",
+              "CAMPO_OBLIGATORIO",
+              "FORMATO_INVALIDO",
+              "FECHA_INVALIDA",
+              "IDENTIFICADOR_INVALIDO",
+              "TEXTO_DEMASIADO_LARGO",
+              "CAMPO_NO_PERMITIDO",
+              "SOLICITUD_INCOMPLETA",
+              "SOLICITUD_SIN_CAMBIOS",
+              "FILTROS_INVALIDOS",
+              "FECHAS_INCOMPATIBLES",
+              "REGISTRO_NO_ENCONTRADO",
+              "ARCHIVO_NO_ENCONTRADO",
+              "REGISTRO_DUPLICADO",
+              "VERSION_DESACTUALIZADA",
+              "RELACION_INCOMPATIBLE",
+              "ESTADO_NO_PERMITIDO",
+              "FORMULARIO_NO_CONFIRMADO",
+              "FORMULARIO_YA_CONFIRMADO",
+              "REGISTRO_INACTIVO",
+              "REGISTRO_ANULADO",
+              "INSCRIPCION_REQUERIDA",
+              "ESTANCIA_ACTIVA_EXISTENTE",
+              "SALIDA_TEMPORAL_EXISTENTE",
+              "SALIDA_TEMPORAL_NO_EXISTENTE",
+              "ESTANCIA_FINALIZADA",
+              "OPERACION_EN_PROCESO",
+              "ARCHIVO_REQUERIDO",
+              "ARCHIVO_VACIO",
+              "TIPO_CONTENIDO_NO_ADMITIDO",
+              "TIPO_ARCHIVO_NO_PERMITIDO",
+              "ARCHIVO_DEMASIADO_GRANDE",
+              "PDF_INVALIDO",
+              "PDF_PROTEGIDO",
+              "VERSION_DOCUMENTAL_DESACTUALIZADA",
+              "DOCUMENTO_ANULADO",
+              "ALMACENAMIENTO_NO_DISPONIBLE",
+              "INTEGRIDAD_DOCUMENTO_NO_VERIFICADA",
+              "AUTENTICACION_REQUERIDA",
+              "SESION_VENCIDA",
+              "CREDENCIALES_INVALIDAS",
+              "ACCESO_DENEGADO",
+              "AREA_NO_AUTORIZADA",
+              "CASO_NO_AUTORIZADO",
+              "COORDINACION_REQUERIDA",
+              "ENLACE_RECUPERACION_INVALIDO",
+              "DEMASIADOS_INTENTOS",
+              "SOLICITUD_RECHAZADA",
+              "FORMATO_RESPUESTA_NO_ADMITIDO",
+              "SOLICITUD_NO_COMPLETADA_A_TIEMPO",
+              "CLAVE_OPERACION_REUTILIZADA",
+              "CONDICION_ACTUALIZACION_NO_CUMPLIDA",
+              "PROCESAMIENTO_FALLIDO",
+              "RESPUESTA_SERVICIO_INVALIDA",
+              "RESULTADO_OPERACION_INCIERTO",
+              "RUTA_NO_ENCONTRADA",
+              "METODO_NO_PERMITIDO",
+              "OPERACION_RETIRADA",
+              "SOLICITUD_DEMASIADO_GRANDE",
+              "DEMASIADAS_SOLICITUDES",
+              "SERVICIO_NO_DISPONIBLE",
+              "BASE_DATOS_NO_DISPONIBLE",
+              "CONFIGURACION_INCOMPLETA",
+              "TIEMPO_ESPERA_AGOTADO",
+              "ERROR_INTERNO"
+            ]
+          },
+          "mensaje": {
+            "type": "string"
+          },
+          "errores": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "campo",
+                "mensaje"
+              ],
+              "properties": {
+                "campo": {
+                  "type": "string"
+                },
+                "mensaje": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "idSolicitud": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
