@@ -70,7 +70,7 @@ export class Persona3Repository {
     if (form.tipo !== "REFERENCIA_LEGAL")
       throw new ErrorApi("REGISTRO_NO_ENCONTRADO");
     const [detail] = await manager.query(
-      "SELECT destino,origen,motivo_referencia,recomendaciones FROM new_horizons.referencia_legal WHERE formulario_id=$1",
+      "SELECT destino,origen,motivo_referencia,recomendaciones,medio_entrega FROM new_horizons.referencia_legal WHERE formulario_id=$1",
       [id],
     );
     if (!detail) throw new ErrorApi("REGISTRO_NO_ENCONTRADO");

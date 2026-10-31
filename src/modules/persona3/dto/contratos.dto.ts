@@ -29,6 +29,7 @@ export class DetalleReferenciaDto {
   @IsOptional() @IsString() @MaxLength(20000) origen?: string | null;
   @IsOptional() @IsString() @MaxLength(20000) motivoReferencia?: string | null;
   @IsOptional() @IsString() @MaxLength(20000) recomendaciones?: string | null;
+  @IsOptional() @IsString() @MaxLength(20000) medioEntrega?: string | null;
 }
 export class CrearReferenciaDto {
   @IsISO8601({ strict: true })

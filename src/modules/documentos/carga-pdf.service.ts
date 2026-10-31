@@ -113,7 +113,7 @@ export class CargaPdfService {
               throw new ErrorApi("REGISTRO_NO_ENCONTRADO");
           }
           const [doc] = await m.query(
-            "INSERT INTO new_horizons.documento_area(formulario_id,categoria,objeto_privado,mime,tamano_bytes,sha256,version_documento,cargado_por) VALUES($1,$2,$3,$4,$5,$6,1,$7) RETURNING id,cargado_en",
+            "INSERT INTO new_horizons.documento_area(formulario_id,categoria,objeto_privado,mime,tamano_bytes,sha256,version_documento,cargado_por,fecha_documento,descripcion) VALUES($1,$2,$3,$4,$5,$6,1,$7,$8,$9) RETURNING id,cargado_en,fecha_documento,descripcion",
             [
               f.id,
               dto.categoria,
@@ -122,6 +122,8 @@ export class CargaPdfService {
               archivo.buffer.length,
               sha256,
               actor,
+              dto.fechaDocumento ?? null,
+              dto.descripcion ?? null,
             ],
           );
           return {
@@ -135,6 +137,8 @@ export class CargaPdfService {
             sha256,
             versionDocumento: 1,
             cargadoEn: doc.cargado_en,
+            fechaDocumento: doc.fecha_documento,
+            descripcion: doc.descripcion,
           };
         },
       );

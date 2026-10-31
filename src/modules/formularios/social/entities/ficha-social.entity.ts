@@ -18,4 +18,14 @@ export class FichaSocial {
     string | null;
   @Column({ name: "evaluacion", type: "text", nullable: true }) evaluacion!:
     string | null;
+  @Column({ name: "tipo_vivienda", type: "text", nullable: true }) tipoVivienda!: string | null;
+  @Column({ name: "composicion_familiar", type: "text", nullable: true }) composicionFamiliar!: string | null;
+  @Column({ name: "redes_apoyo", type: "text", nullable: true }) redesApoyo!: string | null;
+  @Column({ name: "dependencia_economica", type: "boolean", nullable: true }) dependenciaEconomica!: boolean | null;
+  @Column({ name: "responsable_plan", type: "text", nullable: true }) responsablePlan!: string | null;
+  @Column({ name: "fecha_revision", type: "date", nullable: true }) fechaRevision!: string | null;
+  @Column({ name: "area_coordinacion_id", type: "bigint", nullable: true }) areaCoordinacionId!: string | null;
+  @Column({ name: "resultados_alcanzados", type: "text", nullable: true }) resultadosAlcanzados!: string | null;
+  @Column({ name: "fecha_cierre", type: "date", nullable: true }) fechaCierre!: string | null;
+  @Column({ name: "observaciones", type: "text", nullable: true }) observaciones!: string | null;
 }
