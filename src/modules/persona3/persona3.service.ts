@@ -1,10 +1,5 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  NotFoundException,
-  ServiceUnavailableException,
-} from "@nestjs/common";
+import { ErrorApi } from "../../common/errors/error-api";
+import { Injectable } from "@nestjs/common";
 import { AmbitoLocalService } from "./ambito-local.service";
 import { camel, Persona3Repository } from "./persona3.repository";
 import {
@@ -50,8 +45,7 @@ export class Persona3Service {
         "SELECT EXISTS(SELECT 1 FROM new_horizons.formulario_area f JOIN new_horizons.ficha_guarderia d ON d.formulario_id=f.id WHERE f.nino_id=$1 AND f.tipo='GUARDERIA' AND f.estado_codigo=$2) AS inscrito",
         [hijo, this.state("P3_CONFIRMED_STATE")],
       );
-      if (!inscrito.inscrito)
-        throw new NotFoundException("El niño no está inscrito en Guardería");
+      if (!inscrito.inscrito) throw new ErrorApi("REGISTRO_NO_ENCONTRADO");
     }
     // El identificador de tabla procede exclusivamente de esta lista cerrada.
     const { filas: rows, total } = await this.repo.pagina(
@@ -133,15 +127,12 @@ export class Persona3Service {
 
   state(key: "P3_DRAFT_STATE" | "P3_CONFIRMED_STATE") {
     const code = process.env[key];
-    if (!code)
-      throw new ServiceUnavailableException(
-        "Estados de formulario pendientes de configurar",
-      );
+    if (!code) throw new ErrorApi("CONFIGURACION_INCOMPLETA");
     return code;
   }
 
   async crearReferencia(id: string, dto: CrearReferenciaDto) {
-    if (!dto.detalle) throw new BadRequestException("detalle es obligatorio");
+    if (!dto.detalle) throw new ErrorApi("DATOS_INVALIDOS");
     return this.repo.transaction(
       "Creación de referencia Legal",
       async (m, actor) => {
@@ -149,10 +140,7 @@ export class Persona3Service {
         const [tipo] = await m.query(
           "SELECT area_id FROM new_horizons.tipo_formulario WHERE codigo='REFERENCIA_LEGAL'",
         );
-        if (!tipo)
-          throw new ServiceUnavailableException(
-            "Tipo REFERENCIA_LEGAL no configurado",
-          );
+        if (!tipo) throw new ErrorApi("CONFIGURACION_INCOMPLETA");
         const [identidad] = await m.query(
           "SELECT nombre,cui,fecha_nac,extract(year FROM age(($2::timestamptz AT TIME ZONE 'America/Guatemala')::date,fecha_nac))::integer AS edad_a_la_atencion FROM new_horizons.beneficiaria WHERE id_beneficiaria=$1",
           [id, dto.fechaAtencion],
@@ -199,16 +187,15 @@ export class Persona3Service {
     ]
       .filter((d) => typeof d.valor !== "string" || !d.valor.trim())
       .map(({ campo, mensaje }) => ({ campo, mensaje }));
-    if (errores.length)
-      throw new BadRequestException({
-        message: "Completa los datos obligatorios de la referencia.",
-        errores,
-      });
+    if (errores.length) throw new ErrorApi("DATOS_INVALIDOS", errores);
   }
 
   async editarReferencia(id: string, dto: EditarReferenciaDto) {
-    if (!dto.detalle || !Object.keys(dto.detalle).length)
-      throw new BadRequestException("Incluya campos del detalle");
+    if (
+      !dto.detalle ||
+      !Object.values(dto.detalle).some((valor) => valor !== undefined)
+    )
+      throw new ErrorApi("SOLICITUD_SIN_CAMBIOS");
     return this.repo.transaction(dto.motivo, async (m) => {
       const row = await this.repo.referencia(id, m, true);
       this.repo.version(row.version as number, dto.version);
@@ -218,12 +205,14 @@ export class Persona3Service {
           this.state("P3_CONFIRMED_STATE"),
         ].includes(row.estadoCodigo as string)
       )
-        throw new ConflictException("Estado no editable");
+        throw new ErrorApi("ESTADO_NO_PERMITIDO");
       if (row.estadoCodigo === this.state("P3_CONFIRMED_STATE")) {
         this.validarReferenciaCompleta({
           ...(row.detalle as Record<string, unknown>),
           ...Object.fromEntries(
-            Object.entries(dto.detalle).filter(([, valor]) => valor !== undefined),
+            Object.entries(dto.detalle).filter(
+              ([, valor]) => valor !== undefined,
+            ),
           ),
         });
       }
@@ -249,13 +238,15 @@ export class Persona3Service {
       const row = await this.repo.referencia(id, m, true);
       this.repo.version(row.version as number, dto.version);
       if (row.estadoCodigo !== this.state("P3_DRAFT_STATE"))
-        throw new ConflictException("La referencia no está en borrador");
+        throw new ErrorApi(
+          row.estadoCodigo === this.state("P3_CONFIRMED_STATE")
+            ? "FORMULARIO_YA_CONFIRMADO"
+            : "ESTADO_NO_PERMITIDO",
+        );
       this.validarReferenciaCompleta(row.detalle as Record<string, unknown>);
       const confirmed = this.state("P3_CONFIRMED_STATE");
       if (confirmed === this.state("P3_DRAFT_STATE"))
-        throw new ServiceUnavailableException(
-          "Los estados deben ser distintos",
-        );
+        throw new ErrorApi("CONFIGURACION_INCOMPLETA");
       await m.query(
         "UPDATE new_horizons.formulario_area SET estado_codigo=$2,motivo_cambio=$3 WHERE id=$1",
         [id, confirmed, dto.motivo],
@@ -272,7 +263,7 @@ export class Persona3Service {
     if (q.hijoId) {
       const child = await this.repo.hijo(q.hijoId);
       if (child.expediente_id !== expediente)
-        throw new NotFoundException("Hijo no encontrado en el expediente");
+        throw new ErrorApi("REGISTRO_NO_ENCONTRADO");
     }
     const { filas: rows, total } = await this.repo.pagina(
       `SELECT e.*,f.area_id,f.tipo,f.nino_id FROM new_horizons.entrada_evolutiva e JOIN new_horizons.formulario_area f ON f.id=e.formulario_id JOIN new_horizons.area a ON a.id_area=f.area_id WHERE f.expediente_id=$1 AND ($2::text IS NULL OR a.nombre_area=$2) AND ($3::bigint IS NULL OR f.id=$3) AND ($4::bigint IS NULL OR f.nino_id=$4) ORDER BY e.fecha_atencion,e.id LIMIT $5 OFFSET $6`,
@@ -301,13 +292,11 @@ export class Persona3Service {
       async (m, actor) => {
         const form = await this.repo.formulario(dto.formularioId, m, true);
         if (form.beneficiaria_id !== id)
-          throw new NotFoundException(
-            "Formulario no encontrado en el expediente",
-          );
+          throw new ErrorApi("REGISTRO_NO_ENCONTRADO");
         await this.comprobarFormulario(dto.formularioId, m);
         // Regla confirmada: solo seguimiento de formularios confirmados.
         if (form.estado_codigo !== this.state("P3_CONFIRMED_STATE"))
-          throw new ConflictException("El formulario debe estar confirmado");
+          throw new ErrorApi("FORMULARIO_NO_CONFIRMADO");
         const [row] = await m.query(
           "INSERT INTO new_horizons.entrada_evolutiva(formulario_id,accion,contenido,fecha_atencion,profesional_id,capturado_por,plan_seguimiento,resultado) VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *",
           [
@@ -338,21 +327,31 @@ export class Persona3Service {
     const pairs = Object.entries(dto).filter(
       ([k, v]) => names[k] && v !== undefined,
     );
-    if (!pairs.length)
-      throw new BadRequestException("Incluya al menos un campo para corregir");
+    if (!pairs.length) throw new ErrorApi("SOLICITUD_SIN_CAMBIOS");
     if (
       pairs.some(
         ([k, v]) => v === null && !["planSeguimiento", "resultado"].includes(k),
       )
     )
-      throw new BadRequestException("El campo obligatorio no admite null");
+      throw new ErrorApi(
+        "DATOS_INVALIDOS",
+        pairs
+          .filter(
+            ([k, v]) =>
+              v === null && !["planSeguimiento", "resultado"].includes(k),
+          )
+          .map(([campo]) => ({
+            campo,
+            mensaje: "Este campo obligatorio no admite un valor nulo.",
+          })),
+      );
     return this.repo.transaction(dto.motivo, async (m) => {
       // Mismo orden de bloqueo que el alta: cabecera, luego entrada.
       const [entry] = await m.query(
         "SELECT formulario_id FROM new_horizons.entrada_evolutiva WHERE id=$1",
         [id],
       );
-      if (!entry) throw new NotFoundException("Entrada no encontrada");
+      if (!entry) throw new ErrorApi("REGISTRO_NO_ENCONTRADO");
       await this.repo.formulario(entry.formulario_id, m, true);
       await this.comprobarFormulario(entry.formulario_id, m);
       const [row] = await m.query(
@@ -377,7 +376,7 @@ export class Persona3Service {
       "SELECT f.area_id,a.nombre_area FROM new_horizons.formulario_area f JOIN new_horizons.area a ON a.id_area=f.area_id WHERE f.id=$1",
       [id],
     );
-    if (!f) throw new NotFoundException("Formulario no encontrado");
+    if (!f) throw new ErrorApi("REGISTRO_NO_ENCONTRADO");
     this.ambito.comprobar(f.nombre_area);
     return f;
   }
@@ -388,7 +387,7 @@ export class Persona3Service {
       "SELECT formulario_id FROM new_horizons.entrada_evolutiva WHERE id=$1",
       [id],
     );
-    if (!entry) throw new NotFoundException("Entrada no encontrada");
+    if (!entry) throw new ErrorApi("REGISTRO_NO_ENCONTRADO");
     await this.comprobarFormulario(entry.formulario_id);
     const { filas: rows, total } = await this.repo.pagina(
       "SELECT r.id,r.operacion,CASE WHEN r.anterior IS NULL THEN NULL ELSE r.anterior || jsonb_build_object('profesional_id',r.anterior->>'profesional_id') END AS anterior,r.nuevo || jsonb_build_object('profesional_id',r.nuevo->>'profesional_id') AS nuevo,r.actor_id,r.motivo,r.registrado_en,u.nombre_usuario,e.nombre AS autor_nombre FROM new_horizons.revision_registro r JOIN new_horizons.usuario u ON u.id_usuario=r.actor_id LEFT JOIN new_horizons.empleado e ON e.id_empleado=u.id_empleado WHERE r.tabla='entrada_evolutiva' AND r.registro_id=$1 ORDER BY r.id LIMIT $2 OFFSET $3",

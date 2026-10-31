@@ -32,16 +32,157 @@
             "description": "Operación correcta; respuesta camelCase"
           },
           "400": {
-            "description": "Entrada inválida"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Recurso inexistente o fuera del expediente"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "409": {
-            "description": "Versión, estado o integridad incompatibles"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "503": {
-            "description": "Laboratorio o catálogo no configurado"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           }
         }
       }
@@ -94,16 +235,157 @@
             }
           },
           "400": {
-            "description": "Entrada inválida"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Recurso inexistente o fuera del expediente"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "409": {
-            "description": "Versión, estado o integridad incompatibles"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "503": {
-            "description": "Laboratorio o catálogo no configurado"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           }
         }
       }
@@ -156,16 +438,157 @@
             }
           },
           "400": {
-            "description": "Entrada inválida"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Recurso inexistente o fuera del expediente"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "409": {
-            "description": "Versión, estado o integridad incompatibles"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "503": {
-            "description": "Laboratorio o catálogo no configurado"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           }
         }
       }
@@ -218,16 +641,157 @@
             }
           },
           "400": {
-            "description": "Entrada inválida"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Recurso inexistente o fuera del expediente"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "409": {
-            "description": "Versión, estado o integridad incompatibles"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "503": {
-            "description": "Laboratorio o catálogo no configurado"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           }
         }
       },
@@ -251,16 +815,157 @@
             "description": "Operación correcta; respuesta camelCase"
           },
           "400": {
-            "description": "Entrada inválida"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Recurso inexistente o fuera del expediente"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "409": {
-            "description": "Versión, estado o integridad incompatibles"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "503": {
-            "description": "Laboratorio o catálogo no configurado"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           }
         },
         "requestBody": {
@@ -296,16 +1001,157 @@
             "description": "Operación correcta; respuesta camelCase"
           },
           "400": {
-            "description": "Entrada inválida"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Recurso inexistente o fuera del expediente"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "409": {
-            "description": "Versión, estado o integridad incompatibles"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "503": {
-            "description": "Laboratorio o catálogo no configurado"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           }
         }
       },
@@ -329,16 +1175,157 @@
             "description": "Operación correcta; respuesta camelCase"
           },
           "400": {
-            "description": "Entrada inválida"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Recurso inexistente o fuera del expediente"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "409": {
-            "description": "Versión, estado o integridad incompatibles"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "503": {
-            "description": "Laboratorio o catálogo no configurado"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           }
         },
         "requestBody": {
@@ -374,16 +1361,157 @@
             "description": "Operación correcta; respuesta camelCase"
           },
           "400": {
-            "description": "Entrada inválida"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Recurso inexistente o fuera del expediente"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "409": {
-            "description": "Versión, estado o integridad incompatibles"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "503": {
-            "description": "Laboratorio o catálogo no configurado"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           }
         },
         "requestBody": {
@@ -446,16 +1574,157 @@
             }
           },
           "400": {
-            "description": "Entrada inválida"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Recurso inexistente o fuera del expediente"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "409": {
-            "description": "Versión, estado o integridad incompatibles"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "503": {
-            "description": "Laboratorio o catálogo no configurado"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           }
         }
       }
@@ -508,16 +1777,157 @@
             }
           },
           "400": {
-            "description": "Entrada inválida"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Recurso inexistente o fuera del expediente"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "409": {
-            "description": "Versión, estado o integridad incompatibles"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "503": {
-            "description": "Laboratorio o catálogo no configurado"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           }
         }
       }
@@ -543,16 +1953,157 @@
             "description": "Operación correcta; respuesta camelCase"
           },
           "400": {
-            "description": "Entrada inválida"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Recurso inexistente o fuera del expediente"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "409": {
-            "description": "Versión, estado o integridad incompatibles"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "503": {
-            "description": "Laboratorio o catálogo no configurado"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           }
         },
         "requestBody": {
@@ -639,16 +2190,157 @@
             }
           },
           "400": {
-            "description": "Entrada inválida"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Recurso inexistente o fuera del expediente"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "409": {
-            "description": "Versión, estado o integridad incompatibles"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "503": {
-            "description": "Laboratorio o catálogo no configurado"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           }
         }
       }
@@ -674,16 +2366,157 @@
             "description": "Operación correcta; respuesta camelCase"
           },
           "400": {
-            "description": "Entrada inválida"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Recurso inexistente o fuera del expediente"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "409": {
-            "description": "Versión, estado o integridad incompatibles"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "503": {
-            "description": "Laboratorio o catálogo no configurado"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           }
         },
         "requestBody": {
@@ -746,16 +2579,157 @@
             }
           },
           "400": {
-            "description": "Entrada inválida"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Recurso inexistente o fuera del expediente"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "409": {
-            "description": "Versión, estado o integridad incompatibles"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "503": {
-            "description": "Laboratorio o catálogo no configurado"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           }
         }
       }
@@ -812,16 +2786,157 @@
             "description": "Metadatos del documento asociado; no expone la ruta privada"
           },
           "400": {
-            "description": "PDF o campos inválidos"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "403": {
-            "description": "Área ajena"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Ficha/expediente no coinciden o niño no inscrito"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           },
           "413": {
-            "description": "Más de 20 MiB"
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error según CONTRATO_ERRORES_API.md; mensaje público en español.",
+            "headers": {
+              "X-Id-Solicitud": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
           }
         }
       }
@@ -1070,6 +3185,120 @@
             "type": "integer",
             "minimum": 0,
             "description": "Cantidad de resultados que cumplen los filtros, sin LIMIT/OFFSET; puede superar datos.length."
+          }
+        }
+      },
+      "ErrorApi": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "estado",
+          "codigo",
+          "mensaje",
+          "errores",
+          "idSolicitud"
+        ],
+        "properties": {
+          "estado": {
+            "type": "integer",
+            "minimum": 400,
+            "maximum": 599
+          },
+          "codigo": {
+            "type": "string",
+            "enum": [
+              "JSON_INVALIDO",
+              "DATOS_INVALIDOS",
+              "CAMPO_OBLIGATORIO",
+              "FORMATO_INVALIDO",
+              "FECHA_INVALIDA",
+              "IDENTIFICADOR_INVALIDO",
+              "TEXTO_DEMASIADO_LARGO",
+              "CAMPO_NO_PERMITIDO",
+              "SOLICITUD_INCOMPLETA",
+              "SOLICITUD_SIN_CAMBIOS",
+              "FILTROS_INVALIDOS",
+              "FECHAS_INCOMPATIBLES",
+              "REGISTRO_NO_ENCONTRADO",
+              "ARCHIVO_NO_ENCONTRADO",
+              "REGISTRO_DUPLICADO",
+              "VERSION_DESACTUALIZADA",
+              "RELACION_INCOMPATIBLE",
+              "ESTADO_NO_PERMITIDO",
+              "FORMULARIO_NO_CONFIRMADO",
+              "FORMULARIO_YA_CONFIRMADO",
+              "REGISTRO_INACTIVO",
+              "REGISTRO_ANULADO",
+              "INSCRIPCION_REQUERIDA",
+              "ESTANCIA_ACTIVA_EXISTENTE",
+              "SALIDA_TEMPORAL_EXISTENTE",
+              "SALIDA_TEMPORAL_NO_EXISTENTE",
+              "ESTANCIA_FINALIZADA",
+              "OPERACION_EN_PROCESO",
+              "ARCHIVO_REQUERIDO",
+              "ARCHIVO_VACIO",
+              "TIPO_CONTENIDO_NO_ADMITIDO",
+              "TIPO_ARCHIVO_NO_PERMITIDO",
+              "ARCHIVO_DEMASIADO_GRANDE",
+              "PDF_INVALIDO",
+              "PDF_PROTEGIDO",
+              "VERSION_DOCUMENTAL_DESACTUALIZADA",
+              "DOCUMENTO_ANULADO",
+              "ALMACENAMIENTO_NO_DISPONIBLE",
+              "INTEGRIDAD_DOCUMENTO_NO_VERIFICADA",
+              "AUTENTICACION_REQUERIDA",
+              "SESION_VENCIDA",
+              "CREDENCIALES_INVALIDAS",
+              "ACCESO_DENEGADO",
+              "AREA_NO_AUTORIZADA",
+              "CASO_NO_AUTORIZADO",
+              "COORDINACION_REQUERIDA",
+              "ENLACE_RECUPERACION_INVALIDO",
+              "DEMASIADOS_INTENTOS",
+              "SOLICITUD_RECHAZADA",
+              "FORMATO_RESPUESTA_NO_ADMITIDO",
+              "SOLICITUD_NO_COMPLETADA_A_TIEMPO",
+              "CLAVE_OPERACION_REUTILIZADA",
+              "CONDICION_ACTUALIZACION_NO_CUMPLIDA",
+              "PROCESAMIENTO_FALLIDO",
+              "RESPUESTA_SERVICIO_INVALIDA",
+              "RESULTADO_OPERACION_INCIERTO",
+              "RUTA_NO_ENCONTRADA",
+              "METODO_NO_PERMITIDO",
+              "OPERACION_RETIRADA",
+              "SOLICITUD_DEMASIADO_GRANDE",
+              "DEMASIADAS_SOLICITUDES",
+              "SERVICIO_NO_DISPONIBLE",
+              "BASE_DATOS_NO_DISPONIBLE",
+              "CONFIGURACION_INCOMPLETA",
+              "TIEMPO_ESPERA_AGOTADO",
+              "ERROR_INTERNO"
+            ]
+          },
+          "mensaje": {
+            "type": "string"
+          },
+          "errores": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "campo",
+                "mensaje"
+              ],
+              "properties": {
+                "campo": {
+                  "type": "string"
+                },
+                "mensaje": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "idSolicitud": {
+            "type": "string"
           }
         }
       }

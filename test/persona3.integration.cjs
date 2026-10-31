@@ -1,20 +1,20 @@
 const {test,before,after}=require('node:test');
 const assert=require('node:assert/strict');
 const {NestFactory}=require('@nestjs/core');
-const {ValidationPipe}=require('@nestjs/common');
+const {configurarTransporteApi}=require('../dist/common/errors/transporte');
 const {AppModule}=require('../dist/app.module');
 const {DataSource}=require('typeorm');
 let app,db,url,reference,entry;
 const forms={};
 async function call(method,path,body,status=200){
  const r=await fetch(url+path,{method,headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});
- const data=await r.json();assert.equal(r.status,status,JSON.stringify(data));return data;
+ const data=await r.json();assert.equal(r.status,status,JSON.stringify(data));if(status>=400)comprobarError(r,data);return data;
 }
 before(async()=>{
  process.env.P3_TEST_AREA='Legal';process.env.P3_TEST_ROLE='COORDINACION';
  app=await NestFactory.create(AppModule,{logger:false});
  app.setGlobalPrefix('api/v1');
- app.useGlobalPipes(new ValidationPipe({whitelist:true,forbidNonWhitelisted:true,transform:true}));
+ configurarTransporteApi(app);
  await app.listen(0,'127.0.0.1');url=await app.getUrl()+'/api/v1';db=app.get(DataSource);
  for(const row of await db.query('SELECT id,tipo FROM new_horizons.formulario_area'))forms[row.tipo]=row.id;
 });
@@ -162,7 +162,7 @@ async function cargarPdf({beneficiaria='100',formularioId=forms.LEGAL,bytes,mime
  const data=new FormData();data.set('formularioId',formularioId);data.set('categoria',categoria);
  data.set('archivo',new Blob([bytes??fs.readFileSync(path.join(__dirname,'fixtures/documento.pdf'))],{type:mime}),nombre);
  const r=await fetch(url+'/beneficiarias/'+beneficiaria+'/documentos/cargas',{method:'POST',body:data});
- const body=await r.json();assert.equal(r.status,status,JSON.stringify(body));return body;
+ const body=await r.json();assert.equal(r.status,status,JSON.stringify(body));if(status>=400)comprobarError(r,body);return body;
 }
 test('PDF: sube original, se asocia a su ficha/expediente y guarda auditoría',async()=>{
  const fs=require('node:fs'),crypto=require('node:crypto'),path=require('node:path');process.env.P3_TEST_AREA='Legal';
@@ -173,8 +173,8 @@ test('PDF: sube original, se asocia a su ficha/expediente y guarda auditoría',a
  const [audit]=await db.query("SELECT actor_id FROM new_horizons.revision_registro WHERE tabla='documento_area' AND registro_id=$1",[doc.id]);assert.equal(audit.actor_id,'1');
 });
 test('PDF: rechaza imagen, archivo falso, más de 20 MiB, expediente ajeno y otra área',async()=>{
- await cargarPdf({bytes:Buffer.from('imagen'),mime:'image/png',nombre:'documento.png'},400);
- await cargarPdf({bytes:Buffer.from('%PDF-falso')},400);
+ await cargarPdf({bytes:Buffer.from('imagen'),mime:'image/png',nombre:'documento.png'},415);
+ await cargarPdf({bytes:Buffer.from('%PDF-falso')},422);
  await cargarPdf({bytes:Buffer.alloc(20*1024*1024+1)},413);
  await cargarPdf({beneficiaria:'200'},404);
  await cargarPdf({formularioId:forms.SOCIAL},403);
@@ -219,4 +219,62 @@ test('Confirmación: exige destino y motivo reales; origen y recomendaciones opc
  for(const detalle of [{destino:null},{motivoReferencia:'   '}])await call('PATCH','/legal/referencias/'+draft.id,{version:confirmed.version,motivo:'Vaciar dato obligatorio',detalle},400);
  const intact=await call('GET','/legal/referencias/'+draft.id);assert.equal(intact.version,confirmed.version);assert.equal(intact.estadoCodigo,'P3_CONFIRMADO');assert.equal(intact.detalle.destino,'Institución sintética');
  confirmed=await call('PATCH','/legal/referencias/'+draft.id,{version:confirmed.version,motivo:'Corregir sin perder completitud',detalle:{destino:'Otro destino válido'}});assert.equal(confirmed.estadoCodigo,'P3_CONFIRMADO');
+});
+
+function comprobarError(r,data,codigo){
+ assert.deepEqual(Object.keys(data).sort(),['estado','codigo','mensaje','errores','idSolicitud'].sort());
+ assert.equal(data.estado,r.status);if(codigo)assert.equal(data.codigo,codigo);
+ const {CATALOGO}=require('../dist/common/errors/catalogo');assert.equal(data.mensaje,CATALOGO[data.codigo].mensaje);
+ assert.match(data.idSolicitud,/^SOL-[0-9a-f-]{36}$/);assert.equal(r.headers.get('X-Id-Solicitud'),data.idSolicitud);
+ for(const detalle of data.errores){assert.deepEqual(Object.keys(detalle).sort(),['campo','mensaje']);assert.equal(typeof detalle.campo,'string');assert.equal(typeof detalle.mensaje,'string');}
+}
+test('Errores: JSON inválido, cuerpo grande, ruta ausente e ID propio del servidor',async()=>{
+ for(const [path,body,estado,codigo] of [['/legal/beneficiarias/100/referencias','{"dato":',400,'JSON_INVALIDO'],['/legal/beneficiarias/100/referencias',JSON.stringify({dato:'x'.repeat(110000)}),413,'SOLICITUD_DEMASIADO_GRANDE']]){
+  const r=await fetch(url+path,{method:'POST',headers:{'Content-Type':'application/json','X-Id-Solicitud':'ID-CLIENTE'},body});assert.equal(r.status,estado);comprobarError(r,await r.json(),codigo);
+ }
+ const r=await fetch(url+'/ruta-inexistente');assert.equal(r.status,404);comprobarError(r,await r.json(),'RUTA_NO_ENCONTRADA');
+ const a=await call('GET','/legal/beneficiarias/letras/fichas',undefined,400),b=await call('GET','/legal/beneficiarias/letras/fichas',undefined,400);assert.notEqual(a.idSolicitud,b.idSolicitud);assert.equal(a.codigo,'IDENTIFICADOR_INVALIDO');
+});
+test('Errores: detalle anidado español sin valores y conflicto de versión específico',async()=>{
+ const data=await call('POST','/legal/beneficiarias/100/referencias',{fechaAtencion:'fecha-secreta',profesionalId:'1',detalle:{destino:123,campoInventado:'VALOR_PRIVADO'}},400);
+ assert.equal(data.codigo,'DATOS_INVALIDOS');assert.ok(data.errores.some(e=>e.campo==='detalle.destino'));assert.ok(data.errores.some(e=>e.campo==='detalle.campoInventado'));assert.ok(!JSON.stringify(data).includes('VALOR_PRIVADO'));assert.ok(!JSON.stringify(data).includes('must be'));
+ const stale=await call('PATCH','/legal/referencias/'+reference.id,{version:1,motivo:'Obsoleta',detalle:{destino:'Cambio'}},409);assert.equal(stale.codigo,'VERSION_DESACTUALIZADA');
+});
+test('Errores: fallo interno y desconexión de BD no filtran SQL ni datos',async()=>{
+ const {Persona3Repository}=require('../dist/modules/persona3/persona3.repository');const repo=app.get(Persona3Repository),original=repo.expediente;
+ try{
+  for(const [error,estado,codigo] of [[new Error('SELECT CUI DATOS_PRIVADOS'),500,'ERROR_INTERNO'],[Object.assign(new Error('conexión privada'),{code:'ECONNREFUSED'}),503,'BASE_DATOS_NO_DISPONIBLE']]){
+   repo.expediente=async()=>{throw error;};const data=await call('GET','/legal/beneficiarias/100/fichas',undefined,estado);assert.equal(data.codigo,codigo);assert.ok(!JSON.stringify(data).includes('DATOS_PRIVADOS'));
+  }
+ }finally{repo.expediente=original;}
+});
+test('Errores: PDF requerido, vacío, tipo, ilegible, límite y estructura multipart',async()=>{
+ const required=await call('POST','/beneficiarias/100/documentos/cargas',{formularioId:forms.LEGAL,categoria:'Prueba'},400);assert.equal(required.codigo,'ARCHIVO_REQUERIDO');
+ assert.equal((await cargarPdf({bytes:Buffer.alloc(0)},400)).codigo,'ARCHIVO_VACIO');
+ assert.equal((await cargarPdf({bytes:Buffer.from('imagen'),mime:'image/png',nombre:'x.png'},415)).codigo,'TIPO_ARCHIVO_NO_PERMITIDO');
+ assert.equal((await cargarPdf({bytes:Buffer.from('%PDF-falso')},422)).codigo,'PDF_INVALIDO');
+ assert.equal((await cargarPdf({bytes:require('node:fs').readFileSync(require('node:path').join(__dirname,'fixtures/protegido.pdf'))},422)).codigo,'PDF_PROTEGIDO');
+ assert.equal((await cargarPdf({bytes:Buffer.alloc(20*1024*1024+1)},413)).codigo,'ARCHIVO_DEMASIADO_GRANDE');
+ const f=new FormData();f.set('archivoErroneo',new Blob(['dato']),'x.pdf');const r=await fetch(url+'/beneficiarias/100/documentos/cargas',{method:'POST',body:f});assert.equal(r.status,400);comprobarError(r,await r.json(),'FORMATO_INVALIDO');
+});
+
+test('Errores: disco no disponible y compensación documental según certeza del guardado',async()=>{
+ const fs=require('node:fs'),path=require('node:path'),os=require('node:os');
+ const {Persona3Repository}=require('../dist/modules/persona3/persona3.repository'),{ErrorApi}=require('../dist/common/errors/error-api');
+ const repo=app.get(Persona3Repository),original=repo.transaction,prev=process.env.P3_DOCUMENTS_DIR;
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'p3-errores-'));
+ try{
+  const blocker=path.join(dir,'archivo');fs.writeFileSync(blocker,'prueba');process.env.P3_DOCUMENTS_DIR=path.join(blocker,'subcarpeta');
+  const unavailable=await cargarPdf({},503);assert.equal(unavailable.codigo,'ALMACENAMIENTO_NO_DISPONIBLE');
+  process.env.P3_DOCUMENTS_DIR=path.join(dir,'documentos');
+  repo.transaction=async()=>{throw new ErrorApi('RELACION_INCOMPATIBLE');};await cargarPdf({},409);assert.equal(fs.readdirSync(process.env.P3_DOCUMENTS_DIR).length,0);
+  repo.transaction=async()=>{throw new ErrorApi('RESULTADO_OPERACION_INCIERTO');};const uncertain=await cargarPdf({},503);assert.equal(uncertain.codigo,'RESULTADO_OPERACION_INCIERTO');assert.equal(fs.readdirSync(process.env.P3_DOCUMENTS_DIR).length,1);
+ }finally{repo.transaction=original;if(prev===undefined)delete process.env.P3_DOCUMENTS_DIR;else process.env.P3_DOCUMENTS_DIR=prev;for(const file of fs.readdirSync(path.join(dir,'documentos'),{withFileTypes:true}))fs.unlinkSync(path.join(dir,'documentos',file.name));fs.rmdirSync(path.join(dir,'documentos'));fs.unlinkSync(path.join(dir,'archivo'));fs.rmdirSync(dir);}
+});
+
+test('Postman: errores normalizados contra HTTP real',async()=>{
+ const newman=require('newman');const path=require('node:path');
+ const summary=await new Promise((resolve,reject)=>newman.run({collection:path.join(__dirname,'../postman/Errores.postman_collection.json'),envVar:[{key:'baseUrl',value:url}],reporters:[]},(e,s)=>e?reject(e):resolve(s)));
+ assert.equal(summary.run.failures.length,0,JSON.stringify(summary.run.failures));assert.equal(summary.run.stats.requests.total,3);
+ require('node:fs').writeFileSync(path.join(__dirname,'../test-results/newman-errores.json'),JSON.stringify({peticiones:summary.run.stats.requests,comprobaciones:summary.run.stats.assertions,fallos:summary.run.failures},null,2));
 });
