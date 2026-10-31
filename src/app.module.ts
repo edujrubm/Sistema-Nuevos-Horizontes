@@ -1,9 +1,9 @@
-import { Module } from '@nestjs/common';
+import { Module } from "@nestjs/common";
 
-import { DatabaseModule } from './database/database.module';
-import { DomainModule } from './modules/domain.module';
-import { HealthModule } from './modules/health/health.module';
-import { HomeModule } from './modules/home/home.module';
+import { DatabaseModule } from "./database/database.module";
+import { DomainModule } from "./modules/domain.module";
+import { HealthModule } from "./modules/health/health.module";
+import { HomeModule } from "./modules/home/home.module";
 
 @Module({
   imports: [DatabaseModule, DomainModule, HealthModule, HomeModule],

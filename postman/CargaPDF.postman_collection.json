@@ -1,0 +1,62 @@
+{
+  "info": {
+    "name": "Persona 3 - Carga PDF",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Carga PDF propia de nuestra asignación; almacenamiento privado local sin dependencias de compañeros."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:3003/api/v1"
+    },
+    {
+      "key": "beneficiariaId",
+      "value": "100"
+    },
+    {
+      "key": "formularioId",
+      "value": "2"
+    }
+  ],
+  "item": [
+    {
+      "name": "Adjuntar PDF a ficha Legal",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/documentos/cargas",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "formularioId",
+              "type": "text",
+              "value": "{{formularioId}}"
+            },
+            {
+              "key": "categoria",
+              "type": "text",
+              "value": "Documento sintético"
+            },
+            {
+              "key": "archivo",
+              "type": "file",
+              "src": "fixtures/documento.pdf"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+              "pm.test('Asociado a la ficha',()=>pm.expect(pm.response.json().formularioId).to.eql(pm.variables.get('formularioId')));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

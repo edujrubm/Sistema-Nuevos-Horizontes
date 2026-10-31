@@ -1,0 +1,379 @@
+{
+  "info": {
+    "name": "Persona 3 - Ciclo 2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "14 peticiones; datos sintéticos de test/fixtures. Ejecutar en orden."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:3003/api/v1"
+    },
+    {
+      "key": "beneficiariaId",
+      "value": "100"
+    },
+    {
+      "key": "hijoId",
+      "value": "100"
+    },
+    {
+      "key": "formularioId",
+      "value": "2"
+    },
+    {
+      "key": "profesionalId",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Resumen social",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/trabajo-social/beneficiarias/{{beneficiariaId}}/resumen"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Fichas sociales",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/trabajo-social/beneficiarias/{{beneficiariaId}}/fichas"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Lista paginada con total',()=>{const d=pm.response.json();pm.expect(d).to.have.all.keys('datos','pagina','limite','total');pm.expect(d.total).to.be.a('number');pm.expect(d.total).to.be.at.least(d.datos.length);});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Fichas legales",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/legal/beneficiarias/{{beneficiariaId}}/fichas"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Lista paginada con total',()=>{const d=pm.response.json();pm.expect(d).to.have.all.keys('datos','pagina','limite','total');pm.expect(d.total).to.be.a('number');pm.expect(d.total).to.be.at.least(d.datos.length);});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Listar referencias",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/legal/beneficiarias/{{beneficiariaId}}/referencias"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Lista paginada con total',()=>{const d=pm.response.json();pm.expect(d).to.have.all.keys('datos','pagina','limite','total');pm.expect(d.total).to.be.a('number');pm.expect(d.total).to.be.at.least(d.datos.length);});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Crear referencia",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/legal/beneficiarias/{{beneficiariaId}}/referencias",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fechaAtencion\": \"2026-10-26T10:00:00-06:00\",\n  \"profesionalId\": \"{{profesionalId}}\",\n  \"detalle\": {\n    \"destino\": \"Institución sintética\",\n    \"motivoReferencia\": \"Referencia de prueba\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+              "if(pm.response.code<300){const d=pm.response.json();pm.collectionVariables.set('referenciaId',d.id);pm.collectionVariables.set('referenciaVersion',d.version);}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Consultar referencia",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/legal/referencias/{{referenciaId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Editar referencia",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/legal/referencias/{{referenciaId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"version\": {{referenciaVersion}},\n  \"motivo\": \"Corrección sintética\",\n  \"detalle\": {\n    \"recomendaciones\": \"Seguimiento sintético\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "if(pm.response.code<300){const d=pm.response.json();pm.collectionVariables.set('referenciaId',d.id);pm.collectionVariables.set('referenciaVersion',d.version);}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Confirmar referencia",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/legal/referencias/{{referenciaId}}/confirmar",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"version\": {{referenciaVersion}},\n  \"motivo\": \"Confirmación sintética\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+              "if(pm.response.code<300){const d=pm.response.json();pm.collectionVariables.set('referenciaId',d.id);pm.collectionVariables.set('referenciaVersion',d.version);}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Hijos del expediente",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/guarderia/beneficiarias/{{beneficiariaId}}/hijos"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Lista paginada con total',()=>{const d=pm.response.json();pm.expect(d).to.have.all.keys('datos','pagina','limite','total');pm.expect(d.total).to.be.a('number');pm.expect(d.total).to.be.at.least(d.datos.length);});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ficha Guardería",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/guarderia/hijos/{{hijoId}}/fichas"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Lista paginada con total',()=>{const d=pm.response.json();pm.expect(d).to.have.all.keys('datos','pagina','limite','total');pm.expect(d.total).to.be.a('number');pm.expect(d.total).to.be.at.least(d.datos.length);});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Crear entrada",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/hoja-evolutiva",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"formularioId\": \"{{formularioId}}\",\n  \"accion\": \"Atención sintética\",\n  \"contenido\": \"Seguimiento de prueba\",\n  \"fechaAtencion\": \"2026-10-26T11:00:00-06:00\",\n  \"profesionalId\": \"{{profesionalId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+              "if(pm.response.code<300){const d=pm.response.json();pm.collectionVariables.set('entradaId',d.id);pm.collectionVariables.set('entradaVersion',d.version);}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Hoja evolutiva",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/hoja-evolutiva"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Lista paginada con total',()=>{const d=pm.response.json();pm.expect(d).to.have.all.keys('datos','pagina','limite','total');pm.expect(d.total).to.be.a('number');pm.expect(d.total).to.be.at.least(d.datos.length);});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Corregir entrada",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/entradas-evolutivas/{{entradaId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"version\": {{entradaVersion}},\n  \"motivo\": \"Corrección sintética\",\n  \"contenido\": \"Seguimiento corregido\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "if(pm.response.code<300){const d=pm.response.json();pm.collectionVariables.set('entradaId',d.id);pm.collectionVariables.set('entradaVersion',d.version);}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Revisiones de entrada",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/entradas-evolutivas/{{entradaId}}/revisiones"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Lista paginada con total',()=>{const d=pm.response.json();pm.expect(d).to.have.all.keys('datos','pagina','limite','total');pm.expect(d.total).to.be.a('number');pm.expect(d.total).to.be.at.least(d.datos.length);});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
