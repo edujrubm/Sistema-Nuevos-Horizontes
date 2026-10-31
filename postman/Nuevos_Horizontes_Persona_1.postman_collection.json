@@ -1,0 +1,2340 @@
+{
+  "info": {
+    "name": "Nuevos Horizontes - Persona 1",
+    "description": "Pruebas encadenadas para las APIs de beneficiarias, catálogos, ficha inicial e hijos. Ejecutar en orden con Collection Runner y únicamente contra PostgreSQL de desarrollo/ensayo.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 - Catálogos y preparación",
+      "item": [
+        {
+          "name": "01 - Países e inicializar corrida",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/catalogos/paises",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalogos",
+                "paises"
+              ]
+            },
+            "description": "Prueba GET /catalogos/paises"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const suffix = Date.now().toString().slice(-10);",
+                  "pm.collectionVariables.set(\"runId\", suffix);",
+                  "pm.collectionVariables.set(\"beneficiariaCui\", \"90\" + suffix);",
+                  "pm.collectionVariables.set(\"hijoCui\", \"91\" + suffix);",
+                  "pm.collectionVariables.set(\"beneficiariaNombre\", \"Beneficiaria Postman \" + suffix);",
+                  "pm.collectionVariables.set(\"hijoNombre\", \"Hija Postman \" + suffix);",
+                  "[\"beneficiariaId\",\"beneficiariaVersion\",\"expedienteId\",\"expedienteVersion\",\"fichaId\",\"fichaVersion\",\"hijoId\",\"hijoVersion\",\"paisId\",\"departamentoId\"].forEach(k => pm.collectionVariables.unset(k));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.data).to.be.an(\"array\");",
+                  "if (json.data.length) pm.collectionVariables.set(\"paisId\", json.data[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 - Departamentos por país",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/catalogos/departamentos?paisId={{paisId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalogos",
+                "departamentos?paisId={{paisId}}"
+              ]
+            },
+            "description": "Prueba GET /catalogos/departamentos?paisId={{paisId}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.data).to.be.an(\"array\");",
+                  "if (json.data.length) pm.collectionVariables.set(\"departamentoId\", json.data[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 - Municipios por departamento",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/catalogos/municipios?departamentoId={{departamentoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalogos",
+                "municipios?departamentoId={{departamentoId}}"
+              ]
+            },
+            "description": "Prueba GET /catalogos/municipios?departamentoId={{departamentoId}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "pm.expect(pm.response.json().data).to.be.an(\"array\");"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 - Catálogo de ocupaciones",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/catalogos/ocupaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalogos",
+                "ocupaciones"
+              ]
+            },
+            "description": "Prueba GET /catalogos/ocupaciones"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "pm.expect(pm.response.json().data).to.be.an(\"array\");"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01 - Beneficiarias y expediente",
+      "item": [
+        {
+          "name": "01 - Registrar beneficiaria",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/beneficiarias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beneficiarias"
+              ]
+            },
+            "description": "Prueba POST /beneficiarias",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{beneficiariaNombre}}\",\n  \"cui\": \"{{beneficiariaCui}}\",\n  \"fechaNacimiento\": \"1992-06-15\",\n  \"alfabetismo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData = pm.response.json().data;",
+                  "pm.expect(responseData.id).to.exist;",
+                  "pm.collectionVariables.set(\"beneficiariaId\", responseData.id);",
+                  "pm.collectionVariables.set(\"beneficiariaVersion\", responseData.version);",
+                  "pm.collectionVariables.set(\"expedienteId\", responseData.expediente.id);",
+                  "pm.collectionVariables.set(\"expedienteVersion\", responseData.expediente.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 - Listar beneficiarias",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/beneficiarias?limite=25&nombre={{beneficiariaNombre}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beneficiarias?limite=25&nombre={{beneficiariaNombre}}"
+              ]
+            },
+            "description": "Prueba GET /beneficiarias?limite=25&nombre={{beneficiariaNombre}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const json=pm.response.json(); pm.expect(json.data).to.be.an(\"array\"); pm.expect(json.page).to.exist;"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 - Buscar coincidencia por CUI",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/beneficiarias/buscar-coincidencias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beneficiarias",
+                "buscar-coincidencias"
+              ]
+            },
+            "description": "Prueba POST /beneficiarias/buscar-coincidencias",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cui\": \"{{beneficiariaCui}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data; pm.expect(responseData).to.be.an(\"array\").that.is.not.empty; pm.expect(String(responseData[0].id)).to.eql(String(pm.collectionVariables.get(\"beneficiariaId\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 - Consultar beneficiaria",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beneficiarias",
+                "{{beneficiariaId}}"
+              ]
+            },
+            "description": "Prueba GET /beneficiarias/{{beneficiariaId}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const json=pm.response.json(); pm.expect(String(json.id)).to.eql(String(pm.collectionVariables.get(\"beneficiariaId\"))); pm.expect(json.cui).to.be.undefined; pm.expect(json.cuiEnmascarado).to.exist;"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 - Actualizar beneficiaria",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beneficiarias",
+                "{{beneficiariaId}}"
+              ]
+            },
+            "description": "Prueba PATCH /beneficiarias/{{beneficiariaId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{beneficiariaNombre}} Actualizada\",\n  \"version\": {{beneficiariaVersion}},\n  \"motivo\": \"Prueba Postman de actualización\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data; pm.expect(responseData.version).to.be.above(Number(pm.collectionVariables.get(\"beneficiariaVersion\"))); pm.collectionVariables.set(\"beneficiariaVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 - Inactivar expediente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/inactivar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beneficiarias",
+                "{{beneficiariaId}}",
+                "inactivar"
+              ]
+            },
+            "description": "Prueba POST /beneficiarias/{{beneficiariaId}}/inactivar",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"version\": {{expedienteVersion}},\n  \"motivo\": \"Prueba Postman de inactivación\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data; pm.expect(responseData.activo).to.eql(false); pm.collectionVariables.set(\"expedienteVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 - Reactivar expediente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/reactivar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beneficiarias",
+                "{{beneficiariaId}}",
+                "reactivar"
+              ]
+            },
+            "description": "Prueba POST /beneficiarias/{{beneficiariaId}}/reactivar",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"version\": {{expedienteVersion}},\n  \"motivo\": \"Prueba Postman de reactivación\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data; pm.expect(responseData.activo).to.eql(true); pm.collectionVariables.set(\"expedienteVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "08 - Consultar historial",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/historial",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beneficiarias",
+                "{{beneficiariaId}}",
+                "historial"
+              ]
+            },
+            "description": "Prueba GET /beneficiarias/{{beneficiariaId}}/historial"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data; pm.expect(responseData).to.be.an(\"array\"); pm.expect(responseData.length).to.be.at.least(4);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Ficha inicial e hijos",
+      "item": [
+        {
+          "name": "01 - Crear ficha inicial",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/fichas-iniciales",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beneficiarias",
+                "{{beneficiariaId}}",
+                "fichas-iniciales"
+              ]
+            },
+            "description": "Prueba POST /beneficiarias/{{beneficiariaId}}/fichas-iniciales",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lugar\": \"Centro de pruebas Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data; pm.collectionVariables.set(\"fichaId\",responseData.id); pm.expect(responseData.id).to.exist;"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 - Listar fichas en borrador",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales?estado=BORRADOR&limite=25",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales?estado=BORRADOR&limite=25"
+              ]
+            },
+            "description": "Prueba GET /fichas-iniciales?estado=BORRADOR&limite=25"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const json=pm.response.json(); pm.expect(json.data).to.be.an(\"array\"); pm.expect(json.data.map(x=>String(x.id))).to.include(String(pm.collectionVariables.get(\"fichaId\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 - Consultar ficha",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}"
+              ]
+            },
+            "description": "Prueba GET /fichas-iniciales/{{fichaId}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data; pm.expect(responseData.estado).to.eql(\"BORRADOR\"); pm.expect(responseData.secciones).to.be.an(\"array\"); pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 - Registrar hija desde ficha",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/hijos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}",
+                "hijos"
+              ]
+            },
+            "description": "Prueba POST /fichas-iniciales/{{fichaId}}/hijos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{hijoNombre}}\",\n  \"cui\": \"{{hijoCui}}\",\n  \"fechaNacimiento\": \"2017-04-12\",\n  \"reconocido\": true,\n  \"genero\": \"F\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data; pm.collectionVariables.set(\"hijoId\",responseData.id); pm.collectionVariables.set(\"hijoVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 - Listar hijos de beneficiaria",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/hijos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beneficiarias",
+                "{{beneficiariaId}}",
+                "hijos"
+              ]
+            },
+            "description": "Prueba GET /beneficiarias/{{beneficiariaId}}/hijos"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data; pm.expect(responseData.map(x=>String(x.id))).to.include(String(pm.collectionVariables.get(\"hijoId\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 - Consultar hija",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/hijos/{{hijoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "hijos",
+                "{{hijoId}}"
+              ]
+            },
+            "description": "Prueba GET /hijos/{{hijoId}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data; pm.expect(String(responseData.id)).to.eql(String(pm.collectionVariables.get(\"hijoId\"))); pm.expect(responseData.cuiEnmascarado).to.exist;"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 - Actualizar hija",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/hijos/{{hijoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "hijos",
+                "{{hijoId}}"
+              ]
+            },
+            "description": "Prueba PATCH /hijos/{{hijoId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{hijoNombre}} Actualizada\",\n  \"version\": {{hijoVersion}},\n  \"motivo\": \"Prueba Postman de actualización\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data; pm.collectionVariables.set(\"hijoVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "08 - Inactivar hija",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/hijos/{{hijoId}}/inactivar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "hijos",
+                "{{hijoId}}",
+                "inactivar"
+              ]
+            },
+            "description": "Prueba POST /hijos/{{hijoId}}/inactivar",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"version\": {{hijoVersion}},\n  \"motivo\": \"Prueba Postman de inactivación\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data; pm.expect(responseData.activo).to.eql(false); pm.collectionVariables.set(\"hijoVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "09 - Reactivar hija",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/hijos/{{hijoId}}/reactivar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "hijos",
+                "{{hijoId}}",
+                "reactivar"
+              ]
+            },
+            "description": "Prueba POST /hijos/{{hijoId}}/reactivar",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"version\": {{hijoVersion}},\n  \"motivo\": \"Prueba Postman de reactivación\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data; pm.expect(responseData.activo).to.eql(true); pm.collectionVariables.set(\"hijoVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 - Completar las 19 secciones",
+      "item": [
+        {
+          "name": "01 - identificacion",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/identificacion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}",
+                "secciones",
+                "identificacion"
+              ]
+            },
+            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/identificacion",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"identificacion\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección identificacion\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data;",
+                  "pm.expect(responseData.seccion).to.eql(\"identificacion\");",
+                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 - residencia",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/residencia",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}",
+                "secciones",
+                "residencia"
+              ]
+            },
+            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/residencia",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"residencia\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección residencia\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data;",
+                  "pm.expect(responseData.seccion).to.eql(\"residencia\");",
+                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 - datos-generales",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/datos-generales",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}",
+                "secciones",
+                "datos-generales"
+              ]
+            },
+            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/datos-generales",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"datos-generales\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección datos-generales\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data;",
+                  "pm.expect(responseData.seccion).to.eql(\"datos-generales\");",
+                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 - salud",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/salud",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}",
+                "secciones",
+                "salud"
+              ]
+            },
+            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/salud",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"salud\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección salud\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data;",
+                  "pm.expect(responseData.seccion).to.eql(\"salud\");",
+                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 - grupo-familiar",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/grupo-familiar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}",
+                "secciones",
+                "grupo-familiar"
+              ]
+            },
+            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/grupo-familiar",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"grupo-familiar\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección grupo-familiar\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data;",
+                  "pm.expect(responseData.seccion).to.eql(\"grupo-familiar\");",
+                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 - agresores",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/agresores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}",
+                "secciones",
+                "agresores"
+              ]
+            },
+            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/agresores",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"agresores\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección agresores\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data;",
+                  "pm.expect(responseData.seccion).to.eql(\"agresores\");",
+                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 - motivo-consulta",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/motivo-consulta",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}",
+                "secciones",
+                "motivo-consulta"
+              ]
+            },
+            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/motivo-consulta",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"motivo-consulta\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección motivo-consulta\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data;",
+                  "pm.expect(responseData.seccion).to.eql(\"motivo-consulta\");",
+                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "08 - tipos-violencia",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/tipos-violencia",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}",
+                "secciones",
+                "tipos-violencia"
+              ]
+            },
+            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/tipos-violencia",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"tipos-violencia\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección tipos-violencia\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data;",
+                  "pm.expect(responseData.seccion).to.eql(\"tipos-violencia\");",
+                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "09 - objetos-agresion",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/objetos-agresion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}",
+                "secciones",
+                "objetos-agresion"
+              ]
+            },
+            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/objetos-agresion",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"objetos-agresion\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección objetos-agresion\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data;",
+                  "pm.expect(responseData.seccion).to.eql(\"objetos-agresion\");",
+                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "10 - situaciones-riesgo",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/situaciones-riesgo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}",
+                "secciones",
+                "situaciones-riesgo"
+              ]
+            },
+            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/situaciones-riesgo",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"situaciones-riesgo\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección situaciones-riesgo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data;",
+                  "pm.expect(responseData.seccion).to.eql(\"situaciones-riesgo\");",
+                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11 - referencias",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/referencias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}",
+                "secciones",
+                "referencias"
+              ]
+            },
+            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/referencias",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"referencias\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección referencias\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data;",
+                  "pm.expect(responseData.seccion).to.eql(\"referencias\");",
+                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12 - apoyo-recibido",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/apoyo-recibido",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}",
+                "secciones",
+                "apoyo-recibido"
+              ]
+            },
+            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/apoyo-recibido",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"apoyo-recibido\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección apoyo-recibido\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data;",
+                  "pm.expect(responseData.seccion).to.eql(\"apoyo-recibido\");",
+                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "13 - episodio-reciente",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/episodio-reciente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}",
+                "secciones",
+                "episodio-reciente"
+              ]
+            },
+            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/episodio-reciente",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"episodio-reciente\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección episodio-reciente\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data;",
+                  "pm.expect(responseData.seccion).to.eql(\"episodio-reciente\");",
+                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "14 - analisis-riesgo",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/analisis-riesgo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}",
+                "secciones",
+                "analisis-riesgo"
+              ]
+            },
+            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/analisis-riesgo",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"analisis-riesgo\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección analisis-riesgo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data;",
+                  "pm.expect(responseData.seccion).to.eql(\"analisis-riesgo\");",
+                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "15 - plan-seguridad",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/plan-seguridad",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}",
+                "secciones",
+                "plan-seguridad"
+              ]
+            },
+            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/plan-seguridad",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"plan-seguridad\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección plan-seguridad\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data;",
+                  "pm.expect(responseData.seccion).to.eql(\"plan-seguridad\");",
+                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "16 - evaluacion",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/evaluacion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}",
+                "secciones",
+                "evaluacion"
+              ]
+            },
+            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/evaluacion",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"evaluacion\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección evaluacion\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data;",
+                  "pm.expect(responseData.seccion).to.eql(\"evaluacion\");",
+                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "17 - entrevista-inicial",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/entrevista-inicial",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}",
+                "secciones",
+                "entrevista-inicial"
+              ]
+            },
+            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/entrevista-inicial",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"entrevista-inicial\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección entrevista-inicial\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data;",
+                  "pm.expect(responseData.seccion).to.eql(\"entrevista-inicial\");",
+                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "18 - seguimiento",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/seguimiento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}",
+                "secciones",
+                "seguimiento"
+              ]
+            },
+            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/seguimiento",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"seguimiento\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección seguimiento\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data;",
+                  "pm.expect(responseData.seccion).to.eql(\"seguimiento\");",
+                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "19 - observaciones",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/observaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}",
+                "secciones",
+                "observaciones"
+              ]
+            },
+            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/observaciones",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contenido\": {\n    \"fuente\": \"POSTMAN\",\n    \"completada\": true,\n    \"seccion\": \"observaciones\",\n    \"nota\": \"Contenido sintético de prueba\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba Postman - sección observaciones\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data;",
+                  "pm.expect(responseData.seccion).to.eql(\"observaciones\");",
+                  "pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 - Confirmación",
+      "item": [
+        {
+          "name": "01 - Confirmar ficha completa",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/confirmar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}",
+                "confirmar"
+              ]
+            },
+            "description": "Prueba POST /fichas-iniciales/{{fichaId}}/confirmar",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"version\": {{fichaVersion}},\n  \"motivo\": \"Confirmación integral mediante Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data; pm.expect(responseData.estado).to.eql(\"CONFIRMADA\"); pm.collectionVariables.set(\"fichaVersion\",responseData.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 - Consultar ficha confirmada",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}"
+              ]
+            },
+            "description": "Prueba GET /fichas-iniciales/{{fichaId}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Estado HTTP esperado\", function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test(\"Respuesta JSON\", function () {",
+                  "  pm.response.to.be.json;",
+                  "});",
+                  "const responseData=pm.response.json().data; pm.expect(responseData.estado).to.eql(\"CONFIRMADA\"); pm.expect(responseData.secciones.length).to.be.at.least(19);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 - Validaciones negativas",
+      "item": [
+        {
+          "name": "01 - Catálogo no permitido devuelve 404",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/catalogos/no-permitido",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "catalogos",
+                "no-permitido"
+              ]
+            },
+            "description": "Prueba GET /catalogos/no-permitido"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 404\",()=>pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 - CUI duplicado devuelve 409",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/beneficiarias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "beneficiarias"
+              ]
+            },
+            "description": "Prueba POST /beneficiarias",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Duplicada Postman\",\n  \"cui\": \"{{beneficiariaCui}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\",()=>pm.response.to.have.status(409));",
+                  "pm.test(\"Código DUPLICATE_CUI\",()=>pm.expect(pm.response.json().code || pm.response.json().message?.code).to.exist);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 - Versión antigua de hija devuelve 409",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/hijos/{{hijoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "hijos",
+                "{{hijoId}}"
+              ]
+            },
+            "description": "Prueba PATCH /hijos/{{hijoId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"No debe persistirse\",\n  \"version\": 1,\n  \"motivo\": \"Prueba de conflicto optimista\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\",()=>pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 - Ficha confirmada no admite edición",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/fichas-iniciales/{{fichaId}}/secciones/salud",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fichas-iniciales",
+                "{{fichaId}}",
+                "secciones",
+                "salud"
+              ]
+            },
+            "description": "Prueba PATCH /fichas-iniciales/{{fichaId}}/secciones/salud",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contenido\": {\n    \"nota\": \"No debe persistirse\"\n  },\n  \"versionFicha\": {{fichaVersion}},\n  \"motivo\": \"Prueba de ficha cerrada\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\",()=>pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api/v1"
+    },
+    {
+      "key": "runId",
+      "value": ""
+    },
+    {
+      "key": "beneficiariaCui",
+      "value": ""
+    },
+    {
+      "key": "hijoCui",
+      "value": ""
+    },
+    {
+      "key": "beneficiariaNombre",
+      "value": ""
+    },
+    {
+      "key": "hijoNombre",
+      "value": ""
+    },
+    {
+      "key": "beneficiariaId",
+      "value": ""
+    },
+    {
+      "key": "beneficiariaVersion",
+      "value": ""
+    },
+    {
+      "key": "expedienteId",
+      "value": ""
+    },
+    {
+      "key": "expedienteVersion",
+      "value": ""
+    },
+    {
+      "key": "fichaId",
+      "value": ""
+    },
+    {
+      "key": "fichaVersion",
+      "value": ""
+    },
+    {
+      "key": "hijoId",
+      "value": ""
+    },
+    {
+      "key": "hijoVersion",
+      "value": ""
+    },
+    {
+      "key": "paisId",
+      "value": ""
+    },
+    {
+      "key": "departamentoId",
+      "value": ""
+    }
+  ]
+}
