@@ -71,3 +71,16 @@ contrato.paths['/legal/referencias/{id}'].get.description='id es formulario_area
 contrato.paths['/legal/referencias/{id}'].patch.description='Borrador o confirmada: exige versión actual y motivo, conserva historial. En confirmadas no permite vaciar destino ni motivoReferencia.';
 contrato.paths['/legal/referencias/{id}/confirmar'].post.description='Valida los datos ya guardados: destino y motivoReferencia no vacíos. Origen y recomendaciones opcionales. Una confirmación fallida no cambia estado, versión ni historial.';
 fs.writeFileSync('docs/persona3/openapi.json',JSON.stringify(contrato,null,2));
+
+// Contrato común de errores: todas las operaciones mantienen sus respuestas exitosas.
+const {CATALOGO}=require('../src/common/errors/catalogo.ts');
+contrato.components.schemas.ErrorApi={type:'object',additionalProperties:false,required:['estado','codigo','mensaje','errores','idSolicitud'],properties:{estado:{type:'integer',minimum:400,maximum:599},codigo:{type:'string',enum:Object.keys(CATALOGO)},mensaje:{type:'string'},errores:{type:'array',items:{type:'object',additionalProperties:false,required:['campo','mensaje'],properties:{campo:{type:'string'},mensaje:{type:'string'}}}},idSolicitud:{type:'string'}}};
+for(const item of Object.values(contrato.paths))for(const op of Object.values(item)){
+ if(!op.responses)continue;
+ for(const estado of ['400','403','404','409','413','415','422','500','503'])op.responses[estado]={description:'Error según CONTRATO_ERRORES_API.md; mensaje público en español.',headers:{'X-Id-Solicitud':{schema:{type:'string'}}},content:{'application/json':{schema:{$ref:'#/components/schemas/ErrorApi'}}}};
+}
+fs.writeFileSync('docs/persona3/openapi.json',JSON.stringify(contrato,null,2));
+const erroresPostman={info:{name:'Persona 3 - Contrato de errores',schema:'https://schema.getpostman.com/json/collection/v2.1.0/collection.json'},variable:[{key:'baseUrl',value:'http://127.0.0.1:3003/api/v1'}],item:[{name:'Identificador inválido',request:{method:'GET',url:'{{baseUrl}}/legal/beneficiarias/letras/fichas'}},{name:'Ruta inexistente',request:{method:'GET',url:'{{baseUrl}}/ruta-inexistente'}},{name:'JSON mal formado',request:{method:'POST',header:[{key:'Content-Type',value:'application/json'}],url:'{{baseUrl}}/legal/beneficiarias/100/referencias',body:{mode:'raw',raw:'{"incompleto":'}}}],event:[{listen:'test',script:{exec:["pm.test('Error con cinco propiedades',()=>pm.expect(Object.keys(pm.response.json()).sort()).to.eql(['estado','codigo','mensaje','errores','idSolicitud'].sort()));","pm.test('Estado e identificador consistentes',()=>{const d=pm.response.json();pm.expect(d.estado).to.eql(pm.response.code);pm.expect(d.idSolicitud).to.eql(pm.response.headers.get('X-Id-Solicitud'));});"]}}]};
+fs.writeFileSync('postman/Errores.postman_collection.json',JSON.stringify(erroresPostman,null,2));
+
+fs.writeFileSync("public/errores-api.js","// Generado desde el catálogo común.\nglobalThis.ERRORES_API = "+JSON.stringify(CATALOGO)+";\n");

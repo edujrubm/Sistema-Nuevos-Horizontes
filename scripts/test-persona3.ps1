@@ -24,7 +24,7 @@ try {
  $env:DATABASE_HOST='127.0.0.1';$env:DATABASE_PORT="$Port";$env:DATABASE_NAME='p3_test';$env:DATABASE_USER='p3_test';$env:DATABASE_PASSWORD='local-test';$env:DATABASE_SSL='false';$env:NODE_ENV='test';$env:P3_TEST_ACTOR_ID='1';$env:P3_DRAFT_STATE='P3_BORRADOR';$env:P3_CONFIRMED_STATE='P3_CONFIRMADO';$env:P3_TEST_AREA='Legal';$env:P3_TEST_ROLE='COORDINACION'
  & pnpm run build
  if($LASTEXITCODE -ne 0){throw 'Falló compilación'}
- & node --test --test-concurrency=1 test/persona3.integration.cjs 2>&1 | Tee-Object -FilePath (Join-Path $results 'persona3.tap')
+ & node --test --test-concurrency=1 test/errores.unit.cjs test/persona3.integration.cjs 2>&1 | Tee-Object -FilePath (Join-Path $results 'persona3.tap')
  if($LASTEXITCODE -ne 0){throw 'Fallaron las pruebas'}
 } finally {
  if($started){& (Join-Path $PostgresBin 'pg_ctl.exe') -D $cluster -m fast -w stop}

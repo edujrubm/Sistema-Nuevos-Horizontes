@@ -1,9 +1,9 @@
-# Pruebas de persona 3 - 29 de octubre de 2026
+# Pruebas de persona 3 - 30 de octubre de 2026
 
 ## Resultado vigente
 
 - Compilación NestJS/TypeScript correcta.
-- **26 pruebas de integración correctas, 0 fallidas**, contra PostgreSQL 18 aislado.
+- **37 pruebas correctas (32 de integración y 5 unitarias), 0 fallidas**, contra PostgreSQL 18 aislado.
 - Las 14 rutas P3 coinciden exactamente con la página 4 del PDF; prueba automática de contrato.
 - Newman en esta ejecución: **14 peticiones y 21 aserciones, sin fallos**; incluye comprobación de las listas con total. La carga PDF se volvió a verificar en las pruebas HTTP/BD; su colección separada había pasado previamente.
 - Solo SQL 01 y 02 recibidos. Sin aplicar parches anteriores ni migraciones nuevas.
@@ -33,7 +33,7 @@ Evidencias detalladas ignoradas por Git: test-results/persona3.tap, newman.json 
 
 ## Límites
 
-P3_TEST_AREA y P3_TEST_ROLE simulan contexto del servidor; no acreditan autenticación institucional. ID de referencia y JSON paginado ya están ratificados. La referencia exige destino y motivo al confirmar; ambos se conservan obligatorios tras corregirla. La entrega funciona por sí misma sin depender de código o almacenamiento de compañeros. No hubo push. La guía general de errores todavía debe normalizarse en el código y no se declara implementada por esta prueba. No se modificó la BD compartida.
+P3_TEST_AREA y P3_TEST_ROLE simulan contexto del servidor; no acreditan autenticación institucional. ID de referencia y JSON paginado ya están ratificados. La referencia exige destino y motivo al confirmar; ambos se conservan obligatorios tras corregirla. La entrega funciona por sí misma sin depender de código o almacenamiento de compañeros. La entrega está publicada en las ramas acordadas. El contrato general de errores está integrado y verificado; ver ERRORES_IMPLEMENTADOS.md. No se modificó la BD compartida.
 
 
 ## Pruebas añadidas el 29 de octubre
@@ -47,3 +47,15 @@ P3_TEST_AREA y P3_TEST_ROLE simulan contexto del servidor; no acreditan autentic
 ## Contratos actualizados
 
 OpenAPI y Postman reflejan `{datos,pagina,limite,total}`, ID de formulario para referencia, mínimo de borrador y validación de datos guardados al confirmar. La única duda funcional pendiente es la correspondencia de campos Social ausentes del SQL.
+
+## Contrato de errores: verificación del 30 de octubre
+
+- Se conservaron los 26 escenarios previos y se añadieron 6 escenarios de integración y 5 pruebas unitarias. Total: 37 aprobadas, cero fallos.
+- Cada rechazo de los flujos existentes comprueba las cinco propiedades, estado HTTP y correlación de cabecera/cuerpo.
+- JSON mal formado, cuerpo grande, ruta inexistente, validación anidada, ausencia de valores privados, ID generado por el servidor y conflictos de versión específicos.
+- Error inesperado y desconexión de BD simulados contra HTTP real: respuesta segura sin SQL ni datos privados.
+- PDF ausente, vacío, tipo incorrecto, ilegible, protegido y mayor de 20 MiB; multipart incorrecto y disco no disponible.
+- Compensación documental con fallo confirmado y conservación del archivo si el guardado es incierto. Commit/rollback inciertos y restricciones desconocidas se simulan en pruebas unitarias; no se cortó físicamente una BD compartida.
+- Respaldo de cliente probado con red fallida, cuerpo ajeno al contrato, código desconocido y detalles malformados; respuesta ya iniciada verificada sin segundo JSON.
+- Newman: colección funcional de 14 peticiones/21 comprobaciones y colección de errores de 3 peticiones/6 comprobaciones, ambas sin fallos. Evidencia adicional ignorada por Git: `test-results/newman-errores.json`.
+- Las verificaciones conjuntas se hicieron en HEAD separado temporal; no se creó otra rama remota.
