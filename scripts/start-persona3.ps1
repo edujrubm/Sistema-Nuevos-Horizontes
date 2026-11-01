@@ -1,12 +1,12 @@
-﻿param([string]$PostgresBin='C:\Program Files\PostgreSQL\18\bin',[int]$Port=55438,[int]$ApiPort=3003)
+﻿param([string]$PostgresBin='C:\Program Files\PostgreSQL\18\bin',[int]$Port=55452,[int]$ApiPort=3015,[ValidateSet('Legal','Trabajo Social','Guardería')][string]$Area='Legal')
 $ErrorActionPreference='Stop'
 $root=(Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $results=Join-Path $root 'test-results'
 New-Item -ItemType Directory $results -Force | Out-Null
-$cluster=Join-Path $results 'demo-pg'
-$marker=Join-Path $cluster '.persona3-initialized'
+$cluster=Join-Path $results 'local-mockups-pg'
+$marker=Join-Path $cluster '.local-mockups-008-initialized'
 $started=$false
-$names=@('DATABASE_HOST','DATABASE_PORT','DATABASE_NAME','DATABASE_USER','DATABASE_PASSWORD','DATABASE_SSL','NODE_ENV','P3_TEST_ACTOR_ID','P3_DRAFT_STATE','P3_CONFIRMED_STATE','P3_TEST_AREA','P3_TEST_ROLE','PORT')
+$names=@('DATABASE_HOST','DATABASE_PORT','DATABASE_NAME','DATABASE_USER','DATABASE_PASSWORD','DATABASE_SSL','NODE_ENV','P3_TEST_ACTOR_ID','P3_DRAFT_STATE','P3_CONFIRMED_STATE','P3_TEST_AREA','P3_TEST_ROLE','P3_DOCUMENTS_DIR','P3_ENABLE_LAB','PORT')
 $previous=@{}
 foreach($name in $names){$previous[$name]=[Environment]::GetEnvironmentVariable($name)}
 Push-Location $root
@@ -21,14 +21,19 @@ try {
  if(!(Test-Path $marker)){
  & (Join-Path $PostgresBin 'createdb.exe') -h 127.0.0.1 -p $Port -U p3_test p3_test
  if($LASTEXITCODE -ne 0){throw 'Falló createdb'}
- foreach($file in @('01_new_horizons_postgresql.sql','seed-local.sql','fixture-migracion-test.sql','02_ampliacion_formularios.sql','persona3.sql')){
-  & (Join-Path $PostgresBin 'psql.exe') -h 127.0.0.1 -p $Port -U p3_test -d p3_test -v ON_ERROR_STOP=1 -q -f (Join-Path $root "test/fixtures/$file") 2>&1 | Out-File (Join-Path $results ($file+'.log'))
+ $sqlFiles=@('test/fixtures/01_new_horizons_postgresql.sql','test/fixtures/seed-local.sql','test/fixtures/fixture-migracion-test.sql','test/fixtures/02_ampliacion_formularios.sql')
+ $sqlFiles+=Get-ChildItem -LiteralPath (Join-Path $root 'database/migrations') -Filter '*.sql' | Sort-Object Name | ForEach-Object { 'database/migrations/'+$_.Name }
+ $sqlFiles+='test/fixtures/persona3.sql'
+ foreach($file in $sqlFiles){
+  & (Join-Path $PostgresBin 'psql.exe') -h 127.0.0.1 -p $Port -U p3_test -d p3_test -v ON_ERROR_STOP=1 -q -f (Join-Path $root $file) 2>&1 | Out-File (Join-Path $results ([IO.Path]::GetFileName($file)+'.log'))
   if($LASTEXITCODE -ne 0){throw "Falló $file"}
  }
  Set-Content $marker 'Solo datos sintéticos persona3'
  }
  $env:PORT="$ApiPort"
- $env:DATABASE_HOST='127.0.0.1';$env:DATABASE_PORT="$Port";$env:DATABASE_NAME='p3_test';$env:DATABASE_USER='p3_test';$env:DATABASE_PASSWORD='local-test';$env:DATABASE_SSL='false';$env:NODE_ENV='test';$env:P3_TEST_ACTOR_ID='1';$env:P3_DRAFT_STATE='P3_BORRADOR';$env:P3_CONFIRMED_STATE='P3_CONFIRMADO';$env:P3_TEST_AREA='Legal';$env:P3_TEST_ROLE='COORDINACION'
+ $env:P3_DOCUMENTS_DIR=Join-Path $results 'documentos-locales'
+ $env:P3_ENABLE_LAB='true'
+ $env:DATABASE_HOST='127.0.0.1';$env:DATABASE_PORT="$Port";$env:DATABASE_NAME='p3_test';$env:DATABASE_USER='p3_test';$env:DATABASE_PASSWORD='local-test';$env:DATABASE_SSL='false';$env:NODE_ENV='test';$env:P3_TEST_ACTOR_ID='1';$env:P3_DRAFT_STATE='P3_BORRADOR';$env:P3_CONFIRMED_STATE='P3_CONFIRMADO';$env:P3_TEST_AREA=$Area;$env:P3_TEST_ROLE='COORDINACION'
  & pnpm run build
  if($LASTEXITCODE -ne 0){throw 'Falló compilación'}
  Write-Host "Persona 3: http://127.0.0.1:$ApiPort/api/v1 - Ctrl+C para detener"

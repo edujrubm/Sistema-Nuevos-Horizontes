@@ -15,7 +15,7 @@ export class FichaLegalDetalleDto {
   @IsOptional() @IsString() @MaxLength(20000) objetivoLegal?: string | null;
   @IsOptional() @IsString() @MaxLength(20000) tipoJuicio?: string | null;
   @IsOptional() @IsString() @MaxLength(20000) estadoProceso?: string | null;
-  @IsOptional() @IsDateString({ strict: true }) proximaActuacionFecha?: string | null;
+  @IsOptional() @IsDateString({ strict: true }) @Matches(/^\d{4}-\d{2}-\d{2}$/) proximaActuacionFecha?: string | null;
   @IsOptional() @IsString() @MaxLength(20000) actuacionesRealizadas?: string | null;
   @IsOptional() @IsString() @MaxLength(20000) acuerdosProximosPasos?: string | null;
   @IsOptional() @IsString() @MaxLength(20000) observaciones?: string | null;
