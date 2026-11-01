@@ -4,6 +4,18 @@
 **Fecha:** 29 de octubre de 2026.  
 **Áreas revisadas:** Trabajo Social, Legal, referencias legales, Guardería, sus seguimientos y los documentos asociados.
 
+## Estado de implementación
+
+El 31 de octubre de 2026 se aplicó en PostgreSQL de desarrollo la migración
+`database/migrations/007_persona3_campos_mockups.sql`. Incorpora como columnas
+opcionales S01–S10, L01–L09, R01, G02–G03 y D02–D03. También se actualizaron los
+contratos de Referencia Legal y carga PDF que ya tienen rutas activas.
+
+Permanecen pendientes, por requerir una decisión funcional explícita: S11
+(catálogo/selección de riesgos), G01 (autorizaciones de traslado), D01 (nombre
+independiente), D04 (revisión documental), el estado `CERRADA`, coordinación
+con múltiples áreas y el vínculo opcional con una ficha inicial concreta.
+
 ## Qué se solicita revisar
 
 Comprobar las diferencias siguientes en la BD que utiliza el grupo y decidir cuáles se incorporan. Se propone nombre, tabla y tipo para cada dato. **No se ejecutó ningún cambio ni se modificaron los SQL originales.**

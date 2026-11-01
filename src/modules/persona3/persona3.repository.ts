@@ -70,7 +70,7 @@ export class Persona3Repository {
     if (form.tipo !== "REFERENCIA_LEGAL")
       throw new ErrorApi("REGISTRO_NO_ENCONTRADO");
     const [detail] = await manager.query(
-      "SELECT destino,origen,motivo_referencia,recomendaciones FROM new_horizons.referencia_legal WHERE formulario_id=$1",
+      "SELECT destino,origen,motivo_referencia,recomendaciones,medio_entrega FROM new_horizons.referencia_legal WHERE formulario_id=$1",
       [id],
     );
     if (!detail) throw new ErrorApi("REGISTRO_NO_ENCONTRADO");
@@ -130,6 +130,13 @@ export class Persona3Repository {
         code === "23503" &&
         [
           "formulario_area_profesional_id_fkey",
+          "ficha_social_area_coordinacion_id_fkey",
+          "ficha_legal_demandado_agresor_id_fkey",
+          "ficha_guarderia_etnia_id_fkey",
+          "ficha_guarderia_escolaridad_id_fkey",
+          "fk_form_ficha_mismo_exp",
+          "fk_autorizacion_mismo_form",
+          "familiar_declarado_parentesco_id_fkey",
           "formulario_area_capturado_por_fkey",
           "entrada_evolutiva_profesional_id_fkey",
           "entrada_evolutiva_capturado_por_fkey",

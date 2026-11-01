@@ -44,3 +44,11 @@ test('Cliente: red, JSON ajeno y códigos desconocidos tienen respaldo español'
  await assert.rejects(vm.runInContext("api('/prueba')",context),e=>e.contrato.codigo==='RESPUESTA_NO_VALIDA');
  assert.equal(vm.runInContext("mensajeVisible(new Error('English private error'))",context),'No se pudo mostrar esta sección. Vuelve a abrirla o comunícate con soporte.');
 });
+
+test('Laboratorio: módulo experimental requiere activación explícita',()=>{
+ const {spawnSync}=require('node:child_process');
+ for(const flag of ['false','true']){
+  const r=spawnSync(process.execPath,['-e',"require('reflect-metadata');const {AppModule}=require('./dist/app.module');const xs=Reflect.getMetadata('imports',AppModule)||[];console.log(xs.some(x=>x?.name==='LaboratorioModule'))"],{cwd:process.cwd(),env:{...process.env,NODE_ENV:'test',P3_ENABLE_LAB:flag},encoding:'utf8'});
+  assert.equal(r.status,0,r.stderr);assert.equal(r.stdout.trim(),flag);
+ }
+});

@@ -2775,6 +2775,27 @@
                   "categoria": {
                     "type": "string",
                     "maxLength": 200
+                  },
+                  "fechaDocumento": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "descripcion": {
+                    "type": "string",
+                    "maxLength": 20000
+                  },
+                  "nombreDocumento": {
+                    "type": "string",
+                    "maxLength": 200
+                  },
+                  "documentoAnteriorId": {
+                    "type": "string",
+                    "pattern": "^[1-9][0-9]{0,18}$"
+                  },
+                  "motivoCambio": {
+                    "type": "string",
+                    "maxLength": 2000,
+                    "description": "Obligatorio al crear una nueva versión."
                   }
                 }
               }
@@ -2981,6 +3002,10 @@
                 "type": "string",
                 "maxLength": 20000,
                 "nullable": true
+              },
+              "medioEntrega": {
+                "type": "string",
+                "nullable": true
               }
             },
             "required": [],
@@ -3027,6 +3052,10 @@
               "recomendaciones": {
                 "type": "string",
                 "maxLength": 20000,
+                "nullable": true
+              },
+              "medioEntrega": {
+                "type": "string",
                 "nullable": true
               }
             },
