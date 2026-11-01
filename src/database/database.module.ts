@@ -19,6 +19,8 @@ import * as Joi from "joi";
         DATABASE_PASSWORD: Joi.string().required(),
         DATABASE_SSL: Joi.boolean().default(false),
         AUDIT_ACTOR_USERNAME: Joi.string().default("actor_pruebas_persona1"),
+        FORM_DRAFT_STATE_CODE: Joi.string().default("BORRADOR"),
+        FORM_CONFIRMED_STATE_CODE: Joi.string().default("CONFIRMADO"),
       }),
     }),
     TypeOrmModule.forRootAsync({
