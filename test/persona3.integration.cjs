@@ -136,7 +136,7 @@ test('Área activa: no se puede leer, crear o corregir evolución de otra área'
 });
 test('Guardería: se pueden seleccionar todos, pero solo abrir inscritos',async()=>{
  const [ex]=await db.query('SELECT id_expediente FROM new_horizons.expediente WHERE beneficiaria_id=100');
- await db.query("INSERT INTO new_horizons.nino(nino_id,nombre,expediente_id) VALUES(300,'Hijo no inscrito sintético',$1)",[ex.id_expediente]);
+ await db.transaction(async m=>{await m.query("SELECT set_config('new_horizons.actor_id','1',true),set_config('new_horizons.motivo','Preparar hijo de prueba',true)");await m.query("INSERT INTO new_horizons.nino(nino_id,nombre,expediente_id) VALUES(300,'Hijo no inscrito sintético',$1)",[ex.id_expediente]);});
  const children=await call('GET','/guarderia/beneficiarias/100/hijos');
  assert.equal(children.datos.find(x=>x.ninoId==='100').inscrito,true);
  assert.equal(children.datos.find(x=>x.ninoId==='300').inscrito,false);
@@ -148,7 +148,7 @@ test('Seguimientos: borrador bloqueado, acción libre y cambios auditados',async
 });
 test('Resumen Social satisface los campos disponibles del mockup sin datos inventados',async()=>{
  const r=await call('GET','/trabajo-social/beneficiarias/100/resumen');
- assert.equal(r.beneficiaria.nombre,'Beneficiaria histórica sintética');assert.equal(r.ultimaFicha.estadoCodigo,'P3_CONFIRMADO');assert.ok(r.ultimaFicha.actualizadoEn);assert.ok(r.historialReciente.length);assert.equal(r.totalRiesgos,null);assert.ok(r.camposSinSoporte.includes('fechaRevision'));
+ assert.equal(r.beneficiaria.nombre,'Beneficiaria histórica sintética');assert.equal(r.ultimaFicha.estadoCodigo,'P3_CONFIRMADO');assert.ok(r.ultimaFicha.actualizadoEn);assert.ok(r.historialReciente.length);assert.equal(typeof r.totalRiesgos,'number');assert.deepEqual(r.camposSinSoporte,[]);
 });
 test('Contrato: las 14 rutas P3 coinciden exactamente con la página 4 del PDF',()=>{
  const fs=require('node:fs');const {PATH_METADATA,METHOD_METADATA}=require('@nestjs/common/constants');const {RequestMethod}=require('@nestjs/common');
@@ -169,7 +169,7 @@ test('PDF: sube original, se asocia a su ficha/expediente y guarda auditoría',a
  const doc=await cargarPdf({},201);
  const [stored]=await db.query('SELECT d.*,f.expediente_id FROM new_horizons.documento_area d JOIN new_horizons.formulario_area f ON f.id=d.formulario_id WHERE d.id=$1',[doc.id]);
  assert.equal(doc.formularioId,forms.LEGAL);assert.equal(doc.expedienteId,stored.expediente_id);assert.ok(!Object.hasOwn(doc,'objetoPrivado'));
- const original=fs.readFileSync(path.join(__dirname,'fixtures/documento.pdf'));assert.deepEqual(fs.readFileSync(stored.objeto_privado),original);assert.equal(doc.sha256,crypto.createHash('sha256').update(original).digest('hex'));
+ const original=fs.readFileSync(path.join(__dirname,'fixtures/documento.pdf'));assert.deepEqual(fs.readFileSync(path.resolve(process.env.P3_DOCUMENTS_DIR||'test-results/documentos-privados',stored.objeto_privado)),original);assert.equal(doc.sha256,crypto.createHash('sha256').update(original).digest('hex'));
  const [audit]=await db.query("SELECT actor_id FROM new_horizons.revision_registro WHERE tabla='documento_area' AND registro_id=$1",[doc.id]);assert.equal(audit.actor_id,'1');
 });
 test('PDF: rechaza imagen, archivo falso, más de 20 MiB, expediente ajeno y otra área',async()=>{

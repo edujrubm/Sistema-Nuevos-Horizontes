@@ -22,9 +22,9 @@ export class DocumentosController {
       limits: {
         fileSize: LIMITE_PDF_BYTES,
         files: 1,
-        fields: 2,
-        fieldSize: 1000,
-        parts: 3,
+        fields: 8,
+        fieldSize: 80000,
+        parts: 9,
       },
     }),
   )

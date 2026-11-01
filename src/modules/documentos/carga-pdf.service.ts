@@ -25,6 +25,8 @@ export class CargaPdfService {
 
   async cargar(beneficiaria: string, dto: CargaPdfDto, archivo?: ArchivoPdf) {
     this.ambito.area();
+    if (dto.documentoAnteriorId && !dto.motivoCambio?.trim())
+      throw new ErrorApi("CAMPO_OBLIGATORIO");
     if (!archivo) throw new ErrorApi("ARCHIVO_REQUERIDO");
     if (!archivo.buffer.length) throw new ErrorApi("ARCHIVO_VACIO");
     if (archivo.buffer.length > LIMITE_PDF_BYTES)
@@ -89,7 +91,7 @@ export class CargaPdfService {
     }
     try {
       return await this.repo.transaction(
-        "Carga de PDF del área",
+        dto.motivoCambio ?? "Carga de PDF del área",
         async (m, actor) => {
           const f = await this.repo.formulario(dto.formularioId, m, true);
           if (
@@ -112,16 +114,43 @@ export class CargaPdfService {
             if (!inscripcion.inscrito)
               throw new ErrorApi("REGISTRO_NO_ENCONTRADO");
           }
+          let versionDocumento = 1;
+          let nombreDocumento = dto.nombreDocumento?.trim() ?? null;
+          if (dto.documentoAnteriorId) {
+            const [anterior] = await m.query(
+              "SELECT * FROM new_horizons.documento_area WHERE id=$1 FOR UPDATE",
+              [dto.documentoAnteriorId],
+            );
+            if (
+              !anterior ||
+              anterior.formulario_id !== f.id ||
+              anterior.anulado_en
+            )
+              throw new ErrorApi("RELACION_INCOMPATIBLE");
+            const [sucesor] = await m.query(
+              "SELECT id FROM new_horizons.documento_area WHERE documento_anterior_id=$1",
+              [anterior.id],
+            );
+            if (sucesor)
+              throw new ErrorApi("VERSION_DOCUMENTAL_DESACTUALIZADA");
+            versionDocumento = anterior.version_documento + 1;
+            nombreDocumento ??= anterior.nombre_documento;
+          }
           const [doc] = await m.query(
-            "INSERT INTO new_horizons.documento_area(formulario_id,categoria,objeto_privado,mime,tamano_bytes,sha256,version_documento,cargado_por) VALUES($1,$2,$3,$4,$5,$6,1,$7) RETURNING id,cargado_en",
+            "INSERT INTO new_horizons.documento_area(formulario_id,categoria,objeto_privado,mime,tamano_bytes,sha256,version_documento,cargado_por,fecha_documento,descripcion,nombre_documento,documento_anterior_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING id,cargado_en,fecha_documento,descripcion,nombre_documento,estado_revision_codigo,version_registro",
             [
               f.id,
               dto.categoria,
-              path,
+              key,
               "application/pdf",
               archivo.buffer.length,
               sha256,
+              versionDocumento,
               actor,
+              dto.fechaDocumento ?? null,
+              dto.descripcion ?? null,
+              nombreDocumento,
+              dto.documentoAnteriorId ?? null,
             ],
           );
           return {
@@ -133,8 +162,13 @@ export class CargaPdfService {
             mime: "application/pdf",
             tamanoBytes: String(archivo.buffer.length),
             sha256,
-            versionDocumento: 1,
+            versionDocumento,
+            nombreDocumento: doc.nombre_documento ?? dto.categoria,
+            estadoRevisionCodigo: doc.estado_revision_codigo,
+            versionRegistro: doc.version_registro,
             cargadoEn: doc.cargado_en,
+            fechaDocumento: doc.fecha_documento,
+            descripcion: doc.descripcion,
           };
         },
       );
