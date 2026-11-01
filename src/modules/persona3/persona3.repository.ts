@@ -130,6 +130,13 @@ export class Persona3Repository {
         code === "23503" &&
         [
           "formulario_area_profesional_id_fkey",
+          "ficha_social_area_coordinacion_id_fkey",
+          "ficha_legal_demandado_agresor_id_fkey",
+          "ficha_guarderia_etnia_id_fkey",
+          "ficha_guarderia_escolaridad_id_fkey",
+          "fk_form_ficha_mismo_exp",
+          "fk_autorizacion_mismo_form",
+          "familiar_declarado_parentesco_id_fkey",
           "formulario_area_capturado_por_fkey",
           "entrada_evolutiva_profesional_id_fkey",
           "entrada_evolutiva_capturado_por_fkey",

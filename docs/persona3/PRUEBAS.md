@@ -1,5 +1,11 @@
 # Pruebas de persona 3 - 30 de octubre de 2026
 
+> Actualización de la entrega de correcciones de mockups: ver
+> [CONTEXTO_CORRECCIONES_MOCKUPS_BD.md](CONTEXTO_CORRECCIONES_MOCKUPS_BD.md).
+> El conjunto actualizado pasó 55 pruebas e incorpora SQL 003–008.
+> Las notas inferiores describen las verificaciones históricas anteriores.
+
+
 ## Resultado vigente
 
 - Compilación NestJS/TypeScript correcta.
