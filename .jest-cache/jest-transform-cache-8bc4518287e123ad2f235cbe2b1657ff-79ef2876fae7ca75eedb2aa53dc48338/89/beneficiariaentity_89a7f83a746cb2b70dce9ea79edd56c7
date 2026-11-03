@@ -1,0 +1,151 @@
+65b2a72505295e4d52579c38e1fe58c6
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BeneficiariaEntity = void 0;
+const typeorm_1 = require("typeorm");
+let BeneficiariaEntity = class BeneficiariaEntity {
+    id;
+    cui;
+    nombre;
+    fechaNacimiento;
+    alfabetismo;
+    enfermedadPermanente;
+    nombreEnfermedad;
+    tipoTratamiento;
+    otrosPadecimientos;
+    paisCuiId;
+    tipoAcompananteId;
+    lugarOcupacionId;
+    estadoCivilId;
+    ocupacionId;
+    nivelEstudioId;
+    residenciaId;
+    paisOrigenId;
+    departamentoOrigenId;
+    municipioOrigenId;
+    estadoEstudioId;
+    version;
+    creadoEn;
+    actualizadoEn;
+};
+exports.BeneficiariaEntity = BeneficiariaEntity;
+__decorate([
+    (0, typeorm_1.PrimaryGeneratedColumn)({ name: "id_beneficiaria", type: "bigint" }),
+    __metadata("design:type", String)
+], BeneficiariaEntity.prototype, "id", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "varchar", length: 20, nullable: true }),
+    __metadata("design:type", Object)
+], BeneficiariaEntity.prototype, "cui", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "varchar", length: 60 }),
+    __metadata("design:type", String)
+], BeneficiariaEntity.prototype, "nombre", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "fecha_nac", type: "date", nullable: true }),
+    __metadata("design:type", Object)
+], BeneficiariaEntity.prototype, "fechaNacimiento", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "boolean", nullable: true }),
+    __metadata("design:type", Object)
+], BeneficiariaEntity.prototype, "alfabetismo", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "enfermedad_permanente", type: "boolean", nullable: true }),
+    __metadata("design:type", Object)
+], BeneficiariaEntity.prototype, "enfermedadPermanente", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        name: "nombre_enfermedad",
+        type: "varchar",
+        length: 50,
+        nullable: true,
+    }),
+    __metadata("design:type", Object)
+], BeneficiariaEntity.prototype, "nombreEnfermedad", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        name: "tipo_tratamiento",
+        type: "varchar",
+        length: 100,
+        nullable: true,
+    }),
+    __metadata("design:type", Object)
+], BeneficiariaEntity.prototype, "tipoTratamiento", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        name: "otros_padecimientos",
+        type: "varchar",
+        length: 100,
+        nullable: true,
+    }),
+    __metadata("design:type", Object)
+], BeneficiariaEntity.prototype, "otrosPadecimientos", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "pais_cui_id", type: "bigint", nullable: true }),
+    __metadata("design:type", Object)
+], BeneficiariaEntity.prototype, "paisCuiId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "tipo_acompanante_id", type: "bigint", nullable: true }),
+    __metadata("design:type", Object)
+], BeneficiariaEntity.prototype, "tipoAcompananteId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "lugar_ocupacion_id", type: "bigint", nullable: true }),
+    __metadata("design:type", Object)
+], BeneficiariaEntity.prototype, "lugarOcupacionId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "estado_civil_id", type: "bigint", nullable: true }),
+    __metadata("design:type", Object)
+], BeneficiariaEntity.prototype, "estadoCivilId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "ocupacion_id", type: "bigint", nullable: true }),
+    __metadata("design:type", Object)
+], BeneficiariaEntity.prototype, "ocupacionId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "nivel_estudio_id", type: "bigint", nullable: true }),
+    __metadata("design:type", Object)
+], BeneficiariaEntity.prototype, "nivelEstudioId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "residencia_id", type: "bigint", nullable: true }),
+    __metadata("design:type", Object)
+], BeneficiariaEntity.prototype, "residenciaId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "pais_origen_id", type: "bigint", nullable: true }),
+    __metadata("design:type", Object)
+], BeneficiariaEntity.prototype, "paisOrigenId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "departamento_origen_id", type: "bigint", nullable: true }),
+    __metadata("design:type", Object)
+], BeneficiariaEntity.prototype, "departamentoOrigenId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "municipio_origen_id", type: "bigint", nullable: true }),
+    __metadata("design:type", Object)
+], BeneficiariaEntity.prototype, "municipioOrigenId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "estado_estudio_id", type: "bigint", nullable: true }),
+    __metadata("design:type", Object)
+], BeneficiariaEntity.prototype, "estadoEstudioId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "integer", default: 1 }),
+    __metadata("design:type", Number)
+], BeneficiariaEntity.prototype, "version", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "creado_en", type: "timestamptz" }),
+    __metadata("design:type", Date)
+], BeneficiariaEntity.prototype, "creadoEn", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "actualizado_en", type: "timestamptz" }),
+    __metadata("design:type", Date)
+], BeneficiariaEntity.prototype, "actualizadoEn", void 0);
+exports.BeneficiariaEntity = BeneficiariaEntity = __decorate([
+    (0, typeorm_1.Entity)({ schema: "new_horizons", name: "beneficiaria" })
+], BeneficiariaEntity);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiL2hvbWUvZmVuaXgvRG9jdW1lbnRvcy9Vbml2ZXJzaWRhZC9OZXcgSG9yaXpvbnMvU2lzdGVtYS1OdWV2b3MtSG9yaXpvbnRlcy9zcmMvbW9kdWxlcy9iZW5lZmljaWFyaWFzL2VudGl0aWVzL2JlbmVmaWNpYXJpYS5lbnRpdHkudHMiLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7O0FBQUEscUNBQWlFO0FBRzFELElBQU0sa0JBQWtCLEdBQXhCLE1BQU0sa0JBQWtCO0lBRTdCLEVBQUUsQ0FBVTtJQUdaLEdBQUcsQ0FBaUI7SUFHcEIsTUFBTSxDQUFVO0lBR2hCLGVBQWUsQ0FBaUI7SUFHaEMsV0FBVyxDQUFrQjtJQUc3QixvQkFBb0IsQ0FBa0I7SUFRdEMsZ0JBQWdCLENBQWlCO0lBUWpDLGVBQWUsQ0FBaUI7SUFRaEMsa0JBQWtCLENBQWlCO0lBR25DLFNBQVMsQ0FBaUI7SUFHMUIsaUJBQWlCLENBQWlCO0lBR2xDLGdCQUFnQixDQUFpQjtJQUdqQyxhQUFhLENBQWlCO0lBRzlCLFdBQVcsQ0FBaUI7SUFHNUIsY0FBYyxDQUFpQjtJQUcvQixZQUFZLENBQWlCO0lBRzdCLFlBQVksQ0FBaUI7SUFHN0Isb0JBQW9CLENBQWlCO0lBR3JDLGlCQUFpQixDQUFpQjtJQUdsQyxlQUFlLENBQWlCO0lBR2hDLE9BQU8sQ0FBVTtJQUdqQixRQUFRLENBQVE7SUFHaEIsYUFBYSxDQUFRO0NBQ3RCLENBQUE7QUFwRlksZ0RBQWtCO0FBRTdCO0lBREMsSUFBQSxnQ0FBc0IsRUFBQyxFQUFFLElBQUksRUFBRSxpQkFBaUIsRUFBRSxJQUFJLEVBQUUsUUFBUSxFQUFFLENBQUM7OzhDQUN4RDtBQUdaO0lBREMsSUFBQSxnQkFBTSxFQUFDLEVBQUUsSUFBSSxFQUFFLFNBQVMsRUFBRSxNQUFNLEVBQUUsRUFBRSxFQUFFLFFBQVEsRUFBRSxJQUFJLEVBQUUsQ0FBQzs7K0NBQ3BDO0FBR3BCO0lBREMsSUFBQSxnQkFBTSxFQUFDLEVBQUUsSUFBSSxFQUFFLFNBQVMsRUFBRSxNQUFNLEVBQUUsRUFBRSxFQUFF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bUJBQW1CLEVBQUUsSUFBSSxFQUFFLFFBQVEsRUFBRSxRQUFRLEVBQUUsSUFBSSxFQUFFLENBQUM7OzJEQUN0QztBQUdoQztJQURDLElBQUEsZ0JBQU0sRUFBQyxFQUFFLElBQUksRUFBRSxTQUFTLEVBQUUsT0FBTyxFQUFFLENBQUMsRUFBRSxDQUFDOzttREFDdkI7QUFHakI7SUFEQyxJQUFBLGdCQUFNLEVBQUMsRUFBRSxJQUFJLEVBQUUsV0FBVyxFQUFFLElBQUksRUFBRSxhQUFhLEVBQUUsQ0FBQzs4QkFDeEMsSUFBSTtvREFBQztBQUdoQjtJQURDLElBQUEsZ0JBQU0sRUFBQyxFQUFFLElBQUksRUFBRSxnQkFBZ0IsRUFBRSxJQUFJLEVBQUUsYUFBYSxFQUFFLENBQUM7OEJBQ3hDLElBQUk7eURBQUM7NkJBbkZWLGtCQUFrQjtJQUQ5QixJQUFBLGdCQUFNLEVBQUMsRUFBRSxNQUFNLEVBQUUsY0FBYyxFQUFFLElBQUksRUFBRSxjQUFjLEVBQUUsQ0FBQztHQUM1QyxrQkFBa0IsQ0FvRjlCIiwibmFtZXMiOltdLCJzb3VyY2VzIjpbIi9ob21lL2Zlbml4L0RvY3VtZW50b3MvVW5pdmVyc2lkYWQvTmV3IEhvcml6b25zL1Npc3RlbWEtTnVldm9zLUhvcml6b250ZXMvc3JjL21vZHVsZXMvYmVuZWZpY2lhcmlhcy9lbnRpdGllcy9iZW5lZmljaWFyaWEuZW50aXR5LnRzIl0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IENvbHVtbiwgRW50aXR5LCBQcmltYXJ5R2VuZXJhdGVkQ29sdW1uIH0gZnJvbSBcInR5cGVvcm1cIjtcblxuQEVudGl0eSh7IHNjaGVtYTogXCJuZXdfaG9yaXpvbnNcIiwgbmFtZTogXCJiZW5lZmljaWFyaWFcIiB9KVxuZXhwb3J0IGNsYXNzIEJlbmVmaWNpYXJpYUVudGl0eSB7XG4gIEBQcmltYXJ5R2VuZXJhdGVkQ29sdW1uKHsgbmFtZTogXCJpZF9iZW5lZmljaWFyaWFcIiwgdHlwZTogXCJiaWdpbnRcIiB9KVxuICBpZCE6IHN0cmluZztcblxuICBAQ29sdW1uKHsgdHlwZTogXCJ2YXJjaGFyXCIsIGxlbmd0aDogMjAsIG51bGxhYmxlOiB0cnVlIH0pXG4gIGN1aSE6IHN0cmluZyB8IG51bGw7XG5cbiAgQENvbHVtbih7IHR5cGU6IFwidmFyY2hhclwiLCBsZW5ndGg6IDYwIH0pXG4gIG5vbWJyZSE6IHN0cmluZztcblxuICBAQ29sdW1uKHsgbmFtZTogXCJmZWNoYV9uYWNcIiwgdHlwZTogXCJkYXRlXCIsIG51bGxhYmxlOiB0cnVlIH0pXG4gIGZlY2hhTmFjaW1pZW50byE6IHN0cmluZyB8IG51bGw7XG5cbiAgQENvbHVtbih7IHR5cGU6IFwiYm9vbGVhblwiLCBudWxsYWJsZTogdHJ1ZSB9KVxuICBhbGZhYmV0aXNtbyE6IGJvb2xlYW4gfCBudWxsO1xuXG4gIEBDb2x1bW4oeyBuYW1lOiBcImVuZmVybWVkYWRfcGVybWFuZW50ZVwiLCB0eXBlOiBcImJvb2xlYW5cIiwgbnVsbGFibGU6IHRydWUgfSlcbiAgZW5mZXJtZWRhZFBlcm1hbmVudGUhOiBib29sZWFuIHwgbnVsbDtcblxuICBAQ29sdW1uKHtcbiAgICBuYW1lOiBcIm5vbWJyZV9lbmZlcm1lZGFkXCIsXG4gICAgdHlwZTogXCJ2YXJjaGFyXCIsXG4gICAgbGVuZ3RoOiA1MCxcbiAgICBudWxsYWJsZTogdHJ1ZSxcbiAgfSlcbiAgbm9tYnJlRW5mZXJtZWRhZCE6IHN0cmluZyB8IG51bGw7XG5cbiAgQENvbHVtbih7XG4gICAgbmFtZTogXCJ0aXBvX3RyYXRhbWllbnRvXCIsXG4gICAgdHlwZTogXCJ2YXJjaGFyXCIsXG4gICAgbGVuZ3RoOiAxMDAsXG4gICAgbnVsbGFibGU6IHRydWUsXG4gIH0pXG4gIHRpcG9UcmF0YW1pZW50byE6IHN0cmluZyB8IG51bGw7XG5cbiAgQENvbHVtbih7XG4gICAgbmFtZTogXCJvdHJvc19wYWRlY2ltaWVudG9zXCIsXG4gICAgdHlwZTogXCJ2YXJjaGFyXCIsXG4gICAgbGVuZ3RoOiAxMDAsXG4gICAgbnVsbGFibGU6IHRydWUsXG4gIH0pXG4gIG90cm9zUGFkZWNpbWllbnRvcyE6IHN0cmluZyB8IG51bGw7XG5cbiAgQENvbHVtbih7IG5hbWU6IFwicGFpc19jdWlfaWRcIiwgdHlwZTogXCJiaWdpbnRcIiwgbnVsbGFibGU6IHRydWUgfSlcbiAgcGFpc0N1aUlkITogc3RyaW5nIHwgbnVsbDtcblxuICBAQ29sdW1uKHsgbmFtZTogXCJ0aXBvX2Fjb21wYW5hbnRlX2lkXCIsIHR5cGU6IFwiYmlnaW50XCIsIG51bGxhYmxlOiB0cnVlIH0pXG4gIHRpcG9BY29tcGFuYW50ZUlkITogc3RyaW5nIHwgbnVsbDtcblxuICBAQ29sdW1uKHsgbmFtZTogXCJsdWdhcl9vY3VwYWNpb25faWRcIiwgdHlwZTogXCJiaWdpbnRcIiwgbnVsbGFibGU6IHRydWUgfSlcbiAgbHVnYXJPY3VwYWNpb25JZCE6IHN0cmluZyB8IG51bGw7XG5cbiAgQENvbHVtbih7IG5hbWU6IFwiZXN0YWRvX2NpdmlsX2lkXCIsIHR5cGU6IFwiYmlnaW50XCIsIG51bGxhYmxlOiB0cnVlIH0pXG4gIGVzdGFkb0NpdmlsSWQhOiBzdHJpbmcgfCBudWxsO1xuXG4gIEBDb2x1bW4oeyBuYW1lOiBcIm9jdXBhY2lvbl9pZFwiLCB0eXBlOiBcImJpZ2ludFwiLCBudWxsYWJsZTogdHJ1ZSB9KVxuICBvY3VwYWNpb25JZCE6IHN0cmluZyB8IG51bGw7XG5cbiAgQENvbHVtbih7IG5hbWU6IFwibml2ZWxfZXN0dWRpb19pZFwiLCB0eXBlOiBcImJpZ2ludFwiLCBudWxsYWJsZTogdHJ1ZSB9KVxuICBuaXZlbEVzdHVkaW9JZCE6IHN0cmluZyB8IG51bGw7XG5cbiAgQENvbHVtbih7IG5hbWU6IFwicmVzaWRlbmNpYV9pZFwiLCB0eXBlOiBcImJpZ2ludFwiLCBudWxsYWJsZTogdHJ1ZSB9KVxuICByZXNpZGVuY2lhSWQhOiBzdHJpbmcgfCBudWxsO1xuXG4gIEBDb2x1bW4oeyBuYW1lOiBcInBhaXNfb3JpZ2VuX2lkXCIsIHR5cGU6IFwiYmlnaW50XCIsIG51bGxhYmxlOiB0cnVlIH0pXG4gIHBhaXNPcmlnZW5JZCE6IHN0cmluZyB8IG51bGw7XG5cbiAgQENvbHVtbih7IG5hbWU6IFwiZGVwYXJ0YW1lbnRvX29yaWdlbl9pZFwiLCB0eXBlOiBcImJpZ2ludFwiLCBudWxsYWJsZTogdHJ1ZSB9KVxuICBkZXBhcnRhbWVudG9PcmlnZW5JZCE6IHN0cmluZyB8IG51bGw7XG5cbiAgQENvbHVtbih7IG5hbWU6IFwibXVuaWNpcGlvX29yaWdlbl9pZFwiLCB0eXBlOiBcImJpZ2ludFwiLCBudWxsYWJsZTogdHJ1ZSB9KVxuICBtdW5pY2lwaW9PcmlnZW5JZCE6IHN0cmluZyB8IG51bGw7XG5cbiAgQENvbHVtbih7IG5hbWU6IFwiZXN0YWRvX2VzdHVkaW9faWRcIiwgdHlwZTogXCJiaWdpbnRcIiwgbnVsbGFibGU6IHRydWUgfSlcbiAgZXN0YWRvRXN0dWRpb0lkITogc3RyaW5nIHwgbnVsbDtcblxuICBAQ29sdW1uKHsgdHlwZTogXCJpbnRlZ2VyXCIsIGRlZmF1bHQ6IDEgfSlcbiAgdmVyc2lvbiE6IG51bWJlcjtcblxuICBAQ29sdW1uKHsgbmFtZTogXCJjcmVhZG9fZW5cIiwgdHlwZTogXCJ0aW1lc3RhbXB0elwiIH0pXG4gIGNyZWFkb0VuITogRGF0ZTtcblxuICBAQ29sdW1uKHsgbmFtZTogXCJhY3R1YWxpemFkb19lblwiLCB0eXBlOiBcInRpbWVzdGFtcHR6XCIgfSlcbiAgYWN0dWFsaXphZG9FbiE6IERhdGU7XG59XG4iXSwidmVyc2lvbiI6M30=
