@@ -16,6 +16,7 @@ Thumbs.db
 
 # Dependencias y resultados de compilación
 node_modules/
+.jest-cache/
 .venv/
 venv/
 __pycache__/
