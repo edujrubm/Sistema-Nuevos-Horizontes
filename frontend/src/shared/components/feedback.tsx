@@ -61,11 +61,15 @@ export function Paginacion({
   );
 }
 export function valor(v: unknown): string {
-  return v == null
-    ? "Sin registrar"
-    : typeof v === "object"
-      ? JSON.stringify(v)
-      : String(v);
+  return typeof v === "boolean"
+    ? v
+      ? "Sí"
+      : "No"
+    : v == null
+      ? "Sin registrar"
+      : typeof v === "object"
+        ? JSON.stringify(v)
+        : String(v);
 }
 export function fecha(v: string) {
   return new Intl.DateTimeFormat("es-GT", {

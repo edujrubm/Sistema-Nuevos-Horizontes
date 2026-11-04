@@ -41,3 +41,7 @@ La UI documental corresponde a Persona 4; el contrato único y su colección est
 pnpm --dir frontend check: typecheck, pruebas y build. No modifica src/ del backend. Los tests usan adaptadores simulados de forma explícita; la comprobación real React/API/BD se documenta por separado.
 
 Pendientes de coordinación y límites: ../docs/integracion/DUDAS_EQUIPO_FRONTEND.md. No afirmar integración completa con el frontend ajeno que todavía no está publicado.
+
+## Referencia visual vigente
+
+El diseño se rige por los mockups del ZIP 2026-10-16 (1).zip. Consultar ../docs/integracion/AJUSTE_VISUAL_MOCKUPS_20261104.md. MarcoFicha conserva la navegación y el progreso; secciones.ts define el orden de cada área. Las referencias originales están en docs/referencias-mockups y no se ejecutan como páginas de producción.

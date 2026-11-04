@@ -1,6 +1,17 @@
 import { http } from "./http";
 import type { Ficha, Hijo, Entrada, Revision, Pagina } from "../types/api";
 export const api = {
+  beneficiaria: (id: string, signal?: AbortSignal) =>
+    http<{
+      id: string;
+      nombre: string;
+      cuiEnmascarado: string | null;
+      fechaNacimiento: string | null;
+      ocupacionId: string | null;
+      estadoCivilId: string | null;
+      residencia: Record<string, unknown> | null;
+      fichaInicial: { id: string; correlativo: string | null } | null;
+    }>(`/beneficiarias/${id}`, { signal }),
   fichas: (id: string, area: string, pagina = 1, signal?: AbortSignal) =>
     http<Pagina<Ficha>>(
       `/${area}/beneficiarias/${id}/fichas?pagina=${pagina}`,

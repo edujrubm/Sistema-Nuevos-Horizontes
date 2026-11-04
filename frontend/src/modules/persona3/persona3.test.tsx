@@ -384,3 +384,184 @@ describe("Protección de borradores", () => {
     expect(await screen.findByText("Pantalla anterior")).toBeVisible();
   });
 });
+
+describe("Distribución de los mockups", () => {
+  it("Legal conserva cuatro páginas y permite consultar todas las secciones", async () => {
+    envolver(
+      <Editor
+        inicial={{
+          ...base,
+          tipo: "LEGAL",
+          estadoCodigo: "P3_CONFIRMADO",
+          detalle: {
+            demandadoNombreDeclarado: "Parte sintética",
+            diagnosticoJuridico: "Diagnóstico de prueba",
+            juzgado: "Juzgado sintético",
+          },
+        }}
+        esReferencia={false}
+        beneficiariaId="100"
+        recargar={() => {}}
+      />,
+    );
+    expect(
+      screen
+        .getByRole("navigation", { name: "Secciones de la ficha" })
+        .querySelectorAll("button"),
+    ).toHaveLength(4);
+    expect(screen.getByText("Parte sintética")).toBeVisible();
+    await userEvent.click(
+      screen.getByRole("button", { name: /2 Diagnóstico y plan/ }),
+    );
+    expect(screen.getByText("Diagnóstico de prueba")).toBeVisible();
+    await userEvent.click(
+      screen.getByRole("button", { name: /3 Proceso judicial/ }),
+    );
+    expect(screen.getByText("Juzgado sintético")).toBeVisible();
+  });
+  it("Social conserva el borrador al cambiar de página y envía todos los campos guardados", async () => {
+    const guardar = vi.spyOn(api, "guardarFicha").mockResolvedValue({
+      ...base,
+      tipo: "SOCIAL",
+      estado: "P3_BORRADOR",
+      version: 4,
+      detalle: {
+        tipoVivienda: "Alquilada",
+        historiaViolencia: "Historia sintética",
+      },
+    });
+    envolver(
+      <Editor
+        inicial={{ ...base, tipo: "SOCIAL", detalle: {} }}
+        esReferencia={false}
+        beneficiariaId="100"
+        recargar={() => {}}
+      />,
+      caps,
+    );
+    expect(
+      screen
+        .getByRole("navigation", { name: "Secciones de la ficha" })
+        .querySelectorAll("button"),
+    ).toHaveLength(5);
+    await userEvent.selectOptions(
+      screen.getByLabelText("Tipo de vivienda"),
+      "Alquilada",
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: /2 Historia de violencia/ }),
+    );
+    await userEvent.type(
+      screen.getByLabelText("Historia de vida y situación actual"),
+      "Historia sintética",
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: /1 Identificación/ }),
+    );
+    expect(screen.getByLabelText("Tipo de vivienda")).toHaveValue("Alquilada");
+    await userEvent.type(
+      screen.getByLabelText("Motivo del cambio o confirmación"),
+      "Guardar ficha social",
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "Guardar borrador o cambios" }),
+    );
+    await waitFor(() =>
+      expect(guardar).toHaveBeenCalledWith(
+        "12",
+        expect.objectContaining({
+          detalle: expect.objectContaining({
+            tipoVivienda: "Alquilada",
+            historiaViolencia: "Historia sintética",
+          }),
+        }),
+      ),
+    );
+  });
+  it("Guardería conserva cinco secciones y no inventa autorizaciones de traslado", async () => {
+    envolver(
+      <Editor
+        inicial={{
+          ...base,
+          tipo: "GUARDERIA",
+          estadoCodigo: "P3_CONFIRMADO",
+          detalle: {},
+        }}
+        esReferencia={false}
+        beneficiariaId="100"
+        recargar={() => {}}
+      />,
+    );
+    expect(
+      screen
+        .getByRole("navigation", { name: "Secciones de la ficha" })
+        .querySelectorAll("button"),
+    ).toHaveLength(5);
+    await userEvent.click(screen.getByRole("button", { name: /2 Traslado/ }));
+    expect(
+      screen.getByText(/información de traslado no está disponible/),
+    ).toBeVisible();
+  });
+  it("Referencia presenta una vista previa con el contenido actual", async () => {
+    envolver(
+      <Editor
+        inicial={base}
+        esReferencia
+        beneficiariaId="100"
+        recargar={() => {}}
+      />,
+      caps,
+    );
+    expect(screen.getByRole("heading", { name: "Vista previa" })).toBeVisible();
+    await userEvent.clear(screen.getByLabelText("Destino"));
+    await userEvent.type(
+      screen.getByLabelText("Destino"),
+      "Destino actualizado",
+    );
+    expect(screen.getByText("Destino actualizado")).toBeVisible();
+  });
+});
+
+it("Riesgos del mockup conservan el texto existente al marcar una opción", async () => {
+  const save = vi
+    .spyOn(api, "guardarFicha")
+    .mockRejectedValue(new ApiError(400, "DATOS_INVALIDOS", "Revisar"));
+  envolver(
+    <Editor
+      inicial={{
+        ...base,
+        tipo: "SOCIAL",
+        detalle: { riesgosIdentificados: "Texto original\nTexto original" },
+      }}
+      esReferencia={false}
+      beneficiariaId="100"
+      recargar={() => {}}
+    />,
+    caps,
+  );
+  await userEvent.click(
+    screen.getByRole("button", { name: /3 Diagnóstico y riesgos/ }),
+  );
+  await userEvent.click(screen.getByLabelText("Vivienda insegura"));
+  await userEvent.type(
+    screen.getByLabelText("Motivo del cambio o confirmación"),
+    "Registrar selección",
+  );
+  await userEvent.click(
+    screen.getByRole("button", { name: "Guardar borrador o cambios" }),
+  );
+  await waitFor(() =>
+    expect(save).toHaveBeenCalledWith(
+      "12",
+      expect.objectContaining({
+        detalle: expect.objectContaining({
+          riesgosIdentificados:
+            "Texto original\nTexto original\nVivienda insegura",
+        }),
+      }),
+    ),
+  );
+  expect(screen.getByLabelText("Otros riesgos o detalle")).toHaveValue(
+    "Texto original\nTexto original",
+  );
+});

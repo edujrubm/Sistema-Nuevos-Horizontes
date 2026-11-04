@@ -1,3 +1,4 @@
+import { BarraBeneficiaria } from "./contexto";
 import { useCambiosPendientes } from "./useCambiosPendientes";
 import { useCallback, useRef, useState } from "react";
 import type { FormEvent } from "react";
@@ -20,7 +21,7 @@ export function Evolucion() {
   const [area, setArea] = useState("");
   const [formularioId, setFormulario] = useState("");
   const [hijo, setHijo] = useState("");
-  const [actual, setActual] = useState<Entrada | null>();
+  const [actual, setActual] = useState<Entrada | null | undefined>(null);
   const [historial, setHistorial] = useState<string>();
   const filtro = new URLSearchParams({
     pagina: String(pagina),
@@ -54,6 +55,7 @@ export function Evolucion() {
           </button>
         )}
       </div>
+      <BarraBeneficiaria />
       <section className="card filters">
         <label>
           Área
@@ -101,77 +103,107 @@ export function Evolucion() {
           </label>
         )}
       </section>
-      {actual !== undefined && (
-        <EditorEntrada
-          key={actual?.id || "nueva"}
-          entrada={actual}
-          beneficiariaId={beneficiariaId}
-          cerrar={() => setActual(undefined)}
-          guardar={() => {
-            setActual(undefined);
-            q.recargar();
-          }}
-        />
-      )}
-      {historial && (
-        <Historial id={historial} cerrar={() => setHistorial(undefined)} />
-      )}
-      {q.cargando ? (
-        <Cargando />
-      ) : q.error ? (
-        <ErrorVista error={q.error} reintentar={q.recargar} />
-      ) : (
-        <section className="card">
-          <h2>Atenciones registradas</h2>
-          {!q.datos?.datos.length && (
-            <p className="empty">No hay seguimientos para estos filtros.</p>
+      <div className="evo-layout">
+        <section>
+          {" "}
+          {actual !== undefined &&
+            (actual ? caps.corregirEvolucion : caps.crearEvolucion) && (
+              <EditorEntrada
+                key={actual?.id || "nueva"}
+                entrada={actual}
+                beneficiariaId={beneficiariaId}
+                cerrar={() => setActual(undefined)}
+                guardar={() => {
+                  setActual(undefined);
+                  q.recargar();
+                }}
+              />
+            )}
+          {historial && (
+            <Historial id={historial} cerrar={() => setHistorial(undefined)} />
           )}
-          <ol className="timeline">
-            {q.datos?.datos.map((e) => (
-              <li key={e.id}>
-                <div className="actions">
-                  <time>{fecha(e.fechaAtencion)}</time>
-                  <span className="badge">Versión {e.version}</span>
-                </div>
-                <h3>{e.accion}</h3>
-                <p>
-                  Profesional: {e.profesionalNombre || e.profesionalId} · Ficha{" "}
-                  {e.formularioId}
-                </p>
-                <details>
-                  <summary>Consultar contenido</summary>
-                  <p className="preserve">{e.contenido}</p>
-                  {e.planSeguimiento && <p>Plan: {e.planSeguimiento}</p>}
-                  {e.resultado && <p>Resultado: {e.resultado}</p>}
-                </details>
-                <div className="actions">
-                  {caps.corregirEvolucion && (
-                    <button
-                      onClick={() => {
-                        setActual(e);
-                        setHistorial(undefined);
-                      }}
-                    >
-                      Corregir seguimiento
-                    </button>
-                  )}
-                  {caps.verRevisiones && (
-                    <button
-                      onClick={() => {
-                        setHistorial(e.id);
-                        setActual(undefined);
-                      }}
-                    >
-                      Ver historial
-                    </button>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ol>
-          {q.datos && <Paginacion {...q.datos} cambiar={setPagina} />}
+          {q.cargando ? (
+            <Cargando />
+          ) : q.error ? (
+            <ErrorVista error={q.error} reintentar={q.recargar} />
+          ) : (
+            <section className="card">
+              <h2>Atenciones registradas</h2>
+              {!q.datos?.datos.length && (
+                <p className="empty">No hay seguimientos para estos filtros.</p>
+              )}
+              <ol className="timeline">
+                {q.datos?.datos.map((e) => (
+                  <li key={e.id}>
+                    <div className="actions">
+                      <time>{fecha(e.fechaAtencion)}</time>
+                      <span className="badge">Versión {e.version}</span>
+                    </div>
+                    <h3>{e.accion}</h3>
+                    <p>
+                      Profesional: {e.profesionalNombre || e.profesionalId} ·
+                      Ficha {e.formularioId}
+                    </p>
+                    <details>
+                      <summary>Consultar contenido</summary>
+                      <p className="preserve">{e.contenido}</p>
+                      {e.planSeguimiento && <p>Plan: {e.planSeguimiento}</p>}
+                      {e.resultado && <p>Resultado: {e.resultado}</p>}
+                    </details>
+                    <div className="actions">
+                      {caps.corregirEvolucion && (
+                        <button
+                          onClick={() => {
+                            setActual(e);
+                            setHistorial(undefined);
+                          }}
+                        >
+                          Corregir seguimiento
+                        </button>
+                      )}
+                      {caps.verRevisiones && (
+                        <button
+                          onClick={() => {
+                            setHistorial(e.id);
+                            setActual(undefined);
+                          }}
+                        >
+                          Ver historial
+                        </button>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+              {q.datos && <Paginacion {...q.datos} cambiar={setPagina} />}
+            </section>
+          )}
         </section>
-      )}
+        <aside className="summary">
+          <h2>Reglas de la hoja</h2>
+          <div className="summary-list">
+            <div className="summary-item">
+              <i className="dot" />
+              <span>Acción realizada</span>
+              <b>Obligatoria</b>
+            </div>
+            <div className="summary-item">
+              <i className="dot" />
+              <span>Registro cronológico</span>
+              <b>Conservado</b>
+            </div>
+            <div className="summary-item">
+              <i className="dot" />
+              <span>Correcciones</span>
+              <b>Con historial</b>
+            </div>
+          </div>
+          <div className="notice">
+            <strong>Privacidad por área</strong>Agregar una entrada no reemplaza
+            ni elimina las anteriores.
+          </div>
+        </aside>
+      </div>
     </>
   );
 }

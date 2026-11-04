@@ -19,11 +19,6 @@ const capacidades = demo
   : soloLectura;
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    {demo && (
-      <p className="dev-banner" role="status">
-        Modo local: capacidades simuladas. Autenticación pendiente.
-      </p>
-    )}
     <App capacidades={capacidades} />
   </StrictMode>,
 );

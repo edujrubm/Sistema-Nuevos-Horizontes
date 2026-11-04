@@ -1,4 +1,11 @@
-import { lazy, Suspense, useState } from "react";
+import { api } from "../shared/api/persona3";
+import { useConsulta } from "../modules/persona3/useConsulta";
+import {
+  BeneficiariaContext,
+  AreaFichaContext,
+} from "../modules/persona3/contexto";
+import { ErrorVista } from "../shared/components/feedback";
+import { lazy, Suspense, useState, useCallback } from "react";
 import {
   createHashRouter,
   createRoutesFromElements,
@@ -9,6 +16,7 @@ import {
   Outlet,
   useParams,
   useNavigate,
+  useLocation,
 } from "react-router-dom";
 import { Cargando } from "../shared/components/feedback";
 import type { Capacidades } from "../shared/types/api";
@@ -36,40 +44,124 @@ const Evolucion = lazy(() =>
 );
 function Contexto() {
   const { beneficiariaId = "" } = useParams();
+  const location = useLocation();
+  const [menu, setMenu] = useState(false);
+  const [areaFicha, setAreaFicha] = useState("");
   const base = `/beneficiarias/${beneficiariaId}`;
+  const q = useConsulta(
+    useCallback(
+      (signal: AbortSignal) => api.beneficiaria(beneficiariaId, signal),
+      [beneficiariaId],
+    ),
+  );
+  const area = location.pathname.includes("/social")
+    ? "Trabajo Social"
+    : location.pathname.includes("/guarderia")
+      ? "Guardería"
+      : location.pathname.includes("/legal") ||
+          location.pathname.includes("/referencias")
+        ? "Área Legal"
+        : location.pathname.includes("/evolucion")
+          ? "Hoja evolutiva"
+          : location.pathname.includes("/fichas/")
+            ? areaFicha || "Ficha del área"
+            : "Gestión de beneficiarias";
+
   return (
-    <>
-      <aside>
-        <Link className="brand" to="/">
-          NH <span>Nuevos Horizontes</span>
-        </Link>
-        <p className="eyebrow">Expediente · {beneficiariaId}</p>
-        <nav aria-label="Áreas de atención">
-          {[
-            ["", "Expediente"],
-            ["/social", "Trabajo Social"],
-            ["/legal", "Legal"],
-            ["/referencias", "Referencias legales"],
-            ["/guarderia", "Guardería"],
-            ["/evolucion", "Hoja evolutiva"],
-          ].map(([ruta, texto]) => (
-            <NavLink key={ruta} end to={base + ruta}>
-              {texto}
-            </NavLink>
-          ))}
-        </nav>
-        <Link to="/">Cambiar expediente</Link>
-      </aside>
-      <main id="contenido" tabIndex={-1}>
-        <header>
-          <Link to={base}>← Volver al expediente</Link>
-          <span>Atención institucional</span>
+    <AreaFichaContext.Provider
+      value={{ area: areaFicha, setArea: setAreaFicha }}
+    >
+      <BeneficiariaContext.Provider value={q.datos}>
+        <header className="top">
+          <Link className="brand" to="/">
+            <span className="logo">NH</span>
+            <span>
+              <strong>Nuevos Horizontes</strong>
+              <small>Gestión de beneficiarias</small>
+            </span>
+          </Link>
+          <div className="top-context">{area} / Expediente</div>
+          <div className="user">
+            <span className="avatar">NH</span>
+            <span>
+              <strong>
+                {import.meta.env.DEV ? "Sesión local" : "Personal autorizado"}
+              </strong>
+              <small>
+                {import.meta.env.DEV
+                  ? "Capacidades de prueba"
+                  : "Atención institucional"}
+              </small>
+            </span>
+          </div>
+          <button
+            className="menu-toggle"
+            aria-expanded={menu}
+            aria-controls="navegacion-principal"
+            onClick={() => setMenu(!menu)}
+          >
+            Menú
+          </button>
         </header>
-        <Suspense fallback={<Cargando />}>
-          <Outlet />
-        </Suspense>
-      </main>
-    </>
+        <aside className={"side " + (menu ? "open" : "")}>
+          <p className="side-label">NAVEGACIÓN</p>
+          <nav id="navegacion-principal" aria-label="Áreas de atención">
+            {[
+              ["", "⌕", "Beneficiarias"],
+              ["/social", "◉", "Trabajo Social"],
+              ["/legal", "◉", "Área Legal"],
+              ["/guarderia", "◉", "Guardería"],
+              ["/referencias", "↗", "Referencias legales"],
+              ["/evolucion", "≡", "Hoja evolutiva"],
+            ].map(([ruta, icono, texto]) => (
+              <NavLink
+                key={ruta}
+                end
+                className={({ isActive }) =>
+                  isActive ||
+                  (location.pathname.includes("/fichas/") &&
+                    ((areaFicha === "Área Legal" && ruta === "/legal") ||
+                      (areaFicha === "Trabajo Social" && ruta === "/social") ||
+                      (areaFicha === "Guardería" && ruta === "/guarderia")))
+                    ? "active"
+                    : undefined
+                }
+                to={base + ruta}
+                onClick={() => setMenu(false)}
+              >
+                <span aria-hidden="true">{icono}</span>
+                {texto}
+              </NavLink>
+            ))}
+            <button disabled title="Módulo documental pendiente de integración">
+              <span aria-hidden="true">▤</span>Documentos
+            </button>
+            <button disabled title="Reportes fuera del alcance de esta entrega">
+              <span aria-hidden="true">▦</span>Reportes
+            </button>
+          </nav>
+          <div className="privacy">
+            <strong>Privacidad por área</strong>La información pertenece al
+            expediente y al área de atención.
+          </div>
+        </aside>
+        <main id="contenido" tabIndex={-1}>
+          <div className="wrap">
+            <div className="crumb">
+              <Link to={base}>Beneficiarias</Link> /{" "}
+              {q.datos?.nombre || `Expediente ${beneficiariaId}`} /{" "}
+              <b>{area}</b>
+            </div>
+            {!!q.error && (
+              <ErrorVista error={q.error} reintentar={q.recargar} />
+            )}
+            <Suspense fallback={<Cargando />}>
+              <Outlet />
+            </Suspense>
+          </div>
+        </main>
+      </BeneficiariaContext.Provider>
+    </AreaFichaContext.Provider>
   );
 }
 function Inicio() {
