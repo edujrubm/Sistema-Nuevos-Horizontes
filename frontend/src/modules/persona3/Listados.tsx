@@ -53,6 +53,11 @@ export function ListadoFichas({
             Nueva ficha social
           </Link>
         )}
+        {area === "legal" && (
+          <Link className="button secondary" to={`${base}/referencias`}>
+            Hoja de referencia
+          </Link>
+        )}
         {area === "referencias" && caps.crearReferencia && (
           <Link className="button primary" to={`${base}/referencias/nueva`}>
             Nueva referencia

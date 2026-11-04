@@ -1,3 +1,5 @@
+> Corrección de navegación posterior: se eliminó el menú que agrupaba el trabajo de Persona 3 y la pantalla “Continuar la atención”. Persona 3 es únicamente el reparto interno de responsabilidades. La entrada es Beneficiarias → expediente; dentro de cada área se usa su menú contextual del ZIP. El frontend pasa ahora 22 pruebas.
+
 # Ajuste visual a los mockups de Persona 3
 
 Fecha: 4 de noviembre de 2026. La interfaz anterior consultaba los mockups, pero simplificaba su distribución. Esta corrección toma los HTML del ZIP del usuario como referencia visual vigente.
@@ -56,3 +58,14 @@ Se compararon los bytes de las cinco referencias conservadas con sus originales 
 | mockup_modulo_guarderia.html | ef60eddb5c979f79e08ae947aca616c83e3cf1cd033d1d89ee19336b82250974 |
 | mockup_referencia_legal.html | dc71870065cd89d403dd4cb5291c4b9fa761e6135251ee8362ae60749b113987 |
 | mockup_shared.css | 441b6e11255f2f75289c2990980d954a0c99e292ddfa22ac331c72361773209c |
+
+## Navegación institucional corregida
+
+- Se retiraron el inicio de captura manual de ID y las tarjetas de áreas creadas como landing del trabajo P3.
+- Se usa la consulta de Beneficiarias del mockup, con datos reales de la API y acceso al expediente. Es un adaptador de lectura de las API de Persona 1, no otra implementación de su CRUD.
+- El expediente muestra el resumen y las secciones institucionales, incluidas las áreas de otros compañeros, sin inventar pantallas operativas para ellas.
+- El menú de Legal muestra Beneficiarias, Área Legal, Hoja evolutiva, Documentos y Reportes; Social y Guardería usan su propio contexto. No se ofrece un menú de las responsabilidades del desarrollador.
+- Las secciones aún no integradas permanecen deshabilitadas. El código del shell debe incorporarse al shell común del equipo, sin crear un segundo portal.
+- Referencias sigue accesible desde Legal mediante “Hoja de referencia”, sin convertirla en un módulo del menú principal.
+- Fuentes adicionales: mockup_beneficiarias_expediente.html y mockup_expediente_direccion.html del ZIP. El resumen no concede permisos de Dirección ni consulta datos clínicos de otras áreas.
+- Verificación: 22 pruebas frontend, TypeScript y build correctos; recorrido real Beneficiarias → expediente → Legal y comprobación del menú contextual. Backend y SQL sin cambios.

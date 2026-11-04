@@ -15,12 +15,14 @@ import {
   Link,
   Outlet,
   useParams,
-  useNavigate,
+  Navigate,
   useLocation,
 } from "react-router-dom";
 import { Cargando } from "../shared/components/feedback";
 import type { Capacidades } from "../shared/types/api";
 import { soloLectura } from "../shared/types/api";
+import { Beneficiarias, Expediente } from "./Expediente";
+import { navegacionMockup } from "./navegacion";
 import { CapacidadesContext } from "./capacidades";
 const Listado = lazy(() =>
   import("../modules/persona3/Listados").then((m) => ({
@@ -50,7 +52,10 @@ function Contexto() {
   const base = `/beneficiarias/${beneficiariaId}`;
   const q = useConsulta(
     useCallback(
-      (signal: AbortSignal) => api.beneficiaria(beneficiariaId, signal),
+      (signal: AbortSignal) =>
+        beneficiariaId
+          ? api.beneficiaria(beneficiariaId, signal)
+          : Promise.resolve(undefined),
       [beneficiariaId],
     ),
   );
@@ -80,7 +85,9 @@ function Contexto() {
               <small>Gestión de beneficiarias</small>
             </span>
           </Link>
-          <div className="top-context">{area} / Expediente</div>
+          <div className="top-context">
+            {area} / {beneficiariaId ? "Expediente" : "Beneficiarias"}
+          </div>
           <div className="user">
             <span className="avatar">NH</span>
             <span>
@@ -105,51 +112,47 @@ function Contexto() {
         </header>
         <aside className={"side " + (menu ? "open" : "")}>
           <p className="side-label">NAVEGACIÓN</p>
-          <nav id="navegacion-principal" aria-label="Áreas de atención">
-            {[
-              ["", "⌕", "Beneficiarias"],
-              ["/social", "◉", "Trabajo Social"],
-              ["/legal", "◉", "Área Legal"],
-              ["/guarderia", "◉", "Guardería"],
-              ["/referencias", "↗", "Referencias legales"],
-              ["/evolucion", "≡", "Hoja evolutiva"],
-            ].map(([ruta, icono, texto]) => (
-              <NavLink
-                key={ruta}
-                end
-                className={({ isActive }) =>
-                  isActive ||
-                  (location.pathname.includes("/fichas/") &&
-                    ((areaFicha === "Área Legal" && ruta === "/legal") ||
-                      (areaFicha === "Trabajo Social" && ruta === "/social") ||
-                      (areaFicha === "Guardería" && ruta === "/guarderia")))
-                    ? "active"
-                    : undefined
-                }
-                to={base + ruta}
-                onClick={() => setMenu(false)}
-              >
-                <span aria-hidden="true">{icono}</span>
-                {texto}
-              </NavLink>
-            ))}
-            <button disabled title="Módulo documental pendiente de integración">
-              <span aria-hidden="true">▤</span>Documentos
-            </button>
-            <button disabled title="Reportes fuera del alcance de esta entrega">
-              <span aria-hidden="true">▦</span>Reportes
-            </button>
+          <nav id="navegacion-principal" aria-label="Navegación institucional">
+            {navegacionMockup(area, base).map((item) =>
+              item.to ? (
+                <NavLink
+                  key={item.label}
+                  end
+                  to={item.to}
+                  className={({ isActive }) =>
+                    isActive || item.actual ? "active" : undefined
+                  }
+                  onClick={() => setMenu(false)}
+                >
+                  <span aria-hidden="true">{item.icono}</span>
+                  {item.label}
+                </NavLink>
+              ) : (
+                <button key={item.label} disabled>
+                  <span aria-hidden="true">{item.icono}</span>
+                  {item.label}
+                </button>
+              ),
+            )}
           </nav>
           <div className="privacy">
-            <strong>Privacidad por área</strong>La información pertenece al
-            expediente y al área de atención.
+            <strong>
+              {area === "Gestión de beneficiarias"
+                ? "Datos generales"
+                : "Área protegida"}
+            </strong>
+            {area === "Gestión de beneficiarias"
+              ? "Consulta los datos básicos autorizados y el expediente de la beneficiaria."
+              : "La información pertenece al expediente y al área de atención."}
           </div>
         </aside>
         <main id="contenido" tabIndex={-1}>
           <div className="wrap">
             <div className="crumb">
-              <Link to={base}>Beneficiarias</Link> /{" "}
-              {q.datos?.nombre || `Expediente ${beneficiariaId}`} /{" "}
+              <Link to="/beneficiarias">Beneficiarias</Link> /{" "}
+              {beneficiariaId && (
+                <>{q.datos?.nombre || `Expediente ${beneficiariaId}`} / </>
+              )}
               <b>{area}</b>
             </div>
             {!!q.error && (
@@ -164,76 +167,13 @@ function Contexto() {
     </AreaFichaContext.Provider>
   );
 }
-function Inicio() {
-  const [id, setId] = useState("");
-  const navigate = useNavigate();
-  return (
-    <main className="welcome">
-      <p className="eyebrow">Asociación Nuevos Horizontes</p>
-      <h1>Atención por área</h1>
-      <p>Trabajo Social, Legal, Guardería y seguimiento.</p>
-      <form
-        className="card"
-        onSubmit={(e) => {
-          e.preventDefault();
-          navigate(`/beneficiarias/${id}`);
-        }}
-      >
-        <label>
-          Identificador de la beneficiaria
-          <input
-            required
-            pattern="[1-9][0-9]*"
-            maxLength={19}
-            value={id}
-            onChange={(e) => setId(e.target.value)}
-            inputMode="numeric"
-          />
-        </label>
-        <button className="primary">Abrir expediente</button>
-      </form>
-    </main>
-  );
-}
-function Expediente() {
-  const { beneficiariaId } = useParams();
-  return (
-    <>
-      <p className="eyebrow">Expediente {beneficiariaId}</p>
-      <h1>Continuar la atención</h1>
-      <p>
-        Selecciona un área para consultar sus fichas y registrar el seguimiento
-        autorizado.
-      </p>
-      <div className="cards">
-        {[
-          [
-            "social",
-            "Trabajo Social",
-            "Resumen, diagnóstico y plan de intervención.",
-          ],
-          ["legal", "Legal", "Consulta de fichas y estado de la atención."],
-          ["guarderia", "Guardería", "Niñas y niños inscritos y sus fichas."],
-          [
-            "evolucion",
-            "Hoja evolutiva",
-            "Atenciones y revisiones de tu área.",
-          ],
-        ].map(([ruta, titulo, texto]) => (
-          <Link className="card nav-card" key={ruta} to={ruta}>
-            <h2>{titulo}</h2>
-            <p>{texto}</p>
-            <span>Abrir área →</span>
-          </Link>
-        ))}
-      </div>
-    </>
-  );
-}
 const router = createHashRouter(
   createRoutesFromElements(
     <>
-      <Route path="/" element={<Inicio />} />
+      <Route path="/" element={<Navigate to="/beneficiarias" replace />} />
+      <Route path="/beneficiarias" element={<Contexto />}>
+        <Route index element={<Beneficiarias />} />
+      </Route>
       <Route path="/beneficiarias/:beneficiariaId" element={<Contexto />}>
         <Route index element={<Expediente />} />
         <Route path="social" element={<Listado area="trabajo-social" />} />

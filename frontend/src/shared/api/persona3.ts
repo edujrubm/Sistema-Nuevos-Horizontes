@@ -1,6 +1,14 @@
 import { http } from "./http";
 import type { Ficha, Hijo, Entrada, Revision, Pagina } from "../types/api";
 export const api = {
+  beneficiarias: (nombre: string, cursor: string, signal?: AbortSignal) =>
+    http<{
+      data: { id: string; nombre: string; cuiEnmascarado: string | null }[];
+      page: { hasMore: boolean; nextCursor: string | null };
+    }>(
+      `/beneficiarias?${new URLSearchParams({ limite: "25", ...(nombre ? { nombre } : {}), ...(cursor ? { cursor } : {}) })}`,
+      { signal },
+    ),
   beneficiaria: (id: string, signal?: AbortSignal) =>
     http<{
       id: string;

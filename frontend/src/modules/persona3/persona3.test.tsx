@@ -1,3 +1,5 @@
+import { navegacionMockup } from "../../app/navegacion";
+import { Beneficiarias, Expediente } from "../../app/Expediente";
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, waitFor, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -564,4 +566,60 @@ it("Riesgos del mockup conservan el texto existente al marcar una opción", asyn
   expect(screen.getByLabelText("Otros riesgos o detalle")).toHaveValue(
     "Texto original\nTexto original",
   );
+});
+
+describe("Navegación institucional según los mockups", () => {
+  it("Legal no muestra un menú del reparto de trabajo", () => {
+    expect(
+      navegacionMockup("Área Legal", "/beneficiarias/100").map((x) => x.label),
+    ).toEqual([
+      "Beneficiarias",
+      "Área Legal",
+      "Hoja evolutiva",
+      "Documentos",
+      "Reportes",
+    ]);
+  });
+  it("El listado usa el menú institucional del mockup", () => {
+    expect(
+      navegacionMockup("Gestión de beneficiarias", "/beneficiarias/").map(
+        (x) => x.label,
+      ),
+    ).toEqual([
+      "Inicio",
+      "Beneficiarias",
+      "Expedientes",
+      "Albergue",
+      "Auditoría",
+    ]);
+  });
+  it("Beneficiarias consulta registros reales a través del adaptador y abre el expediente", async () => {
+    vi.spyOn(api, "beneficiarias").mockResolvedValue({
+      data: [
+        { id: "100", nombre: "Beneficiaria sintética", cuiEnmascarado: null },
+      ],
+      page: { hasMore: false, nextCursor: null },
+    });
+    envolver(<Beneficiarias />);
+    expect(await screen.findByText("Beneficiaria sintética")).toBeVisible();
+    expect(
+      screen.getByRole("link", { name: "Ver expediente" }),
+    ).toHaveAttribute("href", "/beneficiarias/100");
+  });
+  it("El expediente no presenta un dashboard del reparto P3 y contempla las áreas institucionales", () => {
+    envolver(<Expediente />);
+    expect(screen.queryByText("Continuar la atención")).not.toBeInTheDocument();
+    for (const area of [
+      "Trabajo Social",
+      "Psicología",
+      "Medicina",
+      "Área Legal",
+      "Guardería",
+      "Albergue",
+      "Documentos",
+    ])
+      expect(
+        screen.getByRole("rowheader", { name: area }),
+      ).toBeVisible();
+  });
 });
