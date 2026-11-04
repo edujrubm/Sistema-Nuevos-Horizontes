@@ -18,9 +18,11 @@ import { PageHeader } from "@/shared/components/PageHeader";
 type SectionValues = Record<string, Record<string, unknown>>;
 
 function contentIsPresent(value: Record<string, unknown> | undefined) {
-  return !!value && Object.values(value).some((item) =>
-    typeof item === "string" ? item.trim().length > 0 : item !== undefined,
-  );
+  return !!value && Object.values(value).some((item) => {
+    if (typeof item === "string") return item.trim().length > 0;
+    if (Array.isArray(item)) return item.length > 0;
+    return item !== undefined && item !== null;
+  });
 }
 
 export function AdmissionWizardPage() {
@@ -88,12 +90,24 @@ export function AdmissionWizardPage() {
   const mutationError = saveMutation.error ?? confirmMutation.error;
   const apiError = mutationError instanceof ApiError ? mutationError.body : undefined;
 
-  function updateField(section: string, field: string, value: string) {
+  function updateField(section: string, field: string, value: unknown) {
     setNotice(undefined);
     setValues((current) => ({
       ...current,
       [section]: { ...current[section], [field]: value },
     }));
+  }
+
+  function toggleFieldOption(section: string, field: string, option: string) {
+    const current = values[section]?.[field];
+    const selected = Array.isArray(current) ? current.filter((item): item is string => typeof item === "string") : [];
+    updateField(
+      section,
+      field,
+      selected.includes(option)
+        ? selected.filter((item) => item !== option)
+        : [...selected, option],
+    );
   }
 
   function addChild() {
@@ -182,6 +196,31 @@ export function AdmissionWizardPage() {
                         onChange={(event) => updateField(section.key, field.name, event.target.value)}
                         rows={4}
                       />
+                    ) : field.type === "select" ? (
+                      <select
+                        id={`${section.key}-${field.name}`}
+                        value={String(values[section.key]?.[field.name] ?? "")}
+                        onChange={(event) => updateField(section.key, field.name, event.target.value)}
+                      >
+                        <option value="">Seleccionar</option>
+                        {field.options?.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                      </select>
+                    ) : field.type === "checkboxGroup" ? (
+                      <div className="checkbox-group" id={`${section.key}-${field.name}`}>
+                        {field.options?.map((option) => {
+                          const selected = values[section.key]?.[field.name];
+                          return (
+                            <label className="checkbox-choice" key={option.value}>
+                              <input
+                                type="checkbox"
+                                checked={Array.isArray(selected) && selected.includes(option.value)}
+                                onChange={() => toggleFieldOption(section.key, field.name, option.value)}
+                              />
+                              <span>{option.label}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
                     ) : (
                       <input
                         id={`${section.key}-${field.name}`}
@@ -209,6 +248,23 @@ export function AdmissionWizardPage() {
                   <div className="field">
                     <label htmlFor={`child-birth-${index}`}>Fecha de nacimiento</label>
                     <input id={`child-birth-${index}`} type="date" value={child.fechaNacimiento ?? ""} onChange={(event) => updateChild(index, "fechaNacimiento", event.target.value)} />
+                  </div>
+                  <div className="field">
+                    <label htmlFor={`child-gender-${index}`}>Sexo</label>
+                    <select id={`child-gender-${index}`} value={child.genero ?? ""} onChange={(event) => updateChild(index, "genero", event.target.value)}>
+                      <option value="">Seleccionar</option>
+                      <option value="F">Femenino</option>
+                      <option value="M">Masculino</option>
+                      <option value="O">Otro</option>
+                    </select>
+                  </div>
+                  <div className="field">
+                    <label htmlFor={`child-recognized-${index}`}>Reconocimiento</label>
+                    <select id={`child-recognized-${index}`} value={child.reconocido === undefined ? "" : String(child.reconocido)} onChange={(event) => updateChild(index, "reconocido", event.target.value === "true")}>
+                      <option value="">Seleccionar</option>
+                      <option value="true">Reconocida/o</option>
+                      <option value="false">No reconocida/o</option>
+                    </select>
                   </div>
                   <button className="button text" type="button" onClick={() => setChildren((current) => current.filter((_, childIndex) => childIndex !== index))}>Quitar</button>
                 </div>

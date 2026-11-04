@@ -1,17 +1,23 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 
 import { startAdmission } from "../api/admission-api";
 import { ApiError } from "@/shared/api/api-error";
+import { getCatalog, getCountries, getDepartments, getMunicipalities } from "@/shared/api/catalogs-api";
 import { PageHeader } from "@/shared/components/PageHeader";
 
 const schema = z.object({
   nombre: z.string().trim().min(2, "Escribe al menos 2 caracteres.").max(60),
   cui: z.string().trim().refine((value) => value === "" || value.length >= 4, "Escribe al menos 4 caracteres."),
   fechaNacimiento: z.string(),
+  paisCuiId: z.string(),
+  tipoAcompananteId: z.string(),
+  paisOrigenId: z.string(),
+  departamentoOrigenId: z.string(),
+  municipioOrigenId: z.string(),
   lugar: z.string().trim().refine((value) => value === "" || value.length >= 2, "Escribe al menos 2 caracteres."),
   fechaEntrevista: z.string(),
 });
@@ -22,7 +28,32 @@ export function StartAdmissionPage() {
   const navigate = useNavigate();
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { nombre: "", cui: "", fechaNacimiento: "", lugar: "", fechaEntrevista: "" },
+    defaultValues: {
+      nombre: "",
+      cui: "",
+      fechaNacimiento: "",
+      paisCuiId: "",
+      tipoAcompananteId: "",
+      paisOrigenId: "",
+      departamentoOrigenId: "",
+      municipioOrigenId: "",
+      lugar: "",
+      fechaEntrevista: "",
+    },
+  });
+  const countryId = form.watch("paisOrigenId");
+  const departmentId = form.watch("departamentoOrigenId");
+  const countriesQuery = useQuery({ queryKey: ["catalogs", "countries"], queryFn: ({ signal }) => getCountries(signal) });
+  const companionTypesQuery = useQuery({ queryKey: ["catalogs", "tipos-acompanante"], queryFn: ({ signal }) => getCatalog("tipos-acompanante", signal) });
+  const departmentsQuery = useQuery({
+    queryKey: ["catalogs", "departments", countryId],
+    queryFn: ({ signal }) => getDepartments(countryId, signal),
+    enabled: !!countryId,
+  });
+  const municipalitiesQuery = useQuery({
+    queryKey: ["catalogs", "municipalities", departmentId],
+    queryFn: ({ signal }) => getMunicipalities(departmentId, signal),
+    enabled: !!departmentId,
   });
   const mutation = useMutation({
     mutationFn: (values: FormValues) =>
@@ -66,6 +97,53 @@ export function StartAdmissionPage() {
           <div className="field">
             <label htmlFor="birthDate">Fecha de nacimiento</label>
             <input id="birthDate" type="date" {...form.register("fechaNacimiento")} />
+          </div>
+          <div className="field">
+            <label htmlFor="cuiCountry">País de emisión del DPI/CUI</label>
+            <select id="cuiCountry" {...form.register("paisCuiId")}>
+              <option value="">Seleccionar país</option>
+              {countriesQuery.data?.data.map((option) => <option key={option.id} value={option.id}>{option.nombre ?? `País ${option.id}`}</option>)}
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="companionType">Tipo de acompañante</label>
+            <select id="companionType" {...form.register("tipoAcompananteId")}>
+              <option value="">Sin acompañante o pendiente</option>
+              {companionTypesQuery.data?.data.map((option) => <option key={option.id} value={option.id}>{option.nombre ?? `Tipo ${option.id}`}</option>)}
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="originCountry">País de origen</label>
+            <select
+              id="originCountry"
+              {...form.register("paisOrigenId", {
+                onChange: () => {
+                  form.setValue("departamentoOrigenId", "");
+                  form.setValue("municipioOrigenId", "");
+                },
+              })}
+            >
+              <option value="">Seleccionar país</option>
+              {countriesQuery.data?.data.map((option) => <option key={option.id} value={option.id}>{option.nombre ?? `País ${option.id}`}</option>)}
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="originDepartment">Departamento de origen</label>
+            <select
+              id="originDepartment"
+              disabled={!countryId}
+              {...form.register("departamentoOrigenId", { onChange: () => form.setValue("municipioOrigenId", "") })}
+            >
+              <option value="">Seleccionar departamento</option>
+              {departmentsQuery.data?.data.map((option) => <option key={option.id} value={option.id}>{option.nombre ?? `Departamento ${option.id}`}</option>)}
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="originMunicipality">Municipio de origen</label>
+            <select id="originMunicipality" disabled={!departmentId} {...form.register("municipioOrigenId")}>
+              <option value="">Seleccionar municipio</option>
+              {municipalitiesQuery.data?.data.map((option) => <option key={option.id} value={option.id}>{option.nombre ?? `Municipio ${option.id}`}</option>)}
+            </select>
           </div>
           <div className="field">
             <label htmlFor="place">Lugar de entrevista</label>
