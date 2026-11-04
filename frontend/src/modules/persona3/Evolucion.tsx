@@ -2,7 +2,7 @@ import { BarraBeneficiaria } from "./contexto";
 import { useCambiosPendientes } from "./useCambiosPendientes";
 import { useCallback, useRef, useState } from "react";
 import type { FormEvent } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { api } from "../../shared/api/persona3";
 import type { Entrada } from "../../shared/types/api";
 import { useConsulta } from "./useConsulta";
@@ -17,12 +17,21 @@ import {
 export function Evolucion() {
   const { beneficiariaId = "" } = useParams();
   const caps = useCapacidades();
+  const [parametros, setParametros] = useSearchParams();
   const [pagina, setPagina] = useState(1);
   const [area, setArea] = useState("");
   const [formularioId, setFormulario] = useState("");
   const [hijo, setHijo] = useState("");
-  const [actual, setActual] = useState<Entrada | null | undefined>(null);
-  const [historial, setHistorial] = useState<string>();
+  const [actual, setActual] = useState<Entrada | null | undefined>(
+    parametros.has("historial") ? undefined : null,
+  );
+  const historial = parametros.get("historial") || undefined;
+  function setHistorial(id?: string) {
+    const siguientes = new URLSearchParams(parametros);
+    if (id) siguientes.set("historial", id);
+    else siguientes.delete("historial");
+    setParametros(siguientes, { replace: true });
+  }
   const filtro = new URLSearchParams({
     pagina: String(pagina),
     ...(area ? { area } : {}),

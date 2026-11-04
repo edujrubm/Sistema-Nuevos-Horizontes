@@ -1,10 +1,10 @@
 # Preguntas para completar la integración
 
-Fecha: 4 de noviembre de 2026. Lo funcional que no dependía de estas respuestas ya está implementado y probado localmente.
+Fecha: 4 de noviembre de 2026. Las preguntas se refieren a la integración pendiente; las vistas React locales ya funcionan con la API de pruebas. Persona 3 es solo la división del trabajo, no un menú o portal independiente. Cada pregunta incluye explicación simple, ejemplo y texto para copiar al grupo.
 
 ## 1. ¿Dónde está la base React común?
 
-En el PDF aparecen ramas frontend, pero no están publicadas en origin. Ya preparamos nuestras pantallas separadas por módulos; falta adaptarlas a la base del grupo para evitar dos menús y dos clientes HTTP.
+En el PDF aparecen ramas frontend, pero no están publicadas en origin. Ya preparamos nuestras pantallas separadas por módulos; falta incorporar sus componentes al frontend común del grupo para conservar una sola navegación institucional y un solo cliente HTTP. El menú exclusivo de Persona 3 ya se retiró.
 
 Ejemplo: si Persona 1 ya tiene un botón y una tabla compartidos, usamos esos componentes en lugar de mantener otros iguales.
 

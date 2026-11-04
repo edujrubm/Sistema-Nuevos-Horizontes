@@ -57,6 +57,12 @@ Orden de instalación NUEVA: SQL base 01, ampliación 02 y migraciones 003,004,0
 
 Si una BD ya recibió el antiguo 008_local_mockups.sql, NO se ejecuta el nuevo 008 encima. Hay que revisar objetos equivalentes y el historial aplicado. Si hay PDFs históricos con cadenas incoherentes o formatos distintos, la migración fallará dentro de su transacción; no borra ni corrige datos en silencio. El equipo debe revisar copia y prevalidación antes de aplicarla. synchronize=false y migrationsRun=false.
 
+## Estado vigente del frontend React
+
+Las vistas son pantallas funcionales React que consumen la API local, no los HTML de demostración del ZIP. Los HTML son únicamente la referencia visual. Se eliminaron el inicio de captura manual de ID, las tarjetas «Continuar la atención» y el menú organizado por el trabajo de Persona 3. Persona 3 es solo el reparto interno de responsabilidades.
+
+La navegación comienza en Beneficiarias → expediente y usa los menús institucionales/contextuales del ZIP. Las áreas ajenas no integradas permanecen deshabilitadas. Índice de enlaces: VISTAS_REACT_PERSONA3.md. Verificación frontend vigente: 23 pruebas, TypeScript y build correctos. Todo permanece local, sin cambios publicados ni SQL ejecutado en el servidor compartido.
+
 ## Frontend entregado
 
 Workspace `frontend/`, React + Vite + TypeScript. No se encontraron en origin las tres ramas frontend citadas en el PDF; por eso se creó una base local pequeña, con cliente HTTP, controles y estilos separados para poder adaptar esta entrega a la base real de Persona 1/2.

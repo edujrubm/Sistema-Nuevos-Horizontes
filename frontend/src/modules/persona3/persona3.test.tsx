@@ -17,7 +17,7 @@ import { api } from "../../shared/api/persona3";
 import { ApiError, http } from "../../shared/api/http";
 import { Guarderia, ListadoFichas } from "./Listados";
 import { Editor } from "./EditorFicha";
-import { EditorEntrada, Historial } from "./Evolucion";
+import { EditorEntrada, Historial, Evolucion } from "./Evolucion";
 const caps: Capacidades = {
   crearFicha: true,
   editarFicha: true,
@@ -618,8 +618,48 @@ describe("Navegación institucional según los mockups", () => {
       "Albergue",
       "Documentos",
     ])
-      expect(
-        screen.getByRole("rowheader", { name: area }),
-      ).toBeVisible();
+      expect(screen.getByRole("rowheader", { name: area })).toBeVisible();
   });
+});
+
+it("Un enlace directo abre el historial existente dentro de la hoja evolutiva", async () => {
+  vi.spyOn(api, "evolucion").mockResolvedValue({
+    datos: [],
+    pagina: 1,
+    limite: 20,
+    total: 0,
+  });
+  vi.spyOn(api, "revisiones").mockResolvedValue({
+    datos: [
+      {
+        id: "1",
+        operacion: "UPDATE",
+        fecha: "2026-11-04T16:00:00Z",
+        autor: { usuarioId: "1" },
+        motivo: "Motivo sintético enlazado",
+        cambios: [],
+      },
+    ],
+    pagina: 1,
+    limite: 20,
+    total: 1,
+  });
+  render(
+    <CapacidadesContext.Provider value={caps}>
+      <MemoryRouter
+        initialEntries={["/beneficiarias/100/evolucion?historial=1"]}
+      >
+        <Routes>
+          <Route
+            path="/beneficiarias/:beneficiariaId/evolucion"
+            element={<Evolucion />}
+          />
+        </Routes>
+      </MemoryRouter>
+    </CapacidadesContext.Provider>,
+  );
+  expect(await screen.findByText(/Motivo sintético enlazado/)).toBeVisible();
+  expect(
+    screen.getByRole("heading", { name: "Historial de revisiones" }),
+  ).toBeVisible();
 });
