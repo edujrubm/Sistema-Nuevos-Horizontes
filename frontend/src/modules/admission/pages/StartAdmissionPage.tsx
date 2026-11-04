@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 
 import { startAdmission } from "../api/admission-api";
@@ -19,6 +19,7 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 export function StartAdmissionPage() {
+  const navigate = useNavigate();
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { nombre: "", cui: "", fechaNacimiento: "", lugar: "", fechaEntrevista: "" },
@@ -26,6 +27,7 @@ export function StartAdmissionPage() {
   const mutation = useMutation({
     mutationFn: (values: FormValues) =>
       startAdmission(Object.fromEntries(Object.entries(values).filter(([, value]) => value !== "")) as FormValues),
+    onSuccess: (response) => navigate(`/fichas/${response.data.fichaInicial.id}`),
   });
   const apiError = mutation.error instanceof ApiError ? mutation.error.body : undefined;
 
@@ -48,12 +50,6 @@ export function StartAdmissionPage() {
             <strong>{apiError.mensaje}</strong>
             {apiError.errores.map((item) => <span key={`${item.campo}-${item.mensaje}`}>{item.mensaje}</span>)}
             <small>Solicitud: {apiError.idSolicitud}</small>
-          </div>
-        )}
-        {mutation.isSuccess && (
-          <div className="alert success" role="status">
-            <strong>Borrador creado correctamente.</strong>
-            <span>Ficha {mutation.data.data.fichaInicial.id}, versión {mutation.data.data.fichaInicial.version}.</span>
           </div>
         )}
         <div className="form-grid">
