@@ -1,8 +1,11 @@
-# Migraciones SQL
+# Migraciones SQL de la integración
 
-Guardar aquí las copias exactas de los scripts aprobados y aplicados, con prefijo secuencial. No modificar una migración aplicada.
+Base general: SQL01 + ampliación02. Después ejecutar en orden 003,004,005,006,007 y 008_documentos_integracion.sql. No modificar ni repetir migraciones aplicadas.
 
-Al 29 de octubre de 2026, el repositorio contiene las migraciones `003` a
-`006` para el alcance de Persona 1. La aplicación efectiva en PostgreSQL se
-comprueba por separado; no se infiere únicamente de que el archivo exista en
-Git.
+003–006 se conservan como en main. 007 añade campos opcionales de los mockups. 008_documentos_integracion es una PROPUESTA nueva de soporte PDF y JSON seguro para bigint: se probó en una copia sintética; no se ejecutó en la BD compartida.
+
+El anterior 008_local_mockups.sql mezclaba documentos y experimentos. No se incluye como migración operativa. El resto experimental quedó en docs/propuestas/009_mockups_laboratorio.sql y NO se ejecuta en los scripts de esta entrega.
+
+Si la BD ya recibió el antiguo 008, detenerse y comparar objetos/historial antes de aplicar otro script. Si una cadena documental histórica incumple las nuevas restricciones, corregirla con el encargado de BD, con motivo e historial; no borrar datos para forzar la migración.
+
+synchronize=false, migrationsRun=false. El arranque no ejecuta SQL compartido. Todavía se necesita acordar el registro formal de migraciones con el grupo. Consultar docs/integracion/INFORME_INTEGRACION_DOCUMENTOS_PERSONA3.md.

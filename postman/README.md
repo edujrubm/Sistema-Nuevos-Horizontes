@@ -1,3 +1,21 @@
+# Postman de la integración
+
+API local por defecto: http://127.0.0.1:3016/api/v1. Iniciar con pnpm start:persona3 (PostgreSQL local sintético); importar el entorno local. No usar fixtures en la BD del grupo.
+
+- Persona3.postman_collection.json: 14 rutas originales, flujo ejecutable con la semilla P3.
+- Errores.postman_collection.json: 3 peticiones de errores de contrato.
+- CargaPDF.postman_collection.json: 1 PDF sintético; working-dir postman para Newman.
+- Documentos_Unificados.postman_collection.json: 6 plantillas del contrato documental único. Elegir archivo, formularioId, documentoId y versión vigentes. Para nueva versión activar documentoAnteriorId y motivoCambio. No tiene una fase completar.
+- Nuevos_Horizontes_Persona_1.postman_collection.json: colección de main, conservada; requiere sus catálogos y semilla específicos. No confundirla con una prueba completa ejecutada en esta entrega.
+
+Generación P3: pnpm postman:persona3. No vuelve a crear páginas HTML ni endpoints de laboratorio.
+
+Resultados comprobados el 4 de noviembre: las tres colecciones P3/Errores/PDF sumaron 18 peticiones y 29 aserciones sin fallos. Las operaciones nuevas de listado/versiones/anulación/descarga se comprobaron mediante pruebas HTTP contra PostgreSQL; la colección nueva se entrega como plantillas configurables.
+
+Las áreas y autor se simulan en el servidor de pruebas. No cambiar P3_TEST_AREA desde el navegador. En producción será responsabilidad de la sesión autenticada.
+
+## Notas históricas de Persona 1
+
 # Pruebas Postman - Persona 1
 
 ## Archivos

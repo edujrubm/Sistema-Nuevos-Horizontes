@@ -1,3 +1,4 @@
+import { EvolucionModule } from "./evolucion/evolucion.module";
 import { Module } from "@nestjs/common";
 
 import { AdministracionModule } from "./administracion/administracion.module";
@@ -16,6 +17,7 @@ import { SeguridadModule } from "./seguridad/seguridad.module";
 /** Agrupa límites de dominio; los módulos no comparten repositorios directamente. */
 @Module({
   imports: [
+    EvolucionModule,
     AdministracionModule,
     AlbergueModule,
     AuditoriaModule,
