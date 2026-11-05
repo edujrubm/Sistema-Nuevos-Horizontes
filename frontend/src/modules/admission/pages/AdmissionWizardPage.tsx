@@ -182,8 +182,8 @@ export function AdmissionWizardPage() {
           {notice && <div className="alert success" role="status">{notice}</div>}
 
           {page.sections.map((section) => (
-            <fieldset className="panel form-panel section-panel" key={section.key} disabled={isConfirmed}>
-              <legend>{section.title}</legend>
+            <fieldset className="panel form-panel section-panel" key={section.key} disabled={isConfirmed} aria-labelledby={`${section.key}-title`}>
+              <div className="section-panel-title" id={`${section.key}-title`} role="heading" aria-level={2}>{section.title}</div>
               {section.description && <p className="section-description">{section.description}</p>}
               <div className="form-grid">
                 {section.fields.map((field) => (
@@ -237,8 +237,8 @@ export function AdmissionWizardPage() {
           ))}
 
           {page.key === "familia" && (
-            <fieldset className="panel form-panel section-panel" disabled={isConfirmed}>
-              <legend>Hijas e hijos</legend>
+            <fieldset className="panel form-panel section-panel" disabled={isConfirmed} aria-labelledby="children-section-title">
+              <div className="section-panel-title" id="children-section-title" role="heading" aria-level={2}>Hijas e hijos</div>
               {children.map((child, index) => (
                 <div className="child-row" key={index}>
                   <div className="field">

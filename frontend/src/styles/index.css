@@ -83,8 +83,8 @@ th { color: var(--text-600); font-size: 16px; }
 .wizard-step.current { color: var(--primary-700); background: var(--primary-100); border-color: #d7cae8; }
 .wizard-step.current > span:first-child { color: white; background: var(--primary-700); border-color: var(--primary-700); }
 .wizard-content { min-width: 0; }
-.section-panel { min-width: 0; margin: 0 0 20px; }
-.section-panel legend { padding: 0 8px; color: var(--text-900); font-size: 22px; font-weight: 700; }
+.section-panel { min-width: 0; margin: 0 0 20px; padding: 28px 32px 32px; }
+.section-panel-title { margin: 0 0 24px; color: var(--text-900); font-size: 22px; line-height: 1.25; font-weight: 700; }
 .section-panel:disabled { opacity: .8; }
 .section-description { margin: 0 0 24px; color: var(--text-600); font-size: 16px; line-height: 1.5; }
 .child-row { display: grid; grid-template-columns: 1.2fr 1fr .8fr .9fr auto; gap: 16px; align-items: end; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
