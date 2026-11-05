@@ -49,6 +49,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-persona3.ps1 -P
 
 ## Límites que siguen pendientes
 
+- GitHub comprobó la propuesta como fusionable, pero Actions no inició el trabajo `build`: la anotación del run `41965160240` informa bloqueo de la cuenta por facturación. No hubo pasos de compilación ejecutados en ese run. El encargado debe resolverlo y repetir Actions; no se desactiva ni se elude el control. Las 90 pruebas locales anteriores sí pasaron.
 - Autenticación y autorización productivas, sesión con área/capacidades reales y almacenamiento privado definitivo. El backend actual usa identidad de pruebas y se restringe al entorno local de desarrollo/pruebas; no es una entrega desplegable a producción.
 - Integración con los componentes y router del frontend común cuando el equipo publique su base, y catálogos reales para selectores de profesionales/áreas.
 - Pantalla de documentos de Persona 4, reportes y otras pantallas de compañeros no se duplican en esta entrega.
