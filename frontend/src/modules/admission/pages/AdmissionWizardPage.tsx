@@ -35,6 +35,8 @@ export function AdmissionWizardPage() {
   const [savedChildren, setSavedChildren] = useState<ChildDraft[]>([]);
   const [notice, setNotice] = useState<string>();
   const [showDiscardWarning, setShowDiscardWarning] = useState(false);
+  const [incompleteSectionKeys, setIncompleteSectionKeys] = useState<string[]>([]);
+  const [maxReachedIndex, setMaxReachedIndex] = useState(0);
 
   const admissionQuery = useQuery({
     queryKey: ["admission", id],
@@ -52,6 +54,10 @@ export function AdmissionWizardPage() {
     );
     setValues(fetchedValues);
     setSavedValues(fetchedValues);
+    const firstPendingPage = admissionPages.findIndex((item) =>
+      item.sections.some((section) => !fetchedValues[section.key] || !contentIsPresent(fetchedValues[section.key])),
+    );
+    setMaxReachedIndex(firstPendingPage === -1 ? admissionPages.length - 1 : firstPendingPage);
   }, [admissionQuery.data]);
 
   const record = admissionQuery.data?.data;
@@ -100,7 +106,13 @@ export function AdmissionWizardPage() {
       setNotice(advance ? "Página guardada. Puedes continuar." : "Página actualizada correctamente.");
       setShowDiscardWarning(false);
       await queryClient.invalidateQueries({ queryKey: ["admission", id] });
-      if (advance) setActiveIndex((current) => Math.min(current + 1, admissionPages.length - 1));
+      if (advance) {
+        setActiveIndex((current) => {
+          const next = Math.min(current + 1, admissionPages.length - 1);
+          setMaxReachedIndex((reached) => Math.max(reached, next));
+          return next;
+        });
+      }
     },
   });
 
@@ -126,6 +138,7 @@ export function AdmissionWizardPage() {
   function updateField(section: string, field: string, value: unknown) {
     setNotice(undefined);
     setShowDiscardWarning(false);
+    setIncompleteSectionKeys((current) => current.filter((key) => key !== section));
     setValues((current) => ({
       ...current,
       [section]: { ...current[section], [field]: value },
@@ -177,7 +190,20 @@ export function AdmissionWizardPage() {
   const currentSectionKeys = new Set(page.sections.map((section) => section.key));
   const missingOutsideCurrentPage = missingSections.filter((key) => !currentSectionKeys.has(key));
 
+  function validateCurrentPage() {
+    const incomplete = page.sections
+      .filter((section) => !contentIsPresent(values[section.key]))
+      .map((section) => section.key);
+    setIncompleteSectionKeys(incomplete);
+    if (incomplete.length === 0) return true;
+    setNotice(undefined);
+    setShowDiscardWarning(false);
+    requestAnimationFrame(() => document.getElementById(`${incomplete[0]}-title`)?.focus());
+    return false;
+  }
+
   function goForward() {
+    if (!validateCurrentPage()) return;
     if (!pageWasSaved) {
       saveMutation.mutate({ advance: true });
       return;
@@ -187,6 +213,14 @@ export function AdmissionWizardPage() {
       return;
     }
     setActiveIndex((current) => Math.min(current + 1, admissionPages.length - 1));
+  }
+
+  function updateCurrentPage() {
+    if (validateCurrentPage()) saveMutation.mutate({ advance: false });
+  }
+
+  function confirmCurrentAdmission() {
+    if (validateCurrentPage()) confirmMutation.mutate();
   }
 
   function discardChangesAndContinue() {
@@ -216,7 +250,8 @@ export function AdmissionWizardPage() {
                 key={item.key}
                 type="button"
                 className={`wizard-step${index === activeIndex ? " current" : ""}`}
-                onClick={() => { setActiveIndex(index); setNotice(undefined); }}
+                disabled={index > maxReachedIndex}
+                onClick={() => { setActiveIndex(index); setNotice(undefined); setIncompleteSectionKeys([]); }}
               >
                 <span>{index + 1}</span>
                 <span>{item.shortTitle}<small>{complete ? "Guardada" : "Pendiente"}</small></span>
@@ -239,6 +274,12 @@ export function AdmissionWizardPage() {
             </div>
           )}
           {notice && <div className="alert success" role="status">{notice}</div>}
+          {incompleteSectionKeys.length > 0 && (
+            <div className="alert error" role="alert">
+              <strong>Completa la página antes de continuar.</strong>
+              <span>Cada sección necesita al menos un dato.</span>
+            </div>
+          )}
           {showDiscardWarning && (
             <div className="alert warning unsaved-warning" role="alert">
               <strong>Los cambios de esta página todavía no están actualizados.</strong>
@@ -252,7 +293,10 @@ export function AdmissionWizardPage() {
 
           {page.sections.map((section) => (
             <fieldset className="panel form-panel section-panel" key={section.key} disabled={isConfirmed} aria-labelledby={`${section.key}-title`}>
-              <div className="section-panel-title" id={`${section.key}-title`} role="heading" aria-level={2}>{section.title}</div>
+              <div className="section-panel-title" id={`${section.key}-title`} role="heading" aria-level={2} tabIndex={-1}>{section.title}</div>
+              {incompleteSectionKeys.includes(section.key) && (
+                <p className="field-error">Ingresa al menos un dato en esta sección.</p>
+              )}
               {section.description && <p className="section-description">{section.description}</p>}
               <div className="form-grid">
                 {section.fields.map((field) => (
@@ -346,7 +390,7 @@ export function AdmissionWizardPage() {
             <div className="form-actions wizard-actions">
               <button className="button secondary" type="button" disabled={activeIndex === 0} onClick={() => setActiveIndex((current) => current - 1)}>Anterior</button>
               {pageWasSaved && (
-                <button className="button primary" type="button" disabled={saveMutation.isPending || !pageIsDirty} onClick={() => saveMutation.mutate({ advance: false })}>
+                <button className="button primary" type="button" disabled={saveMutation.isPending || !pageIsDirty} onClick={updateCurrentPage}>
                   {saveMutation.isPending ? "Actualizando…" : "Actualizar"}
                 </button>
               )}
@@ -355,7 +399,7 @@ export function AdmissionWizardPage() {
                   {saveMutation.isPending ? "Guardando…" : "Siguiente"}
                 </button>
               ) : (
-                <button className="button primary" type="button" disabled={confirmMutation.isPending || missingOutsideCurrentPage.length > 0} onClick={() => confirmMutation.mutate()}>
+                <button className="button primary" type="button" disabled={confirmMutation.isPending || missingOutsideCurrentPage.length > 0} onClick={confirmCurrentAdmission}>
                   {confirmMutation.isPending ? "Guardando y confirmando…" : "Confirmar ficha"}
                 </button>
               )}

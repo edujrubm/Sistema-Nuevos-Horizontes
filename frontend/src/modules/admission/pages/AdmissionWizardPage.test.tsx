@@ -80,6 +80,17 @@ describe("AdmissionWizardPage", () => {
     expect(await screen.findByRole("heading", { name: "Contacto y ubicación" })).toBeInTheDocument();
   });
 
+  it("impide avanzar si una sección de la página está vacía", async () => {
+    renderWizard();
+    expect(await screen.findByRole("heading", { name: "Datos de identificación" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Siguiente" }));
+
+    expect(await screen.findByText("Completa la página antes de continuar.")).toBeInTheDocument();
+    expect(screen.getByText("Ingresa al menos un dato en esta sección.")).toBeInTheDocument();
+    expect(apiMocks.saveAdmissionPage).not.toHaveBeenCalled();
+  });
+
   it("advierte si una página guardada cambió y se intenta avanzar sin Actualizar", async () => {
     apiMocks.getAdmission.mockResolvedValue(admission([
       { seccion: "identificacion", contenido: { lugarNacimiento: "Guatemala" } },

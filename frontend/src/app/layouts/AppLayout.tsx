@@ -3,6 +3,8 @@ import { NavLink, Outlet } from "react-router-dom";
 const navigation = [
   { to: "/beneficiarias", label: "Beneficiarias" },
   { to: "/fichas/nueva", label: "Nueva ficha inicial" },
+  { to: "/fichas/borradores", label: "Borradores" },
+  { to: "/fichas/confirmadas", label: "Fichas confirmadas" },
 ];
 
 export function AppLayout() {
