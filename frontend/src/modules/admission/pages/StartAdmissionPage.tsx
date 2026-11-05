@@ -1,10 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 
 import { startAdmission } from "../api/admission-api";
+import { searchBeneficiaryMatches } from "@/modules/beneficiaries/api/beneficiaries-api";
 import { ApiError } from "@/shared/api/api-error";
 import { getCatalog, getCountries, getDepartments, getMunicipalities } from "@/shared/api/catalogs-api";
 import { PageHeader } from "@/shared/components/PageHeader";
@@ -26,6 +28,8 @@ type FormValues = z.infer<typeof schema>;
 
 export function StartAdmissionPage() {
   const navigate = useNavigate();
+  const [showDuplicateSearch, setShowDuplicateSearch] = useState(false);
+  const [duplicateCui, setDuplicateCui] = useState("");
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -60,7 +64,12 @@ export function StartAdmissionPage() {
       startAdmission(Object.fromEntries(Object.entries(values).filter(([, value]) => value !== "")) as FormValues),
     onSuccess: (response) => navigate(`/fichas/${response.data.fichaInicial.id}`),
   });
+  const duplicateSearch = useMutation({
+    mutationFn: (cui: string) => searchBeneficiaryMatches(cui.replace(/\D/g, "")),
+  });
   const apiError = mutation.error instanceof ApiError ? mutation.error.body : undefined;
+  const duplicateError = duplicateSearch.error instanceof ApiError ? duplicateSearch.error.body : undefined;
+  const normalizedDuplicateCui = duplicateCui.replace(/\D/g, "");
 
   return (
     <section>
@@ -70,6 +79,65 @@ export function StartAdmissionPage() {
       />
       <div className="step-indicator" aria-label="Progreso de la ficha">
         <strong>Paso 1 de 8</strong><span>Identificación</span>
+      </div>
+      <div className="duplicate-search-wrapper">
+        <button
+          className="button secondary"
+          type="button"
+          aria-expanded={showDuplicateSearch}
+          aria-controls="duplicate-search-panel"
+          onClick={() => setShowDuplicateSearch((current) => !current)}
+        >
+          Buscar coincidencias existentes: Nombre o DPI/CUI
+        </button>
+        {showDuplicateSearch && (
+          <section className="panel duplicate-search-panel" id="duplicate-search-panel" aria-labelledby="duplicate-search-title">
+            <div className="section-heading">
+              <h2 id="duplicate-search-title">Buscar por DPI/CUI</h2>
+              <p>Comprueba si la beneficiaria ya tiene expediente antes de iniciar una ficha nueva.</p>
+            </div>
+            <form
+              className="inline-search-form"
+              onSubmit={(event) => {
+                event.preventDefault();
+                if (normalizedDuplicateCui.length >= 4) duplicateSearch.mutate(normalizedDuplicateCui);
+              }}
+            >
+              <div className="field">
+                <label htmlFor="duplicate-cui">DPI/CUI</label>
+                <input
+                  id="duplicate-cui"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  value={duplicateCui}
+                  onChange={(event) => {
+                    setDuplicateCui(event.target.value);
+                    duplicateSearch.reset();
+                  }}
+                  aria-describedby="duplicate-cui-helper"
+                />
+                <small id="duplicate-cui-helper">Puedes escribirlo con o sin espacios o guiones.</small>
+                {duplicateCui && normalizedDuplicateCui.length < 4 && <span className="field-error">Escribe al menos 4 dígitos.</span>}
+              </div>
+              <button className="button primary" type="submit" disabled={duplicateSearch.isPending || normalizedDuplicateCui.length < 4}>
+                {duplicateSearch.isPending ? "Buscando…" : "Buscar"}
+              </button>
+            </form>
+            {duplicateError && <div className="alert error" role="alert"><strong>{duplicateError.mensaje}</strong></div>}
+            {duplicateSearch.data?.data.length === 0 && (
+              <div className="alert success" role="status"><strong>No se encontró un expediente con este DPI/CUI.</strong><span>Puedes continuar con el registro inicial.</span></div>
+            )}
+            {!!duplicateSearch.data?.data.length && (
+              <div className="alert warning" role="alert">
+                <strong>Ya existe una beneficiaria con este DPI/CUI.</strong>
+                <span>Abre el expediente existente en lugar de crear un registro duplicado.</span>
+                {duplicateSearch.data.data.map((match) => (
+                  <Link className="button secondary" key={match.id} to={`/beneficiarias/${match.id}`}>Abrir expediente de {match.nombre}</Link>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
       </div>
       <form className="panel form-panel" onSubmit={form.handleSubmit((values) => mutation.mutate(values))} noValidate>
         <div className="section-heading">

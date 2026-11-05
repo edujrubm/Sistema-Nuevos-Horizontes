@@ -61,3 +61,11 @@ export function getBeneficiary(id: string, signal?: AbortSignal) {
 export function listBeneficiaryChildren(id: string, signal?: AbortSignal) {
   return apiRequest<{ data: BeneficiaryChild[] }>(`/beneficiarias/${id}/hijos`, { signal });
 }
+
+export function searchBeneficiaryMatches(cui: string, signal?: AbortSignal) {
+  return apiRequest<{ data: BeneficiarySummary[] }>("/beneficiarias/buscar-coincidencias", {
+    method: "POST",
+    body: JSON.stringify({ cui }),
+    signal,
+  });
+}

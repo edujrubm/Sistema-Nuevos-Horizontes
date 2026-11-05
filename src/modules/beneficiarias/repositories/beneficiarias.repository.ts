@@ -268,9 +268,14 @@ export class BeneficiariasRepository {
         );
         const repositorio = manager.getRepository(BeneficiariaEntity);
         if (entrada.cui) {
-          const duplicada = await repositorio.findOne({
-            where: { cui: entrada.cui },
-          });
+          const cuiNormalizado = entrada.cui.replace(/\D/g, "");
+          const [duplicada] = await manager.query<Array<{ id: string }>>(
+            `SELECT id_beneficiaria::text AS id
+             FROM new_horizons.beneficiaria
+             WHERE regexp_replace(coalesce(cui, ''), '[^0-9]', '', 'g') = $1
+             LIMIT 1`,
+            [cuiNormalizado],
+          );
           if (duplicada) return { conflictoCui: true as const };
         }
         const residenciaId = await this.guardarResidencia(
@@ -284,7 +289,7 @@ export class BeneficiariasRepository {
         const beneficiaria = await repositorio.save(
           repositorio.create({
             nombre: entrada.nombre.trim(),
-            cui: entrada.cui?.trim() ?? null,
+            cui: entrada.cui?.replace(/\D/g, "") || null,
             fechaNacimiento: entrada.fechaNacimiento ?? null,
             alfabetismo: entrada.alfabetismo ?? null,
             paisOrigenId: entrada.paisOrigenId ?? null,
