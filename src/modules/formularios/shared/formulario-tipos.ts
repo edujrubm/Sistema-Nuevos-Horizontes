@@ -127,7 +127,16 @@ export const TIPOS_FORMULARIO = {
     tabla: "ficha_social",
     requiereNino: false,
     campos: {
+      ...campos("booleano", ["dependenciaEconomica"]),
+      ...campos("fecha", ["fechaRevision", "fechaCierre"]),
+      ...campos("id", ["areaCoordinacionId"]),
       ...campos("texto", [
+        "tipoVivienda",
+        "composicionFamiliar",
+        "redesApoyo",
+        "responsablePlan",
+        "resultadosAlcanzados",
+        "observaciones",
         "historiaViolencia",
         "diagnosticoSocial",
         "riesgosIdentificados",
@@ -159,6 +168,14 @@ export const TIPOS_FORMULARIO = {
     campos: {
       ...campos("id", ["demandadoAgresorId"]),
       ...campos("texto", [
+        "relacionPartes",
+        "normativaAplicable",
+        "objetivoLegal",
+        "tipoJuicio",
+        "estadoProceso",
+        "actuacionesRealizadas",
+        "acuerdosProximosPasos",
+        "observaciones",
         "demandadoNombreDeclarado",
         "diagnosticoJuridico",
         "planTratamiento",
@@ -169,7 +186,7 @@ export const TIPOS_FORMULARIO = {
         "juezOficial",
         "diligenciamiento",
       ]),
-      ...campos("fecha", ["inicioProcesoFecha"]),
+      ...campos("fecha", ["inicioProcesoFecha", "proximaActuacionFecha"]),
     },
   },
   REFERENCIA_LEGAL: {
@@ -181,6 +198,7 @@ export const TIPOS_FORMULARIO = {
         "origen",
         "motivoReferencia",
         "recomendaciones",
+        "medioEntrega",
       ]),
     },
   },
@@ -189,6 +207,8 @@ export const TIPOS_FORMULARIO = {
     requiereNino: true,
     campos: {
       ...campos("texto", [
+        "observacionesFamiliares",
+        "indicacionesSalud",
         "numeroFicha",
         "situacionSocioeconomica",
         "condicionVivienda",

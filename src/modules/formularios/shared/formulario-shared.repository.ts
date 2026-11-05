@@ -1,3 +1,4 @@
+import { validarReferenciaCompleta } from "../../persona3/validar-referencia";
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { DataSource, EntityManager } from "typeorm";
@@ -86,7 +87,7 @@ export class FormularioSharedRepository {
   }
 
   private detalleSql() {
-    return `COALESCE(
+    return `new_horizons.local_json_seguro(COALESCE(
       to_jsonb(pm) - 'formulario_id' - 'tipo',
       to_jsonb(pn) - 'formulario_id' - 'tipo',
       to_jsonb(fs) - 'formulario_id' - 'tipo',
@@ -95,7 +96,7 @@ export class FormularioSharedRepository {
       to_jsonb(rl) - 'formulario_id' - 'tipo',
       to_jsonb(fg) - 'formulario_id' - 'tipo',
       '{}'::jsonb
-    )`;
+    ))`;
   }
 
   private joinsDetalleSql() {
@@ -421,6 +422,9 @@ export class FormularioSharedRepository {
         return { estado: "YA_CONFIRMADO" as const };
       if (rows[0].version !== version)
         return { estado: "CONFLICTO_VERSION" as const };
+      const actual = await this.obtener(id, manager);
+      if (actual?.tipo === "REFERENCIA_LEGAL")
+        validarReferenciaCompleta(actual.detalle);
       await manager.query(
         `UPDATE new_horizons.formulario_area
          SET estado_codigo=$2,motivo_cambio=$3 WHERE id=$1::bigint`,
