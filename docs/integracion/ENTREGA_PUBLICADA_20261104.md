@@ -6,6 +6,7 @@ Fecha: 4 de noviembre de 2026.
 
 - Repositorio: https://github.com/edujrubm/Sistema-Nuevos-Horizontes
 - Entrega conjunta: rama existente `schema-persona3`, propuesta hacia `main`.
+- Solicitud de integración: https://github.com/edujrubm/Sistema-Nuevos-Horizontes/pull/15 (abierta para revisión; no fusionada).
 - Limpieza independiente: rama existente `medicina`; se publica únicamente la retirada de caché sobre su versión actual, sin incluirla en la propuesta conjunta.
 - No se crean ramas remotas adicionales ni se modifica directamente `main`. No se ejecutan cambios en la base compartida.
 - La entrega conjunta parte de `main` en `441eda41853607a302aebadbcf8dfe9981e43ca8` e integra el trabajo previo de Persona 3. Las propuestas anteriores de Legal, Social, Guardería y Evolución se deben comparar con esta entrega antes de fusionarlas: no integrar indiscriminadamente versiones antiguas después de la unificación.
