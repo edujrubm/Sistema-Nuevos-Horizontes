@@ -2,6 +2,9 @@
 
 Sistema institucional para atención de beneficiarias, expedientes permanentes, niñas y niños, formularios por área, albergue y documentos.
 
+El backend NestJS y el frontend React viven en este mismo repositorio, con
+código, configuración y procesos de desarrollo separados.
+
 ## Arquitectura inicial
 
 El backend usa NestJS con MVC modular y PostgreSQL:
@@ -50,6 +53,15 @@ copy .env.example .env
 pnpm start:dev
 ```
 
+En otra terminal iniciar el frontend:
+
+```sh
+pnpm dev:web
+```
+
+Consultar `CONTRIBUTING.md` para el flujo completo de ramas, Pull Requests,
+verificación y despliegue.
+
 Completar `.env` con las credenciales locales de PostgreSQL. Nunca subir ese archivo al repositorio.
 
 - El servidor queda preparado para registrar rutas después de definir los contratos funcionales.
@@ -57,16 +69,14 @@ Completar `.env` con las credenciales locales de PostgreSQL. Nunca subir ese arc
 ### Verificación
 
 ```sh
-pnpm run build
+pnpm check
 ```
 
-Este repositorio no ejecuta actualmente flujos de GitHub Actions. Antes de crear
-un Pull Request o integrar cambios, ejecutar localmente:
+Este repositorio no utiliza GitHub Actions. Antes de crear un Pull Request o
+integrar cambios, cada integrante debe ejecutar localmente:
 
-```sh
-pnpm install --frozen-lockfile
-pnpm run build
-```
+El comando local comprueba tipos del frontend, pruebas de backend y frontend, y
+la compilación completa. El resultado debe adjuntarse al Pull Request.
 
 El responsable del Pull Request debe adjuntar la salida de esos comandos o
 indicar que fueron ejecutados correctamente. La revisión de código y la ausencia
