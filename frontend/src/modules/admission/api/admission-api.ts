@@ -26,7 +26,7 @@ export interface ChildDraft {
   nombre?: string;
   cui?: string;
   fechaNacimiento?: string;
-  reconocido?: boolean;
+  reconocido?: boolean | null;
   genero?: "F" | "M" | "O";
 }
 

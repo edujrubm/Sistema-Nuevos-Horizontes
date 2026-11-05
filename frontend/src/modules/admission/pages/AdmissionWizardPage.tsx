@@ -37,6 +37,8 @@ export function AdmissionWizardPage() {
   const [showDiscardWarning, setShowDiscardWarning] = useState(false);
   const [incompleteSectionKeys, setIncompleteSectionKeys] = useState<string[]>([]);
   const [maxReachedIndex, setMaxReachedIndex] = useState(0);
+  const [childNameErrors, setChildNameErrors] = useState<number[]>([]);
+  const [childCuiErrors, setChildCuiErrors] = useState<number[]>([]);
 
   const admissionQuery = useQuery({
     queryKey: ["admission", id],
@@ -161,8 +163,17 @@ export function AdmissionWizardPage() {
     setChildren((current) => [...current, { nombre: "" }]);
   }
 
-  function updateChild(index: number, field: keyof ChildDraft, value: string | boolean) {
+  function removeChild(index: number) {
     setShowDiscardWarning(false);
+    setChildren((current) => current.filter((_, childIndex) => childIndex !== index));
+    setChildNameErrors((current) => current.flatMap((item) => item === index ? [] : [item > index ? item - 1 : item]));
+    setChildCuiErrors((current) => current.flatMap((item) => item === index ? [] : [item > index ? item - 1 : item]));
+  }
+
+  function updateChild(index: number, field: keyof ChildDraft, value: string | boolean | undefined) {
+    setShowDiscardWarning(false);
+    if (field === "nombre") setChildNameErrors((current) => current.filter((item) => item !== index));
+    if (field === "cui") setChildCuiErrors((current) => current.filter((item) => item !== index));
     setChildren((current) => current.map((child, childIndex) =>
       childIndex === index ? { ...child, [field]: value } : child,
     ));
@@ -190,15 +201,41 @@ export function AdmissionWizardPage() {
   const currentSectionKeys = new Set(page.sections.map((section) => section.key));
   const missingOutsideCurrentPage = missingSections.filter((key) => !currentSectionKeys.has(key));
 
+  function fieldIsVisible(sectionKey: string, field: (typeof page.sections)[number]["fields"][number]) {
+    if (!field.showWhen) return true;
+    const controllingValue = values[sectionKey]?.[field.showWhen.field];
+    if (field.showWhen.includes) return Array.isArray(controllingValue) && controllingValue.includes(field.showWhen.includes);
+    return controllingValue === field.showWhen.equals;
+  }
+
   function validateCurrentPage() {
     const incomplete = page.sections
       .filter((section) => !contentIsPresent(values[section.key]))
       .map((section) => section.key);
+    const invalidChildren = page.key === "familia"
+      ? children.flatMap((child, index) => {
+        const length = child.nombre?.trim().length ?? 0;
+        return length >= 2 && length <= 60 ? [] : [index];
+      })
+      : [];
+    const invalidChildCuis = page.key === "familia"
+      ? children.flatMap((child, index) => {
+        const length = child.cui?.trim().length ?? 0;
+        return length === 0 || (length >= 4 && length <= 20) ? [] : [index];
+      })
+      : [];
     setIncompleteSectionKeys(incomplete);
-    if (incomplete.length === 0) return true;
+    setChildNameErrors(invalidChildren);
+    setChildCuiErrors(invalidChildCuis);
+    if (incomplete.length === 0 && invalidChildren.length === 0 && invalidChildCuis.length === 0) return true;
     setNotice(undefined);
     setShowDiscardWarning(false);
-    requestAnimationFrame(() => document.getElementById(`${incomplete[0]}-title`)?.focus());
+    requestAnimationFrame(() => {
+      const targetId = incomplete.length > 0
+        ? `${incomplete[0]}-title`
+        : invalidChildren.length > 0 ? `child-name-${invalidChildren[0]}` : `child-cui-${invalidChildCuis[0]}`;
+      document.getElementById(targetId)?.focus();
+    });
     return false;
   }
 
@@ -277,7 +314,7 @@ export function AdmissionWizardPage() {
           {incompleteSectionKeys.length > 0 && (
             <div className="alert error" role="alert">
               <strong>Completa la página antes de continuar.</strong>
-              <span>Cada sección necesita al menos un dato.</span>
+              <span>Revisa las secciones y los registros familiares señalados.</span>
             </div>
           )}
           {showDiscardWarning && (
@@ -300,7 +337,7 @@ export function AdmissionWizardPage() {
               {section.description && <p className="section-description">{section.description}</p>}
               <div className="form-grid">
                 {section.fields.map((field) => (
-                  <div className={`field${field.type === "textarea" ? " full" : ""}`} key={field.name}>
+                  fieldIsVisible(section.key, field) && <div className={`field${field.type === "textarea" ? " full" : ""}`} key={field.name}>
                     <label htmlFor={`${section.key}-${field.name}`}>{field.label}</label>
                     {field.type === "textarea" ? (
                       <textarea
@@ -356,7 +393,13 @@ export function AdmissionWizardPage() {
                 <div className="child-row" key={index}>
                   <div className="field">
                     <label htmlFor={`child-name-${index}`}>Nombre</label>
-                    <input id={`child-name-${index}`} value={child.nombre ?? ""} onChange={(event) => updateChild(index, "nombre", event.target.value)} />
+                    <input id={`child-name-${index}`} value={child.nombre ?? ""} aria-invalid={childNameErrors.includes(index)} onChange={(event) => updateChild(index, "nombre", event.target.value)} />
+                    {childNameErrors.includes(index) && <small className="field-error">El nombre debe tener entre 2 y 60 caracteres.</small>}
+                  </div>
+                  <div className="field">
+                    <label htmlFor={`child-cui-${index}`}>DPI/CUI</label>
+                    <input id={`child-cui-${index}`} value={child.cui ?? ""} aria-invalid={childCuiErrors.includes(index)} onChange={(event) => updateChild(index, "cui", event.target.value)} />
+                    {childCuiErrors.includes(index) && <small className="field-error">El DPI/CUI debe tener entre 4 y 20 caracteres.</small>}
                   </div>
                   <div className="field">
                     <label htmlFor={`child-birth-${index}`}>Fecha de nacimiento</label>
@@ -373,13 +416,13 @@ export function AdmissionWizardPage() {
                   </div>
                   <div className="field">
                     <label htmlFor={`child-recognized-${index}`}>Reconocimiento</label>
-                    <select id={`child-recognized-${index}`} value={child.reconocido === undefined ? "" : String(child.reconocido)} onChange={(event) => updateChild(index, "reconocido", event.target.value === "true")}>
+                    <select id={`child-recognized-${index}`} value={child.reconocido == null ? "" : String(child.reconocido)} onChange={(event) => updateChild(index, "reconocido", event.target.value === "" ? undefined : event.target.value === "true")}>
                       <option value="">Seleccionar</option>
                       <option value="true">Reconocida/o</option>
                       <option value="false">No reconocida/o</option>
                     </select>
                   </div>
-                  <button className="button text" type="button" onClick={() => setChildren((current) => current.filter((_, childIndex) => childIndex !== index))}>Quitar</button>
+                  <button className="button text" type="button" onClick={() => removeChild(index)}>Quitar</button>
                 </div>
               ))}
               <button className="button secondary" type="button" onClick={addChild}>Agregar hija o hijo</button>

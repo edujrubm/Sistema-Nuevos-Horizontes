@@ -4,6 +4,7 @@ export interface AdmissionField {
   type?: "text" | "textarea" | "date" | "tel" | "number" | "select" | "checkboxGroup";
   hint?: string;
   options?: Array<{ value: string; label: string }>;
+  showWhen?: { field: string; equals?: string; includes?: string };
 }
 
 export interface AdmissionSectionDefinition {
@@ -116,8 +117,8 @@ export const admissionPages: AdmissionPageDefinition[] = [
             type: "select",
             options: [{ value: "SI", label: "Sí" }, { value: "NO", label: "No" }],
           },
-          { name: "nombreEnfermedad", label: "¿Cuál enfermedad?" },
-          { name: "tratamiento", label: "Tratamiento que lleva", type: "textarea" },
+          { name: "nombreEnfermedad", label: "¿Cuál enfermedad?", showWhen: { field: "enfermedadPermanente", equals: "SI" } },
+          { name: "tratamiento", label: "Tratamiento que lleva", type: "textarea", showWhen: { field: "enfermedadPermanente", equals: "SI" } },
           { name: "otrosPadecimientos", label: "Otros padecimientos", type: "textarea" },
         ],
       },
@@ -184,7 +185,7 @@ export const admissionPages: AdmissionPageDefinition[] = [
             type: "checkboxGroup",
             options: ["Física", "Psicológica", "Verbal", "Sexual", "Patrimonial", "Económica", "Trata", "Violación", "Amenaza de muerte", "Misoginia", "Femicidio", "Otra"].map((label) => ({ value: label, label })),
           },
-          { name: "otra", label: "Especificar otra" },
+          { name: "otra", label: "Especificar otra", showWhen: { field: "seleccion", includes: "Otra" } },
         ],
       },
       {
@@ -197,7 +198,7 @@ export const admissionPages: AdmissionPageDefinition[] = [
             type: "checkboxGroup",
             options: ["Manos", "Pies", "Arma blanca", "Brazos", "Arma de fuego", "Objeto", "Todas", "Otra"].map((label) => ({ value: label, label })),
           },
-          { name: "otra", label: "Especificar otra" },
+          { name: "otra", label: "Especificar otra", showWhen: { field: "seleccion", includes: "Otra" } },
         ],
       },
     ],
@@ -226,15 +227,15 @@ export const admissionPages: AdmissionPageDefinition[] = [
               "Otra situación",
             ].map((label) => ({ value: label, label })),
           },
-          { name: "tiempoEmbarazo", label: "Tiempo de embarazo" },
-          { name: "otraSituacion", label: "Otra situación" },
+          { name: "tiempoEmbarazo", label: "Tiempo de embarazo", showWhen: { field: "factores", includes: "Se encuentra embarazada" } },
+          { name: "otraSituacion", label: "Otra situación", showWhen: { field: "factores", includes: "Otra situación" } },
           {
             name: "tiempoAgresion",
             label: "Tiempo de agresión",
             type: "select",
             options: ["Varios días", "Varios meses", "Varios años", "Otro"].map((label) => ({ value: label, label })),
           },
-          { name: "otroPeriodo", label: "Otro período" },
+          { name: "otroPeriodo", label: "Otro período", showWhen: { field: "tiempoAgresion", equals: "Otro" } },
           {
             name: "vinculosAgresores",
             label: "¿Quién la ha estado agrediendo?",
@@ -247,8 +248,8 @@ export const admissionPages: AdmissionPageDefinition[] = [
             type: "select",
             options: [{ value: "SI", label: "Sí" }, { value: "NO", label: "No" }],
           },
-          { name: "familiaresAgredidos", label: "¿A quién?" },
-          { name: "formaAgresionFamiliares", label: "¿De qué forma?", type: "textarea" },
+          { name: "familiaresAgredidos", label: "¿A quién?", showWhen: { field: "agredeOtrosFamiliares", equals: "SI" } },
+          { name: "formaAgresionFamiliares", label: "¿De qué forma?", type: "textarea", showWhen: { field: "agredeOtrosFamiliares", equals: "SI" } },
         ],
       },
       {
@@ -283,21 +284,21 @@ export const admissionPages: AdmissionPageDefinition[] = [
             type: "select",
             options: ["Oficina de Atención a la Víctima del MP", "Otra oficina del MP", "Defensoría de la Mujer PDH", "Otra oficina PDH", "Bufete universitario", "Bufete particular", "Juzgado", "PGN", "Policía Nacional Civil", "Grupo de mujeres o feministas", "Centro de Salud", "Amistades o familiares", "Radio, televisión o prensa", "ONG", "Defensa Pública Penal", "Secretaría de la Mujer del OJ", "Otra"].map((label) => ({ value: label, label })),
           },
-          { name: "otroOrigen", label: "Especificar otro origen" },
+          { name: "otroOrigen", label: "Especificar otro origen", showWhen: { field: "origen", equals: "Otra" } },
           {
             name: "internas",
             label: "Referencias internas",
             type: "checkboxGroup",
             options: ["Psicología", "Legal", "Albergue Temporal", "Trabajo Social", "Medicina", "Grupos de apoyo", "Otra"].map((label) => ({ value: label, label })),
           },
-          { name: "otraInterna", label: "Especificar otra referencia interna" },
+          { name: "otraInterna", label: "Especificar otra referencia interna", showWhen: { field: "internas", includes: "Otra" } },
           {
             name: "externas",
             label: "Referencias externas",
             type: "checkboxGroup",
             options: ["Ministerio Público", "PDH", "Bufete universitario", "RENAP", "Municipalidad", "Juzgado", "PGN", "Policía Nacional Civil", "Hospital o Centro de Salud", "DEMI", "Otra"].map((label) => ({ value: label, label })),
           },
-          { name: "otraExterna", label: "Especificar otra referencia externa" },
+          { name: "otraExterna", label: "Especificar otra referencia externa", showWhen: { field: "externas", includes: "Otra" } },
         ],
       },
       {
@@ -310,9 +311,9 @@ export const admissionPages: AdmissionPageDefinition[] = [
             type: "select",
             options: [{ value: "SI", label: "Sí" }, { value: "NO", label: "No" }],
           },
-          { name: "lugar", label: "¿Dónde?" },
-          { name: "tipo", label: "Tipo de apoyo" },
-          { name: "fecha", label: "Fecha", type: "date" },
+          { name: "lugar", label: "¿Dónde?", showWhen: { field: "recibioApoyo", equals: "SI" } },
+          { name: "tipo", label: "Tipo de apoyo", showWhen: { field: "recibioApoyo", equals: "SI" } },
+          { name: "fecha", label: "Fecha", type: "date", showWhen: { field: "recibioApoyo", equals: "SI" } },
           {
             name: "traeDenuncia",
             label: "¿Trae denuncia?",
