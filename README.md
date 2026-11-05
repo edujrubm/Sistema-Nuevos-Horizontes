@@ -2,6 +2,9 @@
 
 Sistema institucional para atención de beneficiarias, expedientes permanentes, niñas y niños, formularios por área, albergue y documentos.
 
+El backend NestJS y el frontend React viven en este mismo repositorio, con
+código, configuración y procesos de desarrollo separados.
+
 ## Arquitectura inicial
 
 El backend usa NestJS con MVC modular y PostgreSQL:
@@ -25,6 +28,11 @@ src/
 
 PostgreSQL y sus scripts SQL versionados son la fuente de verdad. TypeORM se usa para acceso a datos; `synchronize` y `migrationsRun` están desactivados para impedir cambios automáticos al esquema clínico.
 
+Para distinguir el estado actual del código de la documentación histórica,
+consultar [Estado técnico comprobado](docs/ESTADO_TECNICO_ACTUAL.md). En
+particular, Persona 1 ya agregó migraciones SQL versionadas; la verificación de
+una instancia concreta de PostgreSQL sigue siendo una actividad independiente.
+
 ## Inicio local
 
 ### Requisitos
@@ -45,28 +53,34 @@ copy .env.example .env
 pnpm start:dev
 ```
 
+En otra terminal iniciar el frontend:
+
+```sh
+pnpm dev:web
+```
+
+Consultar `CONTRIBUTING.md` para el flujo completo de ramas, Pull Requests,
+verificación y despliegue.
+
 Completar `.env` con las credenciales locales de PostgreSQL. Nunca subir ese archivo al repositorio.
 
 - El servidor queda preparado para registrar rutas después de definir los contratos funcionales.
 
-### Verificación local
+### Verificación
 
 ```sh
-pnpm run build
+pnpm check
 ```
 
-Si GitHub Actions está temporalmente bloqueado por facturación, esta compilación local es la verificación mínima para continuar trabajando. El bloqueo de Actions no elimina ni invalida los commits del Pull Request.
+Este repositorio no utiliza GitHub Actions. Antes de crear un Pull Request o
+integrar cambios, cada integrante debe ejecutar localmente:
 
-### Política temporal de verificación
+El comando local comprueba tipos del frontend, pruebas de backend y frontend, y
+la compilación completa. El resultado debe adjuntarse al Pull Request.
 
-El repositorio utiliza GitHub de forma gratuita y actualmente no se dispone de ejecución funcional de GitHub Actions por una restricción de facturación de la cuenta. Hasta que esa restricción cambie, la verificación oficial será local:
-
-```sh
-pnpm install --frozen-lockfile
-pnpm run build
-```
-
-El responsable del Pull Request debe adjuntar la salida de esos comandos o indicar que fueron ejecutados correctamente. La revisión de código y la ausencia de conflictos continúan siendo obligatorias.
+El responsable del Pull Request debe adjuntar la salida de esos comandos o
+indicar que fueron ejecutados correctamente. La revisión de código y la ausencia
+de conflictos continúan siendo obligatorias.
 
 ### Problemas comunes
 

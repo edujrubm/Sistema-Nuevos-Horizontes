@@ -6,7 +6,15 @@
   "description": "Sistema de gestión institucional Nuevos Horizontes",
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build",
+    "build": "pnpm run build:api && pnpm run build:web",
+    "build:api": "nest build",
+    "build:web": "pnpm --dir frontend run build",
+    "dev:api": "nest start --watch",
+    "dev:web": "pnpm --dir frontend run dev",
+    "typecheck:web": "pnpm --dir frontend run typecheck",
+    "test:web": "pnpm --dir frontend run test",
+    "test:all": "pnpm run test && pnpm run test:web",
+    "check": "pnpm run typecheck:web && pnpm run test:all && pnpm run build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -21,6 +29,7 @@
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/swagger": "^12.0.4",
     "@nestjs/terminus": "^11.0.0",
     "@nestjs/typeorm": "^11.0.0",
     "class-transformer": "^0.5.1",
@@ -66,6 +75,7 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
+    "cacheDirectory": "<rootDir>/../.jest-cache",
     "testEnvironment": "node"
   }
 }

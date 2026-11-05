@@ -1,15 +1,22 @@
-import { BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
+import { HttpStatus, Injectable, PipeTransform } from "@nestjs/common";
+import { ErrorPublicoException } from "../errors/error-publico.exception";
 
-/** Valida identificadores PostgreSQL bigint sin convertirlos a Number y perder precisión. */
 @Injectable()
 export class ParseBigIntIdPipe implements PipeTransform<string, string> {
   transform(value: string): string {
-    if (!/^[1-9]\d*$/.test(value)) {
-      throw new BadRequestException(
-        'El identificador debe ser un entero positivo.',
+    if (!/^\d+$/.test(value) || value === "0") {
+      throw new ErrorPublicoException(
+        HttpStatus.BAD_REQUEST,
+        "IDENTIFICADOR_INVALIDO",
+        "El identificador del registro no es válido.",
+        [
+          {
+            campo: "id",
+            mensaje: "Ingresa un identificador entero positivo.",
+          },
+        ],
       );
     }
-
     return value;
   }
 }
