@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { getBeneficiary, listBeneficiaries, listBeneficiaryChildren } from "./beneficiaries-api";
+import { getBeneficiary, listBeneficiaries, listBeneficiaryChildren, searchBeneficiaryMatches } from "./beneficiaries-api";
 
 function jsonResponse(body: unknown) {
   return Promise.resolve(new Response(JSON.stringify(body), {
@@ -38,5 +38,18 @@ describe("beneficiaries-api", () => {
 
     expect(fetchMock.mock.calls[0][0]).toBe("/api/v1/beneficiarias/7");
     expect(fetchMock.mock.calls[1][0]).toBe("/api/v1/beneficiarias/7/hijos");
+  });
+
+  it("busca coincidencias de DPI/CUI mediante POST sin exponerlo en la URL", async () => {
+    const fetchMock = vi.fn((_: RequestInfo | URL, __?: RequestInit) => jsonResponse({ data: [] }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await searchBeneficiaryMatches("1234567890101");
+
+    expect(fetchMock.mock.calls[0][0]).toBe("/api/v1/beneficiarias/buscar-coincidencias");
+    expect(fetchMock.mock.calls[0][1]).toMatchObject({
+      method: "POST",
+      body: JSON.stringify({ cui: "1234567890101" }),
+    });
   });
 });

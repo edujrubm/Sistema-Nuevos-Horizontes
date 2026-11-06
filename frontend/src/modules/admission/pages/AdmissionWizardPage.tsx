@@ -30,8 +30,15 @@ export function AdmissionWizardPage() {
   const queryClient = useQueryClient();
   const [activeIndex, setActiveIndex] = useState(0);
   const [values, setValues] = useState<SectionValues>({});
+  const [savedValues, setSavedValues] = useState<SectionValues>({});
   const [children, setChildren] = useState<ChildDraft[]>([]);
+  const [savedChildren, setSavedChildren] = useState<ChildDraft[]>([]);
   const [notice, setNotice] = useState<string>();
+  const [showDiscardWarning, setShowDiscardWarning] = useState(false);
+  const [incompleteSectionKeys, setIncompleteSectionKeys] = useState<string[]>([]);
+  const [maxReachedIndex, setMaxReachedIndex] = useState(0);
+  const [childNameErrors, setChildNameErrors] = useState<number[]>([]);
+  const [childCuiErrors, setChildCuiErrors] = useState<number[]>([]);
 
   const admissionQuery = useQuery({
     queryKey: ["admission", id],
@@ -41,12 +48,18 @@ export function AdmissionWizardPage() {
 
   useEffect(() => {
     if (!admissionQuery.data) return;
-    setValues(Object.fromEntries(
+    const fetchedValues = Object.fromEntries(
       admissionQuery.data.data.secciones.map((section) => [
         section.seccion,
         section.contenido,
       ]),
-    ));
+    );
+    setValues(fetchedValues);
+    setSavedValues(fetchedValues);
+    const firstPendingPage = admissionPages.findIndex((item) =>
+      item.sections.some((section) => !fetchedValues[section.key] || !contentIsPresent(fetchedValues[section.key])),
+    );
+    setMaxReachedIndex(firstPendingPage === -1 ? admissionPages.length - 1 : firstPendingPage);
   }, [admissionQuery.data]);
 
   const record = admissionQuery.data?.data;
@@ -55,31 +68,65 @@ export function AdmissionWizardPage() {
     () => new Set(Object.entries(values).filter(([, value]) => contentIsPresent(value)).map(([key]) => key)),
     [values],
   );
+  const savedSectionKeys = useMemo(
+    () => new Set(record?.secciones.map((section) => section.seccion) ?? []),
+    [record?.secciones],
+  );
+  const pageWasSaved = page.sections.every((section) => savedSectionKeys.has(section.key));
+  const pageIsDirty = page.sections.some((section) =>
+    JSON.stringify(values[section.key] ?? {}) !== JSON.stringify(savedValues[section.key] ?? {}),
+  ) || (page.key === "familia" && JSON.stringify(children) !== JSON.stringify(savedChildren));
+
+  function pagePayload() {
+    if (!record) throw new Error("La ficha no está disponible.");
+    return {
+      secciones: Object.fromEntries(page.sections.map((section) => [
+        section.key,
+        values[section.key] ?? {},
+      ])),
+      ...(page.key === "familia" && { hijos: children }),
+      versionFicha: record.version,
+      motivo: pageWasSaved
+        ? `Actualización de página: ${page.title}`
+        : `Guardado inicial de página: ${page.title}`,
+    };
+  }
 
   const saveMutation = useMutation({
-    mutationFn: () => {
-      if (!record) throw new Error("La ficha no está disponible.");
-      const sections = Object.fromEntries(page.sections.map((section) => [
+    mutationFn: ({ advance }: { advance: boolean }) =>
+      saveAdmissionPage(id, page.key, pagePayload()).then((response) => ({ response, advance })),
+    onSuccess: async ({ response, advance }) => {
+      const savedPageValues = Object.fromEntries(page.sections.map((section) => [
         section.key,
         values[section.key] ?? {},
       ]));
-      return saveAdmissionPage(id, page.key, {
-        secciones: sections,
-        ...(page.key === "familia" && { hijos: children }),
-        versionFicha: record.version,
-        motivo: `Guardado de borrador: ${page.title}`,
-      });
-    },
-    onSuccess: async () => {
-      setNotice("Página guardada correctamente.");
+      setSavedValues((current) => ({ ...current, ...savedPageValues }));
+      if (page.key === "familia") {
+        setChildren(response.data.hijos);
+        setSavedChildren(response.data.hijos);
+      }
+      setNotice(advance ? "Página guardada. Puedes continuar." : "Página actualizada correctamente.");
+      setShowDiscardWarning(false);
       await queryClient.invalidateQueries({ queryKey: ["admission", id] });
+      if (advance) {
+        setActiveIndex((current) => {
+          const next = Math.min(current + 1, admissionPages.length - 1);
+          setMaxReachedIndex((reached) => Math.max(reached, next));
+          return next;
+        });
+      }
     },
   });
 
   const confirmMutation = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       if (!record) throw new Error("La ficha no está disponible.");
-      return confirmAdmission(id, record.version);
+      let version = record.version;
+      if (!pageWasSaved || pageIsDirty) {
+        const saved = await saveAdmissionPage(id, page.key, pagePayload());
+        version = saved.data.version;
+      }
+      return confirmAdmission(id, version);
     },
     onSuccess: async () => {
       setNotice("Ficha confirmada correctamente.");
@@ -92,6 +139,8 @@ export function AdmissionWizardPage() {
 
   function updateField(section: string, field: string, value: unknown) {
     setNotice(undefined);
+    setShowDiscardWarning(false);
+    setIncompleteSectionKeys((current) => current.filter((key) => key !== section));
     setValues((current) => ({
       ...current,
       [section]: { ...current[section], [field]: value },
@@ -114,7 +163,17 @@ export function AdmissionWizardPage() {
     setChildren((current) => [...current, { nombre: "" }]);
   }
 
-  function updateChild(index: number, field: keyof ChildDraft, value: string | boolean) {
+  function removeChild(index: number) {
+    setShowDiscardWarning(false);
+    setChildren((current) => current.filter((_, childIndex) => childIndex !== index));
+    setChildNameErrors((current) => current.flatMap((item) => item === index ? [] : [item > index ? item - 1 : item]));
+    setChildCuiErrors((current) => current.flatMap((item) => item === index ? [] : [item > index ? item - 1 : item]));
+  }
+
+  function updateChild(index: number, field: keyof ChildDraft, value: string | boolean | undefined) {
+    setShowDiscardWarning(false);
+    if (field === "nombre") setChildNameErrors((current) => current.filter((item) => item !== index));
+    if (field === "cui") setChildCuiErrors((current) => current.filter((item) => item !== index));
     setChildren((current) => current.map((child, childIndex) =>
       childIndex === index ? { ...child, [field]: value } : child,
     ));
@@ -139,6 +198,77 @@ export function AdmissionWizardPage() {
 
   const isConfirmed = record.estado === "CONFIRMADA";
   const missingSections = requiredSectionKeys.filter((key) => !completedSections.has(key));
+  const currentSectionKeys = new Set(page.sections.map((section) => section.key));
+  const missingOutsideCurrentPage = missingSections.filter((key) => !currentSectionKeys.has(key));
+
+  function fieldIsVisible(sectionKey: string, field: (typeof page.sections)[number]["fields"][number]) {
+    if (!field.showWhen) return true;
+    const controllingValue = values[sectionKey]?.[field.showWhen.field];
+    if (field.showWhen.includes) return Array.isArray(controllingValue) && controllingValue.includes(field.showWhen.includes);
+    return controllingValue === field.showWhen.equals;
+  }
+
+  function validateCurrentPage() {
+    const incomplete = page.sections
+      .filter((section) => !contentIsPresent(values[section.key]))
+      .map((section) => section.key);
+    const invalidChildren = page.key === "familia"
+      ? children.flatMap((child, index) => {
+        const length = child.nombre?.trim().length ?? 0;
+        return length >= 2 && length <= 60 ? [] : [index];
+      })
+      : [];
+    const invalidChildCuis = page.key === "familia"
+      ? children.flatMap((child, index) => {
+        const length = child.cui?.trim().length ?? 0;
+        return length === 0 || (length >= 4 && length <= 20) ? [] : [index];
+      })
+      : [];
+    setIncompleteSectionKeys(incomplete);
+    setChildNameErrors(invalidChildren);
+    setChildCuiErrors(invalidChildCuis);
+    if (incomplete.length === 0 && invalidChildren.length === 0 && invalidChildCuis.length === 0) return true;
+    setNotice(undefined);
+    setShowDiscardWarning(false);
+    requestAnimationFrame(() => {
+      const targetId = incomplete.length > 0
+        ? `${incomplete[0]}-title`
+        : invalidChildren.length > 0 ? `child-name-${invalidChildren[0]}` : `child-cui-${invalidChildCuis[0]}`;
+      document.getElementById(targetId)?.focus();
+    });
+    return false;
+  }
+
+  function goForward() {
+    if (!validateCurrentPage()) return;
+    if (!pageWasSaved) {
+      saveMutation.mutate({ advance: true });
+      return;
+    }
+    if (pageIsDirty) {
+      setShowDiscardWarning(true);
+      return;
+    }
+    setActiveIndex((current) => Math.min(current + 1, admissionPages.length - 1));
+  }
+
+  function updateCurrentPage() {
+    if (validateCurrentPage()) saveMutation.mutate({ advance: false });
+  }
+
+  function confirmCurrentAdmission() {
+    if (validateCurrentPage()) confirmMutation.mutate();
+  }
+
+  function discardChangesAndContinue() {
+    setValues((current) => ({
+      ...current,
+      ...Object.fromEntries(page.sections.map((section) => [section.key, savedValues[section.key] ?? {}])),
+    }));
+    if (page.key === "familia") setChildren(savedChildren);
+    setShowDiscardWarning(false);
+    setActiveIndex((current) => Math.min(current + 1, admissionPages.length - 1));
+  }
 
   return (
     <section>
@@ -157,7 +287,8 @@ export function AdmissionWizardPage() {
                 key={item.key}
                 type="button"
                 className={`wizard-step${index === activeIndex ? " current" : ""}`}
-                onClick={() => { setActiveIndex(index); setNotice(undefined); }}
+                disabled={index > maxReachedIndex}
+                onClick={() => { setActiveIndex(index); setNotice(undefined); setIncompleteSectionKeys([]); }}
               >
                 <span>{index + 1}</span>
                 <span>{item.shortTitle}<small>{complete ? "Guardada" : "Pendiente"}</small></span>
@@ -180,14 +311,33 @@ export function AdmissionWizardPage() {
             </div>
           )}
           {notice && <div className="alert success" role="status">{notice}</div>}
+          {incompleteSectionKeys.length > 0 && (
+            <div className="alert error" role="alert">
+              <strong>Completa la página antes de continuar.</strong>
+              <span>Revisa las secciones y los registros familiares señalados.</span>
+            </div>
+          )}
+          {showDiscardWarning && (
+            <div className="alert warning unsaved-warning" role="alert">
+              <strong>Los cambios de esta página todavía no están actualizados.</strong>
+              <span>Si continúas, se descartarán y se conservará la última versión guardada.</span>
+              <div className="warning-actions">
+                <button className="button secondary" type="button" onClick={() => setShowDiscardWarning(false)}>Volver y actualizar</button>
+                <button className="button text" type="button" onClick={discardChangesAndContinue}>Continuar sin guardar</button>
+              </div>
+            </div>
+          )}
 
           {page.sections.map((section) => (
-            <fieldset className="panel form-panel section-panel" key={section.key} disabled={isConfirmed}>
-              <legend>{section.title}</legend>
+            <fieldset className="panel form-panel section-panel" key={section.key} disabled={isConfirmed} aria-labelledby={`${section.key}-title`}>
+              <div className="section-panel-title" id={`${section.key}-title`} role="heading" aria-level={2} tabIndex={-1}>{section.title}</div>
+              {incompleteSectionKeys.includes(section.key) && (
+                <p className="field-error">Ingresa al menos un dato en esta sección.</p>
+              )}
               {section.description && <p className="section-description">{section.description}</p>}
               <div className="form-grid">
                 {section.fields.map((field) => (
-                  <div className={`field${field.type === "textarea" ? " full" : ""}`} key={field.name}>
+                  fieldIsVisible(section.key, field) && <div className={`field${field.type === "textarea" ? " full" : ""}`} key={field.name}>
                     <label htmlFor={`${section.key}-${field.name}`}>{field.label}</label>
                     {field.type === "textarea" ? (
                       <textarea
@@ -237,13 +387,19 @@ export function AdmissionWizardPage() {
           ))}
 
           {page.key === "familia" && (
-            <fieldset className="panel form-panel section-panel" disabled={isConfirmed}>
-              <legend>Hijas e hijos</legend>
+            <fieldset className="panel form-panel section-panel" disabled={isConfirmed} aria-labelledby="children-section-title">
+              <div className="section-panel-title" id="children-section-title" role="heading" aria-level={2}>Hijas e hijos</div>
               {children.map((child, index) => (
                 <div className="child-row" key={index}>
                   <div className="field">
                     <label htmlFor={`child-name-${index}`}>Nombre</label>
-                    <input id={`child-name-${index}`} value={child.nombre ?? ""} onChange={(event) => updateChild(index, "nombre", event.target.value)} />
+                    <input id={`child-name-${index}`} value={child.nombre ?? ""} aria-invalid={childNameErrors.includes(index)} onChange={(event) => updateChild(index, "nombre", event.target.value)} />
+                    {childNameErrors.includes(index) && <small className="field-error">El nombre debe tener entre 2 y 60 caracteres.</small>}
+                  </div>
+                  <div className="field">
+                    <label htmlFor={`child-cui-${index}`}>DPI/CUI</label>
+                    <input id={`child-cui-${index}`} value={child.cui ?? ""} aria-invalid={childCuiErrors.includes(index)} onChange={(event) => updateChild(index, "cui", event.target.value)} />
+                    {childCuiErrors.includes(index) && <small className="field-error">El DPI/CUI debe tener entre 4 y 20 caracteres.</small>}
                   </div>
                   <div className="field">
                     <label htmlFor={`child-birth-${index}`}>Fecha de nacimiento</label>
@@ -260,13 +416,13 @@ export function AdmissionWizardPage() {
                   </div>
                   <div className="field">
                     <label htmlFor={`child-recognized-${index}`}>Reconocimiento</label>
-                    <select id={`child-recognized-${index}`} value={child.reconocido === undefined ? "" : String(child.reconocido)} onChange={(event) => updateChild(index, "reconocido", event.target.value === "true")}>
+                    <select id={`child-recognized-${index}`} value={child.reconocido == null ? "" : String(child.reconocido)} onChange={(event) => updateChild(index, "reconocido", event.target.value === "" ? undefined : event.target.value === "true")}>
                       <option value="">Seleccionar</option>
                       <option value="true">Reconocida/o</option>
                       <option value="false">No reconocida/o</option>
                     </select>
                   </div>
-                  <button className="button text" type="button" onClick={() => setChildren((current) => current.filter((_, childIndex) => childIndex !== index))}>Quitar</button>
+                  <button className="button text" type="button" onClick={() => removeChild(index)}>Quitar</button>
                 </div>
               ))}
               <button className="button secondary" type="button" onClick={addChild}>Agregar hija o hijo</button>
@@ -276,12 +432,18 @@ export function AdmissionWizardPage() {
           {!isConfirmed && (
             <div className="form-actions wizard-actions">
               <button className="button secondary" type="button" disabled={activeIndex === 0} onClick={() => setActiveIndex((current) => current - 1)}>Anterior</button>
-              <button className="button primary" type="button" disabled={saveMutation.isPending} onClick={() => saveMutation.mutate()}>{saveMutation.isPending ? "Guardando…" : "Guardar página"}</button>
+              {pageWasSaved && (
+                <button className="button primary" type="button" disabled={saveMutation.isPending || !pageIsDirty} onClick={updateCurrentPage}>
+                  {saveMutation.isPending ? "Actualizando…" : "Actualizar"}
+                </button>
+              )}
               {activeIndex < admissionPages.length - 1 ? (
-                <button className="button secondary" type="button" onClick={() => setActiveIndex((current) => current + 1)}>Siguiente</button>
+                <button className="button primary" type="button" disabled={saveMutation.isPending} onClick={goForward}>
+                  {saveMutation.isPending ? "Guardando…" : "Siguiente"}
+                </button>
               ) : (
-                <button className="button primary" type="button" disabled={confirmMutation.isPending || missingSections.length > 0} onClick={() => confirmMutation.mutate()}>
-                  {confirmMutation.isPending ? "Confirmando…" : "Confirmar ficha"}
+                <button className="button primary" type="button" disabled={confirmMutation.isPending || missingOutsideCurrentPage.length > 0} onClick={confirmCurrentAdmission}>
+                  {confirmMutation.isPending ? "Guardando y confirmando…" : "Confirmar ficha"}
                 </button>
               )}
             </div>

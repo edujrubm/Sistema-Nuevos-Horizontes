@@ -57,4 +57,19 @@ describe("BeneficiariasService - inicio de ficha", () => {
     ).rejects.toBeInstanceOf(ErrorPublicoException);
     expect(repository.crear).not.toHaveBeenCalled();
   });
+
+  it("rechaza el CUI duplicado al iniciar la primera página", async () => {
+    repository.crear.mockResolvedValue({ conflictoCui: true });
+
+    await expect(
+      service.crear({
+        nombre: "Registro sintético",
+        cui: "1234567890101",
+        fichaInicial: {},
+      }),
+    ).rejects.toMatchObject({
+      status: 409,
+      codigo: "REGISTRO_DUPLICADO",
+    });
+  });
 });

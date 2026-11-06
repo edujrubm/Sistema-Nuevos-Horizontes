@@ -26,7 +26,7 @@ export interface ChildDraft {
   nombre?: string;
   cui?: string;
   fechaNacimiento?: string;
-  reconocido?: boolean;
+  reconocido?: boolean | null;
   genero?: "F" | "M" | "O";
 }
 
@@ -44,6 +44,21 @@ interface StartAdmissionResponse {
 
 interface AdmissionResponse {
   data: AdmissionRecord;
+}
+
+export interface AdmissionListItem {
+  id: string;
+  correlativo: string | null;
+  lugar: string | null;
+  fecha: string | null;
+  estado: "BORRADOR" | "CONFIRMADA";
+  version: number;
+  actualizadoEn: string;
+}
+
+interface AdmissionListResponse {
+  data: AdmissionListItem[];
+  page: { nextCursor: string | null; hasMore: boolean };
 }
 
 interface SavePageResponse {
@@ -66,6 +81,16 @@ export function startAdmission(input: StartAdmissionInput) {
 
 export function getAdmission(id: string, signal?: AbortSignal) {
   return apiRequest<AdmissionResponse>(`/fichas-iniciales/${id}`, { signal });
+}
+
+export function listAdmissions(
+  status: AdmissionListItem["estado"],
+  cursor?: string,
+  signal?: AbortSignal,
+) {
+  const params = new URLSearchParams({ estado: status, limite: "20" });
+  if (cursor) params.set("cursor", cursor);
+  return apiRequest<AdmissionListResponse>(`/fichas-iniciales?${params.toString()}`, { signal });
 }
 
 export function saveAdmissionPage(
