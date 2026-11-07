@@ -183,7 +183,7 @@ export function AreaFormShell({
                 <button
                   className="button secondary"
                   type="button"
-                  disabled={busy}
+                  disabled={busy || state !== "dirty"}
                   onClick={save}
                 >
                   Guardar borrador
@@ -191,7 +191,7 @@ export function AreaFormShell({
                 <button
                   className="button primary"
                   type="button"
-                  disabled={busy}
+                  disabled={busy || state === "dirty" || state === "conflict"}
                   onClick={() => setConfirming(true)}
                 >
                   Revisar y confirmar

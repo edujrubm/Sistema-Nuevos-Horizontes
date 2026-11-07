@@ -166,6 +166,8 @@ th { color: var(--text-600); font-size: 16px; }
 .area-form-confirmation { padding: 20px; background: var(--primary-50); border: 1px solid #d7cae8; border-radius: 10px; }
 .area-form-confirmation h2 { margin: 0 0 6px; font-size: 21px; }
 .area-form-confirmation p { margin: 0 0 18px; color: var(--text-600); line-height: 1.5; }
+.clinical-variant-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; align-items: start; }
+.clinical-step-actions { display: flex; justify-content: space-between; gap: 16px; margin: 20px 0; }
 
 @media (max-width: 900px) {
   .app-shell { grid-template: 72px auto 1fr / 1fr; }
@@ -194,4 +196,5 @@ th { color: var(--text-600); font-size: 16px; }
   .form-footer-actions > div { justify-content: flex-end; }
   .area-form-list-header, .area-form-context, .area-form-actions { display: grid; }
   .area-form-actions > div { justify-content: start; }
+  .clinical-variant-layout { grid-template-columns: 1fr; }
 }

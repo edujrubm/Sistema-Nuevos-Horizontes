@@ -17,6 +17,13 @@ pnpm build:web
 Durante desarrollo, Vite sirve el cliente en `http://localhost:5173` y redirige
 las solicitudes `/api` a NestJS en `http://localhost:3000`.
 
+## Contexto profesional durante desarrollo
+
+La creación de formularios clínicos exige el identificador del profesional
+responsable. Mientras autenticación no publique ese contexto, puede definirse
+`VITE_DEV_PROFESSIONAL_ID` únicamente en el entorno local de Vite. El valor se
+considera público, no debe ser un secreto y nunca se usa en builds de producción.
+
 ## Organización
 
 - `src/app`: configuración global, rutas, layouts y proveedores.

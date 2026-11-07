@@ -69,10 +69,10 @@ describe("AreaFormList", () => {
 });
 
 describe("AreaFormShell", () => {
-  it("exige un motivo para guardar y confirmar", () => {
+  it("exige un motivo para guardar y solo confirma cambios guardados", () => {
     const onSave = vi.fn();
     const onConfirm = vi.fn();
-    render(
+    const { rerender } = render(
       <AreaFormShell
         form={form()}
         state="dirty"
@@ -98,6 +98,25 @@ describe("AreaFormShell", () => {
     fireEvent.click(screen.getByRole("button", { name: "Guardar borrador" }));
     expect(onSave).toHaveBeenCalledWith("Actualización clínica");
 
+    expect(
+      screen.getByRole("button", { name: "Revisar y confirmar" }),
+    ).toBeDisabled();
+    rerender(
+      <AreaFormShell
+        form={form()}
+        state="saved"
+        onSave={onSave}
+        onConfirm={onConfirm}
+        onReload={vi.fn()}
+        onCancel={vi.fn()}
+      >
+        <TextField label="Motivo de consulta" defaultValue="Prueba" />
+      </AreaFormShell>,
+    );
+    fireEvent.change(
+      screen.getByRole("textbox", { name: /motivo de la actualización/i }),
+      { target: { value: "Actualización clínica" } },
+    );
     fireEvent.click(
       screen.getByRole("button", { name: "Revisar y confirmar" }),
     );
