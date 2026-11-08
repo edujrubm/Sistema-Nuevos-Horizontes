@@ -1,7 +1,6 @@
 import { useState, type ReactNode } from "react";
 
 import type { AreaForm } from "../api/area-forms-api";
-import { TextAreaField } from "@/shared/components/forms";
 
 export type AreaFormEditorState =
   "idle" | "loading" | "dirty" | "saving" | "saved" | "conflict" | "error";
@@ -11,6 +10,8 @@ interface AreaFormShellProps {
   state: AreaFormEditorState;
   error?: string;
   draftStateCode?: string;
+  discardedStateCode?: string;
+  canConfirm?: boolean;
   children: ReactNode;
   onSave: (reason: string) => void | Promise<void>;
   onConfirm: (reason: string) => void | Promise<void>;
@@ -28,19 +29,22 @@ const stateMessages: Record<AreaFormEditorState, string> = {
   error: "No fue posible completar la operación",
 };
 
+const draftSaveReason = "Guardado de borrador";
+const initialConfirmationReason = "Confirmación inicial de ficha";
+
 export function AreaFormShell({
   form,
   state,
   error,
   draftStateCode = "BORRADOR",
+  discardedStateCode = "DESCARTADO",
+  canConfirm = false,
   children,
   onSave,
   onConfirm,
   onReload,
   onCancel,
 }: AreaFormShellProps) {
-  const [reason, setReason] = useState("");
-  const [reasonError, setReasonError] = useState<string>();
   const [confirming, setConfirming] = useState(false);
 
   if (state === "loading" || !form) {
@@ -51,26 +55,16 @@ export function AreaFormShell({
     );
   }
 
+  const discarded = form.estado === discardedStateCode;
   const readOnly = form.estado !== draftStateCode;
   const busy = state === "saving";
 
-  function validReason() {
-    if (reason.trim().length >= 3) {
-      setReasonError(undefined);
-      return true;
-    }
-    setReasonError("Explica el motivo con al menos 3 caracteres.");
-    return false;
-  }
-
   function save() {
-    if (!validReason()) return;
-    void onSave(reason.trim());
+    void onSave(draftSaveReason);
   }
 
   function confirm() {
-    if (!validReason()) return;
-    void onConfirm(reason.trim());
+    void onConfirm(initialConfirmationReason);
   }
 
   return (
@@ -84,7 +78,7 @@ export function AreaFormShell({
           </p>
         </div>
         <span className={`status ${readOnly ? "active" : "draft"}`}>
-          {readOnly ? "Confirmada" : "Borrador"}
+          {discarded ? "Descartada" : readOnly ? "Confirmada" : "Borrador"}
         </span>
       </header>
 
@@ -112,8 +106,12 @@ export function AreaFormShell({
 
       {readOnly ? (
         <div className="alert success" role="status">
-          <strong>Ficha confirmada</strong>
-          <span>La información se muestra en modo de solo lectura.</span>
+          <strong>{discarded ? "Ficha descartada" : "Ficha confirmada"}</strong>
+          <span>
+            {discarded
+              ? "El borrador se conserva únicamente para trazabilidad."
+              : "La información se muestra en modo de solo lectura."}
+          </span>
         </div>
       ) : null}
 
@@ -127,17 +125,6 @@ export function AreaFormShell({
 
       {!readOnly ? (
         <section className="panel area-form-audit">
-          <TextAreaField
-            id="area-form-change-reason"
-            label="Motivo de la actualización o confirmación"
-            value={reason}
-            error={reasonError}
-            hint="Este texto quedará asociado a la trazabilidad del formulario."
-            required
-            fullWidth
-            onChange={(event) => setReason(event.target.value)}
-          />
-
           {confirming ? (
             <div
               className="area-form-confirmation"
@@ -183,7 +170,7 @@ export function AreaFormShell({
                 <button
                   className="button secondary"
                   type="button"
-                  disabled={busy}
+                  disabled={busy || state !== "dirty"}
                   onClick={save}
                 >
                   Guardar borrador
@@ -191,7 +178,17 @@ export function AreaFormShell({
                 <button
                   className="button primary"
                   type="button"
-                  disabled={busy}
+                  disabled={
+                    busy ||
+                    state === "dirty" ||
+                    state === "conflict" ||
+                    !canConfirm
+                  }
+                  title={
+                    canConfirm
+                      ? undefined
+                      : "Completa y guarda los campos obligatorios antes de confirmar."
+                  }
                   onClick={() => setConfirming(true)}
                 >
                   Revisar y confirmar

@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   confirmAreaForm,
   createAreaForm,
+  discardAreaForm,
   listAreaForms,
   updateAreaForm,
 } from "./area-forms-api";
@@ -40,7 +41,7 @@ describe("area-forms-api", () => {
     expect(String(url)).toContain("limite=10");
   });
 
-  it("crea, actualiza y confirma respetando el control de versión", async () => {
+  it("crea, actualiza, confirma y descarta respetando la versión", async () => {
     const fetchMock = vi.fn((_: RequestInfo | URL, __?: RequestInit) =>
       jsonResponse({ data: { id: "15" } }),
     );
@@ -58,6 +59,7 @@ describe("area-forms-api", () => {
       detalle: { motivoConsulta: "Seguimiento" },
     });
     await confirmAreaForm("15", 3, "Confirmación revisada");
+    await discardAreaForm("16", 2, "Se inició por equivocación");
 
     expect(fetchMock.mock.calls[0]).toEqual([
       "/api/v1/beneficiarias/7/formularios-area",
@@ -75,6 +77,16 @@ describe("area-forms-api", () => {
       expect.objectContaining({
         method: "POST",
         body: JSON.stringify({ version: 3, motivo: "Confirmación revisada" }),
+      }),
+    ]);
+    expect(fetchMock.mock.calls[3]).toEqual([
+      "/api/v1/formularios-area/16/descartar",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({
+          version: 2,
+          motivo: "Se inició por equivocación",
+        }),
       }),
     ]);
   });

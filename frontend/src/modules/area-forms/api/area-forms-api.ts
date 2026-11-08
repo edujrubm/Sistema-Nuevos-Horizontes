@@ -39,7 +39,7 @@ export interface AreaFormType {
 export interface AreaFormTypesResponse {
   data: AreaFormType[];
   estados: {
-    codigos: { borrador: string; confirmado: string };
+    codigos: { borrador: string; confirmado: string; descartado: string };
     catalogo: Array<{ codigo: string; descripcion: string }>;
     listo: boolean;
   };
@@ -124,6 +124,19 @@ export function confirmAreaForm(
   signal?: AbortSignal,
 ) {
   return apiRequest<{ data: AreaForm }>(`/formularios-area/${id}/confirmar`, {
+    method: "POST",
+    body: JSON.stringify({ version, motivo }),
+    signal,
+  });
+}
+
+export function discardAreaForm(
+  id: string,
+  version: number,
+  motivo: string,
+  signal?: AbortSignal,
+) {
+  return apiRequest<{ data: AreaForm }>(`/formularios-area/${id}/descartar`, {
     method: "POST",
     body: JSON.stringify({ version, motivo }),
     signal,

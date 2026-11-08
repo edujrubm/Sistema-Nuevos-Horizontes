@@ -9,6 +9,7 @@ import {
 import { ActualizarFormularioDto } from "./dto/actualizar-formulario.dto";
 import { ConfirmarFormularioDto } from "./dto/confirmar-formulario.dto";
 import { CrearFormularioDto } from "./dto/crear-formulario.dto";
+import { DescartarFormularioDto } from "./dto/descartar-formulario.dto";
 import { ListarFormulariosDto } from "./dto/listar-formularios.dto";
 import {
   FormularioAreaRow,
@@ -282,6 +283,29 @@ export class FormularioSharedService {
     return { data: presentar(resultado.formulario) };
   }
 
+  async descartar(id: string, entrada: DescartarFormularioDto) {
+    const resultado = await this.repository.descartar(
+      id,
+      entrada.version,
+      entrada.motivo.trim(),
+    );
+    if (resultado.estado === "CATALOGO_ESTADO_NO_CONFIGURADO")
+      this.errorCatalogoEstado();
+    if (resultado.estado === "NO_ENCONTRADO")
+      throw new NotFoundException("Formulario de área no encontrado.");
+    if (resultado.estado === "NO_ES_BORRADOR")
+      throw new ConflictException({
+        code: "STATE_CONFLICT",
+        message: "Solo se puede descartar un formulario en borrador.",
+      });
+    if (resultado.estado === "CONFLICTO_VERSION")
+      throw new ConflictException({
+        code: "VERSION_CONFLICT",
+        message: "El formulario cambió desde que fue consultado.",
+      });
+    return { data: presentar(resultado.formulario) };
+  }
+
   async tipos() {
     const [filas, catalogoEstados] = await Promise.all([
       this.repository.tipos(),
@@ -307,7 +331,8 @@ export class FormularioSharedService {
         catalogo: catalogoEstados,
         listo:
           disponibles.has(codigosEstado.borrador) &&
-          disponibles.has(codigosEstado.confirmado),
+          disponibles.has(codigosEstado.confirmado) &&
+          disponibles.has(codigosEstado.descartado),
       },
     };
   }

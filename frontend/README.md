@@ -17,6 +17,22 @@ pnpm build:web
 Durante desarrollo, Vite sirve el cliente en `http://localhost:5173` y redirige
 las solicitudes `/api` a NestJS en `http://localhost:3000`.
 
+## Contexto profesional durante desarrollo
+
+La creación de formularios clínicos exige el identificador del profesional
+responsable. Mientras autenticación no publique ese contexto, puede definirse
+`VITE_DEV_PROFESSIONAL_ID` únicamente en el entorno local de Vite. El valor se
+considera público, no debe ser un secreto y nunca se usa en builds de producción.
+
+## Motivos de auditoría en formularios clínicos
+
+Durante la captura inicial no se solicita una justificación al usuario. El
+frontend envía `Guardado de borrador` al guardar y `Confirmación inicial de
+ficha` al confirmar. Una corrección posterior debe usar un flujo separado y sí
+solicitar un motivo explícito antes de modificar información ya confirmada.
+Descartar un borrador también exige un motivo explícito: el backend cambia su
+estado a `DESCARTADO`, conserva la auditoría y lo omite del listado operativo.
+
 ## Organización
 
 - `src/app`: configuración global, rutas, layouts y proveedores.

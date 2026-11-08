@@ -21,6 +21,7 @@ import * as Joi from "joi";
         AUDIT_ACTOR_USERNAME: Joi.string().default("actor_pruebas_persona1"),
         FORM_DRAFT_STATE_CODE: Joi.string().default("BORRADOR"),
         FORM_CONFIRMED_STATE_CODE: Joi.string().default("CONFIRMADO"),
+        FORM_DISCARDED_STATE_CODE: Joi.string().default("DESCARTADO"),
       }),
     }),
     TypeOrmModule.forRootAsync({

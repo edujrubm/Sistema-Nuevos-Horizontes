@@ -71,6 +71,9 @@ export function BeneficiaryProfilePage() {
             <div><dt>Fecha de nacimiento</dt><dd>{displayDate(beneficiary.fechaNacimiento)}</dd></div>
             <div><dt>Alfabetismo</dt><dd>{yesNoUnknown(beneficiary.alfabetismo)}</dd></div>
           </dl>
+          <div className="card-actions">
+            <Link className="button secondary" to={`/beneficiarias/${beneficiary.id}/psicologia`}>Abrir Psicología</Link>
+          </div>
         </article>
 
         <article className="panel profile-card">

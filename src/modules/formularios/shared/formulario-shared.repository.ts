@@ -49,6 +49,10 @@ export class FormularioSharedRepository {
     return this.config.get<string>("FORM_CONFIRMED_STATE_CODE", "CONFIRMADO");
   }
 
+  private get estadoDescartado() {
+    return this.config.get<string>("FORM_DISCARDED_STATE_CODE", "DESCARTADO");
+  }
+
   private async prepararAuditoria(
     manager: EntityManager,
     motivo: string,
@@ -128,8 +132,11 @@ export class FormularioSharedRepository {
   }
 
   async listar(beneficiariaId: string, filtro: ListarFormulariosDto) {
-    const condiciones = ["e.beneficiaria_id = $1::bigint"];
-    const parametros: unknown[] = [beneficiariaId];
+    const condiciones = [
+      "e.beneficiaria_id = $1::bigint",
+      "f.estado_codigo <> $2",
+    ];
+    const parametros: unknown[] = [beneficiariaId, this.estadoDescartado];
     if (filtro.cursor) {
       parametros.push(filtro.cursor);
       condiciones.push(`f.id > $${parametros.length}::bigint`);
@@ -433,6 +440,35 @@ export class FormularioSharedRepository {
     });
   }
 
+  async descartar(id: string, version: number, motivo: string) {
+    return this.dataSource.transaction(async (manager) => {
+      await this.prepararAuditoria(manager, motivo);
+      if (!(await this.estadoExiste(manager, this.estadoDescartado)))
+        return { estado: "CATALOGO_ESTADO_NO_CONFIGURADO" as const };
+      const rows = await manager.query<
+        Array<{ estado: string; version: number }>
+      >(
+        `SELECT estado_codigo AS estado,version
+         FROM new_horizons.formulario_area WHERE id=$1::bigint FOR UPDATE`,
+        [id],
+      );
+      if (!rows[0]) return { estado: "NO_ENCONTRADO" as const };
+      if (rows[0].estado !== this.estadoBorrador)
+        return { estado: "NO_ES_BORRADOR" as const };
+      if (rows[0].version !== version)
+        return { estado: "CONFLICTO_VERSION" as const };
+      await manager.query(
+        `UPDATE new_horizons.formulario_area
+         SET estado_codigo=$2,motivo_cambio=$3 WHERE id=$1::bigint`,
+        [id, this.estadoDescartado, motivo],
+      );
+      return {
+        estado: "DESCARTADO" as const,
+        formulario: await this.obtener(id, manager),
+      };
+    });
+  }
+
   async tipos() {
     return this.dataSource.query<
       Array<{
@@ -455,8 +491,8 @@ export class FormularioSharedRepository {
       Array<{ codigo: string; descripcion: string }>
     >(
       `SELECT codigo,descripcion FROM new_horizons.estado_formulario
-       WHERE codigo IN ($1,$2) ORDER BY codigo`,
-      [this.estadoBorrador, this.estadoConfirmado],
+       WHERE codigo IN ($1,$2,$3) ORDER BY codigo`,
+      [this.estadoBorrador, this.estadoConfirmado, this.estadoDescartado],
     );
   }
 
@@ -464,6 +500,7 @@ export class FormularioSharedRepository {
     return {
       borrador: this.estadoBorrador,
       confirmado: this.estadoConfirmado,
+      descartado: this.estadoDescartado,
     };
   }
 }

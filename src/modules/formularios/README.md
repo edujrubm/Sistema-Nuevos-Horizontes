@@ -14,11 +14,14 @@ de Psicología, Medicina, Trabajo Social, Legal y Guardería.
   exige `version` y `motivo`.
 - `POST /api/v1/formularios-area/:id/confirmar`: cambia el estado con control de
   versión.
+- `POST /api/v1/formularios-area/:id/descartar`: descarta lógicamente un
+  borrador; exige `version` y `motivo`.
 - `GET /api/v1/tipos-formulario`: publica variantes, área, sujeto requerido y
   campos admitidos.
 
-Los códigos de estado se leen de `FORM_DRAFT_STATE_CODE` y
-`FORM_CONFIRMED_STATE_CODE` (`BORRADOR` y `CONFIRMADO` por defecto). La API no
+Los códigos de estado se leen de `FORM_DRAFT_STATE_CODE`,
+`FORM_CONFIRMED_STATE_CODE` y `FORM_DISCARDED_STATE_CODE` (`BORRADOR`,
+`CONFIRMADO` y `DESCARTADO` por defecto). La API no
 inventa filas en `estado_formulario`: si el catálogo aprobado aún no contiene
 esos códigos, las mutaciones responden
 `FORM_STATE_CATALOG_NOT_CONFIGURED`.
