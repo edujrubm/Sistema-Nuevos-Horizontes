@@ -64,6 +64,10 @@ El perfil mínimo de referencia incluye computadoras con **6 GB de RAM y AMD A8-
 - Conservar la grafía original y utilizar valores normalizados solo para búsqueda o comparación.
 - Mostrar dependencias condicionales sin borrar silenciosamente valores existentes.
 - Solicitar confirmación cuando una acción cambie estado, anule, inactive, restaure o cierre una estancia.
+- Aplicar `FRONTEND_AREA_FORMS.md` a las variantes de Psicología, Medicina, Trabajo Social, Legal y Guardería.
+- No renderizar el botón de avance en la última página de un formulario extenso.
+- Mostrar fecha de atención y fecha de creación como datos distintos en los resúmenes de fichas.
+- Preferir una fila expandible para justificar el descarte de un borrador; evita el costo y la complejidad de un modal cuando no es necesario bloquear toda la pantalla.
 
 ## Archivos
 

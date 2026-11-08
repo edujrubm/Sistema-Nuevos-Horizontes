@@ -6,49 +6,49 @@ Este archivo separa decisiones confirmadas, propuestas técnicas y asuntos que r
 
 ## Establecido como propuesta en el anteproyecto y la Hoja V3
 
-| Decisión | Consecuencia para el frontend |
-|---|---|
-| Aplicación web en React | El cliente se diseñará como aplicación web modular, sujeto a la aprobación final del proyecto. |
-| Interfaz responsiva | Formularios y consultas deben adaptarse a los tamaños aprobados. |
-| Acceso por roles, permisos y ámbito | La navegación y las acciones se presentan según capacidades. |
-| API y datos centralizados | El cliente no accede directamente a PostgreSQL ni al almacenamiento. |
-| Información sensible | Se aplica minimización de datos y separación por área. |
-| Sin borrado físico desde la aplicación | La interfaz usa inactivación, anulación y restauración. |
-| Consulta, impresión y descarga separadas | Cada acción requiere capacidad independiente. |
-| Sistema visual institucional | Usar Inter, la paleta morada y la escala tipográfica ampliada definidas en `FRONTEND_DESIGN_SYSTEM.md`. |
-| Escala visual ampliada | Priorizar texto de 18 px, títulos de 42 px, controles de 56 px y aprovechamiento del ancho de escritorio. |
-| Hardware institucional de referencia | Optimizar y validar los flujos críticos para equipos con 6 GB de RAM y AMD A8-7410 APU con AMD Radeon R5 Graphics. |
-| Tarjetas en formularios | Se permiten para agrupar apartados completos; se evita una tarjeta por campo y la anidación innecesaria. |
+| Decisión                                 | Consecuencia para el frontend                                                                                      |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Aplicación web en React                  | El cliente se diseñará como aplicación web modular, sujeto a la aprobación final del proyecto.                     |
+| Interfaz responsiva                      | Formularios y consultas deben adaptarse a los tamaños aprobados.                                                   |
+| Acceso por roles, permisos y ámbito      | La navegación y las acciones se presentan según capacidades.                                                       |
+| API y datos centralizados                | El cliente no accede directamente a PostgreSQL ni al almacenamiento.                                               |
+| Información sensible                     | Se aplica minimización de datos y separación por área.                                                             |
+| Sin borrado físico desde la aplicación   | La interfaz usa inactivación, anulación y restauración.                                                            |
+| Consulta, impresión y descarga separadas | Cada acción requiere capacidad independiente.                                                                      |
+| Sistema visual institucional             | Usar Inter, la paleta morada y la escala tipográfica ampliada definidas en `FRONTEND_DESIGN_SYSTEM.md`.            |
+| Escala visual ampliada                   | Priorizar texto de 18 px, títulos de 42 px, controles de 56 px y aprovechamiento del ancho de escritorio.          |
+| Hardware institucional de referencia     | Optimizar y validar los flujos críticos para equipos con 6 GB de RAM y AMD A8-7410 APU con AMD Radeon R5 Graphics. |
+| Tarjetas en formularios                  | Se permiten para agrupar apartados completos; se evita una tarjeta por campo y la anidación innecesaria.           |
 
 ## Propuestas técnicas por aprobar
 
-| Código | Propuesta | Motivo | Estado |
-|---|---|---|---|
-| FD-01 | TypeScript estricto | Reducir inconsistencias en formularios y contratos | Pendiente |
-| FD-02 | Vite | Entorno sencillo de desarrollo y compilación | Pendiente |
-| FD-03 | React Router | Rutas modulares y protegidas | Pendiente |
-| FD-04 | TanStack Query | Manejo de estado remoto, caché e invalidación | Pendiente |
-| FD-05 | React Hook Form y Zod | Formularios extensos con validación tipada | Pendiente |
-| FD-06 | Vitest, Testing Library y Playwright | Verificación por niveles | Pendiente |
-| FD-07 | Arquitectura por funcionalidades | Mantener límites entre módulos | Propuesta base |
+| Código | Propuesta                            | Motivo                                             | Estado         |
+| ------ | ------------------------------------ | -------------------------------------------------- | -------------- |
+| FD-01  | TypeScript estricto                  | Reducir inconsistencias en formularios y contratos | Pendiente      |
+| FD-02  | Vite                                 | Entorno sencillo de desarrollo y compilación       | Pendiente      |
+| FD-03  | React Router                         | Rutas modulares y protegidas                       | Pendiente      |
+| FD-04  | TanStack Query                       | Manejo de estado remoto, caché e invalidación      | Pendiente      |
+| FD-05  | React Hook Form y Zod                | Formularios extensos con validación tipada         | Pendiente      |
+| FD-06  | Vitest, Testing Library y Playwright | Verificación por niveles                           | Pendiente      |
+| FD-07  | Arquitectura por funcionalidades     | Mantener límites entre módulos                     | Propuesta base |
 
 ## Decisiones institucionales que afectan al frontend
 
-| Pendiente | Impacto |
-|---|---|
-| PV1: matriz RBAC, roles múltiples, practicantes y Guardería | Menús, rutas, acciones y ámbitos visibles |
-| PV2: campos, catálogos y reglas de la ficha | Formularios, validaciones y representación impresa |
-| PV3: autenticación adicional y tiempos | Activación, inicio de sesión, expiración y recuperación |
-| PV4: proveedor y límite de archivos | Carga, progreso, mensajes y cuotas visibles |
-| PV5: lector de huella | Interfaz de movimientos, errores y método alternativo |
-| PV6: capacidad y rendimiento | Paginación, búsqueda, límites y pruebas de carga del cliente |
-| PV7: equipos y alcance móvil | Puntos de quiebre, navegadores y funciones móviles |
-| PV8: reglas del albergue y menores | Validaciones de ingreso, espacio, salida y egreso |
-| PV9: indicadores | Filtros, etiquetas, agrupaciones y exportaciones |
-| PV10: operación y mantenimiento | Pantallas o mensajes relacionados con incidentes y mantenimiento |
-| PF1: obligatoriedad y catálogos de formularios de área | Esquemas, campos condicionales y completitud |
-| PF2: formato institucional de impresión | Diseño del documento que se imprimirá y firmará físicamente |
-| PF3: abreviaturas, unidades y reglas clínicas | Etiquetas, controles y validaciones médicas |
+| Pendiente                                                   | Impacto                                                          |
+| ----------------------------------------------------------- | ---------------------------------------------------------------- |
+| PV1: matriz RBAC, roles múltiples, practicantes y Guardería | Menús, rutas, acciones y ámbitos visibles                        |
+| PV2: campos, catálogos y reglas de la ficha                 | Formularios, validaciones y representación impresa               |
+| PV3: autenticación adicional y tiempos                      | Activación, inicio de sesión, expiración y recuperación          |
+| PV4: proveedor y límite de archivos                         | Carga, progreso, mensajes y cuotas visibles                      |
+| PV5: lector de huella                                       | Interfaz de movimientos, errores y método alternativo            |
+| PV6: capacidad y rendimiento                                | Paginación, búsqueda, límites y pruebas de carga del cliente     |
+| PV7: equipos y alcance móvil                                | Puntos de quiebre, navegadores y funciones móviles               |
+| PV8: reglas del albergue y menores                          | Validaciones de ingreso, espacio, salida y egreso                |
+| PV9: indicadores                                            | Filtros, etiquetas, agrupaciones y exportaciones                 |
+| PV10: operación y mantenimiento                             | Pantallas o mensajes relacionados con incidentes y mantenimiento |
+| PF1: obligatoriedad y catálogos de formularios de área      | Esquemas, campos condicionales y completitud                     |
+| PF2: formato institucional de impresión                     | Diseño del documento que se imprimirá y firmará físicamente      |
+| PF3: abreviaturas, unidades y reglas clínicas               | Etiquetas, controles y validaciones médicas                      |
 
 ## Cambios posteriores a la Hoja V3 en la matriz de trabajo
 
@@ -111,3 +111,14 @@ Toda decisión nueva debe incluir fecha, responsable o fuente y efecto sobre el 
 - Se incorporan detalles tipados, `entrada_evolutiva`, `documento_area`, `estancia_nino`, `movimiento_nino` y `revision_registro`.
 - El DDL calcula la edad a la fecha de atención en `v_identidad_formulario`; se mantiene la decisión de no almacenar edad declarada.
 - La ampliación está revisada estáticamente y pendiente de ejecutarse en PostgreSQL de ensayo. No debe considerarse desplegada hasta verificarla.
+
+## Decisiones de formularios de área - 8 de noviembre de 2026
+
+- La creación y el guardado ordinario de borradores no solicitan motivo al usuario; usan motivos técnicos controlados para auditoría.
+- La confirmación inicial está deshabilitada hasta completar y guardar fecha de referencia y campos mínimos. No solicita justificación narrativa.
+- Una corrección posterior de información confirmada sí requiere motivo e historial.
+- El borrador se descarta lógicamente con estado `DESCARTADO`, versión y motivo obligatorio; no existe borrado físico.
+- La acción de descarte se ubica en el resumen del área y abre una fila de justificación inmediatamente debajo del registro.
+- El resumen distingue fecha de atención y fecha/hora de creación.
+- La última página de una variante no muestra `Siguiente página`.
+- Estas decisiones se implementan con controles nativos y rutas diferidas para conservar rendimiento en equipos institucionales.

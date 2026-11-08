@@ -136,6 +136,7 @@ function PsychologyFormEditor({
   const fieldErrors = [...apiFieldErrors(operationError), ...validationErrors];
   const form = formQuery.data?.data;
   const canConfirm = Boolean(
+    String(value.detail.fechaReferencia ?? "").trim() &&
     String(value.detail.motivoConsulta ?? "").trim() &&
     String(value.detail.planTerapeutico ?? "").trim(),
   );
@@ -151,6 +152,12 @@ function PsychologyFormEditor({
 
   function confirm(reason: string) {
     const required: FormVariantFieldError[] = [];
+    if (!String(value.detail.fechaReferencia ?? "").trim()) {
+      required.push({
+        field: "detalle.fechaReferencia",
+        message: "La fecha de referencia es obligatoria para confirmar.",
+      });
+    }
     if (!String(value.detail.motivoConsulta ?? "").trim()) {
       required.push({
         field: "detalle.motivoConsulta",
