@@ -43,6 +43,8 @@ input[aria-invalid="true"] { border-color: var(--danger); }
 .button.primary { color: white; background: var(--primary-700); }
 .button.secondary { color: var(--primary-700); background: white; border-color: var(--primary-700); }
 .button.text { min-height: 44px; color: var(--primary-700); background: transparent; }
+.button.danger { color: white; background: var(--danger); border-color: var(--danger); }
+.button.danger-outline { color: var(--danger); background: white; border-color: var(--danger); }
 .button:disabled { opacity: .55; cursor: not-allowed; }
 .table-panel { overflow-x: auto; }
 .pagination-actions { display: flex; justify-content: center; padding: 20px; }
@@ -155,6 +157,9 @@ th { color: var(--text-600); font-size: 16px; }
 .area-form-list-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; padding: 24px; border-bottom: 1px solid var(--border); }
 .area-form-list-header h2 { margin: 0 0 6px; font-size: 24px; }
 .area-form-list-header p { margin: 0; color: var(--text-600); }
+.area-form-list-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.area-form-list-discard-row > td { padding: 0 16px 16px; background: #fffafa; }
+.area-form-list-discard { margin: 0; }
 .area-form-context { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: 24px; padding: 24px; }
 .area-form-context h1 { margin: 4px 0; font-size: 32px; }
 .area-form-context p, .area-form-context > div > span { margin: 0; color: var(--text-600); }
@@ -166,6 +171,8 @@ th { color: var(--text-600); font-size: 16px; }
 .area-form-confirmation { padding: 20px; background: var(--primary-50); border: 1px solid #d7cae8; border-radius: 10px; }
 .area-form-confirmation h2 { margin: 0 0 6px; font-size: 21px; }
 .area-form-confirmation p { margin: 0 0 18px; color: var(--text-600); line-height: 1.5; }
+.area-form-confirmation.destructive { background: #fef3f2; border-color: #fecdca; }
+.area-form-confirmation .field { margin-bottom: 18px; }
 .clinical-variant-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; align-items: start; }
 .clinical-step-actions { display: flex; justify-content: space-between; gap: 16px; margin: 20px 0; }
 

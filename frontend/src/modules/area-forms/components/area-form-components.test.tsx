@@ -1,4 +1,10 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { AreaFormList } from "./AreaFormList";
@@ -44,6 +50,7 @@ describe("AreaFormList", () => {
 
     expect(screen.getByText("Borrador")).toBeInTheDocument();
     expect(screen.getByText("Confirmada")).toBeInTheDocument();
+    expect(screen.getAllByText("06/11/2026, 06:00")).toHaveLength(2);
     fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
     expect(onOpen).toHaveBeenCalledWith(expect.objectContaining({ id: "15" }));
   });
@@ -66,16 +73,56 @@ describe("AreaFormList", () => {
     rerender(<AreaFormList {...props} />);
     expect(screen.getByText("No hay fichas registradas")).toBeInTheDocument();
   });
+
+  it("descarta un borrador desde el resumen con motivo", async () => {
+    const onDiscard = vi.fn().mockResolvedValue(undefined);
+    render(
+      <AreaFormList
+        forms={[form()]}
+        onOpen={vi.fn()}
+        onDiscard={onDiscard}
+        onCreate={vi.fn()}
+        onRetry={vi.fn()}
+      />,
+    );
+
+    const openDiscardButton = screen.getByRole("button", {
+      name: "Descartar borrador",
+    });
+    const formRow = openDiscardButton.closest("tr");
+    fireEvent.click(openDiscardButton);
+    const discardRegion = screen.getByRole("region", {
+      name: "Descartar borrador",
+    });
+    expect(formRow?.nextElementSibling).toBe(discardRegion.closest("tr"));
+    const discardButton = screen.getByRole("button", {
+      name: "Descartar definitivamente",
+    });
+    expect(discardButton).toBeDisabled();
+    fireEvent.change(
+      screen.getByRole("textbox", { name: "Motivo del descarte" }),
+      { target: { value: "  Se inició por equivocación.  " } },
+    );
+    fireEvent.click(discardButton);
+
+    await waitFor(() =>
+      expect(onDiscard).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "15" }),
+        "Se inició por equivocación.",
+      ),
+    );
+  });
 });
 
 describe("AreaFormShell", () => {
-  it("exige un motivo para guardar y solo confirma cambios guardados", () => {
+  it("audita automáticamente el guardado y solo confirma cambios guardados", () => {
     const onSave = vi.fn();
     const onConfirm = vi.fn();
     const { rerender } = render(
       <AreaFormShell
         form={form()}
         state="dirty"
+        canConfirm
         onSave={onSave}
         onConfirm={onConfirm}
         onReload={vi.fn()}
@@ -86,17 +133,7 @@ describe("AreaFormShell", () => {
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Guardar borrador" }));
-    expect(
-      screen.getByText("Explica el motivo con al menos 3 caracteres."),
-    ).toBeInTheDocument();
-    expect(onSave).not.toHaveBeenCalled();
-
-    fireEvent.change(
-      screen.getByRole("textbox", { name: /motivo de la actualización/i }),
-      { target: { value: "Actualización clínica" } },
-    );
-    fireEvent.click(screen.getByRole("button", { name: "Guardar borrador" }));
-    expect(onSave).toHaveBeenCalledWith("Actualización clínica");
+    expect(onSave).toHaveBeenCalledWith("Guardado de borrador");
 
     expect(
       screen.getByRole("button", { name: "Revisar y confirmar" }),
@@ -105,6 +142,7 @@ describe("AreaFormShell", () => {
       <AreaFormShell
         form={form()}
         state="saved"
+        canConfirm
         onSave={onSave}
         onConfirm={onConfirm}
         onReload={vi.fn()}
@@ -113,10 +151,6 @@ describe("AreaFormShell", () => {
         <TextField label="Motivo de consulta" defaultValue="Prueba" />
       </AreaFormShell>,
     );
-    fireEvent.change(
-      screen.getByRole("textbox", { name: /motivo de la actualización/i }),
-      { target: { value: "Actualización clínica" } },
-    );
     fireEvent.click(
       screen.getByRole("button", { name: "Revisar y confirmar" }),
     );
@@ -124,7 +158,26 @@ describe("AreaFormShell", () => {
     fireEvent.click(
       screen.getByRole("button", { name: "Confirmar definitivamente" }),
     );
-    expect(onConfirm).toHaveBeenCalledWith("Actualización clínica");
+    expect(onConfirm).toHaveBeenCalledWith("Confirmación inicial de ficha");
+  });
+
+  it("mantiene desactivada la confirmación si la ficha está incompleta", () => {
+    render(
+      <AreaFormShell
+        form={form()}
+        state="idle"
+        onSave={vi.fn()}
+        onConfirm={vi.fn()}
+        onReload={vi.fn()}
+        onCancel={vi.fn()}
+      >
+        <TextField label="Motivo de consulta" />
+      </AreaFormShell>,
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Revisar y confirmar" }),
+    ).toBeDisabled();
   });
 
   it("bloquea la edición de una ficha confirmada", () => {

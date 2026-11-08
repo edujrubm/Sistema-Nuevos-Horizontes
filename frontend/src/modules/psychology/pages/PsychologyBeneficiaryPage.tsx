@@ -5,6 +5,7 @@ import { Link, useParams } from "react-router-dom";
 import {
   confirmAreaForm,
   createAreaForm,
+  discardAreaForm,
   getAreaForm,
   listAreaForms,
   listAreaFormTypes,
@@ -134,6 +135,10 @@ function PsychologyFormEditor({
               : "idle";
   const fieldErrors = [...apiFieldErrors(operationError), ...validationErrors];
   const form = formQuery.data?.data;
+  const canConfirm = Boolean(
+    String(value.detail.motivoConsulta ?? "").trim() &&
+    String(value.detail.planTerapeutico ?? "").trim(),
+  );
 
   function changeValue(nextValue: FormVariantValue) {
     setValue(nextValue);
@@ -181,6 +186,7 @@ function PsychologyFormEditor({
         state={state}
         error={apiMessage(operationError ?? formQuery.error)}
         draftStateCode={draftStateCode}
+        canConfirm={canConfirm}
         onSave={(reason) => updateMutation.mutate(reason)}
         onConfirm={confirm}
         onReload={() => {
@@ -238,6 +244,15 @@ export function PsychologyBeneficiaryPage() {
       void queryClient.invalidateQueries({ queryKey: ["psychology-forms"] });
       setCreating(false);
       setSelectedFormId(response.data.id);
+    },
+  });
+  const discardMutation = useMutation({
+    mutationFn: ({ form, reason }: { form: AreaForm; reason: string }) =>
+      discardAreaForm(form.id, form.version, reason),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["psychology-forms", beneficiaryId],
+      });
     },
   });
 
@@ -308,8 +323,18 @@ export function PsychologyBeneficiaryPage() {
           loading={formsQuery.isLoading || typesQuery.isLoading}
           error={apiMessage(formsQuery.error ?? typesQuery.error)}
           draftStateCode={draftStateCode}
+          discardingId={
+            discardMutation.isPending
+              ? discardMutation.variables?.form.id
+              : undefined
+          }
+          discardError={apiMessage(discardMutation.error)}
           hasMore={formsQuery.data?.page.hasMore ?? false}
           onOpen={(form: AreaForm) => setSelectedFormId(form.id)}
+          onPrepareDiscard={() => discardMutation.reset()}
+          onDiscard={async (form, reason) => {
+            await discardMutation.mutateAsync({ form, reason });
+          }}
           onCreate={() => setCreating(true)}
           onRetry={() => {
             void formsQuery.refetch();

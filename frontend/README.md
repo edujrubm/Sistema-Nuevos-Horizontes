@@ -24,6 +24,15 @@ responsable. Mientras autenticación no publique ese contexto, puede definirse
 `VITE_DEV_PROFESSIONAL_ID` únicamente en el entorno local de Vite. El valor se
 considera público, no debe ser un secreto y nunca se usa en builds de producción.
 
+## Motivos de auditoría en formularios clínicos
+
+Durante la captura inicial no se solicita una justificación al usuario. El
+frontend envía `Guardado de borrador` al guardar y `Confirmación inicial de
+ficha` al confirmar. Una corrección posterior debe usar un flujo separado y sí
+solicitar un motivo explícito antes de modificar información ya confirmada.
+Descartar un borrador también exige un motivo explícito: el backend cambia su
+estado a `DESCARTADO`, conserva la auditoría y lo omite del listado operativo.
+
 ## Organización
 
 - `src/app`: configuración global, rutas, layouts y proveedores.

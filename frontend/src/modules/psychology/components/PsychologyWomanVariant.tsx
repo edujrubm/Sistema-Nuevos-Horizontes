@@ -381,16 +381,19 @@ export function PsychologyWomanVariant({
           >
             Anterior
           </button>
-          <button
-            className="button primary"
-            type="button"
-            disabled={currentIndex === steps.length - 1}
-            onClick={() =>
-              setCurrentIndex((index) => Math.min(steps.length - 1, index + 1))
-            }
-          >
-            Siguiente página
-          </button>
+          {currentIndex < steps.length - 1 ? (
+            <button
+              className="button primary"
+              type="button"
+              onClick={() =>
+                setCurrentIndex((index) =>
+                  Math.min(steps.length - 1, index + 1),
+                )
+              }
+            >
+              Siguiente página
+            </button>
+          ) : null}
         </div>
       </div>
       <FormProgressSummary steps={navigationSteps} />

@@ -17,6 +17,7 @@ const apiMocks = vi.hoisted(() => ({
   createAreaForm: vi.fn(),
   updateAreaForm: vi.fn(),
   confirmAreaForm: vi.fn(),
+  discardAreaForm: vi.fn(),
 }));
 
 vi.mock("@/modules/beneficiaries/api/beneficiaries-api", () => ({
@@ -29,6 +30,7 @@ vi.mock("@/modules/area-forms/api/area-forms-api", () => ({
   createAreaForm: apiMocks.createAreaForm,
   updateAreaForm: apiMocks.updateAreaForm,
   confirmAreaForm: apiMocks.confirmAreaForm,
+  discardAreaForm: apiMocks.discardAreaForm,
 }));
 
 import { PsychologyBeneficiaryPage } from "./PsychologyBeneficiaryPage";
@@ -99,7 +101,11 @@ describe("PsychologyBeneficiaryPage", () => {
         },
       ],
       estados: {
-        codigos: { borrador: "BORRADOR", confirmado: "CONFIRMADO" },
+        codigos: {
+          borrador: "BORRADOR",
+          confirmado: "CONFIRMADO",
+          descartado: "DESCARTADO",
+        },
         catalogo: [],
         listo: true,
       },
@@ -111,6 +117,9 @@ describe("PsychologyBeneficiaryPage", () => {
         version: 3,
         detalle: { motivoConsulta: "Atención inicial" },
       },
+    });
+    apiMocks.discardAreaForm.mockResolvedValue({
+      data: { ...areaForm, estado: "DESCARTADO", version: 3 },
     });
   });
 
@@ -125,18 +134,15 @@ describe("PsychologyBeneficiaryPage", () => {
     expect(
       await screen.findByRole("heading", { name: "PSICOLOGIA_MUJER" }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Revisar y confirmar" }),
+    ).toBeDisabled();
     fireEvent.click(screen.getByRole("button", { name: /motivo e historia/i }));
     fireEvent.change(
       screen.getByRole("textbox", { name: "Motivo de consulta" }),
       {
         target: { value: "Atención inicial" },
       },
-    );
-    fireEvent.change(
-      screen.getByRole("textbox", {
-        name: /motivo de la actualización o confirmación/i,
-      }),
-      { target: { value: "Actualización de prueba" } },
     );
     fireEvent.click(screen.getByRole("button", { name: "Guardar borrador" }));
 
@@ -145,11 +151,34 @@ describe("PsychologyBeneficiaryPage", () => {
         "15",
         expect.objectContaining({
           version: 2,
-          motivo: "Actualización de prueba",
+          motivo: "Guardado de borrador",
           detalle: expect.objectContaining({
             motivoConsulta: "Atención inicial",
           }),
         }),
+      ),
+    );
+  });
+
+  it("descarta lógicamente un borrador con motivo", async () => {
+    renderPage();
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Descartar borrador" }),
+    );
+    fireEvent.change(
+      screen.getByRole("textbox", { name: "Motivo del descarte" }),
+      { target: { value: "Ficha iniciada por equivocación" } },
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "Descartar definitivamente" }),
+    );
+
+    await waitFor(() =>
+      expect(apiMocks.discardAreaForm).toHaveBeenCalledWith(
+        "15",
+        2,
+        "Ficha iniciada por equivocación",
       ),
     );
   });

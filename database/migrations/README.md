@@ -6,3 +6,6 @@ Al 29 de octubre de 2026, el repositorio contiene las migraciones `003` a
 `006` para el alcance de Persona 1. La aplicación efectiva en PostgreSQL se
 comprueba por separado; no se infiere únicamente de que el archivo exista en
 Git.
+
+La migración `007` incorpora el estado aprobado `DESCARTADO` para cerrar
+borradores sin eliminar físicamente su cabecera, detalle ni auditoría.

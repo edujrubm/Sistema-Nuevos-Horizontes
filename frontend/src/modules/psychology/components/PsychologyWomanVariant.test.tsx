@@ -57,6 +57,9 @@ describe("PsychologyWomanVariant", () => {
       },
     );
     expect(screen.getByDisplayValue("Seguimiento semanal")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Siguiente página" }),
+    ).not.toBeInTheDocument();
   });
 
   it("presenta errores asociados al contrato", () => {
