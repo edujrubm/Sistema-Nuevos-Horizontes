@@ -11,6 +11,7 @@ interface AreaFormShellProps {
   error?: string;
   draftStateCode?: string;
   discardedStateCode?: string;
+  subjectLabel?: string;
   canConfirm?: boolean;
   children: ReactNode;
   onSave: (reason: string) => void | Promise<void>;
@@ -38,6 +39,7 @@ export function AreaFormShell({
   error,
   draftStateCode = "BORRADOR",
   discardedStateCode = "DESCARTADO",
+  subjectLabel,
   canConfirm = false,
   children,
   onSave,
@@ -74,7 +76,8 @@ export function AreaFormShell({
           <span>{form.area}</span>
           <h1>{form.tipo}</h1>
           <p>
-            Formulario #{form.id} · Versión {form.version}
+            {subjectLabel ? `${subjectLabel} · ` : ""}Formulario #{form.id} ·
+            Versión {form.version}
           </p>
         </div>
         <span className={`status ${readOnly ? "active" : "draft"}`}>

@@ -97,6 +97,7 @@ export function PsychologyWomanVariant({
               label="Fecha de referencia"
               value={textValue(value.detail, "fechaReferencia")}
               error={errorFor("detalle.fechaReferencia")}
+              required
               onChange={(event) =>
                 updateDetail("fechaReferencia", event.target.value)
               }

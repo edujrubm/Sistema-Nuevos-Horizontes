@@ -85,7 +85,7 @@ export function NewAreaFormPanel({
           <strong>El catálogo de estados no está listo.</strong>
           <span>
             No se pueden crear formularios hasta configurar los estados de
-            borrador y confirmado.
+            borrador, confirmado y descartado.
           </span>
         </div>
       ) : null}

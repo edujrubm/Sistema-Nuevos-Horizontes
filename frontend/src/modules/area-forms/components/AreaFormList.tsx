@@ -9,8 +9,11 @@ interface AreaFormListProps {
   error?: string;
   hasMore?: boolean;
   draftStateCode?: string;
+  subjectNameById?: Readonly<Record<string, string>>;
   discardingId?: string;
   discardError?: string;
+  createDisabled?: boolean;
+  createDisabledReason?: string;
   onOpen: (form: AreaForm) => void;
   onDiscard?: (form: AreaForm, reason: string) => Promise<void>;
   onPrepareDiscard?: () => void;
@@ -46,8 +49,11 @@ export function AreaFormList({
   error,
   hasMore = false,
   draftStateCode = "BORRADOR",
+  subjectNameById,
   discardingId,
   discardError,
+  createDisabled = false,
+  createDisabledReason,
   onOpen,
   onDiscard,
   onPrepareDiscard,
@@ -57,6 +63,7 @@ export function AreaFormList({
 }: AreaFormListProps) {
   const [formToDiscard, setFormToDiscard] = useState<AreaForm>();
   const [discardReason, setDiscardReason] = useState("");
+  const showSubject = subjectNameById !== undefined;
 
   if (loading) {
     return (
@@ -102,7 +109,13 @@ export function AreaFormList({
           <h2 id="area-form-list-title">Fichas del área</h2>
           <p>Consulta borradores y fichas confirmadas del expediente.</p>
         </div>
-        <button className="button primary" type="button" onClick={onCreate}>
+        <button
+          className="button primary"
+          type="button"
+          disabled={createDisabled}
+          title={createDisabled ? createDisabledReason : undefined}
+          onClick={onCreate}
+        >
           Nueva ficha
         </button>
       </header>
@@ -119,6 +132,7 @@ export function AreaFormList({
               <tr>
                 <th>Tipo</th>
                 <th>Área</th>
+                {showSubject ? <th>Sujeto</th> : null}
                 <th>Fecha de atención</th>
                 <th>Creada</th>
                 <th>Versión</th>
@@ -135,6 +149,14 @@ export function AreaFormList({
                     <tr>
                       <td>{form.tipo}</td>
                       <td>{form.area}</td>
+                      {showSubject ? (
+                        <td>
+                          {form.ninoId
+                            ? (subjectNameById[form.ninoId] ??
+                              "Registro infantil")
+                            : "Beneficiaria"}
+                        </td>
+                      ) : null}
                       <td>{displayDate(form.fechaAtencion)}</td>
                       <td>{displayCreatedAt(form.creadoEn)}</td>
                       <td>{form.version}</td>
@@ -173,7 +195,7 @@ export function AreaFormList({
                     </tr>
                     {discardOpen ? (
                       <tr className="area-form-list-discard-row">
-                        <td colSpan={7}>
+                        <td colSpan={showSubject ? 8 : 7}>
                           <div
                             className="area-form-confirmation destructive area-form-list-discard"
                             role="region"
