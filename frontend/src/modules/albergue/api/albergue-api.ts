@@ -25,6 +25,10 @@ export interface ShelterStaysResponse {
   };
 }
 
+export interface CreateShelterStayInput {
+  beneficiariaId: string;
+}
+
 export function getShelterSummary(signal?: AbortSignal) {
   return apiRequest<ShelterSummary>("/albergue/resumen", { signal });
 }
@@ -32,5 +36,12 @@ export function getShelterSummary(signal?: AbortSignal) {
 export function listShelterStays(signal?: AbortSignal) {
   return apiRequest<ShelterStaysResponse>("/albergue/estancias?pagina=1&limite=20", {
     signal,
+  });
+}
+
+export function createShelterStay(input: CreateShelterStayInput) {
+  return apiRequest<ShelterStay>("/albergue/estancias", {
+    method: "POST",
+    body: JSON.stringify(input),
   });
 }

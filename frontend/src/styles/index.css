@@ -57,6 +57,13 @@ input[aria-invalid="true"] { border-color: var(--danger); }
 .shelter-metric span { color: var(--text-600); font-size: 16px; font-weight: 600; line-height: 1.35; }
 .shelter-metric.warning { border-top-color: #dc8c10; }
 .shelter-metric.warning strong { color: #8a4b08; }
+.shelter-match-list { display: grid; gap: 12px; margin: 28px 0; padding: 0; border: 0; }
+.shelter-match-list legend { margin-bottom: 12px; font-size: 18px; font-weight: 700; }
+.shelter-match { display: flex; align-items: center; gap: 14px; min-height: 72px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; }
+.shelter-match:has(input:checked) { border-color: var(--primary-700); background: var(--primary-50); }
+.shelter-match input { width: 20px; min-height: 20px; }
+.shelter-match span { display: grid; gap: 4px; }
+.shelter-match small { color: var(--text-600); font-size: 14px; }
 table { width: 100%; border-collapse: collapse; font-size: 17px; }
 th, td { padding: 18px 24px; text-align: left; border-bottom: 1px solid var(--border); }
 th { color: var(--text-600); font-size: 16px; }

@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 
 import {
   getShelterSummary,
@@ -43,6 +44,7 @@ export function ShelterDashboardPage() {
       <PageHeader
         title="Albergue"
         description="Consulta la concurrencia y las estancias activas de las beneficiarias."
+        action={<Link className="button primary" to="/albergue/ingreso">Registrar ingreso</Link>}
       />
 
       {isLoading ? <p className="status-message" role="status">Cargando información de Albergue…</p> : null}

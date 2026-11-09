@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const apiMocks = vi.hoisted(() => ({
@@ -14,7 +15,9 @@ import { ShelterDashboardPage } from "./ShelterDashboardPage";
 function renderPage() {
   return render(
     <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-      <ShelterDashboardPage />
+      <MemoryRouter>
+        <ShelterDashboardPage />
+      </MemoryRouter>
     </QueryClientProvider>,
   );
 }
