@@ -48,6 +48,37 @@ input[aria-invalid="true"] { border-color: var(--danger); }
 .button:disabled { opacity: .55; cursor: not-allowed; }
 .table-panel { overflow-x: auto; }
 .pagination-actions { display: flex; justify-content: center; padding: 20px; }
+.panel-section-header { padding: 24px 24px 0; }
+.panel-section-header h2 { margin: 0 0 8px; font-size: 24px; }
+.panel-section-header p { margin: 0; color: var(--text-600); line-height: 1.5; }
+.shelter-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 24px; }
+.shelter-metric { display: grid; gap: 8px; min-height: 142px; padding: 24px; align-content: center; border-top: 4px solid var(--primary-700); }
+.shelter-metric strong { font-size: 38px; line-height: 1; color: var(--primary-700); }
+.shelter-metric span { color: var(--text-600); font-size: 16px; font-weight: 600; line-height: 1.35; }
+.shelter-metric.warning { border-top-color: #dc8c10; }
+.shelter-metric.warning strong { color: #8a4b08; }
+.shelter-match-list { display: grid; gap: 12px; margin: 28px 0; padding: 0; border: 0; }
+.shelter-match-list legend { margin-bottom: 12px; font-size: 18px; font-weight: 700; }
+.shelter-match { display: flex; align-items: center; gap: 14px; min-height: 72px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; }
+.shelter-match:has(input:checked) { border-color: var(--primary-700); background: var(--primary-50); }
+.shelter-match input { width: 20px; min-height: 20px; }
+.shelter-match span { display: grid; gap: 4px; }
+.shelter-match small { color: var(--text-600); font-size: 14px; }
+.shelter-movement-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(360px, .95fr); gap: 24px; align-items: start; }
+.shelter-pending-panel { overflow: hidden; }
+.shelter-pending-list { display: grid; margin-top: 20px; }
+.shelter-pending { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 24px; border-top: 1px solid var(--border); }
+.shelter-pending strong, .shelter-pending span { display: block; }
+.shelter-pending span { margin-top: 5px; color: var(--text-600); font-size: 14px; line-height: 1.4; }
+.shelter-tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+.shelter-tabs button { min-height: 48px; padding: 0 20px; color: var(--text-600); background: transparent; border: 0; border-bottom: 3px solid transparent; font-weight: 700; cursor: pointer; }
+.shelter-tabs button.active { color: var(--primary-700); border-bottom-color: var(--primary-700); }
+.shelter-confirmation, .shelter-checkbox { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-size: 16px; font-weight: 600; }
+.shelter-confirmation input, .shelter-checkbox input { width: 20px; min-height: 20px; }
+.shelter-confirmation + .button { margin-top: 16px; }
+.shelter-history-filters { display: flex; flex-wrap: wrap; gap: 16px; align-items: end; padding: 20px 24px; margin-bottom: 24px; }
+.shelter-history-filters label { display: grid; gap: 7px; min-width: 190px; font-size: 14px; }
+.shelter-history-filters input, .shelter-history-filters select { min-height: 48px; font-size: 16px; }
 table { width: 100%; border-collapse: collapse; font-size: 17px; }
 th, td { padding: 18px 24px; text-align: left; border-bottom: 1px solid var(--border); }
 th { color: var(--text-600); font-size: 16px; }
@@ -177,6 +208,8 @@ th { color: var(--text-600); font-size: 16px; }
 .clinical-step-actions { display: flex; justify-content: space-between; gap: 16px; margin: 20px 0; }
 
 @media (max-width: 900px) {
+  .shelter-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .shelter-movement-grid { grid-template-columns: 1fr; }
   .app-shell { grid-template: 72px auto 1fr / 1fr; }
   .app-header { padding: 0 20px; }
   .environment-badge { display: none; }

@@ -49,6 +49,29 @@ const MedicineChildPage = lazy(() =>
     default: module.MedicineChildPage,
   })),
 );
+const ShelterDashboardPage = lazy(() =>
+  import("@/modules/albergue/pages/ShelterDashboardPage").then((module) => ({
+    default: module.ShelterDashboardPage,
+  })),
+);
+const ShelterEntryPage = lazy(() =>
+  import("@/modules/albergue/pages/ShelterEntryPage").then((module) => ({
+    default: module.ShelterEntryPage,
+  })),
+);
+const ShelterMovementsPage = lazy(() =>
+  import("@/modules/albergue/pages/ShelterMovementsPage").then((module) => ({
+    default: module.ShelterMovementsPage,
+  })),
+);
+const ShelterClosurePage = lazy(() =>
+  import("@/modules/albergue/pages/ShelterClosurePage").then((module) => ({
+    default: module.ShelterClosurePage,
+  })),
+);
+const ShelterHistoryPage = lazy(() =>
+  import("@/modules/albergue/pages/ShelterHistoryPage").then((module) => ({ default: module.ShelterHistoryPage })),
+);
 
 function lazyPage(page: ReactNode) {
   return (
@@ -91,6 +114,11 @@ export const router = createBrowserRouter([
         path: "beneficiarias/:beneficiaryId/medicina-infantil",
         element: lazyPage(<MedicineChildPage />),
       },
+      { path: "albergue", element: lazyPage(<ShelterDashboardPage />) },
+      { path: "albergue/ingreso", element: lazyPage(<ShelterEntryPage />) },
+      { path: "albergue/movimientos", element: lazyPage(<ShelterMovementsPage />) },
+      { path: "albergue/cierres", element: lazyPage(<ShelterClosurePage />) },
+      { path: "albergue/historial", element: lazyPage(<ShelterHistoryPage />) },
       { path: "fichas/nueva", element: lazyPage(<StartAdmissionPage />) },
       {
         path: "fichas/borradores",

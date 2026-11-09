@@ -5,6 +5,10 @@ const navigation = [
   { to: "/fichas/nueva", label: "Nueva ficha inicial" },
   { to: "/fichas/borradores", label: "Borradores" },
   { to: "/fichas/confirmadas", label: "Fichas confirmadas" },
+  { to: "/albergue", label: "Albergue" },
+  { to: "/albergue/movimientos", label: "Salidas y retornos" },
+  { to: "/albergue/cierres", label: "Egreso y nacimiento" },
+  { to: "/albergue/historial", label: "Historial de movimientos" },
 ];
 
 export function AppLayout() {
