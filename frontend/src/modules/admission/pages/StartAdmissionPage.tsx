@@ -29,7 +29,8 @@ type FormValues = z.infer<typeof schema>;
 export function StartAdmissionPage() {
   const navigate = useNavigate();
   const [showDuplicateSearch, setShowDuplicateSearch] = useState(false);
-  const [duplicateCui, setDuplicateCui] = useState("");
+  const [duplicateMode, setDuplicateMode] = useState<"cui" | "nombre">("cui");
+  const [duplicateTerm, setDuplicateTerm] = useState("");
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -65,11 +66,14 @@ export function StartAdmissionPage() {
     onSuccess: (response) => navigate(`/fichas/${response.data.fichaInicial.id}`),
   });
   const duplicateSearch = useMutation({
-    mutationFn: (cui: string) => searchBeneficiaryMatches(cui.replace(/\D/g, "")),
+    mutationFn: (filters: { cui?: string; nombre?: string }) => searchBeneficiaryMatches(filters),
   });
   const apiError = mutation.error instanceof ApiError ? mutation.error.body : undefined;
   const duplicateError = duplicateSearch.error instanceof ApiError ? duplicateSearch.error.body : undefined;
-  const normalizedDuplicateCui = duplicateCui.replace(/\D/g, "");
+  const catalogError = [countriesQuery.error, companionTypesQuery.error, departmentsQuery.error, municipalitiesQuery.error]
+    .find((error): error is ApiError => error instanceof ApiError)?.body;
+  const normalizedDuplicateTerm = duplicateMode === "cui" ? duplicateTerm.replace(/\D/g, "") : duplicateTerm.trim();
+  const duplicateTermIsValid = normalizedDuplicateTerm.length >= (duplicateMode === "cui" ? 4 : 2);
 
   return (
     <section>
@@ -93,33 +97,37 @@ export function StartAdmissionPage() {
         {showDuplicateSearch && (
           <section className="panel duplicate-search-panel" id="duplicate-search-panel" aria-labelledby="duplicate-search-title">
             <div className="section-heading">
-              <h2 id="duplicate-search-title">Buscar por DPI/CUI</h2>
+              <h2 id="duplicate-search-title">Buscar coincidencias existentes</h2>
               <p>Comprueba si la beneficiaria ya tiene expediente antes de iniciar una ficha nueva.</p>
             </div>
             <form
               className="inline-search-form"
               onSubmit={(event) => {
                 event.preventDefault();
-                if (normalizedDuplicateCui.length >= 4) duplicateSearch.mutate(normalizedDuplicateCui);
+                if (duplicateTermIsValid) duplicateSearch.mutate({ [duplicateMode]: normalizedDuplicateTerm });
               }}
             >
               <div className="field">
-                <label htmlFor="duplicate-cui">DPI/CUI</label>
+                <label htmlFor="duplicate-mode">Buscar por</label>
+                <select id="duplicate-mode" value={duplicateMode} onChange={(event) => { setDuplicateMode(event.target.value as "cui" | "nombre"); setDuplicateTerm(""); duplicateSearch.reset(); }}><option value="cui">DPI/CUI</option><option value="nombre">Nombre</option></select>
+              </div>
+              <div className="field">
+                <label htmlFor="duplicate-term">{duplicateMode === "cui" ? "DPI/CUI" : "Nombre"}</label>
                 <input
-                  id="duplicate-cui"
-                  inputMode="numeric"
+                  id="duplicate-term"
+                  inputMode={duplicateMode === "cui" ? "numeric" : "text"}
                   autoComplete="off"
-                  value={duplicateCui}
+                  value={duplicateTerm}
                   onChange={(event) => {
-                    setDuplicateCui(event.target.value);
+                    setDuplicateTerm(event.target.value);
                     duplicateSearch.reset();
                   }}
-                  aria-describedby="duplicate-cui-helper"
+                  aria-describedby="duplicate-term-helper"
                 />
-                <small id="duplicate-cui-helper">Puedes escribirlo con o sin espacios o guiones.</small>
-                {duplicateCui && normalizedDuplicateCui.length < 4 && <span className="field-error">Escribe al menos 4 dígitos.</span>}
+                <small id="duplicate-term-helper">{duplicateMode === "cui" ? "Puedes escribirlo con o sin espacios o guiones." : "Escribe al menos una parte del nombre."}</small>
+                {duplicateTerm && !duplicateTermIsValid && <span className="field-error">Escribe al menos {duplicateMode === "cui" ? "4 dígitos" : "2 caracteres"}.</span>}
               </div>
-              <button className="button primary" type="submit" disabled={duplicateSearch.isPending || normalizedDuplicateCui.length < 4}>
+              <button className="button primary" type="submit" disabled={duplicateSearch.isPending || !duplicateTermIsValid}>
                 {duplicateSearch.isPending ? "Buscando…" : "Buscar"}
               </button>
             </form>
@@ -129,7 +137,7 @@ export function StartAdmissionPage() {
             )}
             {!!duplicateSearch.data?.data.length && (
               <div className="alert warning" role="alert">
-                <strong>Ya existe una beneficiaria con este DPI/CUI.</strong>
+                <strong>Se encontraron posibles coincidencias.</strong>
                 <span>Abre el expediente existente en lugar de crear un registro duplicado.</span>
                 {duplicateSearch.data.data.map((match) => (
                   <Link className="button secondary" key={match.id} to={`/beneficiarias/${match.id}`}>Abrir expediente de {match.nombre}</Link>
@@ -151,6 +159,13 @@ export function StartAdmissionPage() {
             <small>Solicitud: {apiError.idSolicitud}</small>
           </div>
         )}
+        {catalogError && (
+          <div className="alert error" role="alert">
+            <strong>No fue posible cargar uno de los catálogos.</strong>
+            <span>{catalogError.mensaje}</span>
+            <small>Recarga la pantalla antes de continuar. Solicitud: {catalogError.idSolicitud}</small>
+          </div>
+        )}
         <div className="form-grid">
           <div className="field full">
             <label htmlFor="name">Nombre completo <span aria-hidden="true">*</span></label>
@@ -168,14 +183,14 @@ export function StartAdmissionPage() {
           </div>
           <div className="field">
             <label htmlFor="cuiCountry">País de emisión del DPI/CUI</label>
-            <select id="cuiCountry" {...form.register("paisCuiId")}>
+            <select id="cuiCountry" disabled={countriesQuery.isLoading || !!countriesQuery.error} {...form.register("paisCuiId")}>
               <option value="">Seleccionar país</option>
               {countriesQuery.data?.data.map((option) => <option key={option.id} value={option.id}>{option.nombre ?? `País ${option.id}`}</option>)}
             </select>
           </div>
           <div className="field">
             <label htmlFor="companionType">Tipo de acompañante</label>
-            <select id="companionType" {...form.register("tipoAcompananteId")}>
+            <select id="companionType" disabled={companionTypesQuery.isLoading || !!companionTypesQuery.error} {...form.register("tipoAcompananteId")}>
               <option value="">Sin acompañante o pendiente</option>
               {companionTypesQuery.data?.data.map((option) => <option key={option.id} value={option.id}>{option.nombre ?? `Tipo ${option.id}`}</option>)}
             </select>
@@ -184,6 +199,7 @@ export function StartAdmissionPage() {
             <label htmlFor="originCountry">País de origen</label>
             <select
               id="originCountry"
+              disabled={countriesQuery.isLoading || !!countriesQuery.error}
               {...form.register("paisOrigenId", {
                 onChange: () => {
                   form.setValue("departamentoOrigenId", "");
@@ -199,7 +215,7 @@ export function StartAdmissionPage() {
             <label htmlFor="originDepartment">Departamento de origen</label>
             <select
               id="originDepartment"
-              disabled={!countryId}
+              disabled={!countryId || departmentsQuery.isLoading || !!departmentsQuery.error}
               {...form.register("departamentoOrigenId", { onChange: () => form.setValue("municipioOrigenId", "") })}
             >
               <option value="">Seleccionar departamento</option>
@@ -208,7 +224,7 @@ export function StartAdmissionPage() {
           </div>
           <div className="field">
             <label htmlFor="originMunicipality">Municipio de origen</label>
-            <select id="originMunicipality" disabled={!departmentId} {...form.register("municipioOrigenId")}>
+            <select id="originMunicipality" disabled={!departmentId || municipalitiesQuery.isLoading || !!municipalitiesQuery.error} {...form.register("municipioOrigenId")}>
               <option value="">Seleccionar municipio</option>
               {municipalitiesQuery.data?.data.map((option) => <option key={option.id} value={option.id}>{option.nombre ?? `Municipio ${option.id}`}</option>)}
             </select>

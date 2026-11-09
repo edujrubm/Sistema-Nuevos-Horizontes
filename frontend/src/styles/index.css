@@ -44,6 +44,7 @@ input[aria-invalid="true"] { border-color: var(--danger); }
 .button.primary { color: white; background: var(--primary-700); }
 .button.secondary { color: var(--primary-700); background: white; border-color: var(--primary-700); }
 .button.text { min-height: 44px; color: var(--primary-700); background: transparent; }
+.button.danger { color: white; background: var(--danger); }
 .button:disabled { opacity: .55; cursor: not-allowed; }
 .table-panel { overflow-x: auto; }
 .pagination-actions { display: flex; justify-content: center; padding: 20px; }
@@ -73,7 +74,7 @@ th { color: var(--text-600); font-size: 16px; }
 .alert.warning { color: #7a4d0b; background: #fffaeb; border-color: #dc8c10; }
 .duplicate-search-wrapper { display: grid; justify-items: start; gap: 16px; margin-bottom: 24px; }
 .duplicate-search-panel { width: 100%; padding: 24px; }
-.inline-search-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: end; }
+.inline-search-form { display: grid; grid-template-columns: 180px minmax(0, 1fr) auto; gap: 16px; align-items: end; }
 .inline-search-form small { color: var(--text-600); }
 .unsaved-warning { margin-top: 0; }
 .warning-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
@@ -92,12 +93,29 @@ th { color: var(--text-600); font-size: 16px; }
 .section-description { margin: 0 0 24px; color: var(--text-600); font-size: 16px; line-height: 1.5; }
 .child-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: end; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
 .child-row > .button { justify-self: start; }
+.repeatable-list { display: grid; gap: 20px; }
+.repeatable-record { padding: 20px; background: var(--primary-50); border: 1px solid var(--border); border-radius: 10px; }
+.repeatable-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.repeatable-heading h3 { margin: 0; font-size: 18px; }
 .checkbox-group { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .checkbox-choice { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; }
 .checkbox-choice input { width: 18px; min-height: 18px; height: 18px; padding: 0; accent-color: var(--primary-700); }
 .wizard-actions { flex-wrap: wrap; }
 .completion-note { margin: 12px 0 0; color: var(--text-600); text-align: right; }
 .profile-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-bottom: 24px; }
+.header-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; }
+.profile-editor { margin-bottom: 24px; }
+.subsection-heading { margin-top: 32px; }
+.subsection-heading h3 { margin: 0; font-size: 21px; }
+.state-change-form { margin-bottom: 24px; }
+.profile-tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+.profile-tabs button { padding: 14px 18px; color: var(--text-600); background: transparent; border: 0; border-bottom: 3px solid transparent; font-weight: 700; cursor: pointer; }
+.profile-tabs button.active { color: var(--primary-700); border-bottom-color: var(--primary-700); }
+.timeline { display: grid; gap: 0; }
+.event { padding: 4px 0 24px 24px; border-left: 3px solid var(--primary-100); }
+.event h3 { margin: 0 0 6px; font-size: 18px; }
+.event p { margin: 0 0 6px; color: var(--text-600); }
+.event time { color: var(--text-600); font-size: 14px; }
 .profile-card { padding: 28px; }
 .card-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
 .card-heading h2 { margin: 0 0 6px; font-size: 24px; }

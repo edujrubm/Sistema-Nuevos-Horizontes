@@ -140,7 +140,7 @@ export const admissionPages: AdmissionPageDefinition[] = [
       {
         key: "agresores",
         title: "Personas agresoras",
-        description: "Captura inicial de la persona agresora declarada. La API deberá definir el contrato repetible definitivo.",
+        description: "Agrega cada persona agresora declarada como un registro independiente dentro del mismo borrador.",
         fields: [
           { name: "nombre", label: "Nombre" },
           { name: "edad", label: "Edad", type: "number" },

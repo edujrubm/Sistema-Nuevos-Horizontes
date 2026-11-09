@@ -17,12 +17,15 @@ import { PageHeader } from "@/shared/components/PageHeader";
 
 type SectionValues = Record<string, Record<string, unknown>>;
 
+function valueIsPresent(value: unknown): boolean {
+  if (typeof value === "string") return value.trim().length > 0;
+  if (Array.isArray(value)) return value.some(valueIsPresent);
+  if (value && typeof value === "object") return Object.values(value).some(valueIsPresent);
+  return value !== undefined && value !== null;
+}
+
 function contentIsPresent(value: Record<string, unknown> | undefined) {
-  return !!value && Object.values(value).some((item) => {
-    if (typeof item === "string") return item.trim().length > 0;
-    if (Array.isArray(item)) return item.length > 0;
-    return item !== undefined && item !== null;
-  });
+  return !!value && Object.values(value).some(valueIsPresent);
 }
 
 export function AdmissionWizardPage() {
@@ -157,6 +160,30 @@ export function AdmissionWizardPage() {
         ? selected.filter((item) => item !== option)
         : [...selected, option],
     );
+  }
+
+  function aggressors() {
+    const repeated = values.agresores?.personas;
+    if (Array.isArray(repeated)) return repeated.filter((item): item is Record<string, unknown> => !!item && typeof item === "object");
+    const legacy = values.agresores ?? {};
+    return contentIsPresent(legacy) ? [legacy] : [];
+  }
+
+  function addAggressor() {
+    updateField("agresores", "personas", [...aggressors(), {}]);
+  }
+
+  function updateAggressor(index: number, field: string, value: string) {
+    const next = aggressors().map((item, itemIndex) => itemIndex === index ? { ...item, [field]: value } : item);
+    setNotice(undefined);
+    setShowDiscardWarning(false);
+    setIncompleteSectionKeys((current) => current.filter((key) => key !== "agresores"));
+    setValues((current) => ({ ...current, agresores: { personas: next } }));
+  }
+
+  function removeAggressor(index: number) {
+    setValues((current) => ({ ...current, agresores: { personas: aggressors().filter((_, itemIndex) => itemIndex !== index) } }));
+    setShowDiscardWarning(false);
   }
 
   function addChild() {
@@ -335,7 +362,16 @@ export function AdmissionWizardPage() {
                 <p className="field-error">Ingresa al menos un dato en esta sección.</p>
               )}
               {section.description && <p className="section-description">{section.description}</p>}
-              <div className="form-grid">
+              {section.key === "agresores" ? <div className="repeatable-list">
+                {aggressors().map((aggressor, index) => <div className="repeatable-record" key={index}>
+                  <div className="repeatable-heading"><h3>Persona agresora {index + 1}</h3><button className="button text" type="button" onClick={() => removeAggressor(index)}>Quitar</button></div>
+                  <div className="form-grid">{section.fields.map((field) => <div className={`field${field.type === "textarea" ? " full" : ""}`} key={field.name}>
+                    <label htmlFor={`aggressor-${index}-${field.name}`}>{field.label}</label>
+                    {field.type === "textarea" ? <textarea id={`aggressor-${index}-${field.name}`} value={String(aggressor[field.name] ?? "")} onChange={(event) => updateAggressor(index, field.name, event.target.value)} /> : field.type === "select" ? <select id={`aggressor-${index}-${field.name}`} value={String(aggressor[field.name] ?? "")} onChange={(event) => updateAggressor(index, field.name, event.target.value)}><option value="">Seleccionar</option>{field.options?.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select> : <input id={`aggressor-${index}-${field.name}`} type={field.type ?? "text"} value={String(aggressor[field.name] ?? "")} onChange={(event) => updateAggressor(index, field.name, event.target.value)} />}
+                  </div>)}</div>
+                </div>)}
+                <button className="button secondary" type="button" onClick={addAggressor}>Agregar persona agresora</button>
+              </div> : <div className="form-grid">
                 {section.fields.map((field) => (
                   fieldIsVisible(section.key, field) && <div className={`field${field.type === "textarea" ? " full" : ""}`} key={field.name}>
                     <label htmlFor={`${section.key}-${field.name}`}>{field.label}</label>
@@ -382,7 +418,7 @@ export function AdmissionWizardPage() {
                     {field.hint && <small>{field.hint}</small>}
                   </div>
                 ))}
-              </div>
+              </div>}
             </fieldset>
           ))}
 
