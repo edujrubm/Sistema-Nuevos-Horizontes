@@ -44,6 +44,14 @@ export interface PendingTemporaryExit {
   trabajadorAsignado: string | null;
 }
 
+export interface CreateShelterBirthInput {
+  nombre: string;
+  fechaNacimiento: string;
+  cui?: string;
+  genero?: "M" | "F";
+  reconocido?: boolean;
+}
+
 export function getShelterSummary(signal?: AbortSignal) {
   return apiRequest<ShelterSummary>("/albergue/resumen", { signal });
 }
@@ -74,4 +82,15 @@ export function listPendingTemporaryExits(signal?: AbortSignal) {
 
 export function registerShelterReturn(estanciaId: string) {
   return apiRequest(`/albergue/estancias/${estanciaId}/retornos`, { method: "POST" });
+}
+
+export function closeShelterStay(estanciaId: string) {
+  return apiRequest(`/albergue/estancias/${estanciaId}/egreso`, { method: "POST" });
+}
+
+export function registerShelterBirth(estanciaId: string, input: CreateShelterBirthInput) {
+  return apiRequest(`/albergue/estancias/${estanciaId}/nacimientos`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
 }

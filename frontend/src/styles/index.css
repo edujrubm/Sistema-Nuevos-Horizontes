@@ -70,6 +70,12 @@ input[aria-invalid="true"] { border-color: var(--danger); }
 .shelter-pending { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 24px; border-top: 1px solid var(--border); }
 .shelter-pending strong, .shelter-pending span { display: block; }
 .shelter-pending span { margin-top: 5px; color: var(--text-600); font-size: 14px; line-height: 1.4; }
+.shelter-tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+.shelter-tabs button { min-height: 48px; padding: 0 20px; color: var(--text-600); background: transparent; border: 0; border-bottom: 3px solid transparent; font-weight: 700; cursor: pointer; }
+.shelter-tabs button.active { color: var(--primary-700); border-bottom-color: var(--primary-700); }
+.shelter-confirmation, .shelter-checkbox { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-size: 16px; font-weight: 600; }
+.shelter-confirmation input, .shelter-checkbox input { width: 20px; min-height: 20px; }
+.shelter-confirmation + .button { margin-top: 16px; }
 table { width: 100%; border-collapse: collapse; font-size: 17px; }
 th, td { padding: 18px 24px; text-align: left; border-bottom: 1px solid var(--border); }
 th { color: var(--text-600); font-size: 16px; }

@@ -7,6 +7,7 @@ const navigation = [
   { to: "/fichas/confirmadas", label: "Fichas confirmadas" },
   { to: "/albergue", label: "Albergue" },
   { to: "/albergue/movimientos", label: "Salidas y retornos" },
+  { to: "/albergue/cierres", label: "Egreso y nacimiento" },
 ];
 
 export function AppLayout() {
