@@ -49,6 +49,11 @@ const MedicineChildPage = lazy(() =>
     default: module.MedicineChildPage,
   })),
 );
+const ShelterDashboardPage = lazy(() =>
+  import("@/modules/albergue/pages/ShelterDashboardPage").then((module) => ({
+    default: module.ShelterDashboardPage,
+  })),
+);
 
 function lazyPage(page: ReactNode) {
   return (
@@ -91,6 +96,7 @@ export const router = createBrowserRouter([
         path: "beneficiarias/:beneficiaryId/medicina-infantil",
         element: lazyPage(<MedicineChildPage />),
       },
+      { path: "albergue", element: lazyPage(<ShelterDashboardPage />) },
       { path: "fichas/nueva", element: lazyPage(<StartAdmissionPage />) },
       {
         path: "fichas/borradores",

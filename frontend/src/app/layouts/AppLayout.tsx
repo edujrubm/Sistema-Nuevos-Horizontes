@@ -5,6 +5,7 @@ const navigation = [
   { to: "/fichas/nueva", label: "Nueva ficha inicial" },
   { to: "/fichas/borradores", label: "Borradores" },
   { to: "/fichas/confirmadas", label: "Fichas confirmadas" },
+  { to: "/albergue", label: "Albergue" },
 ];
 
 export function AppLayout() {
