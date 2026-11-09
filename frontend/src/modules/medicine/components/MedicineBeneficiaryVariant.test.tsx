@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import type { FormVariantValue } from "@/modules/area-forms/variants";
 import {
   MedicineAdolescentVariant,
+  MedicineChildVariantWithMother,
   MedicineWomanVariant,
 } from "./MedicineBeneficiaryVariant";
 
@@ -32,6 +33,22 @@ function AdolescentHarness() {
   });
   return (
     <MedicineAdolescentVariant
+      value={value}
+      errors={[]}
+      readOnly={false}
+      onChange={setValue}
+    />
+  );
+}
+
+function ChildHarness() {
+  const [value, setValue] = useState<FormVariantValue>({
+    detail: {},
+    mentalExam: null,
+  });
+  return (
+    <MedicineChildVariantWithMother
+      motherName="Beneficiaria de prueba"
       value={value}
       errors={[]}
       readOnly={false}
@@ -83,6 +100,46 @@ describe("MedicineBeneficiaryVariant", () => {
     ).toBeInTheDocument();
     expect(
       screen.queryByRole("textbox", { name: "Antecedentes de importancia" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("muestra los campos infantiles sin bloques ginecológicos", () => {
+    render(<ChildHarness />);
+
+    expect(
+      screen.getByRole("combobox", { name: "Persona responsable" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("option", {
+        name: "Beneficiaria madre: Beneficiaria de prueba",
+      }),
+    ).toBeInTheDocument();
+    fireEvent.change(
+      screen.getByRole("combobox", { name: "Persona responsable" }),
+      { target: { value: "other" } },
+    );
+    expect(
+      screen.getByRole("textbox", {
+        name: "Nombre de la persona responsable",
+      }),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Antecedentes" }));
+    expect(
+      screen.getByRole("textbox", { name: "Esquema de vacunación" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("textbox", { name: "Condiciones al nacer" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("textbox", { name: "Antecedentes patológicos" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("textbox", { name: "Antecedentes ginecológicos" }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Examen" }));
+    expect(
+      screen.queryByRole("textbox", { name: "Examen ginecológico" }),
     ).not.toBeInTheDocument();
   });
 

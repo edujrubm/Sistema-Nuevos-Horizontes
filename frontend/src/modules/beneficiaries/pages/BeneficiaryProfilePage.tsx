@@ -243,6 +243,12 @@ export function BeneficiaryProfilePage() {
               >
                 Abrir Psicología infantil
               </Link>
+              <Link
+                className="button secondary"
+                to={`/beneficiarias/${beneficiary.id}/medicina-infantil`}
+              >
+                Abrir Medicina infantil
+              </Link>
             </div>
           </>
         )}

@@ -84,6 +84,15 @@ Cada implementación cubre carga, vacío, error recuperable, guardado, conflicto
 - La próxima cita se captura como fecha y hora de Guatemala y se envía como instante ISO. El cliente no calcula edades, diagnósticos ni umbrales clínicos.
 - El listado se consulta por el identificador del área publicado en el catálogo para incluir las fichas históricas de mujer y adolescente sin reclasificarlas.
 
+## Medicina infantil
+
+- La ficha usa exclusivamente `MEDICINA_NINEZ` y exige seleccionar una niña o niño activo previamente vinculado al expediente.
+- El sujeto se conserva en `ninoId` y se muestra tanto en el resumen como en la cabecera del editor; la ficha médica no crea ni duplica identidades infantiles.
+- La persona responsable puede seleccionarse como la beneficiaria madre, usando su nombre maestro, o registrarse como otra persona mediante `nombreResponsableDeclarado`. El frontend infiere la selección al reabrir comparando el nombre guardado, sin crear una relación nueva.
+- Reutiliza las cinco páginas médicas y presenta responsable, motivo y HEA, vacunación, condiciones al nacer, antecedentes patológicos, examen físico, signos, tratamiento y seguimiento.
+- No muestra antecedentes ni examen ginecológico. El motivo de consulta es el mínimo marcado por el mockup para confirmar y la fecha de atención sigue siendo obligatoria al crear el borrador.
+- Mantiene guardado versionado, descarte lógico desde el resumen, consulta en solo lectura y carga diferida de la ruta.
+
 ## Verificación mínima por variante
 
 - listado y sujeto correctos;

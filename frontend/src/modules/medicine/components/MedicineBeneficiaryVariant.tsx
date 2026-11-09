@@ -5,6 +5,7 @@ import {
   FormProgressSummary,
   FormSection,
   FormStepNavigation,
+  SelectField,
   TextAreaField,
   TextField,
   type FormStep,
@@ -18,7 +19,7 @@ const steps = [
   { id: "plan", label: "Plan y cierre" },
 ] as const;
 
-type MedicineBeneficiaryVariantKind = "woman" | "adolescent";
+type MedicineVariantKind = "woman" | "adolescent" | "child";
 
 function textValue(record: Record<string, unknown>, field: string) {
   const value = record[field];
@@ -51,18 +52,22 @@ function toGuatemalaIso(value: string) {
   return value ? new Date(`${value}:00-06:00`).toISOString() : null;
 }
 
-interface MedicineBeneficiaryVariantProps extends FormVariantComponentProps {
-  variant: MedicineBeneficiaryVariantKind;
+interface MedicineVariantProps extends FormVariantComponentProps {
+  variant: MedicineVariantKind;
+  motherName?: string;
 }
 
-export function MedicineBeneficiaryVariant({
+export function MedicineVariant({
   variant,
+  motherName,
   value,
   errors,
   readOnly,
   onChange,
-}: MedicineBeneficiaryVariantProps) {
+}: MedicineVariantProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [otherResponsibleSelected, setOtherResponsibleSelected] =
+    useState(false);
   const currentStep = steps[currentIndex];
   const navigationSteps = useMemo<FormStep[]>(
     () =>
@@ -98,6 +103,21 @@ export function MedicineBeneficiaryVariant({
     if (index >= 0) setCurrentIndex(index);
   }
 
+  const responsibleName = textValue(
+    value.detail,
+    "nombreResponsableDeclarado",
+  );
+  const motherSelected = Boolean(
+    variant === "child" &&
+    motherName &&
+    responsibleName.trim() === motherName.trim(),
+  );
+  const responsibleSelection = motherSelected
+    ? "mother"
+    : responsibleName || otherResponsibleSelected
+      ? "other"
+      : "";
+
   return (
     <div className="clinical-variant-layout">
       <div>
@@ -106,11 +126,53 @@ export function MedicineBeneficiaryVariant({
         {currentStep.id === "identification" ? (
           <FormSection
             title="Identificación de la atención"
-            description="La beneficiaria, la variante y la fecha provienen de la cabecera de esta ficha."
+            description={
+              variant === "child"
+                ? "La niña o niño, la variante y la fecha provienen de la cabecera de esta ficha."
+                : "La beneficiaria, la variante y la fecha provienen de la cabecera de esta ficha."
+            }
             badge="Sección 1"
             disabled={readOnly}
           >
-            {variant === "adolescent" ? (
+            {variant === "child" && motherName ? (
+              <>
+                <SelectField
+                  id="detail.responsibleSelection"
+                  label="Persona responsable"
+                  value={responsibleSelection}
+                  fullWidth
+                  onChange={(event) => {
+                    const selection = event.target.value;
+                    setOtherResponsibleSelected(selection === "other");
+                    updateDetail(
+                      "nombreResponsableDeclarado",
+                      selection === "mother" ? motherName : "",
+                    );
+                  }}
+                >
+                  <option value="">Seleccionar</option>
+                  <option value="mother">
+                    Beneficiaria madre: {motherName}
+                  </option>
+                  <option value="other">Otra persona</option>
+                </SelectField>
+                {responsibleSelection === "other" ? (
+                  <TextField
+                    id="detail.nombreResponsableDeclarado"
+                    label="Nombre de la persona responsable"
+                    value={responsibleName}
+                    error={errorFor("detalle.nombreResponsableDeclarado")}
+                    fullWidth
+                    onChange={(event) =>
+                      updateDetail(
+                        "nombreResponsableDeclarado",
+                        event.target.value,
+                      )
+                    }
+                  />
+                ) : null}
+              </>
+            ) : variant !== "woman" ? (
               <TextField
                 id="detail.nombreResponsableDeclarado"
                 label="Responsable, cuando corresponda"
@@ -164,14 +226,16 @@ export function MedicineBeneficiaryVariant({
           <FormSection
             title="Antecedentes"
             description={
-              variant === "adolescent"
-                ? "Antecedentes correspondientes a la variante de mujer adolescente."
-                : "Antecedentes correspondientes a la variante de mujer."
+              variant === "child"
+                ? "Vacunación, nacimiento y antecedentes de la niña o niño."
+                : variant === "adolescent"
+                  ? "Antecedentes correspondientes a la variante de mujer adolescente."
+                  : "Antecedentes correspondientes a la variante de mujer."
             }
             badge="Sección 3"
             disabled={readOnly}
           >
-            {variant === "adolescent" ? (
+            {variant !== "woman" ? (
               <>
                 <TextAreaField
                   id="detail.esquemaVacunacion"
@@ -214,16 +278,18 @@ export function MedicineBeneficiaryVariant({
                 }
               />
             )}
-            <TextAreaField
-              id="detail.antecedentesGinecologicos"
-              label="Antecedentes ginecológicos"
-              value={textValue(value.detail, "antecedentesGinecologicos")}
-              error={errorFor("detalle.antecedentesGinecologicos")}
-              fullWidth
-              onChange={(event) =>
-                updateDetail("antecedentesGinecologicos", event.target.value)
-              }
-            />
+            {variant !== "child" ? (
+              <TextAreaField
+                id="detail.antecedentesGinecologicos"
+                label="Antecedentes ginecológicos"
+                value={textValue(value.detail, "antecedentesGinecologicos")}
+                error={errorFor("detalle.antecedentesGinecologicos")}
+                fullWidth
+                onChange={(event) =>
+                  updateDetail("antecedentesGinecologicos", event.target.value)
+                }
+              />
+            ) : null}
           </FormSection>
         ) : null}
 
@@ -358,9 +424,25 @@ export function MedicineBeneficiaryVariant({
 }
 
 export function MedicineWomanVariant(props: FormVariantComponentProps) {
-  return <MedicineBeneficiaryVariant {...props} variant="woman" />;
+  return <MedicineVariant {...props} variant="woman" />;
 }
 
 export function MedicineAdolescentVariant(props: FormVariantComponentProps) {
-  return <MedicineBeneficiaryVariant {...props} variant="adolescent" />;
+  return <MedicineVariant {...props} variant="adolescent" />;
+}
+
+export function MedicineChildVariant(props: FormVariantComponentProps) {
+  return <MedicineVariant {...props} variant="child" />;
+}
+
+export interface MedicineChildVariantWithMotherProps
+  extends FormVariantComponentProps {
+  motherName?: string;
+}
+
+export function MedicineChildVariantWithMother({
+  motherName,
+  ...props
+}: MedicineChildVariantWithMotherProps) {
+  return <MedicineVariant {...props} variant="child" motherName={motherName} />;
 }
