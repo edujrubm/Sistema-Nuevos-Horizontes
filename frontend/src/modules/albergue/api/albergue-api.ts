@@ -52,6 +52,23 @@ export interface CreateShelterBirthInput {
   reconocido?: boolean;
 }
 
+export interface ShelterMovement {
+  movimientoId: string;
+  estanciaId: string;
+  beneficiariaId: string;
+  beneficiariaNombre: string;
+  fechaSalida: string;
+  fechaRetorno: string | null;
+  destino: string;
+  trabajadorAsignado: string | null;
+  estadoMovimiento: "PENDIENTE" | "COMPLETADO";
+}
+
+export interface ShelterMovementsResponse {
+  datos: ShelterMovement[];
+  paginacion: { pagina: number; limite: number; total: number; totalPaginas: number };
+}
+
 export function getShelterSummary(signal?: AbortSignal) {
   return apiRequest<ShelterSummary>("/albergue/resumen", { signal });
 }
@@ -93,4 +110,8 @@ export function registerShelterBirth(estanciaId: string, input: CreateShelterBir
     method: "POST",
     body: JSON.stringify(input),
   });
+}
+
+export function listShelterMovements(signal?: AbortSignal) {
+  return apiRequest<ShelterMovementsResponse>("/albergue/movimientos?pagina=1&limite=20", { signal });
 }

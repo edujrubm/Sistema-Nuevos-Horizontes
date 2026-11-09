@@ -76,6 +76,9 @@ input[aria-invalid="true"] { border-color: var(--danger); }
 .shelter-confirmation, .shelter-checkbox { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-size: 16px; font-weight: 600; }
 .shelter-confirmation input, .shelter-checkbox input { width: 20px; min-height: 20px; }
 .shelter-confirmation + .button { margin-top: 16px; }
+.shelter-history-filters { display: flex; flex-wrap: wrap; gap: 16px; align-items: end; padding: 20px 24px; margin-bottom: 24px; }
+.shelter-history-filters label { display: grid; gap: 7px; min-width: 190px; font-size: 14px; }
+.shelter-history-filters input, .shelter-history-filters select { min-height: 48px; font-size: 16px; }
 table { width: 100%; border-collapse: collapse; font-size: 17px; }
 th, td { padding: 18px 24px; text-align: left; border-bottom: 1px solid var(--border); }
 th { color: var(--text-600); font-size: 16px; }

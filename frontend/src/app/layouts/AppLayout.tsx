@@ -8,6 +8,7 @@ const navigation = [
   { to: "/albergue", label: "Albergue" },
   { to: "/albergue/movimientos", label: "Salidas y retornos" },
   { to: "/albergue/cierres", label: "Egreso y nacimiento" },
+  { to: "/albergue/historial", label: "Historial de movimientos" },
 ];
 
 export function AppLayout() {
