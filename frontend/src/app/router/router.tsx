@@ -44,6 +44,11 @@ const MedicineBeneficiaryPage = lazy(() =>
     default: module.MedicineBeneficiaryPage,
   })),
 );
+const MedicineChildPage = lazy(() =>
+  import("@/modules/medicine/pages/MedicineChildPage").then((module) => ({
+    default: module.MedicineChildPage,
+  })),
+);
 
 function lazyPage(page: ReactNode) {
   return (
@@ -81,6 +86,10 @@ export const router = createBrowserRouter([
       {
         path: "beneficiarias/:beneficiaryId/medicina",
         element: lazyPage(<MedicineBeneficiaryPage />),
+      },
+      {
+        path: "beneficiarias/:beneficiaryId/medicina-infantil",
+        element: lazyPage(<MedicineChildPage />),
       },
       { path: "fichas/nueva", element: lazyPage(<StartAdmissionPage />) },
       {
