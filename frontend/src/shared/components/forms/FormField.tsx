@@ -70,7 +70,13 @@ export interface TextFieldProps extends Omit<
   hint?: string;
   error?: string;
   fullWidth?: boolean;
-  type?: "text" | "date" | "number" | "email" | "tel";
+  type?:
+    | "text"
+    | "date"
+    | "datetime-local"
+    | "number"
+    | "email"
+    | "tel";
 }
 
 export function TextField({
