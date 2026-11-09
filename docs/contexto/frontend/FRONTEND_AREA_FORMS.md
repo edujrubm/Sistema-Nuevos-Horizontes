@@ -40,7 +40,7 @@ Los borradores muestran `Continuar` y, cuando exista capacidad, `Descartar borra
 ## Confirmación
 
 - `Revisar y confirmar` aparece deshabilitado desde el inicio.
-- Solo se habilita cuando los campos mínimos de la variante y la fecha de referencia están completos, no existen cambios locales pendientes y la versión mostrada ya fue guardada.
+- Solo se habilita cuando los campos mínimos de la variante están completos, no existen cambios locales pendientes y la versión mostrada ya fue guardada. La fecha de referencia se exige únicamente en las variantes que la definen en su contrato; no se inventa para las demás.
 - La confirmación inicial solicita revisar la consecuencia, pero no pide un motivo narrativo. El motivo técnico actual es `Confirmación inicial de ficha`.
 - El backend vuelve a validar estado, versión y completitud; habilitar un botón no constituye autorización.
 - Después de confirmar, la ficha se consulta en modo de solo lectura.
@@ -74,6 +74,15 @@ Los borradores muestran `Continuar` y, cuando exista capacidad, `Descartar borra
 ## Estados alternos obligatorios
 
 Cada implementación cubre carga, vacío, error recuperable, guardado, conflicto, consulta de confirmado y operación en curso. Los botones de mutación se bloquean durante su solicitud para evitar doble envío.
+
+## Medicina para beneficiarias
+
+- El alta ofrece explícitamente `MEDICINA_MUJER` y `MEDICINA_ADOLESCENTE`; el cliente no elige la variante a partir de la edad.
+- Ambas variantes usan la misma cabecera médica y presentan únicamente sus bloques aplicables. Mujer usa antecedentes de importancia y examen ginecológico; adolescente usa responsable cuando corresponda, vacunación, condiciones al nacer y antecedentes patológicos. Ambas admiten antecedentes ginecológicos y el examen físico común.
+- El flujo conserva las cinco páginas aprobadas: identificación, motivo y HEA, antecedentes, examen, y plan y cierre.
+- La fecha de atención se exige al crear la cabecera. Dentro del detalle médico, el único mínimo marcado como obligatorio por el mockup para confirmar es el motivo de consulta; no se agregan reglas clínicas aún pendientes de aprobación.
+- La próxima cita se captura como fecha y hora de Guatemala y se envía como instante ISO. El cliente no calcula edades, diagnósticos ni umbrales clínicos.
+- El listado se consulta por el identificador del área publicado en el catálogo para incluir las fichas históricas de mujer y adolescente sin reclasificarlas.
 
 ## Verificación mínima por variante
 

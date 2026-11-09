@@ -122,6 +122,12 @@ export function BeneficiaryProfilePage() {
             >
               Abrir Psicología
             </Link>
+            <Link
+              className="button secondary"
+              to={`/beneficiarias/${beneficiary.id}/medicina`}
+            >
+              Abrir Medicina
+            </Link>
           </div>
         </article>
 

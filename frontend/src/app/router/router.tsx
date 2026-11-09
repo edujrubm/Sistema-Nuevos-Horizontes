@@ -39,6 +39,11 @@ const PsychologyChildPage = lazy(() =>
     default: module.PsychologyChildPage,
   })),
 );
+const MedicineBeneficiaryPage = lazy(() =>
+  import("@/modules/medicine/pages/MedicineBeneficiaryPage").then((module) => ({
+    default: module.MedicineBeneficiaryPage,
+  })),
+);
 
 function lazyPage(page: ReactNode) {
   return (
@@ -72,6 +77,10 @@ export const router = createBrowserRouter([
       {
         path: "beneficiarias/:beneficiaryId/psicologia-infantil",
         element: lazyPage(<PsychologyChildPage />),
+      },
+      {
+        path: "beneficiarias/:beneficiaryId/medicina",
+        element: lazyPage(<MedicineBeneficiaryPage />),
       },
       { path: "fichas/nueva", element: lazyPage(<StartAdmissionPage />) },
       {
