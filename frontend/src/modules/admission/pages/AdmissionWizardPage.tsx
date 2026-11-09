@@ -301,7 +301,7 @@ export function AdmissionWizardPage() {
     <section>
       <PageHeader
         title="Ficha inicial"
-        description={`Borrador ${record.correlativo ?? `#${record.id}`} · versión ${record.version}`}
+        description={`${isConfirmed ? "Ficha confirmada" : "Borrador"} ${record.correlativo ?? `#${record.id}`} · versión ${record.version}`}
         action={<span className={`status ${isConfirmed ? "active" : "draft"}`}>{isConfirmed ? "Confirmada" : "Borrador"}</span>}
       />
 
