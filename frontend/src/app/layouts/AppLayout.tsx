@@ -6,6 +6,7 @@ const navigation = [
   { to: "/fichas/borradores", label: "Borradores" },
   { to: "/fichas/confirmadas", label: "Fichas confirmadas" },
   { to: "/albergue", label: "Albergue" },
+  { to: "/albergue/movimientos", label: "Salidas y retornos" },
 ];
 
 export function AppLayout() {

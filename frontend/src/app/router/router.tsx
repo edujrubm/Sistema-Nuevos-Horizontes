@@ -59,6 +59,11 @@ const ShelterEntryPage = lazy(() =>
     default: module.ShelterEntryPage,
   })),
 );
+const ShelterMovementsPage = lazy(() =>
+  import("@/modules/albergue/pages/ShelterMovementsPage").then((module) => ({
+    default: module.ShelterMovementsPage,
+  })),
+);
 
 function lazyPage(page: ReactNode) {
   return (
@@ -103,6 +108,7 @@ export const router = createBrowserRouter([
       },
       { path: "albergue", element: lazyPage(<ShelterDashboardPage />) },
       { path: "albergue/ingreso", element: lazyPage(<ShelterEntryPage />) },
+      { path: "albergue/movimientos", element: lazyPage(<ShelterMovementsPage />) },
       { path: "fichas/nueva", element: lazyPage(<StartAdmissionPage />) },
       {
         path: "fichas/borradores",

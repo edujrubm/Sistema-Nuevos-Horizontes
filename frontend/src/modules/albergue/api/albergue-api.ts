@@ -29,6 +29,21 @@ export interface CreateShelterStayInput {
   beneficiariaId: string;
 }
 
+export interface CreateTemporaryExitInput {
+  destino: string;
+  trabajadorAsignado?: string;
+}
+
+export interface PendingTemporaryExit {
+  movimientoId: string;
+  estanciaId: string;
+  beneficiariaId: string;
+  beneficiariaNombre: string;
+  fechaSalida: string;
+  destino: string;
+  trabajadorAsignado: string | null;
+}
+
 export function getShelterSummary(signal?: AbortSignal) {
   return apiRequest<ShelterSummary>("/albergue/resumen", { signal });
 }
@@ -44,4 +59,19 @@ export function createShelterStay(input: CreateShelterStayInput) {
     method: "POST",
     body: JSON.stringify(input),
   });
+}
+
+export function createTemporaryExit(estanciaId: string, input: CreateTemporaryExitInput) {
+  return apiRequest(`/albergue/estancias/${estanciaId}/salidas-temporales`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function listPendingTemporaryExits(signal?: AbortSignal) {
+  return apiRequest<PendingTemporaryExit[]>("/albergue/salidas-temporales/pendientes", { signal });
+}
+
+export function registerShelterReturn(estanciaId: string) {
+  return apiRequest(`/albergue/estancias/${estanciaId}/retornos`, { method: "POST" });
 }
