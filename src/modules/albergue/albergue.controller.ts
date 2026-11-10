@@ -14,7 +14,7 @@ import { CrearEstanciaDto } from './dto/crear-estancia.dto';
 import { CrearSalidaTemporalDto } from './dto/crear-salida-temporal.dto';
 import { CrearNacimientoDto } from './dto/crear-nacimiento.dto';
 
-@Controller('albergue')
+@Controller('v1/albergue')
 export class AlbergueController {
   constructor(private readonly albergueService: AlbergueService) {}
 

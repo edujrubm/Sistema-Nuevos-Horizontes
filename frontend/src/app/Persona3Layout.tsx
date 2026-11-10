@@ -18,6 +18,6 @@ export function Persona3Layout() {
   return <CapacidadesContext.Provider value={capacidades}><AreaFichaContext.Provider value={{area,setArea}}><BeneficiariaContext.Provider value={q.datos}>
     <div className="persona3"><nav aria-label="Áreas del expediente" className="tabs">
       <Link to={base}>Expediente</Link> <Link to={`${base}/social`}>Trabajo Social</Link> <Link to={`${base}/legal`}>Legal</Link> <Link to={`${base}/referencias`}>Referencias</Link> <Link to={`${base}/guarderia`}>Guardería</Link> <Link to={`${base}/evolucion`}>Evolución</Link>
-    </nav>{q.error && <ErrorVista error={q.error} reintentar={q.recargar}/>}<Outlet/></div>
+    </nav>{!!q.error && <ErrorVista error={q.error} reintentar={q.recargar}/>}<Outlet/></div>
   </BeneficiariaContext.Provider></AreaFichaContext.Provider></CapacidadesContext.Provider>;
 }
