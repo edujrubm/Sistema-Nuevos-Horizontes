@@ -1,3 +1,5 @@
+> DOCUMENTO HISTÓRICO (octubre). Para el estado del 4 de noviembre ver ../integracion/INFORME_INTEGRACION_DOCUMENTOS_PERSONA3.md. El laboratorio y su SQL ya no son la integración operativa.
+
 # Pruebas de persona 3 - 30 de octubre de 2026
 
 > Actualización de la entrega de correcciones de mockups: ver

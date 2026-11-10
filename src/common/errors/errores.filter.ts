@@ -1,3 +1,4 @@
+import { ErrorPublicoException } from "./error-publico.exception";
 import {
   ArgumentsHost,
   Catch,
@@ -41,6 +42,17 @@ export function clasificarError(
     return { codigo: "BASE_DATOS_NO_DISPONIBLE", estado: 503 };
   if (error instanceof HttpException) {
     const estado = error.getStatus();
+    const body = error.getResponse() as { code?: string };
+    const anteriores: Record<string, CodigoError> = {
+      VERSION_CONFLICT: "VERSION_DESACTUALIZADA",
+      STATE_CONFLICT: "ESTADO_NO_PERMITIDO",
+      DUPLICATE_CUI: "REGISTRO_DUPLICADO",
+      INCOMPLETE_INITIAL_INTAKE: "SOLICITUD_INCOMPLETA",
+      FORM_STATE_CATALOG_NOT_CONFIGURED: "CONFIGURACION_INCOMPLETA",
+    };
+    if (body?.code && anteriores[body.code])
+      return { codigo: anteriores[body.code], estado };
+
     const known: Partial<Record<number, CodigoError>> = {
       400: "FORMATO_INVALIDO",
       401: "AUTENTICACION_REQUERIDA",
@@ -101,9 +113,17 @@ export class ErroresApiFilter implements ExceptionFilter {
     res.setHeader("X-Id-Solicitud", idSolicitud);
     res.status(estado).json({
       estado,
-      codigo,
-      mensaje: CATALOGO[codigo].mensaje,
-      errores: error instanceof ErrorApi ? error.errores : [],
+      codigo: error instanceof ErrorPublicoException ? error.codigo : codigo,
+      mensaje:
+        error instanceof ErrorPublicoException
+          ? error.mensajePublico
+          : CATALOGO[codigo].mensaje,
+      errores:
+        error instanceof ErrorPublicoException
+          ? error.erroresPublicos
+          : error instanceof ErrorApi
+            ? error.errores
+            : [],
       idSolicitud,
     });
   }

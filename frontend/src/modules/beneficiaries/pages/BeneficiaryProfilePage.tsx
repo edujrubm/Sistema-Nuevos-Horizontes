@@ -82,6 +82,32 @@ export function BeneficiaryProfilePage() {
         }
       />
 
+      <nav className="profile-actions" aria-label="Áreas del expediente">
+        <Link className="button secondary" to={`/beneficiarias/${id}/social`}>
+          Trabajo Social
+        </Link>
+        <Link className="button secondary" to={`/beneficiarias/${id}/legal`}>
+          Legal
+        </Link>
+        <Link
+          className="button secondary"
+          to={`/beneficiarias/${id}/referencias`}
+        >
+          Referencias
+        </Link>
+        <Link
+          className="button secondary"
+          to={`/beneficiarias/${id}/guarderia`}
+        >
+          Guardería
+        </Link>
+        <Link
+          className="button secondary"
+          to={`/beneficiarias/${id}/evolucion`}
+        >
+          Evolución
+        </Link>
+      </nav>
       <div className="profile-summary">
         <article className="panel profile-card">
           <div className="card-heading">

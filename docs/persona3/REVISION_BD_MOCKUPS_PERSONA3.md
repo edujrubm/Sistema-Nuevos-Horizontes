@@ -1,7 +1,7 @@
 # Nuevos Horizontes: diferencias entre mockups y base de datos
 
-**Para:** encargado de base de datos.  
-**Fecha:** 29 de octubre de 2026.  
+**Para:** encargado de base de datos.
+**Fecha:** 29 de octubre de 2026.
 **Áreas revisadas:** Trabajo Social, Legal, referencias legales, Guardería, sus seguimientos y los documentos asociados.
 
 ## Estado de implementación

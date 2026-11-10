@@ -4,6 +4,30 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import { AppLayout } from "../layouts/AppLayout";
 import { NotFoundPage } from "@/shared/components/NotFoundPage";
 
+const Persona3Layout = lazy(() =>
+  import("../Persona3Layout").then((m) => ({ default: m.Persona3Layout })),
+);
+const ListadoFichas = lazy(() =>
+  import("../../modules/persona3/Listados").then((m) => ({
+    default: m.ListadoFichas,
+  })),
+);
+const Guarderia = lazy(() =>
+  import("../../modules/persona3/Listados").then((m) => ({
+    default: m.Guarderia,
+  })),
+);
+const EditorFicha = lazy(() =>
+  import("../../modules/persona3/EditorFicha").then((m) => ({
+    default: m.EditorFicha,
+  })),
+);
+const Evolucion = lazy(() =>
+  import("../../modules/persona3/Evolucion").then((m) => ({
+    default: m.Evolucion,
+  })),
+);
+
 const BeneficiariesPage = lazy(() =>
   import("@/modules/beneficiaries/pages/BeneficiariesPage").then((module) => ({
     default: module.BeneficiariesPage,
@@ -70,7 +94,9 @@ const ShelterClosurePage = lazy(() =>
   })),
 );
 const ShelterHistoryPage = lazy(() =>
-  import("@/modules/albergue/pages/ShelterHistoryPage").then((module) => ({ default: module.ShelterHistoryPage })),
+  import("@/modules/albergue/pages/ShelterHistoryPage").then((module) => ({
+    default: module.ShelterHistoryPage,
+  })),
 );
 
 function lazyPage(page: ReactNode) {
@@ -116,7 +142,10 @@ export const router = createBrowserRouter([
       },
       { path: "albergue", element: lazyPage(<ShelterDashboardPage />) },
       { path: "albergue/ingreso", element: lazyPage(<ShelterEntryPage />) },
-      { path: "albergue/movimientos", element: lazyPage(<ShelterMovementsPage />) },
+      {
+        path: "albergue/movimientos",
+        element: lazyPage(<ShelterMovementsPage />),
+      },
       { path: "albergue/cierres", element: lazyPage(<ShelterClosurePage />) },
       { path: "albergue/historial", element: lazyPage(<ShelterHistoryPage />) },
       { path: "fichas/nueva", element: lazyPage(<StartAdmissionPage />) },
@@ -129,6 +158,34 @@ export const router = createBrowserRouter([
         element: lazyPage(<AdmissionListPage status="CONFIRMADA" />),
       },
       { path: "fichas/:id", element: lazyPage(<AdmissionWizardPage />) },
+      {
+        path: "beneficiarias/:beneficiariaId",
+        element: lazyPage(<Persona3Layout />),
+        children: [
+          { path: "social", element: <ListadoFichas area="trabajo-social" /> },
+          { path: "social/nueva", element: <EditorFicha nueva /> },
+          { path: "legal", element: <ListadoFichas area="legal" /> },
+          { path: "fichas/:fichaId", element: <EditorFicha /> },
+          {
+            path: "referencias",
+            element: <ListadoFichas area="referencias" />,
+          },
+          {
+            path: "referencias/nueva",
+            element: <EditorFicha esReferencia nueva />,
+          },
+          {
+            path: "referencias/:fichaId",
+            element: <EditorFicha esReferencia />,
+          },
+          { path: "guarderia", element: <Guarderia /> },
+          {
+            path: "guarderia/:hijoId",
+            element: <ListadoFichas area="guarderia" />,
+          },
+          { path: "evolucion", element: <Evolucion /> },
+        ],
+      },
       { path: "*", element: <NotFoundPage /> },
     ],
   },

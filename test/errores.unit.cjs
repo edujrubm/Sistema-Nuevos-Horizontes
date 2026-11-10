@@ -30,25 +30,15 @@ test('Transacción: restricciones desconocidas no se convierten en conflictos de
  for(const code of ['40001','40P01'])await assert.rejects(repo.transaction('Prueba',async()=>{throw {driverError:{code}};}),e=>e.codigo==='BASE_DATOS_NO_DISPONIBLE');
 });
 
-test('Cliente: red, JSON ajeno y códigos desconocidos tienen respaldo español',async()=>{
- const vm=require('node:vm'),fs=require('node:fs');
- const context=vm.createContext({document:{getElementById:()=>({value:'',disabled:false})},FormData,fetch:async()=>{throw new Error('Network failure');}});
- vm.runInContext(fs.readFileSync('public/errores-api.js','utf8'),context);vm.runInContext(fs.readFileSync('public/persona3.js','utf8'),context);
- await assert.rejects(vm.runInContext("api('/prueba')",context),e=>e.contrato.codigo==='SIN_CONEXION'&&e.contrato.estado===null);
- await assert.rejects(vm.runInContext("api('/prueba','POST',{})",context),e=>e.contrato.codigo==='RESPUESTA_NO_RECIBIDA');
- context.fetch=async()=>({status:502,json:async()=>{throw Error('HTML privado');}});
- await assert.rejects(vm.runInContext("api('/prueba')",context),e=>e.contrato.codigo==='RESPUESTA_NO_VALIDA'&&!e.message.includes('HTML privado'));
- context.fetch=async()=>({status:400,ok:false,json:async()=>({estado:400,codigo:'DESCONOCIDO',mensaje:'PRIVATE',errores:[],idSolicitud:'SOL-prueba'})});
- await assert.rejects(vm.runInContext("api('/prueba')",context),e=>e.contrato.codigo==='RESPUESTA_NO_VALIDA'&&!e.message.includes('PRIVATE'));
- context.fetch=async()=>({status:400,ok:false,json:async()=>({estado:400,codigo:'DATOS_INVALIDOS',mensaje:'Revisar',errores:[null],idSolicitud:'SOL-prueba'})});
- await assert.rejects(vm.runInContext("api('/prueba')",context),e=>e.contrato.codigo==='RESPUESTA_NO_VALIDA');
- assert.equal(vm.runInContext("mensajeVisible(new Error('English private error'))",context),'No se pudo mostrar esta sección. Vuelve a abrirla o comunícate con soporte.');
+test('Integración: códigos heredados de main mantienen conflicto en español',()=>{
+ const {ConflictException}=require('@nestjs/common');
+ assert.deepEqual(clasificarError(new ConflictException({code:'VERSION_CONFLICT'})),{codigo:'VERSION_DESACTUALIZADA',estado:409});
 });
 
-test('Laboratorio: módulo experimental requiere activación explícita',()=>{
+test('Integración: laboratorio ausente incluso con variable antigua activada',()=>{
  const {spawnSync}=require('node:child_process');
  for(const flag of ['false','true']){
   const r=spawnSync(process.execPath,['-e',"require('reflect-metadata');const {AppModule}=require('./dist/app.module');const xs=Reflect.getMetadata('imports',AppModule)||[];console.log(xs.some(x=>x?.name==='LaboratorioModule'))"],{cwd:process.cwd(),env:{...process.env,NODE_ENV:'test',P3_ENABLE_LAB:flag},encoding:'utf8'});
-  assert.equal(r.status,0,r.stderr);assert.equal(r.stdout.trim(),flag);
+  assert.equal(r.status,0,r.stderr);assert.equal(r.stdout.trim(),'false');
  }
 });

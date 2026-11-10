@@ -52,3 +52,9 @@ filas directas de PostgreSQL.
 - Mantener estados de carga, vacío, error, acceso denegado y conflicto.
 - Los borradores conservan datos ante errores recuperables.
 - No inventar catálogos, obligatoriedad o reglas institucionales.
+
+## Integración del 10 de noviembre
+
+Social, Legal, Referencias, Guardería y Evolución usan el mismo router institucional. Entrar desde el perfil de la beneficiaria. Configuración común: VITE_API_BASE_URL=/api/v1. VITE_DEV_CAPABILITIES=true habilita capacidades sintéticas solo en desarrollo; el build productivo conserva solo lectura para estas pantallas mientras se integra la sesión real. API local predeterminada: http://localhost:3000, mediante el proxy Vite.
+
+Consultar ../docs/integracion/INTEGRACION_PRS_20261110.md para decisiones de merge y pruebas.

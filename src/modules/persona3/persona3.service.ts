@@ -1,3 +1,4 @@
+import { validarReferenciaCompleta } from "./validar-referencia";
 import { ErrorApi } from "../../common/errors/error-api";
 import { Injectable } from "@nestjs/common";
 import { AmbitoLocalService } from "./ambito-local.service";
@@ -83,10 +84,15 @@ export class Persona3Service {
       "SELECT e.id,e.accion,e.contenido,e.fecha_atencion,e.plan_seguimiento,e.resultado,e.profesional_id,p.nombre AS profesional_nombre FROM new_horizons.entrada_evolutiva e JOIN new_horizons.formulario_area f ON f.id=e.formulario_id JOIN new_horizons.empleado p ON p.id_empleado=e.profesional_id WHERE f.expediente_id=$1 AND f.tipo='SOCIAL' ORDER BY e.fecha_atencion DESC,e.id DESC LIMIT 5",
       [expediente],
     );
-    const [riesgos] = await this.repo.data.query(
-      "SELECT count(*)::int AS n FROM new_horizons.ficha_social_riesgo WHERE formulario_id=$1 AND seleccionado",
-      [ficha?.id ?? null],
+    const [catalogo] = await this.repo.data.query(
+      "SELECT to_regclass('new_horizons.ficha_social_riesgo') IS NOT NULL AS existe",
     );
+    const [riesgos] = catalogo.existe
+      ? await this.repo.data.query(
+          "SELECT count(*)::int AS n FROM new_horizons.ficha_social_riesgo WHERE formulario_id=$1 AND seleccionado",
+          [ficha?.id ?? null],
+        )
+      : [{ n: null }];
     return {
       beneficiariaId: id,
       expedienteId: expediente,
@@ -100,7 +106,7 @@ export class Persona3Service {
           }
         : null,
       historialReciente: seguimientos.map(camel),
-      camposSinSoporte: [],
+      camposSinSoporte: catalogo.existe ? [] : ["totalRiesgos"],
       totalRiesgos: riesgos.n,
     };
   }
@@ -175,21 +181,7 @@ export class Persona3Service {
   }
 
   validarReferenciaCompleta(detalle: Record<string, unknown>) {
-    const errores = [
-      {
-        campo: "detalle.destino",
-        valor: detalle.destino,
-        mensaje: "Indica la institución o el destino de la referencia.",
-      },
-      {
-        campo: "detalle.motivoReferencia",
-        valor: detalle.motivoReferencia,
-        mensaje: "Escribe el motivo de la referencia.",
-      },
-    ]
-      .filter((d) => typeof d.valor !== "string" || !d.valor.trim())
-      .map(({ campo, mensaje }) => ({ campo, mensaje }));
-    if (errores.length) throw new ErrorApi("DATOS_INVALIDOS", errores);
+    validarReferenciaCompleta(detalle);
   }
 
   async editarReferencia(id: string, dto: EditarReferenciaDto) {

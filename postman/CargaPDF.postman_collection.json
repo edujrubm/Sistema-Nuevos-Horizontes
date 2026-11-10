@@ -7,7 +7,7 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://127.0.0.1:3015/api/v1"
+      "value": "http://127.0.0.1:3016/api/v1"
     },
     {
       "key": "beneficiariaId",
@@ -41,21 +41,6 @@
               "key": "archivo",
               "type": "file",
               "src": "fixtures/documento.pdf"
-            },
-            {
-              "key": "fechaDocumento",
-              "value": "2026-10-31",
-              "type": "text"
-            },
-            {
-              "key": "nombreDocumento",
-              "value": "Documento sintético local",
-              "type": "text"
-            },
-            {
-              "key": "descripcion",
-              "value": "Prueba de nuevos metadatos",
-              "type": "text"
             }
           ]
         }
