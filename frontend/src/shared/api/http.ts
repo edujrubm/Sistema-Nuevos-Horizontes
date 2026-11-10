@@ -24,7 +24,7 @@ export async function http<T>(
   if (op.signal?.aborted) controller.abort();
   const timeout = setTimeout(abort, 20000);
   try {
-    const r = await fetch((import.meta.env.VITE_API_BASE || "/api/v1") + ruta, {
+    const r = await fetch((import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE || "/api/v1") + ruta, {
       method: op.method || "GET",
       headers: op.body ? { "Content-Type": "application/json" } : undefined,
       body: op.body ? JSON.stringify(op.body) : undefined,

@@ -5,7 +5,7 @@ import { ListarFichasMedicinaDto } from './dto/listar-fichas-medicina.dto';
 import { MedicinaService } from './medicina.service';
 
 /** Expone consultas de fichas médicas para beneficiarias e hijos. */
-@Controller('medicina')
+@Controller('v1/medicina')
 export class MedicinaController {
   constructor(private readonly medicinaService: MedicinaService) {}
 

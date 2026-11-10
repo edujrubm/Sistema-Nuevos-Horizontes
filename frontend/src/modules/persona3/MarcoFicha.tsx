@@ -70,6 +70,7 @@ export function MarcoFicha({
             key={s.titulo}
             className={"step " + (pagina === i ? "active" : "")}
             aria-current={pagina === i ? "step" : undefined}
+            aria-label={`${i + 1} ${s.titulo}`}
             onClick={() => cambiar(i)}
           >
             <span className="step-num">{i + 1}</span>

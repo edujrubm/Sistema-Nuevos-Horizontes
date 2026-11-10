@@ -34,6 +34,7 @@ try {
  $suites=@('test/errores.unit.cjs','test/persona3.integration.cjs')
 
  $suites+='test/zzz-documentos-unificados.integration.cjs'
+ $suites+='test/zzzz-albergue.integration.cjs'
  & node --test --test-concurrency=1 @suites 2>&1 | Tee-Object -FilePath (Join-Path $results 'persona3.tap')
  if($LASTEXITCODE -ne 0){throw 'Fallaron las pruebas'}
 } finally {

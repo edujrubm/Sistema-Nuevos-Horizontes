@@ -1,6 +1,8 @@
-@layer tokens,base,components;
-@layer tokens {
-  :root {
+/* Estilos limitados a las pantallas integradas de Persona 3. */
+@scope (.persona3) {
+
+
+  :scope {
     --color-primary-700: #5b2a9d;
     --color-primary-100: #eee7f7;
     --color-primary-50: #f8f5fc;
@@ -22,13 +24,13 @@
     --radius: 12px;
     --shadow: 0 2px 8px #24212a0f;
   }
-}
-@layer base {
+
+
   * {
     box-sizing: border-box;
   }
   html,
-  body {
+  :scope {
     margin: 0;
     min-height: 100%;
     font-family: Inter, Arial, sans-serif;
@@ -36,7 +38,7 @@
     color: var(--color-text-900);
     background: var(--color-canvas);
   }
-  body {
+  :scope {
     line-height: 1.5;
   }
   button,
@@ -152,8 +154,8 @@
     padding: 26px 34px 36px;
     max-width: 1720px;
   }
-}
-@layer components {
+
+
   .top {
     height: 82px;
     position: fixed;
@@ -911,9 +913,9 @@
       padding-top: 32px;
     }
   }
-}
 
-@layer components {
+
+
   .checks {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -959,4 +961,6 @@
       grid-template-columns: 1fr;
     }
   }
+
+
 }

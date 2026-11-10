@@ -4,16 +4,17 @@ import {
   ConflictException,
   BadRequestException,
   InternalServerErrorException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource, Repository, QueryFailedError, IsNull } from 'typeorm';
+} from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { InjectRepository } from "@nestjs/typeorm";
+import { InjectDataSource } from "@nestjs/typeorm";
+import { DataSource, Repository, QueryFailedError, IsNull } from "typeorm";
 
-import { ActivoAlbergue } from './entities/activo-albergue.entity';
-import { CrearEstanciaDto } from './dto/crear-estancia.dto';
-import { MovimientoAlbergue } from './entities/movimiento-albergue.entity';
-import { CrearSalidaTemporalDto } from './dto/crear-salida-temporal.dto';
-import { CrearNacimientoDto } from './dto/crear-nacimiento.dto';
+import { ActivoAlbergue } from "./entities/activo-albergue.entity";
+import { CrearEstanciaDto } from "./dto/crear-estancia.dto";
+import { MovimientoAlbergue } from "./entities/movimiento-albergue.entity";
+import { CrearSalidaTemporalDto } from "./dto/crear-salida-temporal.dto";
+import { CrearNacimientoDto } from "./dto/crear-nacimiento.dto";
 
 @Injectable()
 export class AlbergueService {
@@ -23,12 +24,13 @@ export class AlbergueService {
 
     @InjectDataSource()
     private readonly dataSource: DataSource,
+    private readonly config: ConfigService,
   ) {}
 
   // Listar todas las estancias
   async listarEstancias(pagina = 1, limite = 20) {
     const [datos, total] = await this.estanciaRepository.findAndCount({
-      order: { id: 'DESC' },
+      order: { id: "DESC" },
       skip: (pagina - 1) * limite,
       take: limite,
     });
@@ -46,7 +48,7 @@ export class AlbergueService {
 
   async obtenerEstancia(id: string) {
     if (!/^[1-9]\d*$/.test(id)) {
-      throw new BadRequestException('El ID de la estancia no es válido');
+      throw new BadRequestException("El ID de la estancia no es válido");
     }
 
     const estancia = await this.estanciaRepository.findOne({
@@ -54,7 +56,7 @@ export class AlbergueService {
     });
 
     if (!estancia) {
-      throw new NotFoundException('La estancia no existe');
+      throw new NotFoundException("La estancia no existe");
     }
 
     // Consultar menores asociados a la estancia
@@ -94,7 +96,7 @@ export class AlbergueService {
         );
 
         if (beneficiarias.length === 0) {
-          throw new NotFoundException('La beneficiaria no existe');
+          throw new NotFoundException("La beneficiaria no existe");
         }
 
         // 2. Verificar que no tenga una estancia activa
@@ -107,7 +109,7 @@ export class AlbergueService {
 
         if (estanciaActiva) {
           throw new ConflictException(
-            'La beneficiaria ya tiene una estancia activa',
+            "La beneficiaria ya tiene una estancia activa",
           );
         }
 
@@ -124,7 +126,7 @@ export class AlbergueService {
 
         if (estados.length === 0) {
           throw new InternalServerErrorException(
-            'No existe el estado Activo en el catálogo de Albergue',
+            "No existe el estado Activo en el catálogo de Albergue",
           );
         }
 
@@ -157,11 +159,11 @@ export class AlbergueService {
         };
 
         if (
-          dbError.code === '23505' &&
-          dbError.constraint === 'uq_estancia_beneficiaria_activa'
+          dbError.code === "23505" &&
+          dbError.constraint === "uq_estancia_beneficiaria_activa"
         ) {
           throw new ConflictException(
-            'La beneficiaria ya tiene una estancia activa',
+            "La beneficiaria ya tiene una estancia activa",
           );
         }
       }
@@ -175,26 +177,26 @@ export class AlbergueService {
     dto: CrearSalidaTemporalDto,
   ): Promise<MovimientoAlbergue> {
     if (!/^[1-9]\d*$/.test(estanciaId)) {
-      throw new BadRequestException('El ID de la estancia no es válido');
+      throw new BadRequestException("El ID de la estancia no es válido");
     }
 
     return this.dataSource.transaction(async (manager) => {
       // 1. Bloquear la estancia para evitar operaciones simultáneas
       const estancia = await manager
         .getRepository(ActivoAlbergue)
-        .createQueryBuilder('estancia')
-        .setLock('pessimistic_write')
-        .where('estancia.id = :id', { id: estanciaId })
+        .createQueryBuilder("estancia")
+        .setLock("pessimistic_write")
+        .where("estancia.id = :id", { id: estanciaId })
         .getOne();
 
       if (!estancia) {
-        throw new NotFoundException('La estancia no existe');
+        throw new NotFoundException("La estancia no existe");
       }
 
       // 2. Comprobar que la estancia siga abierta
       if (estancia.fechaEgreso !== null) {
         throw new ConflictException(
-          'No se puede registrar una salida de una estancia finalizada',
+          "No se puede registrar una salida de una estancia finalizada",
         );
       }
 
@@ -208,7 +210,7 @@ export class AlbergueService {
 
       if (salidaPendiente) {
         throw new ConflictException(
-          'La estancia ya tiene una salida temporal pendiente',
+          "La estancia ya tiene una salida temporal pendiente",
         );
       }
 
@@ -240,26 +242,26 @@ export class AlbergueService {
 
   async registrarRetorno(estanciaId: string): Promise<MovimientoAlbergue> {
     if (!/^[1-9]\d*$/.test(estanciaId)) {
-      throw new BadRequestException('El ID de la estancia no es válido');
+      throw new BadRequestException("El ID de la estancia no es válido");
     }
 
     return this.dataSource.transaction(async (manager) => {
       // 1. Bloquear la estancia para evitar operaciones simultáneas
       const estancia = await manager
         .getRepository(ActivoAlbergue)
-        .createQueryBuilder('estancia')
-        .setLock('pessimistic_write')
-        .where('estancia.id = :id', { id: estanciaId })
+        .createQueryBuilder("estancia")
+        .setLock("pessimistic_write")
+        .where("estancia.id = :id", { id: estanciaId })
         .getOne();
 
       if (!estancia) {
-        throw new NotFoundException('La estancia no existe');
+        throw new NotFoundException("La estancia no existe");
       }
 
       // 2. Verificar que la estancia esté abierta
       if (estancia.fechaEgreso !== null) {
         throw new ConflictException(
-          'No se puede registrar un retorno de una estancia finalizada',
+          "No se puede registrar un retorno de una estancia finalizada",
         );
       }
 
@@ -270,13 +272,13 @@ export class AlbergueService {
           entrada: IsNull(),
         },
         order: {
-          salida: 'DESC',
+          salida: "DESC",
         },
       });
 
       if (!salidaPendiente) {
         throw new ConflictException(
-          'La estancia no tiene una salida temporal pendiente',
+          "La estancia no tiene una salida temporal pendiente",
         );
       }
 
@@ -299,7 +301,7 @@ export class AlbergueService {
       );
 
       if (resultado.length === 0) {
-        throw new ConflictException('El retorno ya fue registrado');
+        throw new ConflictException("El retorno ya fue registrado");
       }
 
       return resultado[0] as MovimientoAlbergue;
@@ -308,25 +310,25 @@ export class AlbergueService {
 
   async registrarEgreso(estanciaId: string): Promise<ActivoAlbergue> {
     if (!/^[1-9]\d*$/.test(estanciaId)) {
-      throw new BadRequestException('El ID de la estancia no es válido');
+      throw new BadRequestException("El ID de la estancia no es válido");
     }
 
     return this.dataSource.transaction(async (manager) => {
       // 1. Bloquear la estancia
       const estancia = await manager
         .getRepository(ActivoAlbergue)
-        .createQueryBuilder('estancia')
-        .setLock('pessimistic_write')
-        .where('estancia.id = :id', { id: estanciaId })
+        .createQueryBuilder("estancia")
+        .setLock("pessimistic_write")
+        .where("estancia.id = :id", { id: estanciaId })
         .getOne();
 
       if (!estancia) {
-        throw new NotFoundException('La estancia no existe');
+        throw new NotFoundException("La estancia no existe");
       }
 
       // 2. Verificar que no haya egresado
       if (estancia.fechaEgreso !== null) {
-        throw new ConflictException('La estancia ya fue finalizada');
+        throw new ConflictException("La estancia ya fue finalizada");
       }
 
       // 3. Impedir egreso con una salida temporal pendiente
@@ -339,7 +341,7 @@ export class AlbergueService {
 
       if (salidaPendiente) {
         throw new ConflictException(
-          'No se puede registrar el egreso mientras exista una salida temporal pendiente',
+          "No se puede registrar el egreso mientras exista una salida temporal pendiente",
         );
       }
 
@@ -356,7 +358,7 @@ export class AlbergueService {
 
       if (estados.length === 0) {
         throw new InternalServerErrorException(
-          'No existe el estado Inactivo en el catálogo de Albergue',
+          "No existe el estado Inactivo en el catálogo de Albergue",
         );
       }
 
@@ -379,25 +381,25 @@ export class AlbergueService {
 
   async registrarNacimiento(estanciaId: string, dto: CrearNacimientoDto) {
     if (!/^[1-9]\d*$/.test(estanciaId)) {
-      throw new BadRequestException('El ID de la estancia no es válido');
+      throw new BadRequestException("El ID de la estancia no es válido");
     }
 
     return this.dataSource.transaction(async (manager) => {
       // 1. Bloquear y verificar la estancia
       const estancia = await manager
         .getRepository(ActivoAlbergue)
-        .createQueryBuilder('estancia')
-        .setLock('pessimistic_write')
-        .where('estancia.id = :id', { id: estanciaId })
+        .createQueryBuilder("estancia")
+        .setLock("pessimistic_write")
+        .where("estancia.id = :id", { id: estanciaId })
         .getOne();
 
       if (!estancia) {
-        throw new NotFoundException('La estancia no existe');
+        throw new NotFoundException("La estancia no existe");
       }
 
       if (estancia.fechaEgreso !== null) {
         throw new ConflictException(
-          'No se pueden registrar nacimientos en una estancia finalizada',
+          "No se pueden registrar nacimientos en una estancia finalizada",
         );
       }
 
@@ -413,7 +415,7 @@ export class AlbergueService {
 
       if (expedientes.length === 0) {
         throw new ConflictException(
-          'La beneficiaria no tiene un expediente registrado',
+          "La beneficiaria no tiene un expediente registrado",
         );
       }
 
@@ -432,7 +434,7 @@ export class AlbergueService {
 
       if (!fecha[0].valida) {
         throw new BadRequestException(
-          'La fecha de nacimiento no puede ser futura',
+          "La fecha de nacimiento no puede ser futura",
         );
       }
 
@@ -450,9 +452,32 @@ export class AlbergueService {
 
       if (coincidencias.length > 0) {
         throw new ConflictException(
-          'Ya existe un niño con ese nombre y fecha de nacimiento en el expediente',
+          "Ya existe un niño con ese nombre y fecha de nacimiento en el expediente",
         );
       }
+
+      // El trigger de nino exige el mismo contexto auditado que el módulo de niños.
+      const usuarios = await manager.query(
+        "SELECT id_usuario::text AS id FROM new_horizons.usuario WHERE nombre_usuario = $1",
+        [
+          this.config.get<string>(
+            "AUDIT_ACTOR_USERNAME",
+            "actor_pruebas_persona1",
+          ),
+        ],
+      );
+      if (!usuarios[0])
+        throw new InternalServerErrorException(
+          "No existe el actor técnico de auditoría configurado",
+        );
+      await manager.query(
+        "SELECT set_config('new_horizons.actor_id', $1, true)",
+        [usuarios[0].id],
+      );
+      await manager.query(
+        "SELECT set_config('new_horizons.motivo', $1, true)",
+        ["Registro de nacimiento en albergue"],
+      );
 
       // 5. Registrar al recién nacido
       const resultado = await manager.query(

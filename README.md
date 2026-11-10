@@ -1,3 +1,5 @@
+> Integración vigente del equipo: [PR y pruebas del 10 de noviembre](docs/integracion/INTEGRACION_PRS_20261110.md).
+
 > Entrega local de integración del 4 de noviembre: consultar [informe vigente](docs/integracion/INFORME_INTEGRACION_DOCUMENTOS_PERSONA3.md), [preguntas al equipo](docs/integracion/DUDAS_EQUIPO_FRONTEND.md) y [frontend React](frontend/README.md). Las menciones posteriores al prototipo HTML corresponden al trabajo histórico; el laboratorio runtime se retiró de esta entrega.
 
 # Sistema Nuevos Horizontes

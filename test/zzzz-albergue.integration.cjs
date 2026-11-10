@@ -1,0 +1,16 @@
+const {test,before,after}=require('node:test');
+const assert=require('node:assert/strict');
+const {NestFactory}=require('@nestjs/core');
+const {DataSource}=require('typeorm');
+const {AppModule}=require('../dist/app.module');
+const {configurarTransporteApi}=require('../dist/common/errors/transporte');
+let app,db,url,estancia;
+before(async()=>{app=await NestFactory.create(AppModule,{logger:false});configurarTransporteApi(app);app.setGlobalPrefix('api');await app.listen(0,'127.0.0.1');url=await app.getUrl()+'/api/v1';db=app.get(DataSource);await db.query("INSERT INTO new_horizons.estado_albergue(nombre) VALUES ('Activo'),('Inactivo')");});
+after(async()=>{if(app)await app.close()});
+async function call(method,path,body,status=200){const r=await fetch(url+path,{method,headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});const d=await r.json();assert.equal(r.status,status,JSON.stringify(d));return d;}
+test('Albergue: ingreso y consultas usan las rutas del frontend',async()=>{estancia=await call('POST','/albergue/estancias',{beneficiariaId:'100'},201);assert.equal(estancia.beneficiariaId,'100');const lista=await call('GET','/albergue/estancias?pagina=1&limite=20');assert.ok(lista.datos.some(d=>d.id===estancia.id));assert.equal((await call('GET','/albergue/estancias/'+estancia.id)).id,estancia.id);assert.equal((await call('GET','/albergue/resumen')).estanciasActivas,1);assert.equal((await call('GET','/albergue/estados')).length,2);await call('POST','/albergue/estancias',{beneficiariaId:'100'},409);});
+test('Albergue: salida, bloqueo de egreso, retorno e historial',async()=>{await call('POST',`/albergue/estancias/${estancia.id}/salidas-temporales`,{destino:'Destino sintetico'},201);assert.equal((await call('GET','/albergue/salidas-temporales/pendientes')).length,1);await call('POST',`/albergue/estancias/${estancia.id}/egreso`,undefined,409);await call('POST',`/albergue/estancias/${estancia.id}/retornos`,undefined,201);assert.equal((await call('GET','/albergue/salidas-temporales/pendientes')).length,0);const h=await call('GET','/albergue/movimientos');assert.equal(h.datos[0].estadoMovimiento,'COMPLETADO');});
+test('Albergue: nacimiento vinculado y egreso definitivo',async()=>{const n=await call('POST',`/albergue/estancias/${estancia.id}/nacimientos`,{nombre:'Hija sintetica albergue',fechaNacimiento:'2026-10-01',genero:'F'},201);assert.ok(n.id);const hijos=await call('GET','/beneficiarias/100/hijos');assert.ok(hijos.data.some(h=>h.id===n.id));const egreso=await call('POST',`/albergue/estancias/${estancia.id}/egreso`,undefined,201);assert.ok(egreso.fechaEgreso);await call('POST',`/albergue/estancias/${estancia.id}/retornos`,undefined,409);});
+test('Albergue: valida paginacion e identificadores sin SQL fallido',async()=>{await call('GET','/albergue/estancias?pagina=0',undefined,400);await call('GET','/albergue/estancias/no-valido',undefined,400);await call('GET','/albergue/movimientos?limite=101',undefined,400);});
+
+test('Integración: consultas médicas conservan el prefijo común',async()=>{const mujer=await call('GET','/medicina/beneficiarias/100/fichas');assert.ok(Array.isArray(mujer.data));assert.ok(mujer.data.length>0);const hijo=await call('GET','/medicina/hijos/100/fichas');assert.ok(Array.isArray(hijo.data));});
