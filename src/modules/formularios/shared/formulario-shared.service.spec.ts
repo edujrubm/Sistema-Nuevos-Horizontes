@@ -9,6 +9,7 @@ describe("FormularioSharedService", () => {
     crear: jest.fn(),
     actualizar: jest.fn(),
     confirmar: jest.fn(),
+    descartar: jest.fn(),
   };
   const service = new FormularioSharedService(
     repository as unknown as FormularioSharedRepository,
@@ -51,5 +52,26 @@ describe("FormularioSharedService", () => {
         detalle: { diagnosticoSocial: "Contenido sintético" },
       }),
     ).rejects.toBeInstanceOf(ConflictException);
+  });
+
+  it("descarta un borrador con versión y motivo explícito", async () => {
+    repository.descartar.mockResolvedValue({
+      estado: "DESCARTADO",
+      formulario: { id: "10", estado: "DESCARTADO" },
+    });
+
+    await expect(
+      service.descartar("10", {
+        version: 2,
+        motivo: "  Se inició para la persona equivocada.  ",
+      }),
+    ).resolves.toEqual({
+      data: expect.objectContaining({ id: "10", estado: "DESCARTADO" }),
+    });
+    expect(repository.descartar).toHaveBeenCalledWith(
+      "10",
+      2,
+      "Se inició para la persona equivocada.",
+    );
   });
 });

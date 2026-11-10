@@ -24,6 +24,9 @@ async function bootstrap() {
       exceptionFactory: crearExcepcionValidacion,
     }),
   );
+  app.setBaseViewsDir(join(__dirname, 'views'));
+  app.setViewEngine('hbs');
+  app.setGlobalPrefix('api/v1');
   app.setBaseViewsDir(join(__dirname, "views"));
   app.setViewEngine("hbs");
   app.setGlobalPrefix("api");

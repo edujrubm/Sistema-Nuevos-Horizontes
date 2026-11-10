@@ -10,10 +10,11 @@ El contenido se limita al cliente web en React. La arquitectura, seguridad, pers
 2. `FRONTEND_ARCHITECTURE.md`: estructura, capas, módulos y flujo de datos.
 3. `FRONTEND_DESIGN_SYSTEM.md`: paleta, tipografía, estructura visual y accesibilidad.
 4. `FRONTEND_FORMS.md`: estructura de pestañas y comportamiento de los formularios.
-5. `FRONTEND_DATA_MODEL.md`: correspondencia entre pantallas, datos del diagrama y requisitos nuevos.
-6. `FRONTEND_STANDARDS.md`: convenciones de implementación y verificación.
-7. `FRONTEND_DECISIONS.md`: decisiones propuestas, pendientes y límites actuales.
-8. `FRONTEND_TRACEABILITY.md`: correspondencia inicial entre requisitos, módulos y datos.
+5. `FRONTEND_AREA_FORMS.md`: patrón aprobado de resumen, borrador, confirmación, navegación y descarte para formularios de área.
+6. `FRONTEND_DATA_MODEL.md`: correspondencia entre pantallas, datos del diagrama y requisitos nuevos.
+7. `FRONTEND_STANDARDS.md`: convenciones de implementación y verificación.
+8. `FRONTEND_DECISIONS.md`: decisiones propuestas, pendientes y límites actuales.
+9. `FRONTEND_TRACEABILITY.md`: correspondencia inicial entre requisitos, módulos y datos.
 
 ## Fuentes del contexto
 
@@ -60,4 +61,3 @@ Las hojas evolutivas de los mockups exigen fecha, acción realizada y detalle. C
 - Alcance: frontend React.
 - Backend: fuera de alcance en esta versión.
 - Fecha de referencia: 19 de octubre de 2026.
-
