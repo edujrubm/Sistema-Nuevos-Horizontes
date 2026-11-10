@@ -23,4 +23,7 @@ __pycache__/
 dist/
 build/
 
-.jest-cache/
+test-results/
+
+# Exportaciones y datos privados exclusivos del laboratorio local
+database/export/

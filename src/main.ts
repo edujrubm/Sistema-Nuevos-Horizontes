@@ -41,7 +41,10 @@ async function bootstrap() {
   const openApiDocument = SwaggerModule.createDocument(app, openApiConfig);
   SwaggerModule.setup("api/docs", app, openApiDocument);
 
-  await app.listen(process.env.PORT ?? 3000);
+  // Sin autenticaciÃ³n en este ciclo: el laboratorio solo escucha en loopback.
+  if (!["development", "test"].includes(process.env.NODE_ENV || "development"))
+    throw new Error("AutenticaciÃ³n pendiente: solo laboratorio local");
+  await app.listen(process.env.PORT ?? 3000, "127.0.0.1");
 }
 
 void bootstrap();

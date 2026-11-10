@@ -16,6 +16,7 @@ import { SeguridadModule } from "./seguridad/seguridad.module";
 /** Agrupa límites de dominio; los módulos no comparten repositorios directamente. */
 @Module({
   imports: [
+    EvolucionModule,
     AdministracionModule,
     AlbergueModule,
     AuditoriaModule,
