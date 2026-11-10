@@ -1,3 +1,4 @@
+import { EvolucionModule } from "./evolucion/evolucion.module";
 import { Module } from "@nestjs/common";
 
 import { AdministracionModule } from "./administracion/administracion.module";

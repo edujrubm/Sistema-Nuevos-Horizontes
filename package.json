@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@11.25.0",
-  "description": "Sistema de gestión institucional Nuevos Horizontes",
+  "description": "Sistema de gesti\u00f3n institucional Nuevos Horizontes",
   "license": "UNLICENSED",
   "scripts": {
     "build": "pnpm run build:api && pnpm run build:web",
@@ -20,12 +20,14 @@
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest",
+    "test": "jest --config jest.config.cjs",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:persona3": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-persona3.ps1",
     "postman:persona3": "node -r ts-node/register scripts/generate-persona3.cjs",
-    "start:persona3": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-persona3.ps1"
+    "start:persona3": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-persona3.ps1",
+    "check:frontend": "pnpm --dir frontend check",
+    "test:core": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-persona3.ps1 -SinLaboratorio"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

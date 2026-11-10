@@ -1,6 +1,10 @@
 import { lazy, Suspense, type ReactNode } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 
+import { Persona3Layout } from "../Persona3Layout";
+import { ListadoFichas, Guarderia } from "../../modules/persona3/Listados";
+import { EditorFicha } from "../../modules/persona3/EditorFicha";
+import { Evolucion } from "../../modules/persona3/Evolucion";
 import { AppLayout } from "../layouts/AppLayout";
 import { NotFoundPage } from "@/shared/components/NotFoundPage";
 
@@ -78,7 +82,7 @@ function lazyPage(page: ReactNode) {
     <Suspense
       fallback={
         <p className="status-message" role="status">
-          Cargando pantalla…
+          Cargando pantallaâ€¦
         </p>
       }
     >
@@ -129,6 +133,18 @@ export const router = createBrowserRouter([
         element: lazyPage(<AdmissionListPage status="CONFIRMADA" />),
       },
       { path: "fichas/:id", element: lazyPage(<AdmissionWizardPage />) },
+      { path: "beneficiarias/:beneficiariaId", element: <Persona3Layout />, children: [
+        { path: "social", element: <ListadoFichas area="trabajo-social" /> },
+        { path: "social/nueva", element: <EditorFicha nueva /> },
+        { path: "legal", element: <ListadoFichas area="legal" /> },
+        { path: "fichas/:fichaId", element: <EditorFicha /> },
+        { path: "referencias", element: <ListadoFichas area="referencias" /> },
+        { path: "referencias/nueva", element: <EditorFicha esReferencia nueva /> },
+        { path: "referencias/:fichaId", element: <EditorFicha esReferencia /> },
+        { path: "guarderia", element: <Guarderia /> },
+        { path: "guarderia/:hijoId", element: <ListadoFichas area="guarderia" /> },
+        { path: "evolucion", element: <Evolucion /> },
+      ] },
       { path: "*", element: <NotFoundPage /> },
     ],
   },

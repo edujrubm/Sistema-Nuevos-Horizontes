@@ -94,12 +94,7 @@ export class CargaPdfService {
         dto.motivoCambio ?? "Carga de PDF del área",
         async (m, actor) => {
           const f = await this.repo.formulario(dto.formularioId, m, true);
-          if (
-            f.beneficiaria_id !== beneficiaria ||
-            !["SOCIAL", "LEGAL", "REFERENCIA_LEGAL", "GUARDERIA"].includes(
-              f.tipo,
-            )
-          )
+          if (f.beneficiaria_id !== beneficiaria)
             throw new ErrorApi("REGISTRO_NO_ENCONTRADO");
           const [area] = await m.query(
             "SELECT nombre_area FROM new_horizons.area WHERE id_area=$1",

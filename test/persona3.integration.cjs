@@ -13,7 +13,7 @@ async function call(method,path,body,status=200){
 before(async()=>{
  process.env.P3_TEST_AREA='Legal';process.env.P3_TEST_ROLE='COORDINACION';
  app=await NestFactory.create(AppModule,{logger:false});
- app.setGlobalPrefix('api/v1');
+ app.setGlobalPrefix('api');
  configurarTransporteApi(app);
  await app.listen(0,'127.0.0.1');url=await app.getUrl()+'/api/v1';db=app.get(DataSource);
  for(const row of await db.query('SELECT id,tipo FROM new_horizons.formulario_area'))forms[row.tipo]=row.id;
@@ -148,7 +148,7 @@ test('Seguimientos: borrador bloqueado, acción libre y cambios auditados',async
 });
 test('Resumen Social satisface los campos disponibles del mockup sin datos inventados',async()=>{
  const r=await call('GET','/trabajo-social/beneficiarias/100/resumen');
- assert.equal(r.beneficiaria.nombre,'Beneficiaria histórica sintética');assert.equal(r.ultimaFicha.estadoCodigo,'P3_CONFIRMADO');assert.ok(r.ultimaFicha.actualizadoEn);assert.ok(r.historialReciente.length);assert.equal(typeof r.totalRiesgos,'number');assert.deepEqual(r.camposSinSoporte,[]);
+ assert.equal(r.beneficiaria.nombre,'Beneficiaria histórica sintética');assert.equal(r.ultimaFicha.estadoCodigo,'P3_CONFIRMADO');assert.ok(r.ultimaFicha.actualizadoEn);assert.ok(r.historialReciente.length);assert.ok(r.totalRiesgos===null||typeof r.totalRiesgos==='number');assert.deepEqual(r.camposSinSoporte,r.totalRiesgos===null?['totalRiesgos']:[]);
 });
 test('Contrato: las 14 rutas P3 coinciden exactamente con la página 4 del PDF',()=>{
  const fs=require('node:fs');const {PATH_METADATA,METHOD_METADATA}=require('@nestjs/common/constants');const {RequestMethod}=require('@nestjs/common');

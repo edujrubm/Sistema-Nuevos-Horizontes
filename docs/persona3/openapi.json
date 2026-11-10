@@ -2,12 +2,12 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Persona 3 - Ciclo 2",
-    "version": "0.2.0",
-    "description": "Asignación P3 autónoma: 14 rutas del PDF y una carga PDF autorizada. Referencia identificada por formulario_area.id; listas con datos/pagina/limite/total; borrador mínimo y confirmación con destino/motivo."
+    "version": "0.3.0-integracion",
+    "description": "14 rutas P3 y módulo documental único. Entrega local sin autenticación productiva; contexto de pruebas del servidor."
   },
   "servers": [
     {
-      "url": "http://127.0.0.1:3003/api/v1"
+      "url": "http://127.0.0.1:3016/api/v1"
     }
   ],
   "paths": {
@@ -2790,12 +2790,12 @@
                   },
                   "documentoAnteriorId": {
                     "type": "string",
-                    "pattern": "^[1-9][0-9]{0,18}$"
+                    "pattern": "^[1-9][0-9]{0,18}$",
+                    "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
                   },
                   "motivoCambio": {
                     "type": "string",
-                    "maxLength": 2000,
-                    "description": "Obligatorio al crear una nueva versión."
+                    "maxLength": 2000
                   }
                 }
               }
@@ -2956,6 +2956,150 @@
                 "schema": {
                   "$ref": "#/components/schemas/ErrorApi"
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/beneficiarias/{id}/documentos": {
+      "get": {
+        "summary": "Listar documentos por área",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$",
+              "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+            }
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación correcta"
+          }
+        }
+      }
+    },
+    "/documentos/{id}": {
+      "get": {
+        "summary": "Consultar metadatos",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$",
+              "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación correcta"
+          }
+        }
+      }
+    },
+    "/documentos/{id}/versiones": {
+      "get": {
+        "summary": "Cadena completa de versiones",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$",
+              "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación correcta"
+          }
+        }
+      }
+    },
+    "/documentos/{id}/archivo": {
+      "get": {
+        "summary": "Descargar PDF privado",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$",
+              "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación correcta",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/documentos/{id}/anular": {
+      "post": {
+        "summary": "Anular sin borrar archivo",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$",
+              "description": "bigint PostgreSQL hasta 9223372036854775807; nunca number"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Operación correcta"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Transicion"
               }
             }
           }

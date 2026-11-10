@@ -19,7 +19,7 @@ import {
   TransicionDto,
 } from "../persona3/dto/contratos.dto";
 
-@Controller()
+@Controller("v1")
 export class EvolucionController {
   constructor(readonly service: Persona3Service) {}
   @Get("beneficiarias/:id/hoja-evolutiva") evolucion(
