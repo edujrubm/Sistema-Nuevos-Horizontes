@@ -6,20 +6,22 @@ import {
   MaxLength,
   IsNotEmpty,
   Matches,
-} from 'class-validator';
+} from "class-validator";
 
 export class CrearNacimientoDto {
   @IsNotEmpty()
+  @Matches(/\S/)
   @IsString()
   @MaxLength(60)
   nombre!: string;
 
-  @IsDateString()
+  @IsDateString({ strict: true })
+  @Matches(/^\d{4}-\d{2}-\d{2}$/)
   fechaNacimiento!: string;
 
   @IsOptional()
   @IsString()
-  @MaxLength(20)
+  @Matches(/^\d{13}$/)
   cui?: string;
 
   @IsOptional()

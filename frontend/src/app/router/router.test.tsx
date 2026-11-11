@@ -5,6 +5,7 @@ describe("Integración del router común", () => {
   it.each([
     "/beneficiarias",
     "/beneficiarias/100",
+    "/beneficiarias/100/documentos",
     "/fichas/nueva",
     "/fichas/borradores",
     "/beneficiarias/100/medicina",

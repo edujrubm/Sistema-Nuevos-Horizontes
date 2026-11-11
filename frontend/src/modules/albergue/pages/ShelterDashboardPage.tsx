@@ -1,8 +1,10 @@
+import { Fragment, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 
 import {
   getShelterSummary,
+  listShelterHistory,
   listShelterStays,
   type ShelterStay,
 } from "../api/albergue-api";
@@ -21,18 +23,30 @@ function displayDate(value: string) {
 }
 
 function StayState({ stay }: { stay: ShelterStay }) {
-  if (stay.fechaEgreso) return <span className="status inactive">Egresada</span>;
+  if (stay.fechaEgreso)
+    return <span className="status inactive">Egresada</span>;
   return <span className="status active">Estancia activa</span>;
 }
 
 export function ShelterDashboardPage() {
+  const [filters, setFilters] = useState({
+    pagina: 1,
+    presencia: "SITIO",
+    buscar: "",
+  });
   const summaryQuery = useQuery({
     queryKey: ["shelter", "summary"],
     queryFn: ({ signal }) => getShelterSummary(signal),
   });
   const staysQuery = useQuery({
-    queryKey: ["shelter", "stays"],
-    queryFn: ({ signal }) => listShelterStays(signal),
+    queryKey: ["shelter", "stays", filters],
+    queryFn: ({ signal }) =>
+      listShelterStays(signal, { ...filters, estado: "ACTIVAS" }),
+  });
+  const recent = useQuery({
+    queryKey: ["shelter", "recent"],
+    queryFn: ({ signal }) =>
+      listShelterHistory({ pagina: 1, tipo: "", desde: "", hasta: "" }, signal),
   });
   const error = summaryQuery.error ?? staysQuery.error;
   const isLoading = summaryQuery.isLoading || staysQuery.isLoading;
@@ -44,10 +58,18 @@ export function ShelterDashboardPage() {
       <PageHeader
         title="Albergue"
         description="Consulta la concurrencia y las estancias activas de las beneficiarias."
-        action={<Link className="button primary" to="/albergue/ingreso">Registrar ingreso</Link>}
+        action={
+          <Link className="button primary" to="/albergue/ingreso">
+            Registrar ingreso
+          </Link>
+        }
       />
 
-      {isLoading ? <p className="status-message" role="status">Cargando información de Albergue…</p> : null}
+      {isLoading ? (
+        <p className="status-message" role="status">
+          Cargando información de Albergue…
+        </p>
+      ) : null}
 
       {error ? (
         <div className="alert error" role="alert">
@@ -69,20 +91,22 @@ export function ShelterDashboardPage() {
       {summary ? (
         <div className="shelter-metrics" aria-label="Resumen de ocupación">
           <article className="panel shelter-metric">
-            <strong>{summary.estanciasActivas}</strong>
-            <span>Estancias activas</span>
+            <strong>
+              {summary.personasActivas ?? summary.estanciasActivas}
+            </strong>
+            <span>Personas activas</span>
           </article>
           <article className="panel shelter-metric">
-            <strong>{summary.beneficiariasPresentes}</strong>
-            <span>Beneficiarias presentes</span>
+            <strong>{summary.estanciasActivas}</strong>
+            <span>Beneficiarias</span>
           </article>
           <article className="panel shelter-metric warning">
             <strong>{summary.salidasTemporalesPendientes}</strong>
             <span>Retornos pendientes</span>
           </article>
           <article className="panel shelter-metric">
-            <strong>{summary.egresosRegistrados}</strong>
-            <span>Egresos registrados</span>
+            <strong>{summary.menoresActivos ?? "—"}</strong>
+            <span>Hijas, hijos e infantes</span>
           </article>
         </div>
       ) : null}
@@ -94,31 +118,194 @@ export function ShelterDashboardPage() {
         </div>
       ) : null}
 
-      {stays.length > 0 ? (
-        <section className="panel table-panel" aria-labelledby="shelter-stays-title">
-          <div className="panel-section-header">
-            <div>
-              <h2 id="shelter-stays-title">Estancias registradas</h2>
-              <p>Los datos personales se consultarán desde el expediente autorizado al integrar esa operación.</p>
+      <div className="shelter-concurrency-layout">
+        <div>
+          {stays.length > 0 ? (
+            <section
+              className="panel table-panel"
+              aria-labelledby="shelter-stays-title"
+            >
+              <div className="panel-section-header">
+                <div>
+                  <h2 id="shelter-stays-title">Estancias registradas</h2>
+                  <p>Estancias activas y acompañantes registrados.</p>
+                  <label>
+                    Buscar por nombre o DPI/CUI
+                    <input
+                      value={filters.buscar}
+                      onChange={(e) =>
+                        setFilters({
+                          ...filters,
+                          buscar: e.target.value,
+                          pagina: 1,
+                        })
+                      }
+                    />
+                  </label>
+                </div>
+              </div>
+              <div className="shelter-tabs">
+                {[
+                  ["SITIO", "En sitio"],
+                  ["SALIDA", "Con salida registrada"],
+                  ["TODOS", "Todos"],
+                ].map(([v, t]) => (
+                  <button
+                    type="button"
+                    className={filters.presencia === v ? "active" : ""}
+                    key={v}
+                    onClick={() =>
+                      setFilters({ ...filters, presencia: v, pagina: 1 })
+                    }
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+              <div className="table-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Estancia</th>
+                      <th>Beneficiaria</th>
+                      <th>Ingreso</th>
+                      <th>Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {stays.map((stay) => (
+                      <Fragment key={stay.id}>
+                        <tr>
+                          <td>#{stay.id}</td>
+                          <td>
+                            {stay.beneficiariaNombre ||
+                              `Expediente vinculado #${stay.beneficiariaId}`}
+                          </td>
+                          <td>{displayDate(stay.fechaIngreso)}</td>
+                          <td>
+                            {stay.salidaPendiente ? (
+                              <span className="status draft">
+                                Salida temporal
+                              </span>
+                            ) : (
+                              <StayState stay={stay} />
+                            )}
+                          </td>
+                        </tr>
+                        {stay.acompanantes?.map((n) => (
+                          <tr key={n.id}>
+                            <td>Infante</td>
+                            <td>
+                              {n.nombre}
+                              <small>
+                                {" "}
+                                · Vinculado a {stay.beneficiariaNombre}
+                              </small>
+                            </td>
+                            <td>{displayDate(stay.fechaIngreso)}</td>
+                            <td>Acompañante de estancia activa</td>
+                          </tr>
+                        ))}
+                      </Fragment>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="form-actions">
+                <span>
+                  {staysQuery.data?.paginacion.total ?? 0} estancias · Página{" "}
+                  {filters.pagina}
+                </span>
+                <button
+                  className="button secondary"
+                  disabled={filters.pagina === 1 || staysQuery.isFetching}
+                  onClick={() =>
+                    setFilters({ ...filters, pagina: filters.pagina - 1 })
+                  }
+                >
+                  Anterior
+                </button>
+                <button
+                  className="button secondary"
+                  disabled={
+                    !staysQuery.data ||
+                    filters.pagina >= staysQuery.data.paginacion.totalPaginas ||
+                    staysQuery.isFetching
+                  }
+                  onClick={() =>
+                    setFilters({ ...filters, pagina: filters.pagina + 1 })
+                  }
+                >
+                  Siguiente
+                </button>
+              </div>
+            </section>
+          ) : null}
+        </div>
+        <aside className="shelter-right">
+          <section className="panel shelter-occupancy">
+            <h2>Ocupación actual</h2>
+            <div
+              className="shelter-total"
+              style={{
+                background: `conic-gradient(#5b2a9d ${summary?.personasActivas ? (summary.estanciasActivas / summary.personasActivas) * 100 : 0}%, #c9b6df 0)`,
+              }}
+            >
+              <span>{summary?.personasActivas ?? "—"}</span>
             </div>
-          </div>
-          <table>
-            <thead>
-              <tr><th>Estancia</th><th>Beneficiaria</th><th>Ingreso</th><th>Estado</th></tr>
-            </thead>
-            <tbody>
-              {stays.map((stay) => (
-                <tr key={stay.id}>
-                  <td>#{stay.id}</td>
-                  <td>Expediente vinculado #{stay.beneficiariaId}</td>
-                  <td>{displayDate(stay.fechaIngreso)}</td>
-                  <td><StayState stay={stay} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-      ) : null}
+            <p>personas activas</p>
+            <p>Beneficiarias: {summary?.estanciasActivas ?? "—"}</p>
+            <p>Infantes: {summary?.menoresActivos ?? "—"}</p>
+            <small>
+              El conteo incluye estancias activas. No representa habitaciones ni
+              camas.
+            </small>
+          </section>
+          <section className="panel">
+            <h2>Movimientos recientes</h2>
+            {recent.isLoading && <p>Cargando…</p>}
+            {recent.error && (
+              <p role="alert">
+                No fue posible consultar los movimientos recientes.
+              </p>
+            )}
+            {recent.data?.datos.slice(0, 3).map((e) => (
+              <article className="shelter-recent" key={e.id}>
+                <strong>
+                  {{
+                    INGRESO: "Nuevo ingreso",
+                    SALIDA_TEMPORAL: "Salida temporal registrada",
+                    RETORNO: "Retorno confirmado",
+                    EGRESO: "Egreso registrado",
+                    NACIMIENTO: "Nacimiento registrado",
+                  }[e.tipo] || e.tipo}
+                </strong>
+                <p>{e.beneficiariaNombre}</p>
+                <small>
+                  {new Intl.DateTimeFormat("es-GT", {
+                    timeZone: "America/Guatemala",
+                    dateStyle: "short",
+                    timeStyle: "short",
+                  }).format(new Date(e.fecha))}{" "}
+                  · {e.responsable}
+                </small>
+              </article>
+            ))}
+          </section>
+          {summary && summary.salidasTemporalesPendientes > 0 && (
+            <div className="alert warning">
+              <strong>
+                {summary.salidasTemporalesPendientes} retornos pendientes
+              </strong>
+              <p>
+                Las beneficiarias conservan su estancia activa durante la salida
+                temporal.
+              </p>
+              <Link to="/albergue/movimientos">Revisar</Link>
+            </div>
+          )}
+        </aside>
+      </div>
     </section>
   );
 }

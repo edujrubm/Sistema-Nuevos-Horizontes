@@ -11,3 +11,6 @@ Si la BD ya recibió el antiguo 008, detenerse y comparar objetos/historial ante
 synchronize=false, migrationsRun=false. El arranque no ejecuta SQL compartido. Todavía se necesita acordar el registro formal de migraciones con el grupo. Consultar docs/integracion/INFORME_INTEGRACION_DOCUMENTOS_PERSONA3.md.
 
 Se conserva también `007_estado_formulario_descartado.sql` de main: ambos scripts 007 tienen nombres diferentes y deben registrarse por nombre completo. Los estados FORM_* conservan los valores institucionales de main; los P3_* de las pruebas se configuran exclusivamente en su entorno aislado.
+# Complemento operativo de Albergue
+
+Después de 008, `009_albergue_trazabilidad.sql` crea el historial de eventos de Albergue. Revisar respaldo y estado de migraciones antes de aplicarlo; no confundirlo con `docs/propuestas/009_mockups_laboratorio.sql`, que permanece experimental y no se ejecuta. La migración no modifica los eventos anteriores ni les asigna autores u horas ficticios.

@@ -1,11 +1,12 @@
-import { registerDecorator } from "class-validator";
+import { registerDecorator, ValidationOptions } from "class-validator";
 
-export function IsPgId() {
+export function IsPgId(options?: ValidationOptions) {
   return (target: object, propertyName: string) =>
     registerDecorator({
       name: "isPgId",
       target: target.constructor,
       propertyName,
+      options,
       validator: {
         validate: (value: unknown) =>
           typeof value === "string" &&

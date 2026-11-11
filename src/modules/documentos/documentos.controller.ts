@@ -2,6 +2,7 @@ import { Response } from "express";
 import { DocumentosService } from "./documentos.service";
 import { ListaDto, TransicionDto } from "../persona3/dto/contratos.dto";
 import { LIMITE_PDF_BYTES } from "./limites";
+import { DocumentosListaDto } from "./documentos-lista.dto";
 import {
   Body,
   Get,
@@ -26,9 +27,14 @@ export class DocumentosController {
   ) {}
   @Get("beneficiarias/:id/documentos") listar(
     @Param("id", BigintIdPipe) id: string,
-    @Query() q: ListaDto,
+    @Query() q: DocumentosListaDto,
   ) {
     return this.documentos.listar(id, q);
+  }
+  @Get("beneficiarias/:id/documentos/contexto") contexto(
+    @Param("id", BigintIdPipe) id: string,
+  ) {
+    return this.documentos.contexto(id);
   }
   @Get("documentos/:id") consultar(@Param("id", BigintIdPipe) id: string) {
     return this.documentos.obtener(id);

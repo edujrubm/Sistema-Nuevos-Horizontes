@@ -7,6 +7,11 @@ import { NotFoundPage } from "@/shared/components/NotFoundPage";
 const Persona3Layout = lazy(() =>
   import("../Persona3Layout").then((m) => ({ default: m.Persona3Layout })),
 );
+const DocumentsPage = lazy(() =>
+  import("../../modules/documentos/DocumentsPage").then((m) => ({
+    default: m.DocumentsPage,
+  })),
+);
 const ListadoFichas = lazy(() =>
   import("../../modules/persona3/Listados").then((m) => ({
     default: m.ListadoFichas,
@@ -120,6 +125,10 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Navigate to="/beneficiarias" replace /> },
       { path: "beneficiarias", element: lazyPage(<BeneficiariesPage />) },
+      {
+        path: "beneficiarias/:beneficiaryId/documentos",
+        element: lazyPage(<DocumentsPage />),
+      },
       {
         path: "beneficiarias/:id",
         element: lazyPage(<BeneficiaryProfilePage />),

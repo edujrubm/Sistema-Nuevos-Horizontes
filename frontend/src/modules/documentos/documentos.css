@@ -1,0 +1,212 @@
+.documentos-area {
+  color: #24212a;
+  max-width: 1500px;
+  margin: auto;
+}
+.documentos-area .crumb {
+  font-size: 14px;
+  color: #625d69;
+  margin-bottom: 22px;
+}
+.documentos-area .heading,
+.documentos-area .card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+.documentos-area h1 {
+  font-size: 30px;
+  margin: 0 0 8px;
+}
+.documentos-area h2 {
+  font-size: 20px;
+  margin: 0 0 8px;
+}
+.documentos-area p {
+  color: #625d69;
+  line-height: 1.5;
+}
+.documentos-area .btn {
+  border: 1px solid #ded9e2;
+  border-radius: 8px;
+  padding: 10px 16px;
+  background: white;
+  color: #5b2a9d;
+  cursor: pointer;
+}
+.documentos-area .btn.primary {
+  background: #5b2a9d;
+  color: white;
+  border-color: #5b2a9d;
+}
+.documentos-area button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.documentos-area .card,
+.documentos-area .notice {
+  background: white;
+  border: 1px solid #ded9e2;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 22px;
+}
+.documentos-area .notice {
+  background: #f8f5fc;
+  border-left: 4px solid #5b2a9d;
+}
+.documentos-area .notice.error {
+  border-left-color: #b42318;
+}
+.documentos-area .grid {
+  display: grid;
+  gap: 20px;
+}
+.documentos-area .three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.documentos-area .full {
+  grid-column: 1/-1;
+}
+.documentos-area label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.documentos-area input,
+.documentos-area select {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #c9c3cd;
+  border-radius: 8px;
+  padding: 10px;
+  background: white;
+  color: inherit;
+}
+.documentos-area fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.documentos-area .metric-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 22px;
+}
+.documentos-area .metric {
+  padding: 22px;
+  background: white;
+  border: 1px solid #ded9e2;
+  border-radius: 12px;
+}
+.documentos-area .metric span,
+.documentos-area small {
+  display: block;
+  color: #625d69;
+  font-size: 14px;
+}
+.documentos-area .metric strong {
+  display: block;
+  font-size: 30px;
+  margin-top: 10px;
+}
+.documentos-area .table-wrap {
+  overflow-x: auto;
+}
+.documentos-area table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.documentos-area th,
+.documentos-area td {
+  padding: 16px;
+  text-align: left;
+  border-bottom: 1px solid #ded9e2;
+}
+.documentos-area th {
+  background: #f8f5fc;
+}
+.documentos-area .person {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.documentos-area .person-mark {
+  background: #eee7f7;
+  color: #5b2a9d;
+  border-radius: 8px;
+  padding: 12px;
+  font-weight: bold;
+}
+.documentos-area .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+}
+.documentos-area .tag {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+}
+.documentos-area .ok {
+  background: #e8f4ed;
+  color: #277a53;
+}
+.documentos-area .warn {
+  background: #fff3db;
+  color: #9a620a;
+}
+.documentos-area .danger {
+  background: #fff0ed;
+  color: #b42318;
+}
+.documentos-area .event {
+  border-left: 3px solid #ded9e2;
+  padding: 0 0 20px 20px;
+  margin-left: 8px;
+}
+.documentos-area progress {
+  width: 100%;
+  margin-top: 16px;
+  accent-color: #5b2a9d;
+}
+.documentos-area :focus-visible {
+  outline: 3px solid #d7a942;
+  outline-offset: 3px;
+}
+@media (max-width: 1000px) {
+  .documentos-area .three {
+    grid-template-columns: 1fr 1fr;
+  }
+  .documentos-area .metric-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 600px) {
+  .documentos-area .three {
+    grid-template-columns: 1fr;
+  }
+  .documentos-area .heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .documentos-area .card,
+  .documentos-area .notice {
+    padding: 16px;
+  }
+  .documentos-area .metric-row {
+    gap: 8px;
+  }
+  .documentos-area .metric {
+    padding: 12px;
+  }
+  .documentos-area h1 {
+    font-size: 26px;
+  }
+}

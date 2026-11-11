@@ -1,3 +1,4 @@
+import { ErrorApi } from "../../common/errors/error-api";
 import {
   Injectable,
   NotFoundException,
@@ -8,13 +9,24 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { InjectDataSource } from "@nestjs/typeorm";
-import { DataSource, Repository, QueryFailedError, IsNull } from "typeorm";
+import {
+  DataSource,
+  Repository,
+  QueryFailedError,
+  IsNull,
+  EntityManager,
+} from "typeorm";
 
 import { ActivoAlbergue } from "./entities/activo-albergue.entity";
 import { CrearEstanciaDto } from "./dto/crear-estancia.dto";
 import { MovimientoAlbergue } from "./entities/movimiento-albergue.entity";
 import { CrearSalidaTemporalDto } from "./dto/crear-salida-temporal.dto";
 import { CrearNacimientoDto } from "./dto/crear-nacimiento.dto";
+
+import {
+  ConsultaEstanciasDto,
+  HistorialAlbergueDto,
+} from "./dto/operacion.dto";
 
 @Injectable()
 export class AlbergueService {
@@ -27,21 +39,72 @@ export class AlbergueService {
     private readonly config: ConfigService,
   ) {}
 
-  // Listar todas las estancias
-  async listarEstancias(pagina = 1, limite = 20) {
-    const [datos, total] = await this.estanciaRepository.findAndCount({
-      order: { id: "DESC" },
-      skip: (pagina - 1) * limite,
-      take: limite,
-    });
-
+  private async actor(m: EntityManager) {
+    const [u] = await m.query(
+      "SELECT id_usuario::text AS id FROM new_horizons.usuario WHERE nombre_usuario=$1",
+      [
+        this.config.get<string>(
+          "AUDIT_ACTOR_USERNAME",
+          "actor_pruebas_persona1",
+        ),
+      ],
+    );
+    if (!u)
+      throw new InternalServerErrorException(
+        "Actor de auditoría no configurado",
+      );
+    await m.query(
+      "SELECT set_config('new_horizons.actor_id',$1,true),set_config('new_horizons.motivo',$2,true)",
+      [u.id, "Operación auditada de Albergue"],
+    );
+    return u.id as string;
+  }
+  private async evento(
+    m: EntityManager,
+    id: string,
+    tipo: string,
+    motivo: string,
+    movimiento?: string,
+    nino?: string,
+  ) {
+    const actor = await this.actor(m);
+    await m.query(
+      "INSERT INTO new_horizons.evento_albergue(estancia_id,tipo,registrado_por,motivo,movimiento_id,nino_id) VALUES($1,$2,$3,$4,$5,$6)",
+      [id, tipo, actor, motivo, movimiento || null, nino || null],
+    );
+  }
+  async listarEstancias(
+    pagina = 1,
+    limite = 20,
+    q: ConsultaEstanciasDto = new ConsultaEstanciasDto(),
+  ) {
+    const where = `FROM new_horizons.activos_albergue a JOIN new_horizons.beneficiaria b ON b.id_beneficiaria=a.beneficiaria_id
+     WHERE ($1='TODAS' OR ($1='ACTIVAS' AND a.fecha_egreso IS NULL) OR ($1='FINALIZADAS' AND a.fecha_egreso IS NOT NULL))
+     AND ($2='TODOS' OR ($2='SALIDA' AND EXISTS(SELECT 1 FROM new_horizons.movimiento_albergue m WHERE m.activo_albergue_id=a.activo_albergue_id AND m.entrada IS NULL)) OR ($2='SITIO' AND NOT EXISTS(SELECT 1 FROM new_horizons.movimiento_albergue m WHERE m.activo_albergue_id=a.activo_albergue_id AND m.entrada IS NULL)))
+     AND ($3='' OR strpos(lower(b.nombre),lower($3))>0 OR b.cui=$3)`;
+    const args = [
+      q.estado || "TODAS",
+      q.presencia || "TODOS",
+      q.buscar?.trim() || "",
+    ];
+    const datos = await this.dataSource.query(
+      `SELECT a.activo_albergue_id::text AS id,a.beneficiaria_id::text AS "beneficiariaId",b.nombre AS "beneficiariaNombre", a.fecha_ingreso::text AS "fechaIngreso",a.fecha_egreso::text AS "fechaEgreso",a.estado_albergue_id::text AS "estadoAlbergueId",
+      (SELECT COALESCE(jsonb_agg(jsonb_build_object('id',n.nino_id::text,'nombre',n.nombre)),'[]'::jsonb) FROM new_horizons.estancia_nino en JOIN new_horizons.nino n ON n.nino_id=en.nino_id WHERE en.activo_albergue_id=a.activo_albergue_id AND en.fecha_egreso IS NULL) AS acompanantes,
+      EXISTS(SELECT 1 FROM new_horizons.movimiento_albergue m WHERE m.activo_albergue_id=a.activo_albergue_id AND m.entrada IS NULL) AS "salidaPendiente",
+      (SELECT count(*)::int FROM new_horizons.estancia_nino n WHERE n.activo_albergue_id=a.activo_albergue_id AND n.fecha_egreso IS NULL) AS "menoresActivos" ${where} ORDER BY a.activo_albergue_id DESC LIMIT $4 OFFSET $5`,
+      [...args, limite, (pagina - 1) * limite],
+    );
+    const [c] = await this.dataSource.query(
+      `SELECT count(*)::int AS total ${where}`,
+      args,
+    );
     return {
       datos,
       paginacion: {
         pagina,
         limite,
-        total,
-        totalPaginas: Math.ceil(total / limite),
+        total: c.total,
+        totalPaginas: Math.ceil(c.total / limite),
       },
     };
   }
@@ -66,8 +129,8 @@ export class AlbergueService {
       en.id::text AS "id",
       en.nino_id::text AS "ninoId",
       en.fecha_ingreso AS "fechaIngreso",
-      en.fecha_egreso AS "fechaEgreso"
-    FROM new_horizons.estancia_nino en
+      en.fecha_egreso AS "fechaEgreso", n.nombre
+    FROM new_horizons.estancia_nino en JOIN new_horizons.nino n ON n.nino_id=en.nino_id
     WHERE en.activo_albergue_id = $1
     ORDER BY en.fecha_ingreso DESC
     `,
@@ -99,6 +162,14 @@ export class AlbergueService {
           throw new NotFoundException("La beneficiaria no existe");
         }
 
+        const [expediente] = await manager.query(
+          "SELECT id_expediente FROM new_horizons.expediente WHERE beneficiaria_id=$1 AND activo=true",
+          [dto.beneficiariaId],
+        );
+        if (!expediente)
+          throw new ConflictException(
+            "La beneficiaria requiere un expediente activo",
+          );
         // 2. Verificar que no tenga una estancia activa
         const estanciaActiva = await manager.findOne(ActivoAlbergue, {
           where: {
@@ -108,9 +179,7 @@ export class AlbergueService {
         });
 
         if (estanciaActiva) {
-          throw new ConflictException(
-            "La beneficiaria ya tiene una estancia activa",
-          );
+          throw new ErrorApi("ESTANCIA_ACTIVA_EXISTENTE");
         }
 
         // 3. Consultar el estado Activo
@@ -148,7 +217,29 @@ export class AlbergueService {
         });
 
         // 6. Guardar y devolver el registro
-        return await manager.save(estancia);
+        const guardada = await manager.save(estancia);
+        const actor = await this.actor(manager);
+        for (const ninoId of dto.ninoIds || []) {
+          const [n] = await manager.query(
+            `SELECT n.nino_id FROM new_horizons.nino n JOIN new_horizons.expediente e ON e.id_expediente=n.expediente_id WHERE n.nino_id=$1 AND e.beneficiaria_id=$2 AND n.activo=true FOR UPDATE OF n`,
+            [ninoId, dto.beneficiariaId],
+          );
+          if (!n)
+            throw new BadRequestException(
+              "El niño no pertenece al expediente o está inactivo",
+            );
+          await manager.query(
+            "INSERT INTO new_horizons.estancia_nino(activo_albergue_id,nino_id,fecha_ingreso,registrado_por) VALUES($1,$2,clock_timestamp(),$3)",
+            [guardada.id, ninoId, actor],
+          );
+        }
+        await this.evento(
+          manager,
+          guardada.id,
+          "INGRESO",
+          "Ingreso de beneficiaria y acompañantes seleccionados",
+        );
+        return guardada;
       });
     } catch (error: unknown) {
       // 7. Traducir conflictos de unicidad de PostgreSQL
@@ -162,9 +253,7 @@ export class AlbergueService {
           dbError.code === "23505" &&
           dbError.constraint === "uq_estancia_beneficiaria_activa"
         ) {
-          throw new ConflictException(
-            "La beneficiaria ya tiene una estancia activa",
-          );
+          throw new ErrorApi("ESTANCIA_ACTIVA_EXISTENTE");
         }
       }
 
@@ -195,9 +284,7 @@ export class AlbergueService {
 
       // 2. Comprobar que la estancia siga abierta
       if (estancia.fechaEgreso !== null) {
-        throw new ConflictException(
-          "No se puede registrar una salida de una estancia finalizada",
-        );
+        throw new ErrorApi("ESTANCIA_FINALIZADA");
       }
 
       // 3. Verificar si existe una salida temporal pendiente
@@ -209,9 +296,7 @@ export class AlbergueService {
       });
 
       if (salidaPendiente) {
-        throw new ConflictException(
-          "La estancia ya tiene una salida temporal pendiente",
-        );
+        throw new ErrorApi("SALIDA_TEMPORAL_EXISTENTE");
       }
 
       // 4. Registrar la salida con fecha y hora del servidor
@@ -236,6 +321,13 @@ export class AlbergueService {
         [estanciaId, dto.destino, dto.trabajadorAsignado ?? null],
       );
 
+      await this.evento(
+        manager,
+        estanciaId,
+        "SALIDA_TEMPORAL",
+        dto.destino,
+        resultado[0].id,
+      );
       return resultado[0] as MovimientoAlbergue;
     });
   }
@@ -260,9 +352,7 @@ export class AlbergueService {
 
       // 2. Verificar que la estancia esté abierta
       if (estancia.fechaEgreso !== null) {
-        throw new ConflictException(
-          "No se puede registrar un retorno de una estancia finalizada",
-        );
+        throw new ErrorApi("ESTANCIA_FINALIZADA");
       }
 
       // 3. Buscar la salida temporal pendiente
@@ -277,9 +367,7 @@ export class AlbergueService {
       });
 
       if (!salidaPendiente) {
-        throw new ConflictException(
-          "La estancia no tiene una salida temporal pendiente",
-        );
+        throw new ErrorApi("SALIDA_TEMPORAL_NO_EXISTENTE");
       }
 
       // 4. Registrar el retorno con la fecha y hora de PostgreSQL
@@ -300,15 +388,26 @@ export class AlbergueService {
         [salidaPendiente.id],
       );
 
-      if (resultado.length === 0) {
+      const filas = Array.isArray(resultado[0]) ? resultado[0] : resultado;
+      if (filas.length === 0) {
         throw new ConflictException("El retorno ya fue registrado");
       }
 
-      return resultado[0] as MovimientoAlbergue;
+      await this.evento(
+        manager,
+        estanciaId,
+        "RETORNO",
+        "Retorno de beneficiaria",
+        filas[0].id,
+      );
+      return filas[0] as MovimientoAlbergue;
     });
   }
 
-  async registrarEgreso(estanciaId: string): Promise<ActivoAlbergue> {
+  async registrarEgreso(
+    estanciaId: string,
+    motivo: string,
+  ): Promise<ActivoAlbergue> {
     if (!/^[1-9]\d*$/.test(estanciaId)) {
       throw new BadRequestException("El ID de la estancia no es válido");
     }
@@ -328,7 +427,7 @@ export class AlbergueService {
 
       // 2. Verificar que no haya egresado
       if (estancia.fechaEgreso !== null) {
-        throw new ConflictException("La estancia ya fue finalizada");
+        throw new ErrorApi("ESTANCIA_FINALIZADA");
       }
 
       // 3. Impedir egreso con una salida temporal pendiente
@@ -340,9 +439,7 @@ export class AlbergueService {
       });
 
       if (salidaPendiente) {
-        throw new ConflictException(
-          "No se puede registrar el egreso mientras exista una salida temporal pendiente",
-        );
+        throw new ErrorApi("SALIDA_TEMPORAL_EXISTENTE");
       }
 
       // 4. Consultar el estado Inactivo
@@ -375,6 +472,15 @@ export class AlbergueService {
       estancia.fechaEgreso = fechaActual[0].fecha;
       estancia.estadoAlbergueId = String(estados[0].estado_albergue_id);
 
+      await this.actor(manager);
+      await manager.query("SELECT set_config('new_horizons.motivo',$1,true)", [
+        motivo,
+      ]);
+      await manager.query(
+        "UPDATE new_horizons.estancia_nino SET fecha_egreso=clock_timestamp() WHERE activo_albergue_id=$1 AND fecha_egreso IS NULL",
+        [estanciaId],
+      );
+      await this.evento(manager, estanciaId, "EGRESO", motivo);
       return manager.save(estancia);
     });
   }
@@ -398,9 +504,7 @@ export class AlbergueService {
       }
 
       if (estancia.fechaEgreso !== null) {
-        throw new ConflictException(
-          "No se pueden registrar nacimientos en una estancia finalizada",
-        );
+        throw new ErrorApi("ESTANCIA_FINALIZADA");
       }
 
       // 2. Obtener el expediente de la beneficiaria
@@ -510,6 +614,18 @@ export class AlbergueService {
         ],
       );
 
+      await manager.query(
+        "INSERT INTO new_horizons.estancia_nino(activo_albergue_id,nino_id,fecha_ingreso,registrado_por) VALUES($1,$2,clock_timestamp(),$3)",
+        [estanciaId, resultado[0].id, usuarios[0].id],
+      );
+      await this.evento(
+        manager,
+        estanciaId,
+        "NACIMIENTO",
+        "Nacimiento y vinculación a estancia",
+        undefined,
+        resultado[0].id,
+      );
       return resultado[0];
     });
   }
@@ -548,7 +664,14 @@ export class AlbergueService {
     FROM new_horizons.activos_albergue a
   `);
 
-    return resultado[0];
+    const [menores] = await this.dataSource.query(
+      `SELECT count(*)::int AS total FROM new_horizons.estancia_nino n JOIN new_horizons.activos_albergue a ON a.activo_albergue_id=n.activo_albergue_id WHERE n.fecha_egreso IS NULL AND a.fecha_egreso IS NULL`,
+    );
+    return {
+      ...resultado[0],
+      menoresActivos: menores.total,
+      personasActivas: resultado[0].estanciasActivas + menores.total,
+    };
   }
 
   async listarSalidasPendientes() {
@@ -617,6 +740,38 @@ export class AlbergueService {
         limite,
         total,
         totalPaginas: Math.ceil(total / limite),
+      },
+    };
+  }
+
+  async historial(q: HistorialAlbergueDto) {
+    const validDate = (s?: string) =>
+      !s ||
+      (!Number.isNaN(Date.parse(s + "T12:00:00Z")) &&
+        new Date(s + "T12:00:00Z").toISOString().slice(0, 10) === s);
+    if (
+      !validDate(q.desde) ||
+      !validDate(q.hasta) ||
+      (q.desde && q.hasta && q.desde > q.hasta)
+    )
+      throw new BadRequestException("Rango de fechas inválido");
+    const from = `FROM new_horizons.evento_albergue ev JOIN new_horizons.activos_albergue a ON a.activo_albergue_id=ev.estancia_id JOIN new_horizons.beneficiaria b ON b.id_beneficiaria=a.beneficiaria_id JOIN new_horizons.usuario u ON u.id_usuario=ev.registrado_por WHERE ($1::text IS NULL OR ev.tipo=$1) AND ($2::date IS NULL OR (ev.fecha AT TIME ZONE 'America/Guatemala')::date >=$2::date) AND ($3::date IS NULL OR (ev.fecha AT TIME ZONE 'America/Guatemala')::date <=$3::date)`;
+    const args = [q.tipo || null, q.desde || null, q.hasta || null];
+    const datos = await this.dataSource.query(
+      `SELECT ev.id::text,ev.estancia_id::text AS "estanciaId",ev.tipo,ev.fecha,ev.motivo,u.nombre_usuario AS responsable,b.nombre AS "beneficiariaNombre" ${from} ORDER BY ev.fecha DESC,ev.id DESC LIMIT $4 OFFSET $5`,
+      [...args, q.limite, (q.pagina - 1) * q.limite],
+    );
+    const [c] = await this.dataSource.query(
+      `SELECT count(*)::int AS total ${from}`,
+      args,
+    );
+    return {
+      datos,
+      paginacion: {
+        pagina: q.pagina,
+        limite: q.limite,
+        total: c.total,
+        totalPaginas: Math.ceil(c.total / q.limite),
       },
     };
   }
