@@ -1,4 +1,4 @@
-﻿param([string]$PostgresBin='C:\Program Files\PostgreSQL\18\bin',[int]$Port=55462,[int]$ApiPort=3016,[ValidateSet('Legal','Trabajo Social','Guardería')][string]$Area='Legal')
+﻿param([string]$PostgresBin='C:\Program Files\PostgreSQL\18\bin',[int]$Port=55462,[int]$ApiPort=3016,[ValidateSet('Legal','Trabajo Social','Guardería','Psicología','Medicina','Albergue')][string]$Area='Legal')
 $ErrorActionPreference='Stop'
 $root=(Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $results=Join-Path $root 'test-results'
@@ -15,7 +15,7 @@ try {
  & (Join-Path $PostgresBin 'initdb.exe') -D $cluster -U p3_test -A trust --encoding=UTF8 --locale=C | Out-File (Join-Path $results 'initdb.txt')
  if($LASTEXITCODE -ne 0){throw 'Falló initdb'}
  }
- & (Join-Path $PostgresBin 'pg_ctl.exe') -D $cluster -l (Join-Path $cluster 'postgres.log') -o "-p $Port -h 127.0.0.1" -w start
+ & (Join-Path $PostgresBin 'pg_ctl.exe') -D $cluster -l (Join-Path $results 'postgres-demo.log') -o "-p $Port -h 127.0.0.1" -w start
  if($LASTEXITCODE -ne 0){throw 'Falló inicio PostgreSQL'}
  $started=$true
  if(!(Test-Path $marker)){
@@ -24,6 +24,7 @@ try {
  $sqlFiles=@('test/fixtures/01_new_horizons_postgresql.sql','test/fixtures/seed-local.sql','test/fixtures/fixture-migracion-test.sql','test/fixtures/02_ampliacion_formularios.sql')
  $sqlFiles+=Get-ChildItem -LiteralPath (Join-Path $root 'database/migrations') -Filter '*.sql' | Sort-Object Name | ForEach-Object { 'database/migrations/'+$_.Name }
  $sqlFiles+='test/fixtures/persona3.sql'
+ $sqlFiles+='test/fixtures/persona4-demo.sql'
  foreach($file in $sqlFiles){
   & (Join-Path $PostgresBin 'psql.exe') -h 127.0.0.1 -p $Port -U p3_test -d p3_test -v ON_ERROR_STOP=1 -q -f (Join-Path $root $file) 2>&1 | Out-File (Join-Path $results ([IO.Path]::GetFileName($file)+'.log'))
   if($LASTEXITCODE -ne 0){throw "Falló $file"}

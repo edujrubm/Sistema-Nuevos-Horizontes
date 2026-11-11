@@ -45,6 +45,7 @@ export function Persona3Layout() {
               <Link to={`${base}/referencias`}>Referencias</Link>{" "}
               <Link to={`${base}/guarderia`}>Guardería</Link>{" "}
               <Link to={`${base}/evolucion`}>Evolución</Link>
+              <Link to={`${base}/documentos`}>Documentos</Link>
             </nav>
             {!!q.error && (
               <ErrorVista error={q.error} reintentar={q.recargar} />

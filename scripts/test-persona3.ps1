@@ -12,7 +12,7 @@ Push-Location $root
 try {
  & (Join-Path $PostgresBin 'initdb.exe') -D $cluster -U p3_test -A trust --encoding=UTF8 --locale=C | Out-File (Join-Path $results 'initdb.txt')
  if($LASTEXITCODE -ne 0){throw 'Falló initdb'}
- & (Join-Path $PostgresBin 'pg_ctl.exe') -D $cluster -l (Join-Path $cluster 'postgres.log') -o "-p $Port -h 127.0.0.1" -w start
+ & (Join-Path $PostgresBin 'pg_ctl.exe') -D $cluster -l (Join-Path $results ([guid]::NewGuid().ToString('N')+'.postgres.log')) -o "-p $Port -h 127.0.0.1" -w start
  if($LASTEXITCODE -ne 0){throw 'Falló inicio PostgreSQL'}
  $started=$true
  & (Join-Path $PostgresBin 'createdb.exe') -h 127.0.0.1 -p $Port -U p3_test p3_test

@@ -1,4 +1,10 @@
-import { IsOptional, IsString, MaxLength, IsNotEmpty } from 'class-validator';
+import {
+  Matches,
+  IsOptional,
+  IsString,
+  MaxLength,
+  IsNotEmpty,
+} from "class-validator";
 
 export class CrearSalidaTemporalDto {
   @IsOptional()
@@ -6,6 +12,7 @@ export class CrearSalidaTemporalDto {
   @MaxLength(200)
   trabajadorAsignado?: string;
 
+  @Matches(/\S/)
   @IsNotEmpty()
   @IsString()
   @MaxLength(100)

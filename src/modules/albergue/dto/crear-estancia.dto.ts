@@ -1,7 +1,19 @@
-import { IsNotEmpty, IsNumberString } from 'class-validator';
+import { IsNotEmpty, IsNumberString } from "class-validator";
+import {
+  ArrayMaxSize,
+  ArrayUnique,
+  IsArray,
+  IsOptional,
+} from "class-validator";
+import { IsPgId } from "../../persona3/dto/pg-id.validator";
 
 export class CrearEstanciaDto {
-  @IsNotEmpty()
-  @IsNumberString()
+  @IsPgId()
   beneficiariaId!: string;
+  @IsOptional()
+  @IsArray()
+  @ArrayUnique()
+  @ArrayMaxSize(30)
+  @IsPgId({ each: true })
+  ninoIds?: string[];
 }

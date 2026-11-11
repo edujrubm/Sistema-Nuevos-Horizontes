@@ -83,6 +83,12 @@ export function BeneficiaryProfilePage() {
       />
 
       <nav className="profile-actions" aria-label="Áreas del expediente">
+        <Link
+          className="button secondary"
+          to={`/beneficiarias/${id}/documentos`}
+        >
+          Documentos
+        </Link>
         <Link className="button secondary" to={`/beneficiarias/${id}/social`}>
           Trabajo Social
         </Link>

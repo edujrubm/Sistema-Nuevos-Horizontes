@@ -18,3 +18,15 @@ test('Motor compartido no permite confirmar una referencia vacía por una ruta a
 
 test('Documentos unificados: Psicología y Medicina usan la misma carga privada',async()=>{for(const tipo of ['PSICOLOGIA_MUJER','MEDICINA_MUJER']){const [f]=await db.query('SELECT f.id,a.nombre_area FROM new_horizons.formulario_area f JOIN new_horizons.area a ON a.id_area=f.area_id WHERE f.tipo=$1 LIMIT 1',[tipo]);process.env.P3_TEST_AREA=f.nombre_area;const d=await cargar({formularioId:f.id});assert.equal(d.formularioId,f.id);const r=await fetch(url+'/documentos/'+d.id+'/archivo');assert.equal(r.status,200);assert.deepEqual(Buffer.from(await r.arrayBuffer()),fs.readFileSync('test/fixtures/documento.pdf'))}process.env.P3_TEST_AREA='Legal'});
 test('Integración: Beneficiarias responde y conserva el contrato de error español',async()=>{const lista=await call('GET','/beneficiarias?limite=10');assert.ok(lista.data);const e=await call('GET','/beneficiarias/no-es-id',undefined,400);assert.deepEqual(Object.keys(e).sort(),['estado','codigo','mensaje','errores','idSolicitud'].sort());assert.ok(typeof e.mensaje==='string');assert.ok(e.idSolicitud.startsWith('SOL-'))});
+
+test('Documentos UI: contexto, filtros de servidor y resumen solo del área',async()=>{
+ process.env.P3_TEST_AREA='Legal';
+ const c=await call('GET','/beneficiarias/100/documentos/contexto');assert.equal(c.area,'Legal');assert.ok(c.formularios.some(f=>f.id===fid));assert.ok(c.formularios.every(f=>['LEGAL','REFERENCIA_LEGAL'].includes(f.tipo)));assert.ok(c.resumen.versionesConservadas>=2);assert.ok(!JSON.stringify(c).includes('objeto_privado'));
+ const uno=await cargar({categoria:'Búsqueda específica',nombreDocumento:'Constancia sintética'});
+ const dos=await cargar({categoria:'Búsqueda específica',documentoAnteriorId:uno.id,motivoCambio:'Versión para UI'});
+ const l=await call('GET','/beneficiarias/100/documentos?ultimas=true&buscar=específica&limite=1');assert.equal(l.total,1);assert.equal(l.datos[0].id,dos.id);
+ const antiguo=await call('GET','/beneficiarias/100/documentos?ultimas=false&categoria='+encodeURIComponent('Búsqueda específica'));assert.equal(antiguo.total,2);
+ const vacio=await call('GET','/beneficiarias/100/documentos?buscar=nohaytalarchivo');assert.equal(vacio.total,0);
+ await call('GET','/beneficiarias/100/documentos?estado=INVALIDO',undefined,400);
+ process.env.P3_TEST_AREA='Medicina';const ajeno=await call('GET','/beneficiarias/100/documentos/contexto');assert.ok(ajeno.formularios.every(f=>f.tipo.startsWith('MEDICINA')));process.env.P3_TEST_AREA='Legal';
+});

@@ -146,3 +146,6 @@ Comandos: pnpm test:persona3 y pnpm start:persona3.
 ## Correcciones de mockups y BD
 
 Ver [contexto de correcciones](docs/persona3/CONTEXTO_CORRECCIONES_MOCKUPS_BD.md) para alcance, migraciones, validación y límites del laboratorio opcional.
+# Entrega de Persona 4 — 11 de noviembre de 2026
+
+Documentos React y los flujos de Albergue se describen en [el informe de integración](docs/integracion/INFORME_PERSONA4_20261111.md), con pruebas, rutas y la migración operativa `009_albergue_trazabilidad.sql`. Las [preguntas de coordinación](docs/integracion/DUDAS_PERSONA4_20261111.md) distinguen las dependencias productivas de las funciones comprobadas en local.
