@@ -111,6 +111,8 @@ Son rutas del router común de React, sin `#`. Necesitan los servidores encendid
 
 ## Integración y límites
 
+Solicitud de esta entrega: [PR #27 — Completar Persona 4](https://github.com/edujrubm/Sistema-Nuevos-Horizontes/pull/27), desde la rama existente `feat/frontend-persona4-albergue-panel` hacia `main`. Su página conserva el estado de integración y el commit de fusión verificables.
+
 Se revisaron los PR existentes: #10, #11, #15, #16 a #25 y #26 ya figuran fusionados. No se resucitan ramas descartadas ni se revierten esos PR. La publicación de esta entrega se realiza después de sus pruebas, sobre la rama existente de frontend de Persona 4 y mediante PR hacia `main`, conservando el trabajo de los demás.
 
 La autenticación productiva, las capacidades de sesión y el almacenamiento definitivo siguen siendo dependencias comunes del proyecto. El backend conserva su restricción de ejecución local y las comprobaciones de área disponibles para el entorno de pruebas. No se presenta como un despliegue seguro a Internet ni se habilitan credenciales o permisos nuevos.
