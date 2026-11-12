@@ -15,4 +15,4 @@ La creación, edición y confirmación de fichas usa también el [motor comparti
 
 La inscripción se reconoce mediante una ficha GUARDERIA confirmada; se conservan los filtros por área y pertenencia del niño.
 
-Inventario y comprobación de integración: [rutas de Persona 3](../../../../docs/integracion/RUTAS_PERSONA3_MAIN_20261112.md). La existencia y registro del controlador no sustituye las pruebas con una base de datos preparada.
+La existencia y registro del controlador no sustituye las pruebas con una base de datos preparada. Las reglas aún no acordadas se registran en `docs/DECISIONES_Y_DUDAS.md`.

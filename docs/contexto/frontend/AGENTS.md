@@ -8,13 +8,21 @@ Este repositorio implementa el cliente web del sistema de gestión de beneficiar
 
 Antes de modificar el frontend, leer en este orden:
 
-1. La especificación funcional y sus códigos `RF`, `RN` y `RNF`; para roles y permisos, consultar la matriz de trabajo enlazada en `README.md`, que contiene cambios posteriores a la V3.
-2. El anteproyecto y el diagrama preliminar de base de datos.
-3. El inventario institucional `Formularios.md`, normalizado en `FRONTEND_FORMS.md`, y luego `FRONTEND_ARCHITECTURE.md` y `FRONTEND_DATA_MODEL.md`.
-4. `FRONTEND_DESIGN_SYSTEM.md`, `FRONTEND_STANDARDS.md` y `FRONTEND_DECISIONS.md`.
-5. El plan de la fase activa y la implementación existente.
+1. `../../DECISIONES_Y_DUDAS.md` y los requisitos institucionales aprobados.
+2. `../../GUIA_TECNICA.md` y la implementación existente.
+3. `FRONTEND_FORMS.md` y `FRONTEND_AREA_FORMS.md` para el inventario de formularios implementado.
+4. `FRONTEND_DESIGN_SYSTEM.md` y `FRONTEND_STANDARDS.md`.
 
 No convertir una propuesta `PV1` a `PV10` en comportamiento definitivo. Si una tarea depende de una decisión pendiente, identificarla y limitar la implementación a una interfaz reemplazable o detener esa parte de la fase.
+
+## Regla de decisión para agentes de IA
+
+Cumplir primero `../../../AGENTS.md`. Un agente no decide obligatoriedad,
+catálogos, estados, permisos, campos, mensajes institucionales ni flujos por
+interpretación de un mockup o del código. Si falta una regla, debe registrarla
+en `../../DECISIONES_Y_DUDAS.md`, formular la pregunta concreta para el equipo
+y detener la parte que dependa de la respuesta. Sólo puede continuar con una
+interfaz reversible que no introduzca comportamiento institucional nuevo.
 
 ## Reglas obligatorias
 
@@ -59,12 +67,13 @@ No convertir una propuesta `PV1` a `PV10` en comportamiento definitivo. Si una t
 Para cada cambio:
 
 1. Identificar los códigos de requisitos afectados.
-2. Identificar en `FRONTEND_DATA_MODEL.md` las entidades actuales, las brechas y los datos que necesitará la API.
-3. Describir el comportamiento observable y los casos denegados.
-4. Revisar estados de carga, vacío, error, acceso denegado y conflicto.
-5. Implementar el cambio más pequeño que cumpla el alcance.
-6. Ejecutar pruebas, análisis estático y compilación disponibles.
-7. Registrar evidencia y asuntos pendientes sin declarar como aprobado lo que no fue validado.
+2. Confirmar que cada regla requerida está aprobada; elevar al equipo las dudas antes de codificarla.
+3. Identificar en los contratos de API y tipos existentes las entidades, brechas y datos que necesitará la API.
+4. Describir el comportamiento observable y los casos denegados.
+5. Revisar estados de carga, vacío, error, acceso denegado y conflicto.
+6. Implementar el cambio más pequeño que cumpla el alcance.
+7. Ejecutar pruebas, análisis estático y compilación disponibles.
+8. Registrar evidencia y asuntos pendientes sin declarar como aprobado lo que no fue validado.
 
 ## Límites del frontend
 

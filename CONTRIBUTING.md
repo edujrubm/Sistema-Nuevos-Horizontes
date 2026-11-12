@@ -55,9 +55,9 @@ a PostgreSQL.
    solicitar revisión.
 6. No fusionar si la verificación local falla o existen conflictos pendientes.
 
-Las ramas históricas por área se revisan antes de integrarlas. Persona 3 se
-integra únicamente desde `schema-persona3`; no se fusionan por separado
-`evolucion`, `social`, `legal` y `guarderia`.
+Las ramas históricas por área se revisan contra `main` actualizado antes de
+integrarlas. No publicar una rama local atrasada ni resolver conflictos de una
+migración aplicada modificando el archivo histórico.
 
 ## Distribución del código
 
@@ -101,7 +101,7 @@ siendo obligatoria.
 
 ## Despliegue
 
-La configuración de Render permanece pendiente de acuerdo del equipo. El
-frontend no modifica el arranque ni las rutas del backend. Antes de desplegar se
-debe decidir si serán dos servicios o un único servicio y acordar CORS, URL de
-API, variables secretas y verificación de salud con el responsable del backend.
+El despliegue se rige por la decisión D-07 de
+`docs/DECISIONES_Y_DUDAS.md`. El frontend no modifica el arranque ni las rutas
+del backend. No declarar un proveedor, topología o configuración de CORS como
+aprobados hasta registrar su resolución.

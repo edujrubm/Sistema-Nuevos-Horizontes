@@ -2,7 +2,8 @@
 
 ## Reglas obligatorias
 
-- Leer `BACKEND_DECISIONS.md` antes de convertir una necesidad en código o migración.
+- Cumplir primero `../../../AGENTS.md`. Si una regla de negocio, persistencia, autorización, estado o contrato no está confirmada, no elegirla: registrar la duda y pedir al equipo una respuesta explícita.
+- Leer `../../DECISIONES_Y_DUDAS.md` antes de convertir una necesidad en código o migración.
 - Mantener el monolito modular NestJS con MVC adaptado a API REST: Model para dominio y persistencia, View para representaciones/DTO de salida y Controller para HTTP. Los servicios orquestan casos de uso; los controladores no contienen reglas de negocio ni SQL.
 - PostgreSQL es la autoridad de integridad. Las validaciones de DTO mejoran mensajes, pero no reemplazan `FOREIGN KEY`, `UNIQUE`, `CHECK`, transacciones ni bloqueos.
 - Autorizar cada solicitud en el servidor por **capacidad, ámbito, caso y estado del recurso**. Denegar de forma predeterminada.
@@ -32,11 +33,12 @@
 
 ## Antes de programar
 
-1. Identificar requisito, actor, capacidad y ámbito.
-2. Identificar agregado, invariantes y restricciones de base de datos.
-3. Definir DTO, respuesta, errores y efecto de auditoría.
-4. Definir casos de acceso denegado, conflicto, reintento y concurrencia.
-5. Añadir pruebas que demuestren la regla en PostgreSQL real.
+1. Identificar requisito confirmado, actor, capacidad y ámbito.
+2. Si falta una regla, registrar la pregunta para el equipo en `../../DECISIONES_Y_DUDAS.md` y no definirla por inferencia.
+3. Identificar agregado, invariantes y restricciones de base de datos.
+4. Definir DTO, respuesta, errores y efecto de auditoría conforme al contrato existente.
+5. Definir casos de acceso denegado, conflicto, reintento y concurrencia.
+6. Añadir pruebas que demuestren la regla en PostgreSQL real.
 
 ## Condición de terminado
 
@@ -48,5 +50,5 @@ Una función está terminada cuando tiene migración cuando corresponda, autoriz
 - Crear `formulario_area` y su detalle tipado en una sola transacción.
 - Antes de escrituras auditadas, fijar actor y motivo mediante `SET LOCAL` en la misma conexión de la transacción.
 - No afirmar que el DDL v2 está desplegado hasta contar con ejecución exitosa en PostgreSQL de ensayo.
-- Consultar `BACKEND_SCHEMA_V2.md` antes de modificar entidades, repositorios o migraciones.
+- Consultar `../../GUIA_TECNICA.md` y el estado real de las migraciones antes de modificar entidades, repositorios o migraciones.
 

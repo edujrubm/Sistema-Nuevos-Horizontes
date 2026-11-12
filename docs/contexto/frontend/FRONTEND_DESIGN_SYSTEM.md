@@ -169,4 +169,4 @@ Cada área presenta únicamente su hoja evolutiva o bitácora. Psicología usa s
 
 ## Aplicación
 
-Los tokens deben centralizarse como variables CSS o en el tema del sistema de componentes. Ningún módulo crea una paleta o escala tipográfica paralela. Toda excepción se documenta en `FRONTEND_DECISIONS.md`.
+Los tokens deben centralizarse como variables CSS o en el tema del sistema de componentes. Ningún módulo crea una paleta o escala tipográfica paralela. Toda excepción se documenta en `../../DECISIONES_Y_DUDAS.md`.

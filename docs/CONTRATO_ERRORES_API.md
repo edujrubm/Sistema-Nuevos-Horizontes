@@ -6,7 +6,7 @@
 
 **Propósito:** unificar las respuestas de error de todas las áreas. Los mensajes que recibe la persona usuaria deben estar en español.
 
-**Estado del documento:** contrato v1.1 implementado en las APIs de persona 3 el 30 de octubre de 2026. Los demás integrantes pueden reutilizar el módulo `src/common/errors`; deben registrar una sola infraestructura global al integrar. Los códigos de funciones futuras son catálogo, no implementaciones de esas funciones. Ver `persona3/ERRORES_IMPLEMENTADOS.md`.
+**Estado del documento:** contrato v1.1 implementado en `src/common/errors`. Los módulos deben reutilizar una sola infraestructura global al integrarse. Los códigos de funciones futuras son catálogo, no implementaciones de esas funciones. Las decisiones no resueltas se registran en `DECISIONES_Y_DUDAS.md`.
 
 ## Protocolo de lectura y ejecución para la IA
 

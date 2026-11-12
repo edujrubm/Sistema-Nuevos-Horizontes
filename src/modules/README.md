@@ -16,4 +16,4 @@ No importar repositorios de otro módulo para saltarse reglas de negocio. Un mó
 
 El repositorio ya contiene módulos funcionales con controladores, servicios, entidades y DTOs. La estructura anterior es una convención organizativa; varios módulos actuales mantienen el controlador y servicio junto al archivo `.module.ts`.
 
-Legal, Trabajo Social y Guardería se registran mediante `DomainModule → FormulariosModule`; Evolución se registra directamente en `DomainModule`. La lógica común de estas áreas se expone mediante `Persona3CoreModule`. Consultar el [inventario de rutas de Persona 3](../../docs/integracion/RUTAS_PERSONA3_MAIN_20261112.md).
+Legal, Trabajo Social y Guardería se registran mediante `DomainModule → FormulariosModule`; Evolución se registra directamente en `DomainModule`. La lógica común de estas áreas se expone mediante `Persona3CoreModule`. Los controladores son el inventario vigente de rutas; validar además con las pruebas y una base preparada.

@@ -14,5 +14,5 @@ No usar sincronización automática del ORM. Un script aplicado no se edita ni s
 
 El repositorio contiene las migraciones anteriores como evidencia versionada,
 pero su presencia no confirma que una base remota específica las tenga
-aplicadas. Consultar `../docs/ESTADO_TECNICO_ACTUAL.md` antes de tomar una
-decisión de despliegue o asumir el estado de PostgreSQL.
+aplicadas. Consultar `../docs/DECISIONES_Y_DUDAS.md` y verificar el ambiente
+antes de tomar una decisión de despliegue o asumir el estado de PostgreSQL.
