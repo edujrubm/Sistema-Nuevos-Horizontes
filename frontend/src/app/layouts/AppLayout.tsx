@@ -1,14 +1,18 @@
-import { NavLink, Outlet, useLocation, useMatch } from "react-router-dom";
+import { Link, NavLink, Outlet, useLocation, useMatch } from "react-router-dom";
 
-const navigation = [
+const admissionNavigation = [
   { to: "/beneficiarias", label: "Beneficiarias" },
   { to: "/fichas/nueva", label: "Nueva ficha inicial" },
   { to: "/fichas/borradores", label: "Borradores" },
   { to: "/fichas/confirmadas", label: "Fichas confirmadas" },
-  { to: "/albergue", label: "Albergue" },
+];
+
+const shelterNavigation = [
+  { to: "/albergue", label: "Concurrencia" },
+  { to: "/albergue/ingreso", label: "Registrar ingreso" },
   { to: "/albergue/movimientos", label: "Salidas y retornos" },
   { to: "/albergue/cierres", label: "Egreso y nacimiento" },
-  { to: "/albergue/historial", label: "Historial de movimientos" },
+  { to: "/albergue/historial", label: "Historial" },
 ];
 
 export function AppLayout() {
@@ -16,13 +20,7 @@ export function AppLayout() {
   const documentos = useMatch("/beneficiarias/:id/documentos");
   const albergue = location.pathname.startsWith("/albergue");
   const links = albergue
-    ? [
-        { to: "/beneficiarias", label: "Inicio" },
-        { to: "/albergue", label: "Concurrencia" },
-        { to: "/albergue/movimientos", label: "Salidas y retornos" },
-        { to: "/albergue/historial", label: "Historial" },
-        { to: "/albergue/cierres", label: "Egreso y nacimiento" },
-      ]
+    ? shelterNavigation
     : documentos
       ? [
           { to: "/beneficiarias", label: "Beneficiarias" },
@@ -33,19 +31,26 @@ export function AppLayout() {
           },
           { to: location.pathname, label: "Documentos" },
         ]
-      : navigation;
+      : admissionNavigation;
+  const moduleHome = albergue ? "/albergue" : "/beneficiarias";
+  const moduleLabel = albergue
+    ? "Módulo de Albergue"
+    : documentos
+      ? "Módulo de Documentos"
+      : "Admisión y ficha inicial";
   return (
     <div className="app-shell">
       <header className="app-header">
-        <a className="brand" href="/" aria-label="Ir al inicio">
+        <Link className="brand" to={moduleHome} aria-label={`Ir al inicio de ${moduleLabel}`}>
           <span className="brand-mark" aria-hidden="true">
             NH
           </span>
           <span>Asociación Nuevos Horizontes</span>
-        </a>
+        </Link>
         <span className="environment-badge">Entorno de desarrollo</span>
       </header>
       <aside className="app-sidebar" aria-label="Navegación principal">
+        <p className="sidebar-module-label">{moduleLabel}</p>
         <nav>
           {links.map((item) => (
             <NavLink
