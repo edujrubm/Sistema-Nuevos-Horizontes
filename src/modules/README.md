@@ -14,4 +14,6 @@ nombre-modulo/
 
 No importar repositorios de otro módulo para saltarse reglas de negocio. Un módulo expone servicios o contratos explícitos.
 
-En esta fase los módulos contienen únicamente su archivo `.module.ts`. No se han definido rutas, controladores, servicios, entidades ni DTOs funcionales; esos elementos se agregarán después de aprobar los contratos de cada área.
+El repositorio ya contiene módulos funcionales con controladores, servicios, entidades y DTOs. La estructura anterior es una convención organizativa; varios módulos actuales mantienen el controlador y servicio junto al archivo `.module.ts`.
+
+Legal, Trabajo Social y Guardería se registran mediante `DomainModule → FormulariosModule`; Evolución se registra directamente en `DomainModule`. La lógica común de estas áreas se expone mediante `Persona3CoreModule`. Consultar el [inventario de rutas de Persona 3](../../docs/integracion/RUTAS_PERSONA3_MAIN_20261112.md).
