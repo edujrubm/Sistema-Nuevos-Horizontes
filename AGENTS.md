@@ -43,6 +43,12 @@ una decisión confirmada, se conserva la decisión y se informa la discrepancia.
 - Usar las herramientas exactamente como indica `docs/GUIA_TECNICA.md`; no usar
   SQL en controladores, sincronización automática del ORM ni migraciones no
   aprobadas.
+- Escribir código legible y sectorizado. Los límites de tamaño son señales para
+  revisar responsabilidades, no una razón para fragmentar código cohesivo o una
+  transacción atómica.
+- Documentar con comentarios profesionales y simples las funciones, decisiones
+  de implementación y variables que no sean evidentes. Un comentario explica
+  intención, regla o invariante; no repite literalmente lo que expresa el código.
 - No eliminar datos, modificar una migración aplicada, exponer información
   sensible ni ejecutar escrituras contra un ambiente compartido sin autorización.
 - Ejecutar la verificación aplicable y reportar con precisión qué se comprobó y

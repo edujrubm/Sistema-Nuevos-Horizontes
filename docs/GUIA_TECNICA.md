@@ -37,6 +37,19 @@ No utilizar `synchronize`, `migrationsRun`, SQL desde un controlador ni comandos
 destructivos contra un ambiente compartido para resolver una diferencia de
 esquema.
 
+## Legibilidad del código
+
+Los umbrales de tamaño del backend están en
+`docs/contexto/backend/AGENTS.md`. Son una señal para revisar y mejorar el
+diseño, no reglas mecánicas que obliguen a separar una transacción, una consulta
+cohesiva o un contrato legible. Antes de dividir, comprobar que el cambio mejora
+la responsabilidad, los nombres, las pruebas y la trazabilidad.
+
+Todo código no evidente debe explicar con comentarios breves y profesionales su
+intención, invariante, decisión técnica o significado de una variable relevante.
+No comentar cada línea ni repetir el nombre de una función; preferir nombres
+claros y comentarios que expliquen el motivo de la decisión.
+
 Las migraciones están en `database/migrations/`. `synchronize` no sustituye una
 migración. Verificar qué scripts se aplicaron en el ambiente destino es parte
 del despliegue. En particular, no se debe suponer que una función de PostgreSQL

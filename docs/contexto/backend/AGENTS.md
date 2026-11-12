@@ -44,6 +44,32 @@
 
 Una función está terminada cuando tiene migración cuando corresponda, autorización en servidor, validaciones, auditoría, manejo de concurrencia, contrato documentado, pruebas pertinentes y trazabilidad. Compilar sin errores no basta.
 
+## Legibilidad y sectorización del backend
+
+Los siguientes valores son **umbrales de revisión**, no límites rígidos. Al
+superarlos, analizar si la responsabilidad puede simplificarse, extraerse o
+dividirse sin romper cohesión, transacciones, autorización ni auditoría. Dejar
+una breve justificación cuando mantener el tamaño sea la opción más clara.
+
+| Elemento | Tamaño esperado | Revisar desde | Criterio de mejora |
+| --- | ---: | ---: | --- |
+| Función o método | hasta 40 líneas | más de 80 líneas | Extraer validación, mapeo, política o paso de negocio con nombre claro. |
+| Función transaccional | hasta 80 líneas | más de 120 líneas | Extraer helpers que reciban el mismo `EntityManager`; no partir la atomicidad. |
+| Controlador | hasta 150 líneas | más de 250 líneas | Mover reglas de negocio a servicios; SQL nunca pertenece aquí. |
+| Servicio | hasta 250 líneas | más de 400 líneas | Separar casos de uso, políticas, auditoría o coordinadores del dominio. |
+| Repositorio | hasta 350 líneas | más de 550 líneas | Separar por agregado, tipo de consulta o archivo `*.queries.ts`. |
+| Módulo de backend | hasta 1,500 líneas propias | más de 2,500 líneas | Revisar límites del dominio y dependencias entre responsabilidades. |
+
+También revisar cuando una función tenga más de cuatro parámetros, más de tres
+niveles de anidamiento o una complejidad ciclomática mayor de 10. Desde 15 se
+debe simplificar o justificar explícitamente la excepción.
+
+Las funciones públicas, consultas no triviales, transacciones, invariantes,
+conversiones delicadas y variables de significado no evidente deben llevar
+comentarios profesionales y breves. Explicar el **por qué**, el límite o la
+regla de negocio; no describir línea por línea lo que ya expresa un nombre
+claro. Usar nombres descriptivos antes que comentarios compensatorios.
+
 ## Reglas del esquema unificado v2
 
 - Tratar `expediente` como raíz persistente de ficha inicial, hijos y formularios; no volver a usar relaciones directas eliminadas por la ampliación.
