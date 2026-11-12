@@ -1,3 +1,5 @@
+> Rutas de Legal, Trabajo Social, Guardería y Evolución: [inventario y registro en main](docs/integracion/RUTAS_PERSONA3_MAIN_20261112.md).
+
 > Integración vigente del equipo: [PR y pruebas del 10 de noviembre](docs/integracion/INTEGRACION_PRS_20261110.md).
 
 > Entrega local de integración del 4 de noviembre: consultar [informe vigente](docs/integracion/INFORME_INTEGRACION_DOCUMENTOS_PERSONA3.md), [preguntas al equipo](docs/integracion/DUDAS_EQUIPO_FRONTEND.md) y [frontend React](frontend/README.md). Las menciones posteriores al prototipo HTML corresponden al trabajo histórico; el laboratorio runtime se retiró de esta entrega.
@@ -68,7 +70,7 @@ verificación y despliegue.
 
 Completar `.env` con las credenciales locales de PostgreSQL. Nunca subir ese archivo al repositorio.
 
-- El servidor queda preparado para registrar rutas después de definir los contratos funcionales.
+- El servidor ya registra las rutas de los módulos implementados. Consultar sus controladores y el inventario anterior para distinguirlas de módulos todavía pendientes.
 
 ### Verificación
 
