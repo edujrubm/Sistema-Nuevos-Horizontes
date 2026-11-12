@@ -25,16 +25,20 @@ La cabecera existente se mapea en
 `../shared/entities/formulario-area.entity.ts`; no crea tablas ni cambia el
 esquema. Los identificadores bigint permanecen como cadenas.
 
-La consulta individual y las escrituras de referencias todavía utilizan el
-servicio heredado. Su migración, la eliminación completa de esa dependencia y
+La consulta individual de referencias usa también repositorios TypeORM y
+comprueba el tipo de formulario antes de devolver el detalle.
+
+Las escrituras de referencias todavía utilizan el servicio heredado.
+Su migración, la eliminación completa de esa dependencia y
 la reorganización del frontend siguen pendientes; este cambio no resuelve toda
 la revisión D-09.
 
 ## Pruebas específicas
 
 `test/legal-orm.integration.cjs` verifica consultas y respuestas HTTP reales
-sin escribir datos. Requiere compilar la API y una base sintética local con la
-ficha Legal del expediente 100. Configurar explícitamente `LEGAL_TEST_HOST`
+con una referencia sintética creada durante la preparación. Requiere compilar
+la API y una base desechable local cuyo nombre empiece con `legal_orm_test_`,
+con la ficha Legal del expediente 100. Configurar explícitamente `LEGAL_TEST_HOST`
 (`127.0.0.1`), `LEGAL_TEST_PORT`, `LEGAL_TEST_DATABASE`,
 `LEGAL_TEST_USER` y `LEGAL_TEST_PASSWORD`, y ejecutar:
 

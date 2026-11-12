@@ -44,7 +44,7 @@ export class LegalController {
   @Get("legal/referencias/:id") referencia(
     @Param("id", BigintIdPipe) id: string,
   ) {
-    return this.service.referencia(id);
+    return this.legalService.reference(id);
   }
   @Patch("legal/referencias/:id") editarReferencia(
     @Param("id", BigintIdPipe) id: string,

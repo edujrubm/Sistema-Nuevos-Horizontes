@@ -9,6 +9,10 @@ import {
 export class LegalService {
   constructor(private readonly repository: LegalRepository) {}
 
+  reference(id: string) {
+    return this.repository.reference(id);
+  }
+
   list(
     beneficiaryId: string,
     type: LegalFormType,

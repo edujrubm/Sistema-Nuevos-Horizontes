@@ -12,6 +12,25 @@ export type LegalFormType = "LEGAL" | "REFERENCIA_LEGAL";
 export class LegalRepository {
   constructor(private readonly data: DataSource) {}
 
+  /** La consulta individual excluye cualquier otro tipo de ficha. */
+  async reference(id: string) {
+    return this.data.transaction("REPEATABLE READ", async (manager) => {
+      const header = await manager.getRepository(FormularioAreaEntity).findOne({
+        where: { id, tipo: "REFERENCIA_LEGAL" },
+      });
+      if (!header) throw new ErrorApi("REGISTRO_NO_ENCONTRADO");
+      const detail = await manager.getRepository(ReferenciaLegal).findOne({
+        where: { formularioId: id },
+      });
+      const record = await manager.getRepository(ExpedienteEntity).findOne({
+        where: { id: header.expedienteId },
+      });
+      if (!detail || !record) throw new ErrorApi("REGISTRO_NO_ENCONTRADO");
+      const { formularioId: _id, ...detalle } = detail;
+      return { ...header, beneficiariaId: record.beneficiariaId, detalle };
+    });
+  }
+
   /** Lista y conteo comparten instantánea; una página vacía conserva el total. */
   async list(
     beneficiaryId: string,

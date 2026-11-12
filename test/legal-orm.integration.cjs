@@ -14,6 +14,7 @@ before(async () => {
   assert.equal(process.env.LEGAL_TEST_HOST, "127.0.0.1");
   assert.ok(process.env.LEGAL_TEST_PORT);
   assert.ok(process.env.LEGAL_TEST_DATABASE);
+  assert.match(process.env.LEGAL_TEST_DATABASE, /^legal_orm_test_/);
   database = new DataSource({
     type: "postgres",
     host: process.env.LEGAL_TEST_HOST,
@@ -40,6 +41,8 @@ before(async () => {
     DATABASE_USER: process.env.LEGAL_TEST_USER,
     DATABASE_PASSWORD: process.env.LEGAL_TEST_PASSWORD,
     DATABASE_SSL: "false", P3_TEST_AREA: "Legal",
+    P3_TEST_ACTOR_ID: "1", P3_DRAFT_STATE: "P3_BORRADOR",
+    P3_CONFIRMED_STATE: "P3_CONFIRMADO",
   });
   const { NestFactory } = require("@nestjs/core");
   const { AppModule } = require("../dist/app.module");
@@ -49,6 +52,14 @@ before(async () => {
   configurarTransporteApi(app);
   await app.listen(0, "127.0.0.1");
   baseUrl = await app.getUrl();
+  const fixture = await fetch(baseUrl + "/api/v1/legal/beneficiarias/100/referencias", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      fechaAtencion: "2026-11-12T10:00:00-06:00", profesionalId: "1",
+      detalle: { destino: "Institución sintética", motivoReferencia: "Ensayo ORM" },
+    }),
+  });
+  assert.equal(fixture.status, 201, await fixture.text());
 });
 after(async () => {
   if (app) await app.close();
@@ -109,4 +120,19 @@ test("Legal HTTP: IDs inválidos, inexistentes y paginación mantienen errores c
     assert.deepEqual(Object.keys(body).sort(), ["codigo", "errores", "estado", "idSolicitud", "mensaje"]);
     assert.equal(body.estado, status);
   }
+});
+test("Legal: consulta individual ORM coincide con el listado y rechaza otro tipo", async () => {
+  const refs = await repository.list("100", "REFERENCIA_LEGAL", 1, 20);
+  assert.ok(refs.datos.length > 0, "Preparar una referencia Legal sintética");
+  const first = refs.datos[0];
+  const detail = await repository.reference(first.id);
+  assert.equal(detail.beneficiariaId, "100");
+  assert.equal(detail.id, first.id);
+  assert.deepEqual(detail.detalle, first.detalle);
+  const response = await fetch(baseUrl + "/api/v1/legal/referencias/" + first.id);
+  assert.equal(response.status, 200);
+  assert.equal((await response.json()).beneficiariaId, "100");
+  const legal = await repository.list("100", "LEGAL", 1, 20);
+  const wrong = await fetch(baseUrl + "/api/v1/legal/referencias/" + legal.datos[0].id);
+  assert.equal(wrong.status, 404);
 });
