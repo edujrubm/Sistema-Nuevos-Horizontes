@@ -8,7 +8,6 @@ import {
   Query,
 } from "@nestjs/common";
 import { BigintIdPipe } from "../../persona3/bigint-id.pipe";
-import { Persona3Service } from "../../persona3/persona3.service";
 import { LegalService } from "./legal.service";
 import {
   CrearReferenciaDto,
@@ -19,10 +18,7 @@ import {
 
 @Controller("v1")
 export class LegalController {
-  constructor(
-    readonly service: Persona3Service,
-    private readonly legalService: LegalService,
-  ) {}
+  constructor(private readonly legalService: LegalService) {}
   @Get("legal/beneficiarias/:id/fichas") legal(
     @Param("id", BigintIdPipe) id: string,
     @Query() q: ListaDto,
@@ -39,7 +35,7 @@ export class LegalController {
     @Param("id", BigintIdPipe) id: string,
     @Body() dto: CrearReferenciaDto,
   ) {
-    return this.service.crearReferencia(id, dto);
+    return this.legalService.create(id, dto);
   }
   @Get("legal/referencias/:id") referencia(
     @Param("id", BigintIdPipe) id: string,
@@ -50,12 +46,12 @@ export class LegalController {
     @Param("id", BigintIdPipe) id: string,
     @Body() dto: EditarReferenciaDto,
   ) {
-    return this.service.editarReferencia(id, dto);
+    return this.legalService.edit(id, dto);
   }
   @Post("legal/referencias/:id/confirmar") confirmar(
     @Param("id", BigintIdPipe) id: string,
     @Body() dto: TransicionDto,
   ) {
-    return this.service.confirmarReferencia(id, dto);
+    return this.legalService.confirm(id, dto);
   }
 }

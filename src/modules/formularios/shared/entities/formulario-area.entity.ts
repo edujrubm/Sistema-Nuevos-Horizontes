@@ -1,9 +1,13 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 /** Cabecera compartida existente: mapeo de lectura, sin cambios de esquema. */
 @Entity({ schema: "new_horizons", name: "formulario_area" })
 export class FormularioAreaEntity {
-  @PrimaryColumn({ type: "bigint" }) id!: string;
+  @PrimaryGeneratedColumn("identity", {
+    type: "bigint",
+    generatedIdentity: "ALWAYS",
+  })
+  id!: string;
   @Column({ name: "expediente_id", type: "bigint" }) expedienteId!: string;
   @Column({ name: "nino_id", type: "bigint", nullable: true }) ninoId!:
     string | null;

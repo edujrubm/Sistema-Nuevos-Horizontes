@@ -1,6 +1,8 @@
 # Legal
 
-Módulo implementado e integrado en `main`. `LegalController` publica las siguientes rutas; el prefijo global es `/api` y el controlador añade `/v1`.
+La revisión ORM se desarrolla en la rama `legal`; no está integrada en `main`.
+`LegalController` conserva las siguientes rutas; el prefijo global es `/api`
+y el controlador añade `/v1`.
 
 | Método | Ruta |
 |---|---|
@@ -28,10 +30,22 @@ esquema. Los identificadores bigint permanecen como cadenas.
 La consulta individual de referencias usa también repositorios TypeORM y
 comprueba el tipo de formulario antes de devolver el detalle.
 
-Las escrituras de referencias todavía utilizan el servicio heredado.
-Su migración, la eliminación completa de esa dependencia y
-la reorganización del frontend siguen pendientes; este cambio no resuelve toda
-la revisión D-09.
+La creación, edición y confirmación de referencias utilizan repositorios
+TypeORM dentro de una transacción auditada. La corrección bloquea la cabecera,
+comprueba versión y estado y conserva las revisiones generadas por PostgreSQL.
+El controlador ya no inyecta el servicio heredado ni importa su módulo.
+
+El protocolo existente de actor, motivo, commit y reversión se reutiliza desde
+`src/common/database/audited-transaction.ts`. El adaptador heredado delega en
+ese mismo protocolo para evitar dos implementaciones. El SQL parametrizado
+restante configura el contexto transaccional de PostgreSQL; el cálculo de edad
+usa una expresión PostgreSQL dentro de QueryBuilder para preservar la fecha y
+zona histórica. No hay SQL CRUD directo en las operaciones de Legal.
+
+La reorganización del frontend y de los contratos heredados sigue pendiente.
+Se conservan temporalmente las variables de entorno existentes por
+compatibilidad. Este cambio no resuelve toda la revisión D-09 ni incorpora
+autenticación productiva.
 
 ## Pruebas específicas
 

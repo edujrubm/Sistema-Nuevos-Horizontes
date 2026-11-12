@@ -136,3 +136,60 @@ test("Legal: consulta individual ORM coincide con el listado y rechaza otro tipo
   const wrong = await fetch(baseUrl + "/api/v1/legal/referencias/" + legal.datos[0].id);
   assert.equal(wrong.status, 404);
 });
+
+async function request(method, path, body, status) {
+  const response = await fetch(baseUrl + "/api/v1" + path, {
+    method, headers: { "Content-Type": "application/json" },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  const value = await response.json();
+  assert.equal(response.status, status, JSON.stringify(value));
+  return value;
+}
+async function createReference(detail = { destino: "Entidad sintética", motivoReferencia: "Prueba ORM" }) {
+  return request("POST", "/legal/beneficiarias/100/referencias", {
+    fechaAtencion: "2026-11-12T10:00:00-06:00", profesionalId: "1", detalle: detail,
+  }, 201);
+}
+test("Legal ORM: edición, confirmación y corrección conservan versiones y auditoría", async () => {
+  let reference = await createReference();
+  const path = "/legal/referencias/" + reference.id;
+  const version = reference.version;
+  reference = await request("PATCH", path, {
+    version, motivo: "Corrección sintética", detalle: { recomendaciones: "Revisar antecedentes" },
+  }, 200);
+  assert.ok(reference.version > version);
+  await request("PATCH", path, { version, motivo: "Versión antigua", detalle: { destino: "No guardar" } }, 409);
+  reference = await request("POST", path + "/confirmar", { version: reference.version, motivo: "Confirmación sintética" }, 201);
+  assert.equal(reference.estadoCodigo, "P3_CONFIRMADO");
+  reference = await request("PATCH", path, {
+    version: reference.version, motivo: "Corrección posterior", detalle: { origen: "Institución de origen sintética" },
+  }, 200);
+  assert.equal(reference.detalle.origen, "Institución de origen sintética");
+  const history = await database.query(
+    "SELECT actor_id, motivo FROM new_horizons.revision_registro WHERE tabla='referencia_legal' AND registro_id=$1",
+    [reference.id],
+  );
+  assert.ok(history.some((row) => row.actor_id === "1" && row.motivo === "Corrección posterior"));
+});
+test("Legal ORM: confirmación incompleta y FK inválida revierten cambios", async () => {
+  const reference = await createReference({});
+  await request("POST", "/legal/referencias/" + reference.id + "/confirmar", {
+    version: reference.version, motivo: "Intento incompleto",
+  }, 400);
+  assert.equal((await repository.reference(reference.id)).version, reference.version);
+  const count = await repository.list("100", "REFERENCIA_LEGAL", 1, 100);
+  await request("POST", "/legal/beneficiarias/100/referencias", {
+    fechaAtencion: "2026-11-12T10:00:00-06:00", profesionalId: "9223372036854775807", detalle: {},
+  }, 409);
+  assert.equal((await repository.list("100", "REFERENCIA_LEGAL", 1, 100)).total, count.total);
+});
+test("Legal ORM: dos escrituras simultáneas no sobrescriben la misma versión", async () => {
+  const reference = await createReference();
+  const responses = await Promise.all(["Primera", "Segunda"].map((origen) =>
+    fetch(baseUrl + "/api/v1/legal/referencias/" + reference.id, {
+      method: "PATCH", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ version: reference.version, motivo: "Prueba concurrente", detalle: { origen } }),
+    })));
+  assert.deepEqual(responses.map((r) => r.status).sort(), [200, 409]);
+});
