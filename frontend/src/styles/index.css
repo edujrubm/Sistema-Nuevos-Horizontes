@@ -242,17 +242,19 @@ th { color: var(--text-600); font-size: 16px; }
 
 /* Composición de Albergue tomada del mockup aprobado. */
 .shelter-concurrency-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 330px;
-  gap: 24px;
+  display: block;
 }
 .shelter-right {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: minmax(280px, .8fr) minmax(0, 1.2fr);
+  gap: 24px;
+  margin-top: 24px;
 }
 .shelter-right > .panel {
   padding: 24px;
+}
+.shelter-right > .alert {
+  grid-column: 1 / -1;
 }
 .shelter-total {
   display: grid;
@@ -289,16 +291,20 @@ th { color: var(--text-600); font-size: 16px; }
 }
 @media (max-width: 1200px) {
   .shelter-concurrency-layout {
-    grid-template-columns: 1fr;
+    display: block;
   }
   .shelter-right {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(260px, .8fr) minmax(0, 1.2fr);
   }
 }
-@media (max-width: 700px) {
+@media (max-width: 800px) {
   .shelter-right {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .shelter-right > .alert {
+    grid-column: auto;
   }
 }
 
