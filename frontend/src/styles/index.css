@@ -24,6 +24,7 @@ a { color: inherit; }
 .brand-mark { display: grid; place-items: center; width: 44px; height: 44px; border: 2px solid white; border-radius: 50%; font-size: 14px; }
 .environment-badge { padding: 8px 12px; border: 1px solid rgba(255,255,255,.4); border-radius: 999px; font-size: 14px; }
 .app-sidebar { padding: 32px 16px; background: var(--surface); border-right: 1px solid var(--border); }
+.sidebar-module-label { margin: 0 20px 16px; color: var(--text-600); font-size: 14px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
 .app-sidebar nav { display: grid; gap: 8px; }
 .nav-link { min-height: 52px; display: flex; align-items: center; padding: 0 20px; border-radius: 8px; color: var(--text-600); text-decoration: none; font-size: 18px; font-weight: 600; }
 .nav-link.active { color: var(--primary-700); background: var(--primary-100); box-shadow: inset 3px 0 var(--primary-700); }
