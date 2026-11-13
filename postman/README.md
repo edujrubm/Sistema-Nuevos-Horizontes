@@ -1,5 +1,18 @@
 # Postman de la integración
 
+## Legal reconstruido
+
+Usar `Legal.postman_collection.json` para la ficha Legal y sus referencias.
+Incluye las seis rutas del módulo y las rutas compartidas de formularios que
+usa el frontend. Su URL predeterminada es `http://127.0.0.1:3000/api/v1`;
+ejecutar únicamente sobre una base local sintética preparada. Rechaza destinos
+fuera de loopback y encadena identificadores y versiones sin perder precisión.
+La configuración y las pruebas están en
+`src/modules/formularios/legal/README.md`.
+
+Las colecciones por integrante que siguen se conservan como contexto histórico
+y regresión de otras áreas; no definen la organización del código nuevo.
+
 API local por defecto: http://127.0.0.1:3016/api/v1. Iniciar con pnpm start:persona3 (PostgreSQL local sintético); importar el entorno local. No usar fixtures en la BD del grupo.
 
 - Persona3.postman_collection.json: 14 rutas originales, flujo ejecutable con la semilla P3.

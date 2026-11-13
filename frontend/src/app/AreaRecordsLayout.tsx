@@ -1,11 +1,11 @@
 import { useCallback, useState } from "react";
-import { Link, Outlet, useParams } from "react-router-dom";
-import { api } from "../shared/api/persona3";
-import { useConsulta } from "../modules/persona3/useConsulta";
+import { Link, Outlet, useParams, useLocation } from "react-router-dom";
+import { api } from "../shared/api/area-records";
+import { useConsulta } from "../shared/hooks/useConsulta";
 import {
   BeneficiariaContext,
   AreaFichaContext,
-} from "../modules/persona3/contexto";
+} from "../shared/context/area-record-context";
 import { CapacidadesContext } from "./capacidades";
 import { soloLectura } from "../shared/types/api";
 import { ErrorVista } from "../shared/components/feedback";
@@ -23,7 +23,7 @@ const capacidades =
         verRevisiones: true,
       }
     : soloLectura;
-export function Persona3Layout() {
+export function AreaRecordsLayout() {
   const { beneficiariaId = "" } = useParams();
   const [area, setArea] = useState("");
   const q = useConsulta(
@@ -33,20 +33,26 @@ export function Persona3Layout() {
     ),
   );
   const base = `/beneficiarias/${beneficiariaId}`;
+  const location = useLocation();
+  const legal = /^\/beneficiarias\/[^/]+\/(legal|referencias)(\/|$)/.test(
+    location.pathname,
+  );
   return (
     <CapacidadesContext.Provider value={capacidades}>
       <AreaFichaContext.Provider value={{ area, setArea }}>
         <BeneficiariaContext.Provider value={q.datos}>
-          <div className="persona3">
-            <nav aria-label="Áreas del expediente" className="tabs">
-              <Link to={base}>Expediente</Link>{" "}
-              <Link to={`${base}/social`}>Trabajo Social</Link>{" "}
-              <Link to={`${base}/legal`}>Legal</Link>{" "}
-              <Link to={`${base}/referencias`}>Referencias</Link>{" "}
-              <Link to={`${base}/guarderia`}>Guardería</Link>{" "}
-              <Link to={`${base}/evolucion`}>Evolución</Link>
-              <Link to={`${base}/documentos`}>Documentos</Link>
-            </nav>
+          <div className="area-records">
+            {!legal && (
+              <nav aria-label="Áreas del expediente" className="tabs">
+                <Link to={base}>Expediente</Link>{" "}
+                <Link to={`${base}/social`}>Trabajo Social</Link>{" "}
+                <Link to={`${base}/legal`}>Legal</Link>{" "}
+                <Link to={`${base}/referencias`}>Referencias</Link>{" "}
+                <Link to={`${base}/guarderia`}>Guardería</Link>{" "}
+                <Link to={`${base}/evolucion`}>Evolución</Link>
+                <Link to={`${base}/documentos`}>Documentos</Link>
+              </nav>
+            )}
             {!!q.error && (
               <ErrorVista error={q.error} reintentar={q.recargar} />
             )}

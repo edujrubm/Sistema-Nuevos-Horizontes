@@ -1,70 +1,96 @@
 # Legal
 
-La revisión ORM se desarrolla en la rama `legal`; no está integrada en `main`.
-`LegalController` conserva las siguientes rutas; el prefijo global es `/api`
-y el controlador añade `/v1`.
+Ficha Legal y referencias de la beneficiaria, organizadas por módulo. No incorpora procesos legales de hijas o hijos.
+
+## Organización
+
+- LegalController → LegalService → LegalRepository: consultas y referencias.
+- LegalFormRepository: persistencia TypeORM de la variante LEGAL, reutilizada por el motor común.
+- dto/, entities/ y validation/: contratos, mapeos y validación del dominio.
+- frontend/src/modules/legal/: páginas, configuración, API y hook del editor.
+
+Legal no importa el módulo, servicio ni repositorio heredados de la asignación por integrante. Paginación, versiones, identificadores y transacciones auditadas viven en src/common/. Se conservan adaptadores de compatibilidad para no romper Social, Guardería, Evolución y las pruebas históricas; retirarlos completamente corresponde a la migración de esas áreas.
+
+Las operaciones de Legal usan entidades y repositorios TypeORM, transacciones y bloqueo de cabecera. El SQL restante establece el contexto de auditoría de PostgreSQL. La edad histórica conserva su expresión PostgreSQL dentro de QueryBuilder. El recorrido de ficha Legal no usa SQL CRUD directo ni local_json_seguro.
+
+## API
+
+Prefijo /api/v1. Se conservan las seis rutas del módulo:
 
 | Método | Ruta |
-|---|---|
-| GET | `/api/v1/legal/beneficiarias/:id/fichas` |
-| GET | `/api/v1/legal/beneficiarias/:id/referencias` |
-| POST | `/api/v1/legal/beneficiarias/:id/referencias` |
-| GET | `/api/v1/legal/referencias/:id` |
-| PATCH | `/api/v1/legal/referencias/:id` |
-| POST | `/api/v1/legal/referencias/:id/confirmar` |
+| --- | --- |
+| GET | /legal/beneficiarias/:id/fichas |
+| GET | /legal/beneficiarias/:id/referencias |
+| POST | /legal/beneficiarias/:id/referencias |
+| GET | /legal/referencias/:id |
+| PATCH | /legal/referencias/:id |
+| POST | /legal/referencias/:id/confirmar |
 
-## Registro y lógica
+La ficha reutiliza estas rutas compartidas:
 
-`AppModule → DomainModule → FormulariosModule → LegalModule → LegalController`.
+| Método | Ruta |
+| --- | --- |
+| GET / POST | /beneficiarias/:id/formularios-area, con tipo LEGAL |
+| GET / PATCH | /formularios-area/:id |
+| POST | /formularios-area/:id/confirmar |
+| POST | /formularios-area/:id/descartar |
+| GET | /tipos-formulario |
 
-Los listados de fichas y referencias usan `LegalService → LegalRepository`,
-con entidades TypeORM y `QueryBuilder`. El repositorio resuelve el expediente,
-filtra por tipo y pagina con un orden estable de fecha e identificador. El
-conteo y la consulta comparten una transacción `REPEATABLE READ`. Estas dos
-operaciones no dependen de la función PostgreSQL `local_json_seguro`.
+El motor delega únicamente la variante LEGAL al adaptador ORM; las demás conservan sus operaciones. Las referencias confirmadas admiten correcciones con motivo, versión e historial. La ficha Legal confirmada permanece en consulta en el flujo ordinario. No se agregan obligatoriedades o transiciones pendientes de D-04.
 
-La cabecera existente se mapea en
-`../shared/entities/formulario-area.entity.ts`; no crea tablas ni cambia el
-esquema. Los identificadores bigint permanecen como cadenas.
+## Frontend
 
-La consulta individual de referencias usa también repositorios TypeORM y
-comprueba el tipo de formulario antes de devolver el detalle.
+| Vista | Ruta |
+| --- | --- |
+| Listado de fichas | /beneficiarias/:id/legal |
+| Nueva ficha | /beneficiarias/:id/legal/nueva |
+| Consultar o continuar | /beneficiarias/:id/legal/:fichaId |
+| Listado de referencias | /beneficiarias/:id/referencias |
+| Nueva referencia | /beneficiarias/:id/referencias/nueva |
+| Consultar o corregir referencia | /beneficiarias/:id/referencias/:fichaId |
 
-La creación, edición y confirmación de referencias utilizan repositorios
-TypeORM dentro de una transacción auditada. La corrección bloquea la cabecera,
-comprueba versión y estado y conserva las revisiones generadas por PostgreSQL.
-El controlador ya no inyecta el servicio heredado ni importa su módulo.
+Se mantienen las cuatro secciones del diseño: partes y fecha, diagnóstico y plan, proceso judicial y diligenciamiento. Actora proviene del perfil existente. La interfaz conserva los borradores ante fallos, exige confirmación explícita y bloquea escrituras tras un conflicto de versión. El descarte solicita motivo desde el listado, sin borrar datos.
 
-El protocolo existente de actor, motivo, commit y reversión se reutiliza desde
-`src/common/database/audited-transaction.ts`. El adaptador heredado delega en
-ese mismo protocolo para evitar dos implementaciones. El SQL parametrizado
-restante configura el contexto transaccional de PostgreSQL; el cálculo de edad
-usa una expresión PostgreSQL dentro de QueryBuilder para preservar la fecha y
-zona histórica. No hay SQL CRUD directo en las operaciones de Legal.
+La navegación utiliza el layout institucional y el menú de Legal, sin un menú por integrante. Los enlaces de Documentos y Hoja evolutiva conservan los módulos compartidos. La URL histórica de una ficha Legal redirige al editor del módulo.
 
-La reorganización del frontend y de los contratos heredados sigue pendiente.
-Se conservan temporalmente las variables de entorno existentes por
-compatibilidad. Este cambio no resuelve toda la revisión D-09 ni incorpora
-autenticación productiva.
+## Integración y configuración
 
-## Pruebas específicas
-
-`test/legal-orm.integration.cjs` verifica consultas y respuestas HTTP reales
-con una referencia sintética creada durante la preparación. Requiere compilar
-la API y una base desechable local cuyo nombre empiece con `legal_orm_test_`,
-con la ficha Legal del expediente 100. Configurar explícitamente `LEGAL_TEST_HOST`
-(`127.0.0.1`), `LEGAL_TEST_PORT`, `LEGAL_TEST_DATABASE`,
-`LEGAL_TEST_USER` y `LEGAL_TEST_PASSWORD`, y ejecutar:
+1. Usar Node.js 24 y pnpm 11.25.0 según CONTRIBUTING.md.
+2. Verificar el esquema aprobado y las migraciones de database/migrations/ en el destino. Su presencia en Git no demuestra que estén aplicadas.
+3. No se introducen migraciones ni sincronización automática. Deben existir las columnas de la ampliación y de 007_persona3_campos_mockups.sql, sus restricciones y auditoría. No renombrar una migración aplicada por su nombre histórico.
+4. Configurar FORM_DRAFT_STATE_CODE, FORM_CONFIRMED_STATE_CODE y FORM_DISCARDED_STATE_CODE con códigos presentes en la base.
+5. Mientras se integra la sesión, el motor usa AUDIT_ACTOR_USERNAME. Referencias conserva temporalmente P3_TEST_ACTOR_ID, P3_DRAFT_STATE y P3_CONFIRMED_STATE por compatibilidad. Los actores deben existir en usuario.
+6. VITE_DEV_CAPABILITIES=true habilita capacidades sintéticas sólo en desarrollo. El build productivo conserva consulta hasta disponer de la sesión real.
+7. Con la conexión autorizada en el entorno o .env, ejecutar:
 
 ```sh
-node --test test/legal-orm.integration.cjs
+pnpm run build:api
+node scripts/check-legal-schema.cjs
 ```
 
-No dirigir estas pruebas a una base compartida. La preparación de migraciones
-y fixtures debe realizarse previamente en el entorno local autorizado.
+El chequeo es de solo lectura: verifica columnas mapeadas, estados, variantes, actores técnicos y auditoría. No aplica migraciones ni acredita autenticación. D-02 y D-03 conservan sus pendientes de sesión y almacenamiento definitivo. Integrar esta rama no habilita por sí mismo escrituras productivas.
 
-La creación, edición y confirmación de fichas usa también el [motor compartido de formularios](../README.md). Los seguimientos e historial usan `src/modules/evolucion/evolucion.controller.ts`.
+## Verificación reproducible
 
-Los procesos y referencias legales corresponden a la beneficiaria; este módulo no publica procesos legales de hijos.
+```sh
+pnpm run check
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-legal.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-legal.ps1 -CoreRegression
+```
 
-La existencia y registro del controlador no sustituye las pruebas con una base de datos preparada. Las reglas aún no acordadas se registran en `docs/DECISIONES_Y_DUDAS.md`.
+El script requiere PostgreSQL local; usa PostgreSQL 18 por defecto. Crea un clúster desechable en loopback, aplica fixtures sintéticas y migraciones y detiene únicamente su servidor. No elimina directorios ni toca Neon o la base compartida. Los parámetros PostgresBin, Port y NodeExe permiten ajustar las herramientas.
+
+Postman incluye las seis rutas de Legal y el flujo de ficha común:
+
+```sh
+pnpm exec newman run postman/Legal.postman_collection.json
+```
+
+La colección usa http://127.0.0.1:3000/api/v1, beneficiaria sintética 100 y profesional 1. Ejecutarla únicamente con la API conectada a una base de ensayo preparada. baseUrl permite seleccionar otro puerto local; la colección rechaza destinos fuera de loopback.
+
+Las pruebas cubren consultas, creación, guardado, confirmación, descarte lógico,
+correcciones de referencias, conflictos, auditoría y reversión. La regresión
+ampliada comprueba errores, otras áreas, documentos y Albergue. Las pruebas de
+interfaz cubren navegación, capacidades y conservación de valores ante fallos.
+
+La autenticación productiva y la verificación del ambiente destino permanecen como responsabilidades compartidas. Las pruebas delimitan el alcance revisado y no acreditan esas piezas.

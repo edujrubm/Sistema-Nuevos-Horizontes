@@ -4,8 +4,16 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import { AppLayout } from "../layouts/AppLayout";
 import { NotFoundPage } from "@/shared/components/NotFoundPage";
 
-const Persona3Layout = lazy(() =>
-  import("../Persona3Layout").then((m) => ({ default: m.Persona3Layout })),
+const AreaRecordsLayout = lazy(() =>
+  import("../AreaRecordsLayout").then((m) => ({
+    default: m.AreaRecordsLayout,
+  })),
+);
+const LegalListPage = lazy(() =>
+  import("../../modules/legal").then((m) => ({ default: m.LegalListPage })),
+);
+const LegalEditorPage = lazy(() =>
+  import("../../modules/legal").then((m) => ({ default: m.LegalEditorPage })),
 );
 const DocumentsPage = lazy(() =>
   import("../../modules/documentos/DocumentsPage").then((m) => ({
@@ -169,23 +177,25 @@ export const router = createBrowserRouter([
       { path: "fichas/:id", element: lazyPage(<AdmissionWizardPage />) },
       {
         path: "beneficiarias/:beneficiariaId",
-        element: lazyPage(<Persona3Layout />),
+        element: lazyPage(<AreaRecordsLayout />),
         children: [
           { path: "social", element: <ListadoFichas area="trabajo-social" /> },
           { path: "social/nueva", element: <EditorFicha nueva /> },
-          { path: "legal", element: <ListadoFichas area="legal" /> },
+          { path: "legal", element: lazyPage(<LegalListPage />) },
+          { path: "legal/nueva", element: lazyPage(<LegalEditorPage />) },
+          { path: "legal/:fichaId", element: lazyPage(<LegalEditorPage />) },
           { path: "fichas/:fichaId", element: <EditorFicha /> },
           {
             path: "referencias",
-            element: <ListadoFichas area="referencias" />,
+            element: lazyPage(<LegalListPage reference />),
           },
           {
             path: "referencias/nueva",
-            element: <EditorFicha esReferencia nueva />,
+            element: lazyPage(<LegalEditorPage reference />),
           },
           {
             path: "referencias/:fichaId",
-            element: <EditorFicha esReferencia />,
+            element: lazyPage(<LegalEditorPage reference />),
           },
           { path: "guarderia", element: <Guarderia /> },
           {

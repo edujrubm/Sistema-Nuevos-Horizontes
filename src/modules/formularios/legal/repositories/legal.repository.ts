@@ -1,10 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { DataSource, EntityManager } from "typeorm";
 import { auditedTransaction } from "../../../../common/database/audited-transaction";
-import { BeneficiariaEntity } from "../../../beneficiarias/entities/beneficiaria.entity";
+import { BeneficiariaEntity, ExpedienteEntity } from "../../../beneficiarias";
 import { TipoFormularioEntity } from "../../shared/entities/tipo-formulario.entity";
 import { ErrorApi } from "../../../../common/errors/error-api";
-import { ExpedienteEntity } from "../../../beneficiarias/entities/expediente.entity";
 import { FormularioAreaEntity } from "../../shared/entities/formulario-area.entity";
 import { FichaLegal } from "../entities/ficha-legal.entity";
 import { ReferenciaLegal } from "../entities/referencia-legal.entity";
@@ -147,6 +146,9 @@ export class LegalRepository {
         )
         .where("form.expedienteId = :expedienteId", { expedienteId: record.id })
         .andWhere("form.tipo = :type", { type })
+        .andWhere("form.estadoCodigo <> :discarded", {
+          discarded: process.env.FORM_DISCARDED_STATE_CODE || "DESCARTADO",
+        })
         .orderBy("form.fechaAtencion", "DESC")
         .addOrderBy("form.id", "DESC")
         .skip((page - 1) * limit)

@@ -7,14 +7,14 @@ import {
   Post,
   Query,
 } from "@nestjs/common";
-import { BigintIdPipe } from "../../persona3/bigint-id.pipe";
+import { ParseBigIntIdPipe as BigintIdPipe } from "../../../common/pipes/parse-bigint-id.pipe";
 import { LegalService } from "./legal.service";
 import {
   CrearReferenciaDto,
   EditarReferenciaDto,
-  ListaDto,
-  TransicionDto,
-} from "../../persona3/dto/contratos.dto";
+} from "./dto/referencia-legal.dto";
+import { ListaDto } from "../../../common/dto/pagina.dto";
+import { TransicionDto } from "../../../common/dto/version.dto";
 
 @Controller("v1")
 export class LegalController {

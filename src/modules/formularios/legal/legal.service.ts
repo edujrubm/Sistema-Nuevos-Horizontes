@@ -3,9 +3,9 @@ import { ErrorApi } from "../../../common/errors/error-api";
 import {
   CrearReferenciaDto,
   EditarReferenciaDto,
-  TransicionDto,
-} from "../../persona3/dto/contratos.dto";
-import { validarReferenciaCompleta } from "../../persona3/validar-referencia";
+} from "./dto/referencia-legal.dto";
+import { TransicionDto } from "../../../common/dto/version.dto";
+import { validarReferenciaCompleta } from "./validation/validar-referencia";
 import { FormularioAreaEntity } from "../shared/entities/formulario-area.entity";
 import { ReferenciaLegal } from "./entities/referencia-legal.entity";
 import {

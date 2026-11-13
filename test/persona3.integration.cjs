@@ -241,12 +241,12 @@ test('Errores: detalle anidado español sin valores y conflicto de versión espe
  const stale=await call('PATCH','/legal/referencias/'+reference.id,{version:1,motivo:'Obsoleta',detalle:{destino:'Cambio'}},409);assert.equal(stale.codigo,'VERSION_DESACTUALIZADA');
 });
 test('Errores: fallo interno y desconexión de BD no filtran SQL ni datos',async()=>{
- const {Persona3Repository}=require('../dist/modules/persona3/persona3.repository');const repo=app.get(Persona3Repository),original=repo.expediente;
+ const {LegalRepository}=require('../dist/modules/formularios/legal/repositories/legal.repository');const repo=app.get(LegalRepository),original=repo.list;
  try{
   for(const [error,estado,codigo] of [[new Error('SELECT CUI DATOS_PRIVADOS'),500,'ERROR_INTERNO'],[Object.assign(new Error('conexión privada'),{code:'ECONNREFUSED'}),503,'BASE_DATOS_NO_DISPONIBLE']]){
-   repo.expediente=async()=>{throw error;};const data=await call('GET','/legal/beneficiarias/100/fichas',undefined,estado);assert.equal(data.codigo,codigo);assert.ok(!JSON.stringify(data).includes('DATOS_PRIVADOS'));
+   repo.list=async()=>{throw error;};const data=await call('GET','/legal/beneficiarias/100/fichas',undefined,estado);assert.equal(data.codigo,codigo);assert.ok(!JSON.stringify(data).includes('DATOS_PRIVADOS'));
   }
- }finally{repo.expediente=original;}
+ }finally{repo.list=original;}
 });
 test('Errores: PDF requerido, vacío, tipo, ilegible, límite y estructura multipart',async()=>{
  const required=await call('POST','/beneficiarias/100/documentos/cargas',{formularioId:forms.LEGAL,categoria:'Prueba'},400);assert.equal(required.codigo,'ARCHIVO_REQUERIDO');

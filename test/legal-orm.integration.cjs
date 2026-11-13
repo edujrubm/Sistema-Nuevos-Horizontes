@@ -43,6 +43,9 @@ before(async () => {
     DATABASE_SSL: "false", P3_TEST_AREA: "Legal",
     P3_TEST_ACTOR_ID: "1", P3_DRAFT_STATE: "P3_BORRADOR",
     P3_CONFIRMED_STATE: "P3_CONFIRMADO",
+    FORM_DRAFT_STATE_CODE: "P3_BORRADOR",
+    FORM_CONFIRMED_STATE_CODE: "P3_CONFIRMADO",
+    AUDIT_ACTOR_USERNAME: "laboratorio-local",
   });
   const { NestFactory } = require("@nestjs/core");
   const { AppModule } = require("../dist/app.module");
@@ -192,4 +195,49 @@ test("Legal ORM: dos escrituras simultáneas no sobrescriben la misma versión",
       body: JSON.stringify({ version: reference.version, motivo: "Prueba concurrente", detalle: { origen } }),
     })));
   assert.deepEqual(responses.map((r) => r.status).sort(), [200, 409]);
+});
+test("Ficha Legal ORM: crear, reabrir, guardar, confirmar y conservar el detalle", async () => {
+  let response = await request("POST", "/beneficiarias/100/formularios-area", {
+    tipo: "LEGAL", fechaAtencion: "2026-11-12T10:00:00-06:00", profesionalId: "1",
+    detalle: { demandadoNombreDeclarado: "Parte sintética", diligenciamiento: "Texto de prueba" },
+  }, 201);
+  let form = response.data;
+  assert.equal(form.tipo, "LEGAL");
+  assert.equal(typeof form.id, "string");
+  assert.equal(form.detalle.diligenciamiento, "Texto de prueba");
+  form = (await request("GET", "/formularios-area/" + form.id, undefined, 200)).data;
+  response = await request("PATCH", "/formularios-area/" + form.id, {
+    version: form.version, motivo: "Guardado sintético", detalle: { juzgado: "Juzgado sintético" },
+  }, 200);
+  form = response.data;
+  assert.equal(form.detalle.juzgado, "Juzgado sintético");
+  form = (await request("POST", "/formularios-area/" + form.id + "/confirmar", {
+    version: form.version, motivo: "Confirmación sintética",
+  }, 201)).data;
+  assert.equal(form.estado, "P3_CONFIRMADO");
+  await request("PATCH", "/formularios-area/" + form.id, {
+    version: form.version, motivo: "No cambiar confirmado", detalle: { juzgado: "No guardar" },
+  }, 409);
+  const loaded = (await request("GET", "/formularios-area/" + form.id, undefined, 200)).data;
+  assert.equal(loaded.detalle.juzgado, "Juzgado sintético");
+});
+test("Ficha Legal ORM: descarte lógico, pertenencia y versión", async () => {
+  let form = (await request("POST", "/beneficiarias/100/formularios-area", {
+    tipo: "LEGAL", fechaAtencion: "2026-11-12T10:00:00-06:00", profesionalId: "1", detalle: {},
+  }, 201)).data;
+  await request("PATCH", "/formularios-area/" + form.id, {
+    version: form.version + 1, motivo: "Versión antigua", detalle: { juzgado: "No guardar" },
+  }, 409);
+  form = (await request("POST", "/formularios-area/" + form.id + "/descartar", {
+    version: form.version, motivo: "Borrador sintético duplicado",
+  }, 201)).data;
+  assert.equal(form.estado, "DESCARTADO");
+  const list = await request("GET", "/beneficiarias/100/formularios-area?tipo=LEGAL", undefined, 200);
+  assert.equal(list.data.some((row) => row.id === form.id), false);
+  await request("POST", "/beneficiarias/100/formularios-area", {
+    tipo: "LEGAL", ninoId: "100", fechaAtencion: "2026-11-12T10:00:00-06:00", profesionalId: "1", detalle: {},
+  }, 400);
+  await request("POST", "/beneficiarias/9223372036854775807/formularios-area", {
+    tipo: "LEGAL", fechaAtencion: "2026-11-12T10:00:00-06:00", profesionalId: "1", detalle: {},
+  }, 404);
 });

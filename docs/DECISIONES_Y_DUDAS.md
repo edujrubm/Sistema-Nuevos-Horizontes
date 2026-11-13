@@ -77,6 +77,7 @@ pendiente: deben elevar su pregunta al equipo responsable.
 - Impacto: consistencia de persistencia, mantenibilidad y cobertura de pruebas; puede requerir cambios graduales en módulos compartidos.
 - Evidencia: uso actual híbrido de TypeORM y SQL en `src/modules/persona3/`, formularios relacionados y repositorios compartidos.
 - Resolución: dejar vacía hasta que se apruebe el inventario, responsable, orden de migración y criterios de aceptación.
+- Avance acotado del 2026-11-12: Eduardo solicitó explícitamente rehacer Legal por módulo y dejar la rama `legal` preparada para revisión. Sus seis rutas y la variante `LEGAL` del motor común usan repositorios TypeORM; la auditoría y la edad histórica mantienen las excepciones PostgreSQL documentadas. El alcance y la verificación están en `src/modules/formularios/legal/README.md`. Esto no resuelve la migración de las otras áreas ni cambia las decisiones pendientes de producto, autenticación o despliegue.
 
 ## Formato para agregar o resolver una duda
 

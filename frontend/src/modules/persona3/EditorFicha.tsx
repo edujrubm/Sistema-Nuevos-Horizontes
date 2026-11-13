@@ -5,7 +5,7 @@ import { useBeneficiaria, BarraBeneficiaria, useAreaFicha } from "./contexto";
 import { useCambiosPendientes } from "./useCambiosPendientes";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Navigate } from "react-router-dom";
 import { api } from "../../shared/api/persona3";
 import type { Ficha } from "../../shared/types/api";
 import {
@@ -39,6 +39,13 @@ export function EditorFicha({
   );
   if (q.cargando) return <Cargando />;
   if (q.error) return <ErrorVista error={q.error} reintentar={q.recargar} />;
+  if (q.datos?.tipo === "LEGAL" && !esReferencia)
+    return (
+      <Navigate
+        replace
+        to={`/beneficiarias/${beneficiariaId}/legal/${fichaId}`}
+      />
+    );
   return (
     <Editor
       key={beneficiariaId + "-" + fichaId + "-" + String(nueva)}

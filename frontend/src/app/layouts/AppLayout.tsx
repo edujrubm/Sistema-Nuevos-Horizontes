@@ -18,30 +18,60 @@ const shelterNavigation = [
 export function AppLayout() {
   const location = useLocation();
   const documentos = useMatch("/beneficiarias/:id/documentos");
+  const legal = useMatch("/beneficiarias/:id/legal/*");
+  const references = useMatch("/beneficiarias/:id/referencias/*");
+  const legalCaseId = legal?.params.id ?? references?.params.id;
   const albergue = location.pathname.startsWith("/albergue");
   const links = albergue
     ? shelterNavigation
-    : documentos
+    : legalCaseId
       ? [
           { to: "/beneficiarias", label: "Beneficiarias" },
-          { to: `/beneficiarias/${documentos.params.id}`, label: "Expediente" },
+          { to: `/beneficiarias/${legalCaseId}`, label: "Expediente" },
+          { to: `/beneficiarias/${legalCaseId}/legal`, label: "Ficha Legal" },
           {
-            to: `/beneficiarias/${documentos.params.id}/evolucion`,
+            to: `/beneficiarias/${legalCaseId}/referencias`,
+            label: "Referencias legales",
+          },
+          {
+            to: `/beneficiarias/${legalCaseId}/evolucion`,
             label: "Hoja evolutiva",
           },
-          { to: location.pathname, label: "Documentos" },
+          {
+            to: `/beneficiarias/${legalCaseId}/documentos`,
+            label: "Documentos",
+          },
         ]
-      : admissionNavigation;
+      : documentos
+        ? [
+            { to: "/beneficiarias", label: "Beneficiarias" },
+            {
+              to: `/beneficiarias/${documentos.params.id}`,
+              label: "Expediente",
+            },
+            {
+              to: `/beneficiarias/${documentos.params.id}/evolucion`,
+              label: "Hoja evolutiva",
+            },
+            { to: location.pathname, label: "Documentos" },
+          ]
+        : admissionNavigation;
   const moduleHome = albergue ? "/albergue" : "/beneficiarias";
   const moduleLabel = albergue
     ? "Módulo de Albergue"
-    : documentos
-      ? "Módulo de Documentos"
-      : "Admisión y ficha inicial";
+    : legalCaseId
+      ? "Área Legal"
+      : documentos
+        ? "Módulo de Documentos"
+        : "Admisión y ficha inicial";
   return (
     <div className="app-shell">
       <header className="app-header">
-        <Link className="brand" to={moduleHome} aria-label={`Ir al inicio de ${moduleLabel}`}>
+        <Link
+          className="brand"
+          to={moduleHome}
+          aria-label={`Ir al inicio de ${moduleLabel}`}
+        >
           <span className="brand-mark" aria-hidden="true">
             NH
           </span>
@@ -56,7 +86,13 @@ export function AppLayout() {
             <NavLink
               key={item.to}
               to={item.to}
-              end
+              end={
+                !(
+                  legalCaseId &&
+                  (item.to.endsWith("/legal") ||
+                    item.to.endsWith("/referencias"))
+                )
+              }
               className={({ isActive }) =>
                 `nav-link${isActive ? " active" : ""}`
               }

@@ -1,7 +1,7 @@
-import { validarReferenciaCompleta } from "../../persona3/validar-referencia";
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { DataSource, EntityManager } from "typeorm";
+import { LegalFormRepository, validarReferenciaCompleta } from "../legal";
 
 import { ActualizarFormularioDto } from "./dto/actualizar-formulario.dto";
 import { CrearFormularioDto } from "./dto/crear-formulario.dto";
@@ -40,6 +40,7 @@ export class FormularioSharedRepository {
   constructor(
     private readonly dataSource: DataSource,
     private readonly config: ConfigService,
+    private readonly legal: LegalFormRepository,
   ) {}
 
   private get estadoBorrador() {
@@ -133,6 +134,8 @@ export class FormularioSharedRepository {
   }
 
   async listar(beneficiariaId: string, filtro: ListarFormulariosDto) {
+    if (filtro.tipo === "LEGAL")
+      return this.legal.list(beneficiariaId, filtro, this.estadoDescartado);
     const condiciones = [
       "e.beneficiaria_id = $1::bigint",
       "f.estado_codigo <> $2",
@@ -161,6 +164,8 @@ export class FormularioSharedRepository {
   }
 
   async obtener(id: string, manager?: EntityManager) {
+    if (await this.legal.handles(id, manager))
+      return this.legal.get(id, manager);
     const executor = manager ?? this.dataSource.manager;
     const rows = await executor.query<FormularioAreaRow[]>(
       `${this.selectFormularioSql()} WHERE f.id=$1::bigint`,
@@ -205,6 +210,13 @@ export class FormularioSharedRepository {
   }
 
   async crear(beneficiariaId: string, entrada: CrearFormularioDto) {
+    if (entrada.tipo === "LEGAL")
+      return this.legal.create(
+        beneficiariaId,
+        entrada,
+        this.configuracionEstados(),
+        this.prepararAuditoria.bind(this),
+      );
     return this.dataSource.transaction(async (manager) => {
       const auditor = await this.prepararAuditoria(
         manager,
@@ -352,6 +364,13 @@ export class FormularioSharedRepository {
   }
 
   async actualizar(id: string, entrada: ActualizarFormularioDto) {
+    if (await this.legal.handles(id))
+      return this.legal.update(
+        id,
+        entrada,
+        this.configuracionEstados(),
+        this.prepararAuditoria.bind(this),
+      );
     return this.dataSource.transaction(async (manager) => {
       await this.prepararAuditoria(manager, entrada.motivo);
       const rows = await manager.query<
@@ -413,6 +432,15 @@ export class FormularioSharedRepository {
   }
 
   async confirmar(id: string, version: number, motivo: string) {
+    if (await this.legal.handles(id))
+      return this.legal.transition(
+        id,
+        version,
+        motivo,
+        "CONFIRMADO",
+        this.configuracionEstados(),
+        this.prepararAuditoria.bind(this),
+      );
     return this.dataSource.transaction(async (manager) => {
       await this.prepararAuditoria(manager, motivo);
       if (!(await this.estadoExiste(manager, this.estadoConfirmado)))
@@ -445,6 +473,15 @@ export class FormularioSharedRepository {
   }
 
   async descartar(id: string, version: number, motivo: string) {
+    if (await this.legal.handles(id))
+      return this.legal.transition(
+        id,
+        version,
+        motivo,
+        "DESCARTADO",
+        this.configuracionEstados(),
+        this.prepararAuditoria.bind(this),
+      );
     return this.dataSource.transaction(async (manager) => {
       await this.prepararAuditoria(manager, motivo);
       if (!(await this.estadoExiste(manager, this.estadoDescartado)))
