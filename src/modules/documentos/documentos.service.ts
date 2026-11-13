@@ -3,14 +3,14 @@ import { createHash } from "node:crypto";
 import { readFile, realpath, stat } from "node:fs/promises";
 import { resolve, relative, isAbsolute } from "node:path";
 import { ErrorApi } from "../../common/errors/error-api";
-import { Persona3Repository, camel } from "../persona3/persona3.repository";
-import { AmbitoLocalService } from "../persona3/ambito-local.service";
-import { ListaDto, TransicionDto } from "../persona3/dto/contratos.dto";
+import { RegistroAreaRepository, camel } from "../../common/registros-area/registro-area.repository";
+import { AmbitoLocalService } from "../../common/registros-area/ambito-local.service";
+import { ListaDto, TransicionDto } from "../evolucion/dto/entrada-evolutiva.dto";
 import { DocumentosListaDto } from "./documentos-lista.dto";
 @Injectable()
 export class DocumentosService {
   constructor(
-    readonly repo: Persona3Repository,
+    readonly repo: RegistroAreaRepository,
     readonly ambito: AmbitoLocalService,
   ) {}
   private async comprobar(formularioId: string) {
@@ -23,7 +23,7 @@ export class DocumentosService {
     if (f.tipo === "GUARDERIA") {
       const [r] = await this.repo.data.query(
         "SELECT EXISTS(SELECT 1 FROM new_horizons.formulario_area WHERE nino_id=$1 AND tipo='GUARDERIA' AND estado_codigo=$2) AS inscrito",
-        [f.nino_id, process.env.P3_CONFIRMED_STATE],
+        [f.nino_id, process.env.FORM_CONFIRMED_STATE_CODE],
       );
       if (!r.inscrito) throw new ErrorApi("REGISTRO_NO_ENCONTRADO");
     }
@@ -49,7 +49,7 @@ export class DocumentosService {
       `SELECT f.id::text, f.tipo, f.estado_codigo AS "estadoCodigo", f.nino_id::text AS "ninoId", f.fecha_atencion AS "fechaAtencion"
       FROM new_horizons.formulario_area f JOIN new_horizons.expediente e ON e.id_expediente=f.expediente_id JOIN new_horizons.area a ON a.id_area=f.area_id
       WHERE e.beneficiaria_id=$1 AND a.nombre_area=$2 AND (f.tipo<>'GUARDERIA' OR EXISTS(SELECT 1 FROM new_horizons.formulario_area i WHERE i.nino_id=f.nino_id AND i.tipo='GUARDERIA' AND i.estado_codigo=$3)) ORDER BY f.id DESC`,
-      [id, area, process.env.P3_CONFIRMED_STATE],
+      [id, area, process.env.FORM_CONFIRMED_STATE_CODE],
     );
     const ids = formularios.map((f: { id: string }) => f.id);
     const [resumen] = await this.repo.data.query(
@@ -70,7 +70,7 @@ export class DocumentosService {
       categorias: categorias.map((x: { categoria: string }) => x.categoria),
       capacidades: {
         cargar: true,
-        anular: process.env.P3_TEST_ROLE === "COORDINACION",
+        anular: process.env.AREA_TEST_ROL === "COORDINACION",
       },
     };
   }
@@ -87,7 +87,7 @@ export class DocumentosService {
       args = [
         id,
         area,
-        process.env.P3_CONFIRMED_STATE,
+        process.env.FORM_CONFIRMED_STATE_CODE,
         q.buscar?.trim() || null,
         q.categoria || null,
         q.estado || null,
@@ -151,7 +151,7 @@ export class DocumentosService {
     await this.obtener(id);
     if (d.anulado_en) throw new ErrorApi("DOCUMENTO_ANULADO");
     const root = resolve(
-        process.env.P3_DOCUMENTS_DIR || "test-results/documentos-privados",
+        process.env.DOCUMENTOS_DIR || "test-results/documentos-privados",
       ),
       file = resolve(root, d.objeto_privado),
       rel = relative(root, file);

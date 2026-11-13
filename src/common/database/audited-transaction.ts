@@ -2,18 +2,14 @@ import { DataSource, EntityManager } from "typeorm";
 import { Logger } from "@nestjs/common";
 import { ErrorApi, codigoTecnico, falloConexion } from "../errors/error-api";
 
-/** Conserva el protocolo transaccional auditado existente y sus errores p�blicos. */
+/** Ejecuta escrituras y auditoría dentro de la misma transacción. */
 export async function auditedTransaction<T>(
   data: DataSource,
   motivo: string,
   fn: (manager: EntityManager, actor: string) => Promise<T>,
 ): Promise<T> {
-  const actor = process.env.P3_TEST_ACTOR_ID;
-  if (
-    !["development", "test"].includes(process.env.NODE_ENV || "") ||
-    !actor ||
-    !/^[1-9]\d{0,18}$/.test(actor)
-  ) {
+  // La identidad técnica solo está habilitada en entornos locales.
+  if (!["development", "test"].includes(process.env.NODE_ENV || "")) {
     throw new ErrorApi("CONFIGURACION_INCOMPLETA");
   }
   const runner = data.createQueryRunner();
@@ -21,6 +17,32 @@ export async function auditedTransaction<T>(
   try {
     await runner.connect();
     await runner.startTransaction();
+    const username = process.env.AUDIT_ACTOR_USERNAME;
+
+    if (!username?.trim()) {
+      throw new ErrorApi("CONFIGURACION_INCOMPLETA");
+    }
+
+    // Resuelve la identidad técnica en la misma conexión de la transacción.
+    const usuarios = await runner.manager.query<Array<{ id: string }>>(
+      `SELECT id_usuario::text AS id
+   FROM new_horizons.usuario
+   WHERE nombre_usuario = $1`,
+      [username],
+    );
+
+    if (usuarios.length !== 1) {
+      throw new ErrorApi("CONFIGURACION_INCOMPLETA");
+    }
+
+    const actor = usuarios[0].id;
+
+    if (
+      !/^[1-9]\d{0,18}$/.test(actor) ||
+      BigInt(actor) > 9223372036854775807n
+    ) {
+      throw new ErrorApi("CONFIGURACION_INCOMPLETA");
+    }
     await runner.manager.query(
       "SELECT set_config('new_horizons.actor_id',$1,true),set_config('new_horizons.motivo',$2,true)",
       [actor, motivo],

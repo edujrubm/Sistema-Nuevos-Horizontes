@@ -1,9 +1,9 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "Persona 3 - Ciclo 2",
+    "title": "módulos de área - Ciclo 2",
     "version": "0.3.0-integracion",
-    "description": "14 rutas P3 y módulo documental único. Entrega local sin autenticación productiva; contexto de pruebas del servidor."
+    "description": "14 rutas áreas y módulo documental único. Entrega local sin autenticación productiva; contexto de pruebas del servidor."
   },
   "servers": [
     {
@@ -14,7 +14,7 @@
     "/trabajo-social/beneficiarias/{id}/resumen": {
       "get": {
         "summary": "Resumen social",
-        "description": "Ruta de persona 3 según el PDF; contrato local de la asignación.",
+        "description": "Ruta de módulos de área según el PDF; contrato local de la asignación.",
         "parameters": [
           {
             "name": "id",
@@ -190,7 +190,7 @@
     "/trabajo-social/beneficiarias/{id}/fichas": {
       "get": {
         "summary": "Fichas sociales",
-        "description": "Ruta de persona 3 según el PDF; contrato local de la asignación.",
+        "description": "Ruta de módulos de área según el PDF; contrato local de la asignación.",
         "parameters": [
           {
             "name": "id",
@@ -393,7 +393,7 @@
     "/legal/beneficiarias/{id}/fichas": {
       "get": {
         "summary": "Fichas legales",
-        "description": "Ruta de persona 3 según el PDF; contrato local de la asignación.",
+        "description": "Ruta de módulos de área según el PDF; contrato local de la asignación.",
         "parameters": [
           {
             "name": "id",
@@ -596,7 +596,7 @@
     "/legal/beneficiarias/{id}/referencias": {
       "get": {
         "summary": "Listar referencias",
-        "description": "Ruta de persona 3 según el PDF; contrato local de la asignación.",
+        "description": "Ruta de módulos de área según el PDF; contrato local de la asignación.",
         "parameters": [
           {
             "name": "id",
@@ -797,7 +797,7 @@
       },
       "post": {
         "summary": "Crear referencia",
-        "description": "Ruta de persona 3 según el PDF; contrato local de la asignación.",
+        "description": "Ruta de módulos de área según el PDF; contrato local de la asignación.",
         "parameters": [
           {
             "name": "id",
@@ -1529,7 +1529,7 @@
     "/guarderia/beneficiarias/{id}/hijos": {
       "get": {
         "summary": "Hijos del expediente",
-        "description": "Ruta de persona 3 según el PDF; contrato local de la asignación.",
+        "description": "Ruta de módulos de área según el PDF; contrato local de la asignación.",
         "parameters": [
           {
             "name": "id",
@@ -1732,7 +1732,7 @@
     "/guarderia/hijos/{id}/fichas": {
       "get": {
         "summary": "Ficha Guardería",
-        "description": "Ruta de persona 3 según el PDF; contrato local de la asignación.",
+        "description": "Ruta de módulos de área según el PDF; contrato local de la asignación.",
         "parameters": [
           {
             "name": "id",
@@ -1935,7 +1935,7 @@
     "/beneficiarias/{id}/hoja-evolutiva": {
       "post": {
         "summary": "Crear entrada",
-        "description": "Ruta de persona 3 según el PDF; contrato local de la asignación.",
+        "description": "Ruta de módulos de área según el PDF; contrato local de la asignación.",
         "parameters": [
           {
             "name": "id",
@@ -2348,7 +2348,7 @@
     "/entradas-evolutivas/{id}": {
       "patch": {
         "summary": "Corregir entrada",
-        "description": "Ruta de persona 3 según el PDF; contrato local de la asignación.",
+        "description": "Ruta de módulos de área según el PDF; contrato local de la asignación.",
         "parameters": [
           {
             "name": "id",

@@ -9,7 +9,7 @@ Módulo implementado e integrado en `main`. `SocialController` publica las sigui
 
 ## Registro y lógica
 
-`AppModule → DomainModule → FormulariosModule → SocialModule → SocialController`. El módulo importa `Persona3CoreModule` e inyecta `Persona3Service`; las reglas y el acceso a datos se encuentran en `src/modules/persona3/`.
+`AppModule → DomainModule → FormulariosModule → SocialModule → SocialController`. El módulo importa `RegistroAreaModule` e inyecta `SocialService`; las consultas heredadas permanecen en este módulo y las utilidades comunes en `src/common/registros-area/`.
 
 La creación, edición y confirmación de fichas usa también el [motor compartido de formularios](../README.md). Los seguimientos e historial usan `src/modules/evolucion/evolucion.controller.ts`.
 

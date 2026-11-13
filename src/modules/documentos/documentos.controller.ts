@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { DocumentosService } from "./documentos.service";
-import { ListaDto, TransicionDto } from "../persona3/dto/contratos.dto";
+import { ListaDto, TransicionDto } from "../evolucion/dto/entrada-evolutiva.dto";
 import { LIMITE_PDF_BYTES } from "./limites";
 import { DocumentosListaDto } from "./documentos-lista.dto";
 import {
@@ -15,7 +15,7 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { BigintIdPipe } from "../persona3/bigint-id.pipe";
+import { ParseBigIntIdPipe as BigintIdPipe } from "../../common/pipes/parse-bigint-id.pipe";
 import { CargaPdfDto } from "./carga-pdf.dto";
 import { ArchivoPdf, CargaPdfService } from "./carga-pdf.service";
 

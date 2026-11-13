@@ -1,8 +1,7 @@
-﻿param(
+param(
   [string]$PostgresBin = 'C:\Program Files\PostgreSQL\18\bin',
   [int]$Port = 55482,
-  [string]$NodeExe = 'node',
-  [switch]$CoreRegression
+  [string]$NodeExe = 'node'
 )
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
@@ -11,10 +10,22 @@ $cluster = Join-Path $results ('legal-pg-' + [guid]::NewGuid().ToString('N'))
 $database = 'legal_orm_test_' + [guid]::NewGuid().ToString('N').Substring(0, 8)
 $started = $false
 $settings = @{
-  LEGAL_TEST_HOST='127.0.0.1'; LEGAL_TEST_PORT="$Port"; LEGAL_TEST_DATABASE=$database; LEGAL_TEST_USER='legal_test'; LEGAL_TEST_PASSWORD='local-test'
-  DATABASE_HOST='127.0.0.1'; DATABASE_PORT="$Port"; DATABASE_NAME=$database; DATABASE_USER='legal_test'; DATABASE_PASSWORD='local-test'; DATABASE_SSL='false'
-  NODE_ENV='test'; P3_TEST_ACTOR_ID='1'; P3_DRAFT_STATE='P3_BORRADOR'; P3_CONFIRMED_STATE='P3_CONFIRMADO'; P3_TEST_AREA='Legal'; P3_TEST_ROLE='COORDINACION'
-  P3_ENABLE_LAB='false'; P3_DOCUMENTS_DIR=(Join-Path $cluster 'documents'); FORM_DRAFT_STATE_CODE='P3_BORRADOR'; FORM_CONFIRMED_STATE_CODE='P3_CONFIRMADO'; AUDIT_ACTOR_USERNAME='laboratorio-local'
+  LEGAL_TEST_HOST = '127.0.0.1'
+  LEGAL_TEST_PORT = "$Port"
+  LEGAL_TEST_DATABASE = $database
+  LEGAL_TEST_USER = 'legal_test'
+  LEGAL_TEST_PASSWORD = 'local-test'
+  DATABASE_HOST = '127.0.0.1'
+  DATABASE_PORT = "$Port"
+  DATABASE_NAME = $database
+  DATABASE_USER = 'legal_test'
+  DATABASE_PASSWORD = 'local-test'
+  DATABASE_SSL = 'false'
+  NODE_ENV = 'test'
+  FORM_DRAFT_STATE_CODE = 'BORRADOR'
+  FORM_CONFIRMED_STATE_CODE = 'CONFIRMADO'
+  FORM_DISCARDED_STATE_CODE = 'DESCARTADO'
+  AUDIT_ACTOR_USERNAME = 'laboratorio-local'
 }
 $names = @($settings.Keys)
 $previous = @{}
@@ -51,7 +62,7 @@ try {
     'test/fixtures/02_ampliacion_formularios.sql'
   )
   $files += Get-ChildItem database/migrations -Filter '*.sql' | Sort-Object Name | ForEach-Object FullName
-  $files += 'test/fixtures/persona3.sql'
+  $files += 'test/fixtures/legal.sql'
   foreach ($file in $files) {
     & (Join-Path $PostgresBin 'psql.exe') -h 127.0.0.1 -p $Port -U legal_test -d $database -v ON_ERROR_STOP=1 -q -f $file 2>&1 | Out-File (Join-Path $results 'legal-schema.log') -Append
     if ($LASTEXITCODE -ne 0) { throw "Falló el script de ensayo $file" }
@@ -59,9 +70,10 @@ try {
   foreach ($name in $names) { [Environment]::SetEnvironmentVariable($name, $settings[$name]) }
   $suites = @('test/legal-orm.integration.cjs')
   $report = 'legal.integration.tap'
-  if ($CoreRegression) {
-    $suites = @('test/errores.unit.cjs','test/persona3.integration.cjs','test/zzz-documentos-unificados.integration.cjs','test/zzzz-albergue.integration.cjs')
-    $report = 'legal-core-regression.tap'
+  foreach ($suite in $suites) {
+    if (-not (Test-Path -LiteralPath $suite -PathType Leaf)) {
+      throw "No existe el archivo de pruebas requerido: $suite"
+    }
   }
   & $NodeExe --test --test-concurrency=1 @suites 2>&1 | Tee-Object (Join-Path $results $report)
   if ($LASTEXITCODE -ne 0) { throw 'Fallaron las pruebas de Legal.' }
@@ -70,6 +82,12 @@ try {
     # Sólo se detiene el clúster propio; no se elimina ningún directorio.
     & (Join-Path $PostgresBin 'pg_ctl.exe') -D $cluster -m fast -w stop | Out-Null
   }
-  foreach ($name in $names) { [Environment]::SetEnvironmentVariable($name, $previous[$name]) }
+  foreach ($name in $names) {
+    if ($null -eq $previous[$name]) {
+      Remove-Item -LiteralPath "Env:$name" -ErrorAction SilentlyContinue
+    } else {
+      [Environment]::SetEnvironmentVariable($name, $previous[$name])
+    }
+  }
   Pop-Location
 }

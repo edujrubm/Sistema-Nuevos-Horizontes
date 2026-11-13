@@ -2,7 +2,7 @@ import { BarraBeneficiaria } from "./contexto";
 import { PestañasArea } from "./MarcoFicha";
 import { useCallback, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { api } from "../../shared/api/persona3";
+import { api } from "../../shared/api/area-records";
 import { useConsulta } from "./useConsulta";
 import {
   Cargando,

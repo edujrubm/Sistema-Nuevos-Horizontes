@@ -2,12 +2,10 @@ import { ConfigService } from "@nestjs/config";
 import { DataSource, EntityManager } from "typeorm";
 
 import { FormularioSharedRepository } from "./formulario-shared.repository";
-import { LegalFormRepository } from "../legal";
+import { FormularioAdapterRegistry } from "./formulario-adapter.registry";
 
 describe("FormularioSharedRepository", () => {
-  const legal = {
-    handles: jest.fn().mockResolvedValue(false),
-  } as unknown as LegalFormRepository;
+  const registro = new FormularioAdapterRegistry();
   const config = {
     get: jest.fn((_: string, fallback: string) => fallback),
   } as unknown as ConfigService;
@@ -17,7 +15,7 @@ describe("FormularioSharedRepository", () => {
     const repository = new FormularioSharedRepository(
       { query } as unknown as DataSource,
       config,
-      legal,
+      registro,
     );
 
     await repository.listar("7", { limite: 25 });
@@ -57,7 +55,7 @@ describe("FormularioSharedRepository", () => {
     const repository = new FormularioSharedRepository(
       dataSource,
       config,
-      legal,
+      registro,
     );
 
     const resultado = await repository.descartar(

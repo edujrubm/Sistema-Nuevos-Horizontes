@@ -1,4 +1,4 @@
-import { ErrorApi } from "../../common/errors/error-api";
+import { ErrorApi } from "../errors/error-api";
 import { Injectable } from "@nestjs/common";
 
 /** Sustituto LOCAL de la sesión futura. El cliente no puede elegir su ámbito.
@@ -10,7 +10,7 @@ export class AmbitoLocalService {
     if (!["development", "test"].includes(process.env.NODE_ENV || "")) {
       throw new ErrorApi("CONFIGURACION_INCOMPLETA");
     }
-    const area = process.env.P3_TEST_AREA?.trim();
+    const area = process.env.AREA_TEST_NOMBRE?.trim();
     if (!area) throw new ErrorApi("CONFIGURACION_INCOMPLETA");
     return area;
   }
@@ -25,7 +25,7 @@ export class AmbitoLocalService {
 
   coordinacion() {
     this.area();
-    if (process.env.P3_TEST_ROLE !== "COORDINACION") {
+    if (process.env.AREA_TEST_ROL !== "COORDINACION") {
       throw new ErrorApi("COORDINACION_REQUERIDA");
     }
   }

@@ -27,7 +27,7 @@ export class CrearReferenciaDto {
   @IsObject()
   @ValidateNested()
   @Type(() => DetalleReferenciaDto)
-  detalle: DetalleReferenciaDto = new DetalleReferenciaDto();
+  detalle!: DetalleReferenciaDto;
 }
 export class EditarReferenciaDto extends TransicionDto {
   @IsDefined()

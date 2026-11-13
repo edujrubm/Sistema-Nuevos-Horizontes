@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { DataSource, EntityManager } from "typeorm";
-import { LegalFormRepository, validarReferenciaCompleta } from "../legal";
+import { FormularioAdapterRegistry } from "./formulario-adapter.registry";
 
 import { ActualizarFormularioDto } from "./dto/actualizar-formulario.dto";
 import { CrearFormularioDto } from "./dto/crear-formulario.dto";
@@ -9,26 +9,11 @@ import { ListarFormulariosDto } from "./dto/listar-formularios.dto";
 import {
   aSnakeCase,
   CodigoTipoFormulario,
+  DefinicionTipoFormulario,
   TIPOS_FORMULARIO,
 } from "./formulario-tipos";
 
-export interface FormularioAreaRow {
-  id: string;
-  expedienteId: string;
-  ninoId: string | null;
-  areaId: string;
-  area: string;
-  tipo: CodigoTipoFormulario;
-  estado: string;
-  fechaAtencion: Date;
-  profesionalId: string;
-  capturadoPor: string;
-  creadoEn: Date;
-  actualizadoEn: Date;
-  version: number;
-  detalle: Record<string, unknown>;
-  examenMental: Record<string, unknown> | null;
-}
+import type { FormularioAreaRow } from "./contracts/formulario-area-row";
 
 interface ContextoAuditoria {
   usuarioId: string;
@@ -40,7 +25,7 @@ export class FormularioSharedRepository {
   constructor(
     private readonly dataSource: DataSource,
     private readonly config: ConfigService,
-    private readonly legal: LegalFormRepository,
+    private readonly adaptadores: FormularioAdapterRegistry,
   ) {}
 
   private get estadoBorrador() {
@@ -134,8 +119,9 @@ export class FormularioSharedRepository {
   }
 
   async listar(beneficiariaId: string, filtro: ListarFormulariosDto) {
-    if (filtro.tipo === "LEGAL")
-      return this.legal.list(beneficiariaId, filtro, this.estadoDescartado);
+    const adaptador = this.adaptadores.obtener(filtro.tipo);
+    if (adaptador)
+      return adaptador.list(beneficiariaId, filtro, this.estadoDescartado);
     const condiciones = [
       "e.beneficiaria_id = $1::bigint",
       "f.estado_codigo <> $2",
@@ -164,8 +150,8 @@ export class FormularioSharedRepository {
   }
 
   async obtener(id: string, manager?: EntityManager) {
-    if (await this.legal.handles(id, manager))
-      return this.legal.get(id, manager);
+    const adaptador = await this.adaptadores.buscarParaRegistro(id, manager);
+    if (adaptador) return adaptador.get(id, manager);
     const executor = manager ?? this.dataSource.manager;
     const rows = await executor.query<FormularioAreaRow[]>(
       `${this.selectFormularioSql()} WHERE f.id=$1::bigint`,
@@ -210,8 +196,9 @@ export class FormularioSharedRepository {
   }
 
   async crear(beneficiariaId: string, entrada: CrearFormularioDto) {
-    if (entrada.tipo === "LEGAL")
-      return this.legal.create(
+    const adaptador = this.adaptadores.obtener(entrada.tipo);
+    if (adaptador)
+      return adaptador.create(
         beneficiariaId,
         entrada,
         this.configuracionEstados(),
@@ -364,8 +351,9 @@ export class FormularioSharedRepository {
   }
 
   async actualizar(id: string, entrada: ActualizarFormularioDto) {
-    if (await this.legal.handles(id))
-      return this.legal.update(
+    const adaptador = await this.adaptadores.buscarParaRegistro(id);
+    if (adaptador)
+      return adaptador.update(
         id,
         entrada,
         this.configuracionEstados(),
@@ -432,8 +420,9 @@ export class FormularioSharedRepository {
   }
 
   async confirmar(id: string, version: number, motivo: string) {
-    if (await this.legal.handles(id))
-      return this.legal.transition(
+    const adaptador = await this.adaptadores.buscarParaRegistro(id);
+    if (adaptador)
+      return adaptador.transition(
         id,
         version,
         motivo,
@@ -458,8 +447,14 @@ export class FormularioSharedRepository {
       if (rows[0].version !== version)
         return { estado: "CONFLICTO_VERSION" as const };
       const actual = await this.obtener(id, manager);
-      if (actual?.tipo === "REFERENCIA_LEGAL")
-        validarReferenciaCompleta(actual.detalle);
+      if (actual) {
+        const definicion: DefinicionTipoFormulario = TIPOS_FORMULARIO[actual.tipo];
+        this.adaptadores.validarConfirmacion(
+          actual.tipo,
+          actual.detalle,
+          Boolean(definicion.requiereValidacionConfirmacion),
+        );
+      }
       await manager.query(
         `UPDATE new_horizons.formulario_area
          SET estado_codigo=$2,motivo_cambio=$3 WHERE id=$1::bigint`,
@@ -473,8 +468,9 @@ export class FormularioSharedRepository {
   }
 
   async descartar(id: string, version: number, motivo: string) {
-    if (await this.legal.handles(id))
-      return this.legal.transition(
+    const adaptador = await this.adaptadores.buscarParaRegistro(id);
+    if (adaptador)
+      return adaptador.transition(
         id,
         version,
         motivo,

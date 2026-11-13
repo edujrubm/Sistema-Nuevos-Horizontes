@@ -1,5 +1,5 @@
 import { IsIn, IsOptional, IsString, MaxLength } from "class-validator";
-import { ListaDto } from "../persona3/dto/contratos.dto";
+import { ListaDto } from "../evolucion/dto/entrada-evolutiva.dto";
 export class DocumentosListaDto extends ListaDto {
   @IsOptional() @IsString() @MaxLength(200) buscar?: string;
   @IsOptional() @IsString() @MaxLength(200) categoria?: string;

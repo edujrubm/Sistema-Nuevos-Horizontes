@@ -68,14 +68,14 @@ pendiente: deben elevar su pregunta al equipo responsable.
 - Decisión requerida: navegadores y dispositivos soportados, accesibilidad, internacionalización, pruebas end-to-end y licencias de plantillas o recursos externos.
 - Impacto: criterios de aceptación del frontend.
 
-### D-09 — Estandarización ORM para operaciones de Persona 3
+### D-09 — Estandarización ORM para operaciones de módulos de área
 
 - Estado: pendiente de revisión técnica.
-- Decisión requerida: definir qué operaciones de los módulos de Persona 3 (`Social`, `Legal`, `Guardería`, `Evolución` y servicios compartidos) se migrarán a repositorios TypeORM estandarizados y cuáles conservarán SQL parametrizado por necesitar JSONB, CTE, bloqueos, funciones PostgreSQL o proyecciones complejas.
+- Decisión requerida: definir qué operaciones de los módulos de módulos de área (`Social`, `Legal`, `Guardería`, `Evolución` y servicios compartidos) se migrarán a repositorios TypeORM estandarizados y cuáles conservarán SQL parametrizado por necesitar JSONB, CTE, bloqueos, funciones PostgreSQL o proyecciones complejas.
 - Criterio obligatorio: no convertir una consulta sólo por eliminar SQL. Cada caso debe compararse con la guía de herramientas de `GUIA_TECNICA.md`, conservar transacciones, autorización, auditoría, paginación y resultado observable.
 - Alcance de revisión: inventariar cada `query(...)`, identificar si vive en servicio o repositorio, justificar la herramienta elegida y priorizar primero las consultas simples que hoy estén fuera de un repositorio.
 - Impacto: consistencia de persistencia, mantenibilidad y cobertura de pruebas; puede requerir cambios graduales en módulos compartidos.
-- Evidencia: uso actual híbrido de TypeORM y SQL en `src/modules/persona3/`, formularios relacionados y repositorios compartidos.
+- Evidencia: uso actual híbrido de TypeORM y SQL en `src/common/registros-area/`, formularios relacionados y repositorios compartidos.
 - Resolución: dejar vacía hasta que se apruebe el inventario, responsable, orden de migración y criterios de aceptación.
 - Avance acotado del 2026-11-12: Eduardo solicitó explícitamente rehacer Legal por módulo y dejar la rama `legal` preparada para revisión. Sus seis rutas y la variante `LEGAL` del motor común usan repositorios TypeORM; la auditoría y la edad histórica mantienen las excepciones PostgreSQL documentadas. El alcance y la verificación están en `src/modules/formularios/legal/README.md`. Esto no resuelve la migración de las otras áreas ni cambia las decisiones pendientes de producto, autenticación o despliegue.
 

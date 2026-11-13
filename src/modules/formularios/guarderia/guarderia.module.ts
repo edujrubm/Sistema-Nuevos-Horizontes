@@ -1,5 +1,10 @@
+import { GuarderiaService } from "./guarderia.service";
 import { Module } from "@nestjs/common";
-import { Persona3CoreModule } from "../../persona3/persona3.module";
+import { RegistroAreaModule } from "../../../common/registros-area/registro-area.module";
 import { GuarderiaController } from "./guarderia.controller";
-@Module({ imports: [Persona3CoreModule], controllers: [GuarderiaController] })
+@Module({
+  imports: [RegistroAreaModule],
+  providers: [GuarderiaService],
+  controllers: [GuarderiaController],
+})
 export class GuarderiaModule {}

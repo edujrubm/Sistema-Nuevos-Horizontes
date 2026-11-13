@@ -38,11 +38,7 @@ async function main() {
       process.env.FORM_DRAFT_STATE_CODE || "BORRADOR",
       process.env.FORM_CONFIRMED_STATE_CODE || "CONFIRMADO",
       process.env.FORM_DISCARDED_STATE_CODE || "DESCARTADO",
-      process.env.P3_DRAFT_STATE,
-      process.env.P3_CONFIRMED_STATE,
     ];
-    if (!states[3] || !states[4])
-      failures.push("Faltan los estados del contexto técnico de referencias (P3_DRAFT_STATE/P3_CONFIRMED_STATE).");
     const rows = await manager.query(
       "SELECT codigo FROM new_horizons.estado_formulario WHERE codigo = ANY($1::text[])",
       [states.filter(Boolean)],
@@ -55,21 +51,16 @@ async function main() {
       [["LEGAL", "REFERENCIA_LEGAL"]],
     );
     if (types.length !== 2) failures.push("Falta habilitar LEGAL o REFERENCIA_LEGAL en el catálogo.");
-    const username = process.env.AUDIT_ACTOR_USERNAME || "actor_pruebas_persona1";
-    const actor = await manager.query(
-      "SELECT EXISTS(SELECT 1 FROM new_horizons.usuario WHERE nombre_usuario=$1) AS existe",
-      [username],
-    );
-    if (!actor[0].existe) failures.push("No existe el actor técnico configurado para el motor común.");
-    const referenceActor = process.env.P3_TEST_ACTOR_ID;
-    if (!referenceActor || !/^[1-9]\d{0,18}$/.test(referenceActor) || BigInt(referenceActor) > 9223372036854775807n) {
-      failures.push("Falta un actor técnico válido para las referencias (P3_TEST_ACTOR_ID).");
+    const username = process.env.AUDIT_ACTOR_USERNAME;
+    if (!username?.trim()) {
+      failures.push("Falta configurar AUDIT_ACTOR_USERNAME para la auditoría local.");
     } else {
-      const found = await manager.query(
-        "SELECT EXISTS(SELECT 1 FROM new_horizons.usuario WHERE id_usuario=$1) AS existe",
-        [referenceActor],
+      const actor = await manager.query(
+        "SELECT EXISTS(SELECT 1 FROM new_horizons.usuario WHERE nombre_usuario=$1) AS existe",
+        [username],
       );
-      if (!found[0].existe) failures.push("No existe el actor técnico configurado para las referencias.");
+      if (!actor[0].existe)
+        failures.push("No existe el usuario configurado en AUDIT_ACTOR_USERNAME.");
     }
     const audited = await manager.query(
       "SELECT DISTINCT c.relname AS tabla FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid JOIN pg_namespace n ON n.oid=c.relnamespace JOIN pg_proc p ON p.oid=t.tgfoid WHERE n.nspname=$1 AND p.proname=$2 AND t.tgenabled <> 'D'",

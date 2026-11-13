@@ -27,6 +27,7 @@ export class FichaGuarderiaDetalleDto {
   @IsOptional() @IsBoolean() padeceEnfermedad?: boolean | null;
   @IsOptional() @IsString() @Matches(/^[1-9]\d{0,18}$/) escolaridadId?:
     string | null;
-  @IsOptional() @IsString() @MaxLength(20000) observacionesFamiliares?: string | null;
+  @IsOptional() @IsString() @MaxLength(20000) observacionesFamiliares?:
+    string | null;
   @IsOptional() @IsString() @MaxLength(20000) indicacionesSalud?: string | null;
 }

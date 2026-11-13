@@ -1,5 +1,5 @@
-import { auditedTransaction } from "../../common/database/audited-transaction";
-import { ErrorApi } from "../../common/errors/error-api";
+import { auditedTransaction } from "../database/audited-transaction";
+import { ErrorApi } from "../errors/error-api";
 import { Injectable } from "@nestjs/common";
 import { DataSource, EntityManager } from "typeorm";
 
@@ -13,7 +13,7 @@ export function camel(row: Record<string, unknown>): Record<string, unknown> {
 }
 
 @Injectable()
-export class Persona3Repository {
+export class RegistroAreaRepository {
   constructor(readonly data: DataSource) {}
 
   async pagina(
@@ -56,23 +56,6 @@ export class Persona3Repository {
     );
     if (!rows.length) throw new ErrorApi("REGISTRO_NO_ENCONTRADO");
     return rows[0];
-  }
-
-  async referencia(
-    id: string,
-    manager = this.data.manager,
-    lock = false,
-  ): Promise<Record<string, unknown>> {
-    const form = await this.formulario(id, manager, lock);
-    if (form.tipo !== "REFERENCIA_LEGAL")
-      throw new ErrorApi("REGISTRO_NO_ENCONTRADO");
-    const [detail] = await manager.query(
-      "SELECT destino,origen,motivo_referencia,recomendaciones,medio_entrega FROM new_horizons.referencia_legal WHERE formulario_id=$1",
-      [id],
-    );
-    if (!detail) throw new ErrorApi("REGISTRO_NO_ENCONTRADO");
-    const { beneficiaria_id: beneficiariaId, ...header } = form;
-    return { ...camel(header), beneficiariaId, detalle: camel(detail) };
   }
 
   version(actual: number, recibida: number) {

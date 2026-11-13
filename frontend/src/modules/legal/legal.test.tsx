@@ -73,14 +73,32 @@ function mount(
 }
 describe("Legal: formularios y rutas propias", () => {
   it("presenta navegación de Legal sin opciones de admisión", () => {
-    const router = createMemoryRouter([{ element: <AppLayout />, children: [
-      { path: "/beneficiarias/:id/legal", element: <p>Vista de prueba</p> },
-    ] }], { initialEntries: ["/beneficiarias/100/legal"] });
+    const router = createMemoryRouter(
+      [
+        {
+          element: <AppLayout />,
+          children: [
+            {
+              path: "/beneficiarias/:id/legal",
+              element: <p>Vista de prueba</p>,
+            },
+          ],
+        },
+      ],
+      { initialEntries: ["/beneficiarias/100/legal"] },
+    );
     render(<RouterProvider router={router} />);
     const sidebar = within(screen.getByLabelText("Navegación principal"));
-    expect(sidebar.getByRole("link", { name: "Ficha Legal" })).toHaveAttribute("href", "/beneficiarias/100/legal");
-    expect(sidebar.getByRole("link", { name: "Referencias legales" })).toHaveAttribute("href", "/beneficiarias/100/referencias");
-    expect(sidebar.queryByRole("link", { name: "Nueva ficha inicial" })).not.toBeInTheDocument();
+    expect(sidebar.getByRole("link", { name: "Ficha Legal" })).toHaveAttribute(
+      "href",
+      "/beneficiarias/100/legal",
+    );
+    expect(
+      sidebar.getByRole("link", { name: "Referencias legales" }),
+    ).toHaveAttribute("href", "/beneficiarias/100/referencias");
+    expect(
+      sidebar.queryByRole("link", { name: "Nueva ficha inicial" }),
+    ).not.toBeInTheDocument();
   });
   it("crea LEGAL mediante el motor común, nunca SOCIAL", async () => {
     const create = vi.spyOn(records, "crearFicha").mockResolvedValue(record);
@@ -265,4 +283,183 @@ describe("Legal: formularios y rutas propias", () => {
       legalApi.get("12", false, new AbortController().signal),
     ).rejects.toMatchObject({ codigo: "REGISTRO_NO_ENCONTRADO" });
   });
+});
+
+describe("Legal: protección de escrituras y estado del editor", () => {
+  it.each(["RESPUESTA_NO_RECIBIDA", "RESULTADO_OPERACION_INCIERTO"])(
+    "bloquea repetir una creación con resultado incierto: %s",
+    async (codigo) => {
+      const crear = vi
+        .spyOn(legalApi, "create")
+        .mockRejectedValue(
+          new ApiError(
+            503,
+            codigo,
+            "Consulta el listado antes de volver a guardar.",
+          ),
+        );
+      mount("/beneficiarias/100/legal/nueva");
+      fireEvent.change(await screen.findByLabelText("Fecha de atención"), {
+        target: { value: "2026-11-12T10:00" },
+      });
+      fireEvent.change(screen.getByLabelText("Identificador del profesional"), {
+        target: { value: "1" },
+      });
+      fireEvent.change(screen.getByLabelText("Demandado"), {
+        target: { value: "Texto sintético conservado" },
+      });
+      await userEvent.click(
+        screen.getByRole("button", { name: "Guardar cambios" }),
+      );
+      await screen.findByRole("alert");
+      const guardar = screen.getByRole("button", { name: "Guardar cambios" });
+      expect(guardar).toBeDisabled();
+      expect(
+        screen.getByText("Texto sintético conservado"),
+      ).toBeInTheDocument();
+      await userEvent.click(guardar);
+      expect(crear).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it("retira el aviso de solo consulta mientras se corrige una referencia", async () => {
+    vi.spyOn(legalApi, "get").mockResolvedValue({
+      ...record,
+      tipo: "REFERENCIA_LEGAL",
+      estado: "CONFIRMADO",
+      detalle: {
+        destino: "Destino sintético",
+        motivoReferencia: "Motivo sintético",
+      },
+    });
+    mount("/beneficiarias/100/referencias/12", true);
+    await userEvent.click(
+      await screen.findByRole("button", { name: "Iniciar corrección" }),
+    );
+    expect(screen.getByLabelText("Origen")).toBeEnabled();
+    expect(
+      screen.queryByText("Registro en modo de consulta."),
+    ).not.toBeInTheDocument();
+  });
+});
+
+describe("Legal: errores de campo y profesional de prueba", () => {
+  it("señala el profesional y enfoca el campo desde el resumen sin perder datos", async () => {
+    vi.spyOn(legalApi, "create").mockRejectedValue(
+      new ApiError(
+        400,
+        "DATOS_INVALIDOS",
+        "Revisa los datos señalados.",
+        [
+          {
+            campo: "profesionalId",
+            mensaje: "El profesional seleccionado no existe.",
+          },
+        ],
+        "SOL-prueba-campo",
+      ),
+    );
+    mount("/beneficiarias/100/legal/nueva");
+    fireEvent.change(await screen.findByLabelText("Fecha de atención"), {
+      target: { value: "2026-11-13T10:00" },
+    });
+    fireEvent.change(screen.getByLabelText("Identificador del profesional"), {
+      target: { value: "99999" },
+    });
+    fireEvent.change(screen.getByLabelText("Demandado"), {
+      target: { value: "Texto sintético conservado" },
+    });
+    await userEvent.click(
+      screen.getByRole("button", { name: "Guardar cambios" }),
+    );
+    const enlace = await screen.findByRole("link", {
+      name: /Identificador del profesional: El profesional seleccionado no existe/,
+    });
+    const campo = screen.getByLabelText("Identificador del profesional");
+    expect(campo).toHaveAttribute("aria-invalid", "true");
+    expect(campo).toHaveAccessibleDescription(
+      "El profesional seleccionado no existe.",
+    );
+    expect(screen.getByLabelText("Demandado")).toHaveValue(
+      "Texto sintético conservado",
+    );
+    expect(screen.getByText("Solicitud: SOL-prueba-campo")).toBeInTheDocument();
+    await userEvent.click(enlace);
+    await waitFor(() => expect(campo).toHaveFocus());
+  });
+
+  it("abre la sección de un campo inválido y conserva los datos de otras secciones", async () => {
+    vi.spyOn(legalApi, "get").mockResolvedValue(record);
+    vi.spyOn(legalApi, "save").mockRejectedValue(
+      new ApiError(400, "DATOS_INVALIDOS", "Revisa los datos señalados.", [
+        {
+          campo: "detalle.inicioProcesoFecha",
+          mensaje: "Ingresa una fecha válida.",
+        },
+      ]),
+    );
+    mount("/beneficiarias/100/legal/12");
+    fireEvent.change(await screen.findByLabelText("Demandado"), {
+      target: { value: "Texto sintético conservado" },
+    });
+    await userEvent.click(
+      screen.getByRole("button", { name: "Guardar cambios" }),
+    );
+    await userEvent.click(
+      await screen.findByRole("link", {
+        name: "Fecha de inicio: Ingresa una fecha válida.",
+      }),
+    );
+    const fecha = await screen.findByLabelText("Fecha de inicio");
+    expect(fecha).toHaveAttribute("aria-invalid", "true");
+    await waitFor(() => expect(fecha).toHaveFocus());
+    await userEvent.click(
+      screen.getByRole("button", { name: "1 Partes y fecha" }),
+    );
+    expect(screen.getByLabelText("Demandado")).toHaveValue(
+      "Texto sintético conservado",
+    );
+  });
+
+  it("acepta 0067 y envía el identificador numérico canónico 67", async () => {
+    const crear = vi
+      .spyOn(legalApi, "create")
+      .mockResolvedValue({ ...record, profesionalId: "67" });
+    vi.spyOn(legalApi, "get").mockResolvedValue({
+      ...record,
+      profesionalId: "67",
+    });
+    mount("/beneficiarias/100/legal/nueva");
+    fireEvent.change(await screen.findByLabelText("Fecha de atención"), {
+      target: { value: "2026-11-13T10:00" },
+    });
+    fireEvent.change(screen.getByLabelText("Identificador del profesional"), {
+      target: { value: "0067" },
+    });
+    await userEvent.click(
+      screen.getByRole("button", { name: "Guardar cambios" }),
+    );
+    await waitFor(() =>
+      expect(crear).toHaveBeenCalledWith(
+        "100",
+        false,
+        expect.objectContaining({ profesionalId: "67" }),
+      ),
+    );
+  });
+  it("agrupa varios mensajes del mismo campo en un único enlace", async () => {
+    vi.spyOn(legalApi, "get").mockResolvedValue(record);
+    vi.spyOn(legalApi, "save").mockRejectedValue(new ApiError(
+      400, "DATOS_INVALIDOS", "Revisa los datos señalados.", [
+        { campo: "detalle.juzgado", mensaje: "Ingresa texto válido." },
+        { campo: "detalle.juzgado", mensaje: "Revisa este campo." },
+      ],
+    ));
+    mount("/beneficiarias/100/legal/12");
+    fireEvent.change(await screen.findByLabelText("Demandado"), { target: { value: "Cambio sintético" } });
+    await userEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
+    const enlaces = await screen.findAllByRole("link", { name: "Juzgado: Ingresa texto válido. Revisa este campo." });
+    expect(enlaces).toHaveLength(1);
+  });
+
 });

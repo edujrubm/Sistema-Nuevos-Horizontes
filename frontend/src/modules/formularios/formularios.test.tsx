@@ -13,11 +13,11 @@ import {
 import { CapacidadesContext } from "../../app/capacidades";
 import { soloLectura } from "../../shared/types/api";
 import type { Ficha, Capacidades } from "../../shared/types/api";
-import { api } from "../../shared/api/persona3";
+import { api } from "../../shared/api/area-records";
 import { ApiError, http } from "../../shared/api/http";
 import { Guarderia, ListadoFichas } from "./Listados";
 import { Editor } from "./EditorFicha";
-import { EditorEntrada, Historial, Evolucion } from "./Evolucion";
+import { EditorEntrada, Historial, Evolucion } from "../evolucion/Evolucion";
 const caps: Capacidades = {
   crearFicha: true,
   editarFicha: true,
@@ -31,7 +31,7 @@ const caps: Capacidades = {
 const base: Ficha = {
   id: "12",
   tipo: "REFERENCIA_LEGAL",
-  estadoCodigo: "P3_BORRADOR",
+  estadoCodigo: "BORRADOR",
   version: 3,
   profesionalId: "1",
   fechaAtencion: "2026-11-04T16:00:00Z",
@@ -46,7 +46,7 @@ function envolver(ui: React.ReactNode, capacidades = soloLectura) {
     </CapacidadesContext.Provider>,
   );
 }
-describe("Persona 3", () => {
+describe("módulos de área", () => {
   it("Guardería muestra todos los niños y solo abre inscritos", async () => {
     vi.spyOn(api, "hijos").mockResolvedValue({
       datos: [
@@ -111,7 +111,7 @@ describe("Persona 3", () => {
   it("Referencia confirmada se consulta sin editar con capacidades de creación", () => {
     envolver(
       <Editor
-        inicial={{ ...base, estadoCodigo: "P3_CONFIRMADO" }}
+        inicial={{ ...base, estadoCodigo: "CONFIRMADO" }}
         esReferencia
         beneficiariaId="100"
         recargar={() => {}}
@@ -164,7 +164,7 @@ describe("Persona 3", () => {
     const confirm = vi.spyOn(api, "confirmarReferencia").mockResolvedValue({
       ...base,
       version: 4,
-      estadoCodigo: "P3_CONFIRMADO",
+      estadoCodigo: "CONFIRMADO",
     });
     envolver(
       <Editor
@@ -394,7 +394,7 @@ describe("Distribución de los mockups", () => {
         inicial={{
           ...base,
           tipo: "LEGAL",
-          estadoCodigo: "P3_CONFIRMADO",
+          estadoCodigo: "CONFIRMADO",
           detalle: {
             demandadoNombreDeclarado: "Parte sintética",
             diagnosticoJuridico: "Diagnóstico de prueba",
@@ -425,7 +425,7 @@ describe("Distribución de los mockups", () => {
     const guardar = vi.spyOn(api, "guardarFicha").mockResolvedValue({
       ...base,
       tipo: "SOCIAL",
-      estado: "P3_BORRADOR",
+      estado: "BORRADOR",
       version: 4,
       detalle: {
         tipoVivienda: "Alquilada",
@@ -486,7 +486,7 @@ describe("Distribución de los mockups", () => {
         inicial={{
           ...base,
           tipo: "GUARDERIA",
-          estadoCodigo: "P3_CONFIRMADO",
+          estadoCodigo: "CONFIRMADO",
           detalle: {},
         }}
         esReferencia={false}
@@ -606,7 +606,7 @@ describe("Navegación institucional según los mockups", () => {
       screen.getByRole("link", { name: "Ver expediente" }),
     ).toHaveAttribute("href", "/beneficiarias/100");
   });
-  it("El expediente no presenta un dashboard del reparto P3 y contempla las áreas institucionales", () => {
+  it("El expediente no presenta un dashboard del reparto áreas y contempla las áreas institucionales", () => {
     envolver(<Expediente />);
     expect(screen.queryByText("Continuar la atención")).not.toBeInTheDocument();
     for (const area of [

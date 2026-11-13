@@ -21,22 +21,22 @@ const DocumentsPage = lazy(() =>
   })),
 );
 const ListadoFichas = lazy(() =>
-  import("../../modules/persona3/Listados").then((m) => ({
+  import("../../modules/formularios/Listados").then((m) => ({
     default: m.ListadoFichas,
   })),
 );
 const Guarderia = lazy(() =>
-  import("../../modules/persona3/Listados").then((m) => ({
+  import("../../modules/formularios/Listados").then((m) => ({
     default: m.Guarderia,
   })),
 );
 const EditorFicha = lazy(() =>
-  import("../../modules/persona3/EditorFicha").then((m) => ({
+  import("../../modules/formularios/EditorFicha").then((m) => ({
     default: m.EditorFicha,
   })),
 );
 const Evolucion = lazy(() =>
-  import("../../modules/persona3/Evolucion").then((m) => ({
+  import("../../modules/evolucion/Evolucion").then((m) => ({
     default: m.Evolucion,
   })),
 );

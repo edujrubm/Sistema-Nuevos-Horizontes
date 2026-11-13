@@ -11,7 +11,7 @@ async function call(method,path,body,status=200){
  const data=await r.json();assert.equal(r.status,status,JSON.stringify(data));if(status>=400)comprobarError(r,data);return data;
 }
 before(async()=>{
- process.env.P3_TEST_AREA='Legal';process.env.P3_TEST_ROLE='COORDINACION';
+ process.env.AREA_TEST_NOMBRE='Legal';process.env.AREA_TEST_ROL='COORDINACION';
  app=await NestFactory.create(AppModule,{logger:false});
  app.setGlobalPrefix('api');
  configurarTransporteApi(app);
@@ -47,7 +47,7 @@ test('Referencia: validación anidada y actor del cliente rechazado',async()=>{
 });
 test('Referencia: FK inválida revierte cabecera y auditoría',async()=>{
  const [before]=await db.query('SELECT count(*) AS n FROM new_horizons.formulario_area');
- await call('POST','/legal/beneficiarias/100/referencias',{fechaAtencion:'2026-10-26T10:00:00Z',profesionalId:'99999',detalle:{}},409);
+ await call('POST','/legal/beneficiarias/100/referencias',{fechaAtencion:'2026-10-26T10:00:00Z',profesionalId:'99999',detalle:{}},400);
  const [after]=await db.query('SELECT count(*) AS n FROM new_horizons.formulario_area');assert.equal(after.n,before.n);
 });
 test('Referencia: editar borrador y rechazar versión antigua',async()=>{
@@ -58,27 +58,27 @@ test('Referencia: editar borrador y rechazar versión antigua',async()=>{
 });
 test('Referencia: confirmar y corregir conservando estado, motivo e historial',async()=>{
  reference=await call('POST','/legal/referencias/'+reference.id+'/confirmar',{version:reference.version,motivo:'Confirmación sintética'},201);
- assert.equal(reference.estadoCodigo,'P3_CONFIRMADO');
+ assert.equal(reference.estadoCodigo,'CONFIRMADO');
  await call('POST','/legal/referencias/'+reference.id+'/confirmar',{version:reference.version,motivo:'Repetida'},409);
  const old=reference;
  reference=await call('PATCH','/legal/referencias/'+reference.id,{version:reference.version,motivo:'Corrección posterior a confirmación',detalle:{destino:'Destino corregido'}});
- assert.equal(reference.estadoCodigo,'P3_CONFIRMADO');assert.ok(reference.version>old.version);
+ assert.equal(reference.estadoCodigo,'CONFIRMADO');assert.ok(reference.version>old.version);
  const [revision]=await db.query("SELECT anterior,nuevo,motivo FROM new_horizons.revision_registro WHERE tabla='referencia_legal' AND registro_id=$1 AND operacion='UPDATE' ORDER BY id DESC LIMIT 1",[reference.id]);assert.equal(revision.nuevo.destino,'Destino corregido');assert.equal(revision.motivo,'Corrección posterior a confirmación');
  await call('PATCH','/legal/referencias/'+reference.id,{version:reference.version,detalle:{destino:'Sin motivo'}},400);
  await call('GET','/legal/referencias/'+forms.SOCIAL,undefined,404);
 });
 test('Evolución: todas las áreas y vínculo correcto al expediente',async()=>{
  for(const tipo of ['SOCIAL','LEGAL','GUARDERIA','PSICOLOGIA_MUJER','MEDICINA_MUJER']){
-  process.env.P3_TEST_AREA={SOCIAL:'Trabajo Social',LEGAL:'Legal',GUARDERIA:'Guardería',PSICOLOGIA_MUJER:'Psicología',MEDICINA_MUJER:'Medicina'}[tipo];
+  process.env.AREA_TEST_NOMBRE={SOCIAL:'Trabajo Social',LEGAL:'Legal',GUARDERIA:'Guardería',PSICOLOGIA_MUJER:'Psicología',MEDICINA_MUJER:'Medicina'}[tipo];
   const e=await call('POST','/beneficiarias/100/hoja-evolutiva',{formularioId:forms[tipo],accion:'Atención sintética',contenido:'Contenido '+tipo,fechaAtencion:'2026-10-26T11:00:00-06:00',profesionalId:'1'},201);
   if(tipo==='LEGAL')entry=e;
  }
- process.env.P3_TEST_AREA='Legal';
+ process.env.AREA_TEST_NOMBRE='Legal';
  const entries=await call('GET','/beneficiarias/100/hoja-evolutiva');assert.equal(entries.datos.length,1);assert.ok(entries.datos.every(x=>x.formularioId===forms.LEGAL));
- process.env.P3_TEST_AREA='Guardería';
+ process.env.AREA_TEST_NOMBRE='Guardería';
  const guarderia=await call('GET','/beneficiarias/100/hoja-evolutiva?hijoId=100');assert.equal(guarderia.datos.length,1);
  await call('GET','/beneficiarias/100/hoja-evolutiva?hijoId=200',undefined,404);
- process.env.P3_TEST_AREA='Legal';
+ process.env.AREA_TEST_NOMBRE='Legal';
  await call('POST','/beneficiarias/200/hoja-evolutiva',{formularioId:forms.LEGAL,accion:'x',contenido:'x',fechaAtencion:'2026-10-26T11:00:00Z',profesionalId:'1'},404);
 });
 test('Evolución: corregir conserva captura y registra revisión anterior/nueva',async()=>{
@@ -94,27 +94,52 @@ test('Evolución: corrección vacía/null, campos protegidos y autoría falsa re
  await call('GET','/entradas-evolutivas/999999/revisiones',undefined,404);
 });
 test('Evolución: escrituras simultáneas no pierden entradas',async()=>{
- process.env.P3_TEST_AREA='Trabajo Social';
+ process.env.AREA_TEST_NOMBRE='Trabajo Social';
  const before=(await call('GET','/beneficiarias/100/hoja-evolutiva?limite=100')).datos.length;
  await Promise.all(Array.from({length:10},(_,i)=>call('POST','/beneficiarias/100/hoja-evolutiva',{formularioId:forms.SOCIAL,accion:'Concurrente '+i,contenido:'Sintético',fechaAtencion:'2026-10-26T12:00:00Z',profesionalId:'1'},201)));
  assert.equal((await call('GET','/beneficiarias/100/hoja-evolutiva?limite=100')).datos.length,before+10);
- process.env.P3_TEST_AREA='Legal';
+ process.env.AREA_TEST_NOMBRE='Legal';
 });
 test('Evolución: dos correcciones de la misma versión producen un conflicto',async()=>{
  const results=await Promise.all(['A','B'].map(contenido=>fetch(url+'/entradas-evolutivas/'+entry.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({version:entry.version,motivo:'Concurrente',contenido})})));
  assert.deepEqual(results.map(x=>x.status).sort(),[200,409]);
 });
-test('Sin DELETE físico ni actor de prueba en producción',async()=>{
- await call('DELETE','/entradas-evolutivas/'+entry.id,undefined,404);
- const old=process.env.P3_TEST_ACTOR_ID;delete process.env.P3_TEST_ACTOR_ID;
- try{await call('POST','/legal/beneficiarias/100/referencias',{fechaAtencion:'2026-10-26T10:00:00Z',profesionalId:'1',detalle:{}},503);}finally{process.env.P3_TEST_ACTOR_ID=old;}
+test('Sin DELETE físico ni escrituras sin identidad de auditoría', async () => {
+  await call(
+    'DELETE',
+    '/entradas-evolutivas/' + entry.id,
+    undefined,
+    404,
+  );
+
+  const anterior = process.env.AUDIT_ACTOR_USERNAME;
+  delete process.env.AUDIT_ACTOR_USERNAME;
+
+  try {
+    await call(
+      'POST',
+      '/legal/beneficiarias/100/referencias',
+      {
+        fechaAtencion: '2026-10-26T10:00:00Z',
+        profesionalId: '1',
+        detalle: {},
+      },
+      503,
+    );
+  } finally {
+    if (anterior === undefined) {
+      delete process.env.AUDIT_ACTOR_USERNAME;
+    } else {
+      process.env.AUDIT_ACTOR_USERNAME = anterior;
+    }
+  }
 });
 
 test('Postman: ejecutar las 14 peticiones con Newman contra la API real',async()=>{
  const fs=require('node:fs');
  const path=require('node:path');
  const newman=require('newman');
- const collection=JSON.parse(fs.readFileSync(path.join(__dirname,'../postman/Persona3.postman_collection.json'),'utf8'));
+ const collection=JSON.parse(fs.readFileSync(path.join(__dirname,'../postman/registros-area.postman_collection.json'),'utf8'));
  const report=await new Promise((resolve,reject)=>newman.run({collection,reporters:[],envVar:[{key:'baseUrl',value:url},{key:'formularioId',value:forms.LEGAL}]},(err,result)=>err?reject(err):resolve(result)));
  fs.mkdirSync(path.join(__dirname,'../test-results'),{recursive:true});
  fs.writeFileSync(path.join(__dirname,'../test-results/newman.json'),JSON.stringify({requests:report.run.stats.requests,assertions:report.run.stats.assertions,failures:report.run.failures},null,2));
@@ -123,16 +148,16 @@ test('Postman: ejecutar las 14 peticiones con Newman contra la API real',async()
 });
 
 test('Área activa: no se puede leer, crear o corregir evolución de otra área',async()=>{
- process.env.P3_TEST_AREA='Legal';
+ process.env.AREA_TEST_NOMBRE='Legal';
  await call('GET','/beneficiarias/100/hoja-evolutiva?area=Trabajo%20Social',undefined,403);
  await call('GET','/beneficiarias/100/hoja-evolutiva?formularioId='+forms.SOCIAL,undefined,403);
  await call('POST','/beneficiarias/100/hoja-evolutiva',{formularioId:forms.SOCIAL,accion:'x',contenido:'x',fechaAtencion:'2026-10-27T10:00:00Z',profesionalId:'1'},403);
- process.env.P3_TEST_AREA='Trabajo Social';
+ process.env.AREA_TEST_NOMBRE='Trabajo Social';
  await call('PATCH','/entradas-evolutivas/'+entry.id,{version:1,motivo:'Cruce',contenido:'x'},403);
  await call('GET','/entradas-evolutivas/'+entry.id+'/revisiones',undefined,403);
- process.env.P3_TEST_AREA='Legal';process.env.P3_TEST_ROLE='PROFESIONAL';
+ process.env.AREA_TEST_NOMBRE='Legal';process.env.AREA_TEST_ROL='PROFESIONAL';
  await call('GET','/entradas-evolutivas/'+entry.id+'/revisiones',undefined,403);
- process.env.P3_TEST_ROLE='COORDINACION';
+ process.env.AREA_TEST_ROL='COORDINACION';
 });
 test('Guardería: se pueden seleccionar todos, pero solo abrir inscritos',async()=>{
  const [ex]=await db.query('SELECT id_expediente FROM new_horizons.expediente WHERE beneficiaria_id=100');
@@ -148,13 +173,13 @@ test('Seguimientos: borrador bloqueado, acción libre y cambios auditados',async
 });
 test('Resumen Social satisface los campos disponibles del mockup sin datos inventados',async()=>{
  const r=await call('GET','/trabajo-social/beneficiarias/100/resumen');
- assert.equal(r.beneficiaria.nombre,'Beneficiaria histórica sintética');assert.equal(r.ultimaFicha.estadoCodigo,'P3_CONFIRMADO');assert.ok(r.ultimaFicha.actualizadoEn);assert.ok(r.historialReciente.length);assert.ok(r.totalRiesgos===null||typeof r.totalRiesgos==='number');assert.deepEqual(r.camposSinSoporte,r.totalRiesgos===null?['totalRiesgos']:[]);
+ assert.equal(r.beneficiaria.nombre,'Beneficiaria histórica sintética');assert.equal(r.ultimaFicha.estadoCodigo,'CONFIRMADO');assert.ok(r.ultimaFicha.actualizadoEn);assert.ok(r.historialReciente.length);assert.ok(r.totalRiesgos===null||typeof r.totalRiesgos==='number');assert.deepEqual(r.camposSinSoporte,r.totalRiesgos===null?['totalRiesgos']:[]);
 });
-test('Contrato: las 14 rutas P3 coinciden exactamente con la página 4 del PDF',()=>{
+test('Contrato: las 14 rutas áreas coinciden exactamente con la página 4 del PDF',()=>{
  const fs=require('node:fs');const {PATH_METADATA,METHOD_METADATA}=require('@nestjs/common/constants');const {RequestMethod}=require('@nestjs/common');
  const classes=[require('../dist/modules/formularios/legal/legal.controller').LegalController,require('../dist/modules/formularios/social/social.controller').SocialController,require('../dist/modules/formularios/guarderia/guarderia.controller').GuarderiaController,require('../dist/modules/evolucion/evolucion.controller').EvolucionController];
  const actual=classes.flatMap(cls=>Object.getOwnPropertyNames(cls.prototype).filter(n=>n!=='constructor'&&Reflect.hasMetadata(METHOD_METADATA,cls.prototype[n])).map(n=>({metodo:RequestMethod[Reflect.getMetadata(METHOD_METADATA,cls.prototype[n])],ruta:'/'+Reflect.getMetadata(PATH_METADATA,cls.prototype[n])})));
- const expected=JSON.parse(fs.readFileSync(require('node:path').join(__dirname,'fixtures/rutas-persona3.json'),'utf8'));
+ const expected=JSON.parse(fs.readFileSync(require('node:path').join(__dirname,'fixtures/rutas-registros-area.json'),'utf8'));
  const ordered=a=>a.map(x=>x.metodo+' '+x.ruta).sort();assert.deepEqual(ordered(actual),ordered(expected));
 });
 async function cargarPdf({beneficiaria='100',formularioId=forms.LEGAL,bytes,mime='application/pdf',nombre='documento.pdf',categoria='Referencia sintética'},status){
@@ -165,11 +190,11 @@ async function cargarPdf({beneficiaria='100',formularioId=forms.LEGAL,bytes,mime
  const body=await r.json();assert.equal(r.status,status,JSON.stringify(body));if(status>=400)comprobarError(r,body);return body;
 }
 test('PDF: sube original, se asocia a su ficha/expediente y guarda auditoría',async()=>{
- const fs=require('node:fs'),crypto=require('node:crypto'),path=require('node:path');process.env.P3_TEST_AREA='Legal';
+ const fs=require('node:fs'),crypto=require('node:crypto'),path=require('node:path');process.env.AREA_TEST_NOMBRE='Legal';
  const doc=await cargarPdf({},201);
  const [stored]=await db.query('SELECT d.*,f.expediente_id FROM new_horizons.documento_area d JOIN new_horizons.formulario_area f ON f.id=d.formulario_id WHERE d.id=$1',[doc.id]);
  assert.equal(doc.formularioId,forms.LEGAL);assert.equal(doc.expedienteId,stored.expediente_id);assert.ok(!Object.hasOwn(doc,'objetoPrivado'));
- const original=fs.readFileSync(path.join(__dirname,'fixtures/documento.pdf'));assert.deepEqual(fs.readFileSync(path.resolve(process.env.P3_DOCUMENTS_DIR||'test-results/documentos-privados',stored.objeto_privado)),original);assert.equal(doc.sha256,crypto.createHash('sha256').update(original).digest('hex'));
+ const original=fs.readFileSync(path.join(__dirname,'fixtures/documento.pdf'));assert.deepEqual(fs.readFileSync(path.resolve(process.env.DOCUMENTOS_DIR||'test-results/documentos-privados',stored.objeto_privado)),original);assert.equal(doc.sha256,crypto.createHash('sha256').update(original).digest('hex'));
  const [audit]=await db.query("SELECT actor_id FROM new_horizons.revision_registro WHERE tabla='documento_area' AND registro_id=$1",[doc.id]);assert.equal(audit.actor_id,'1');
 });
 test('PDF: rechaza imagen, archivo falso, más de 20 MiB, expediente ajeno y otra área',async()=>{
@@ -183,7 +208,7 @@ test('PDF: rechaza imagen, archivo falso, más de 20 MiB, expediente ajeno y otr
 
 
 test('Listas: total representa todos los resultados filtrados, incluso en página vacía',async()=>{
- process.env.P3_TEST_AREA='Legal';
+ process.env.AREA_TEST_NOMBRE='Legal';
  const rutas=['/trabajo-social/beneficiarias/100/fichas','/legal/beneficiarias/100/fichas','/legal/beneficiarias/100/referencias','/guarderia/beneficiarias/100/hijos','/guarderia/hijos/100/fichas','/beneficiarias/100/hoja-evolutiva','/entradas-evolutivas/'+entry.id+'/revisiones'];
  for(const ruta of rutas){
   const completa=await call('GET',ruta+'?limite=100');
@@ -195,18 +220,18 @@ test('Listas: total representa todos los resultados filtrados, incluso en págin
  }
  const sinAtenciones=await call('GET','/beneficiarias/100/hoja-evolutiva?hijoId=100');
  assert.equal(sinAtenciones.total,0);assert.deepEqual(sinAtenciones.datos,[]);
- process.env.P3_TEST_AREA='Guardería';
+ process.env.AREA_TEST_NOMBRE='Guardería';
  const infantil=await call('GET','/beneficiarias/100/hoja-evolutiva?hijoId=100');
  assert.equal(infantil.total,1);assert.equal(infantil.datos[0].ninoId,'100');
- process.env.P3_TEST_AREA='Legal';
+ process.env.AREA_TEST_NOMBRE='Legal';
 });
 test('Borrador mínimo: beneficiaria, fecha y profesional; textos opcionales',async()=>{
- const draft=await call('POST','/legal/beneficiarias/100/referencias',{fechaAtencion:'2026-10-29T09:00:00-06:00',profesionalId:'1'},201);
- assert.equal(draft.beneficiariaId,'100');assert.equal(draft.estadoCodigo,'P3_BORRADOR');assert.ok(Object.values(draft.detalle).every(v=>v===null));
+ const draft=await call('POST','/legal/beneficiarias/100/referencias',{fechaAtencion:'2026-10-29T09:00:00-06:00',profesionalId:'1', detalle: {}},201);
+ assert.equal(draft.beneficiariaId,'100');assert.equal(draft.estadoCodigo,'BORRADOR');assert.ok(Object.values(draft.detalle).every(v=>v===null));
  const [before]=await db.query('SELECT count(*) AS total FROM new_horizons.revision_registro WHERE registro_id=$1 AND tabla=\'formulario_area\'',[draft.id]);
  const rejection=await call('POST','/legal/referencias/'+draft.id+'/confirmar',{version:draft.version,motivo:'Confirmación incompleta'},400);
  assert.deepEqual(rejection.errores.map(e=>e.campo).sort(),['detalle.destino','detalle.motivoReferencia']);
- const same=await call('GET','/legal/referencias/'+draft.id);assert.equal(same.version,draft.version);assert.equal(same.estadoCodigo,'P3_BORRADOR');
+ const same=await call('GET','/legal/referencias/'+draft.id);assert.equal(same.version,draft.version);assert.equal(same.estadoCodigo,'BORRADOR');
  const [after]=await db.query('SELECT count(*) AS total FROM new_horizons.revision_registro WHERE registro_id=$1 AND tabla=\'formulario_area\'',[draft.id]);assert.equal(after.total,before.total);
  for(const body of [{profesionalId:'1'},{fechaAtencion:'2026-10-29T09:00:00-06:00'}])await call('POST','/legal/beneficiarias/100/referencias',body,400);
 });
@@ -215,10 +240,10 @@ test('Confirmación: exige destino y motivo reales; origen y recomendaciones opc
  const rejected=await call('POST','/legal/referencias/'+draft.id+'/confirmar',{version:draft.version,motivo:'Confirmar'},400);assert.equal(rejected.errores[0].campo,'detalle.destino');
  draft=await call('PATCH','/legal/referencias/'+draft.id,{version:draft.version,motivo:'Completar destino',detalle:{destino:'Institución sintética'}});
  let confirmed=await call('POST','/legal/referencias/'+draft.id+'/confirmar',{version:draft.version,motivo:'Confirmar completa'},201);
- assert.equal(confirmed.estadoCodigo,'P3_CONFIRMADO');assert.equal(confirmed.detalle.origen,null);assert.equal(confirmed.detalle.recomendaciones,null);
+ assert.equal(confirmed.estadoCodigo,'CONFIRMADO');assert.equal(confirmed.detalle.origen,null);assert.equal(confirmed.detalle.recomendaciones,null);
  for(const detalle of [{destino:null},{motivoReferencia:'   '}])await call('PATCH','/legal/referencias/'+draft.id,{version:confirmed.version,motivo:'Vaciar dato obligatorio',detalle},400);
- const intact=await call('GET','/legal/referencias/'+draft.id);assert.equal(intact.version,confirmed.version);assert.equal(intact.estadoCodigo,'P3_CONFIRMADO');assert.equal(intact.detalle.destino,'Institución sintética');
- confirmed=await call('PATCH','/legal/referencias/'+draft.id,{version:confirmed.version,motivo:'Corregir sin perder completitud',detalle:{destino:'Otro destino válido'}});assert.equal(confirmed.estadoCodigo,'P3_CONFIRMADO');
+ const intact=await call('GET','/legal/referencias/'+draft.id);assert.equal(intact.version,confirmed.version);assert.equal(intact.estadoCodigo,'CONFIRMADO');assert.equal(intact.detalle.destino,'Institución sintética');
+ confirmed=await call('PATCH','/legal/referencias/'+draft.id,{version:confirmed.version,motivo:'Corregir sin perder completitud',detalle:{destino:'Otro destino válido'}});assert.equal(confirmed.estadoCodigo,'CONFIRMADO');
 });
 
 function comprobarError(r,data,codigo){
@@ -260,16 +285,16 @@ test('Errores: PDF requerido, vacío, tipo, ilegible, límite y estructura multi
 
 test('Errores: disco no disponible y compensación documental según certeza del guardado',async()=>{
  const fs=require('node:fs'),path=require('node:path'),os=require('node:os');
- const {Persona3Repository}=require('../dist/modules/persona3/persona3.repository'),{ErrorApi}=require('../dist/common/errors/error-api');
- const repo=app.get(Persona3Repository),original=repo.transaction,prev=process.env.P3_DOCUMENTS_DIR;
- const dir=fs.mkdtempSync(path.join(os.tmpdir(),'p3-errores-'));
+ const {RegistroAreaRepository}=require('../dist/common/registros-area/registro-area.repository'),{ErrorApi}=require('../dist/common/errors/error-api');
+ const repo=app.get(RegistroAreaRepository),original=repo.transaction,prev=process.env.DOCUMENTOS_DIR;
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'areas-errores-'));
  try{
-  const blocker=path.join(dir,'archivo');fs.writeFileSync(blocker,'prueba');process.env.P3_DOCUMENTS_DIR=path.join(blocker,'subcarpeta');
+  const blocker=path.join(dir,'archivo');fs.writeFileSync(blocker,'prueba');process.env.DOCUMENTOS_DIR=path.join(blocker,'subcarpeta');
   const unavailable=await cargarPdf({},503);assert.equal(unavailable.codigo,'ALMACENAMIENTO_NO_DISPONIBLE');
-  process.env.P3_DOCUMENTS_DIR=path.join(dir,'documentos');
-  repo.transaction=async()=>{throw new ErrorApi('RELACION_INCOMPATIBLE');};await cargarPdf({},409);assert.equal(fs.readdirSync(process.env.P3_DOCUMENTS_DIR).length,0);
-  repo.transaction=async()=>{throw new ErrorApi('RESULTADO_OPERACION_INCIERTO');};const uncertain=await cargarPdf({},503);assert.equal(uncertain.codigo,'RESULTADO_OPERACION_INCIERTO');assert.equal(fs.readdirSync(process.env.P3_DOCUMENTS_DIR).length,1);
- }finally{repo.transaction=original;if(prev===undefined)delete process.env.P3_DOCUMENTS_DIR;else process.env.P3_DOCUMENTS_DIR=prev;for(const file of fs.readdirSync(path.join(dir,'documentos'),{withFileTypes:true}))fs.unlinkSync(path.join(dir,'documentos',file.name));fs.rmdirSync(path.join(dir,'documentos'));fs.unlinkSync(path.join(dir,'archivo'));fs.rmdirSync(dir);}
+  process.env.DOCUMENTOS_DIR=path.join(dir,'documentos');
+  repo.transaction=async()=>{throw new ErrorApi('RELACION_INCOMPATIBLE');};await cargarPdf({},409);assert.equal(fs.readdirSync(process.env.DOCUMENTOS_DIR).length,0);
+  repo.transaction=async()=>{throw new ErrorApi('RESULTADO_OPERACION_INCIERTO');};const uncertain=await cargarPdf({},503);assert.equal(uncertain.codigo,'RESULTADO_OPERACION_INCIERTO');assert.equal(fs.readdirSync(process.env.DOCUMENTOS_DIR).length,1);
+ }finally{repo.transaction=original;if(prev===undefined)delete process.env.DOCUMENTOS_DIR;else process.env.DOCUMENTOS_DIR=prev;for(const file of fs.readdirSync(path.join(dir,'documentos'),{withFileTypes:true}))fs.unlinkSync(path.join(dir,'documentos',file.name));fs.rmdirSync(path.join(dir,'documentos'));fs.unlinkSync(path.join(dir,'archivo'));fs.rmdirSync(dir);}
 });
 
 test('Postman: errores normalizados contra HTTP real',async()=>{

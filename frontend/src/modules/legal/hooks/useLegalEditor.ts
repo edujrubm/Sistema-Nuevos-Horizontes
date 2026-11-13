@@ -42,13 +42,25 @@ export function useLegalEditor(
   const confirmed = state.endsWith("CONFIRMADO");
   const conflict =
     error instanceof ApiError && error.codigo === "VERSION_DESACTUALIZADA";
+  // Una respuesta incierta no permite repetir una escritura que pudo guardarse.
+  const uncertain =
+    error instanceof ApiError &&
+    ["RESPUESTA_NO_RECIBIDA", "RESULTADO_OPERACION_INCIERTO"].includes(
+      error.codigo,
+    );
   function change(field: string, value: string) {
     setDetail((current) => ({ ...current, [field]: value }));
     setDirty(true);
     setMessage("");
   }
   async function submit(confirm = false) {
-    if (locked.current || conflict || (confirm && (!record || dirty))) return;
+    if (
+      locked.current ||
+      conflict ||
+      uncertain ||
+      (confirm && (!record || dirty))
+    )
+      return;
     locked.current = true;
     setBusy(true);
     setError(undefined);
@@ -75,7 +87,9 @@ export function useLegalEditor(
         next = await legalApi.create(beneficiaryId, reference, {
           // datetime-local representa la fecha institucional de Guatemala, no la zona del dispositivo.
           fechaAtencion: new Date(attention + "-06:00").toISOString(),
-          profesionalId: professional,
+          profesionalId: /^\d+$/.test(professional)
+            ? BigInt(professional).toString()
+            : professional,
           detalle: normalized,
         });
       setRecord(next);
@@ -122,6 +136,7 @@ export function useLegalEditor(
     draft,
     confirmed,
     conflict,
+    uncertain,
     change,
     submit,
     reload,

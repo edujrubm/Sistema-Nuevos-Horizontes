@@ -1,11 +1,11 @@
-import { BarraBeneficiaria } from "./contexto";
-import { useCambiosPendientes } from "./useCambiosPendientes";
+import { BarraBeneficiaria } from "../formularios/contexto";
+import { useCambiosPendientes } from "../formularios/useCambiosPendientes";
 import { useCallback, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
-import { api } from "../../shared/api/persona3";
+import { api } from "../../shared/api/area-records";
 import type { Entrada } from "../../shared/types/api";
-import { useConsulta } from "./useConsulta";
+import { useConsulta } from "../formularios/useConsulta";
 import { useCapacidades } from "../../app/capacidades";
 import {
   ErrorVista,

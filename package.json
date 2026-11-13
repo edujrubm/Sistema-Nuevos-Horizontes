@@ -23,11 +23,11 @@
     "test": "jest --config jest.config.cjs",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-    "test:persona3": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-persona3.ps1",
-    "postman:persona3": "node -r ts-node/register scripts/generate-persona3.cjs",
-    "start:persona3": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-persona3.ps1",
+    "test:areas": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-areas.ps1",
+    "postman:areas": "node -r ts-node/register scripts/generate-registros-area.cjs",
+    "start:areas": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-registros-area.ps1",
     "check:frontend": "pnpm --dir frontend check",
-    "test:core": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-persona3.ps1 -SinLaboratorio"
+    "test:core": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-areas.ps1"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

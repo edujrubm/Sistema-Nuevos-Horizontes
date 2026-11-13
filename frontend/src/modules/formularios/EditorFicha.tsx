@@ -6,7 +6,7 @@ import { useCambiosPendientes } from "./useCambiosPendientes";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { useParams, useNavigate, Navigate } from "react-router-dom";
-import { api } from "../../shared/api/persona3";
+import { api } from "../../shared/api/area-records";
 import type { Ficha } from "../../shared/types/api";
 import {
   ErrorVista,

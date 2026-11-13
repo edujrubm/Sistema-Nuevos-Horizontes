@@ -1,29 +1,21 @@
 import { ListaDto } from "../../../common/dto/pagina.dto";
 import { TransicionDto } from "../../../common/dto/version.dto";
-import { IsPgId } from "./pg-id.validator";
-import { Type } from "class-transformer";
+import { IsPgId } from "../../../common/validation/pg-id.validator";
 import {
-  IsDefined,
-  IsInt,
   IsISO8601,
-  IsObject,
   IsOptional,
   IsString,
   Matches,
-  Max,
   MaxLength,
-  Min,
-  ValidateNested,
 } from "class-validator";
 
-// Contrato provisional camelCase: sujeto a revisión del equipo, no cambia el DDL.
+// Contrato existente de evolución; no cambia el DDL.
 export { ListaDto } from "../../../common/dto/pagina.dto";
 export class EvolucionListaDto extends ListaDto {
   @IsOptional() @IsString() @MaxLength(100) area?: string;
   @IsOptional() @IsPgId() formularioId?: string;
   @IsOptional() @IsPgId() hijoId?: string;
 }
-export { DetalleReferenciaDto, CrearReferenciaDto, EditarReferenciaDto } from "../../formularios/legal/dto/referencia-legal.dto";
 export { TransicionDto } from "../../../common/dto/version.dto";
 export class CrearEntradaDto {
   @IsPgId() formularioId!: string;

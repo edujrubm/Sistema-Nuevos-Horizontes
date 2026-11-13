@@ -7,49 +7,90 @@ import { ErrorApi } from "../../../../common/errors/error-api";
 import { FormularioAreaEntity } from "../../shared/entities/formulario-area.entity";
 import { FichaLegal } from "../entities/ficha-legal.entity";
 import { ReferenciaLegal } from "../entities/referencia-legal.entity";
+import type { CrearReferenciaDto } from "../dto/referencia-legal.dto";
+import {
+  EstadoFormularioEntity,
+  ProfesionalFormularioEntity,
+} from "../../shared/entities/formulario-catalogos.entity";
 
 export type LegalFormType = "LEGAL" | "REFERENCIA_LEGAL";
+export type CambioReferencia =
+  | {
+      tipo: "EDITAR";
+      detalle: Partial<Omit<ReferenciaLegal, "formularioId">>;
+    }
+  | {
+      tipo: "CONFIRMAR";
+      estadoCodigo: string;
+    };
 
 @Injectable()
 export class LegalRepository {
   constructor(private readonly data: DataSource) {}
 
   /** Mantiene actor, motivo, bloqueo y respuesta dentro de la misma conexión. */
-  async changeReference(
-    id: string,
-    reason: string,
-    change: (
-      manager: EntityManager,
-      header: FormularioAreaEntity,
-      detail: ReferenciaLegal,
-    ) => Promise<void>,
-  ) {
-    return auditedTransaction(this.data, reason, async (manager) => {
-      const header = await manager.getRepository(FormularioAreaEntity).findOne({
+  /** Valida sobre el registro bloqueado y escribe con la misma auditoría. */
+async changeReference(
+  id: string,
+  reason: string,
+  decidirCambio: (
+    header: Readonly<FormularioAreaEntity>,
+    detail: Readonly<ReferenciaLegal>,
+  ) => CambioReferencia,
+) {
+  return auditedTransaction(this.data, reason, async (manager) => {
+    const header = await manager
+      .getRepository(FormularioAreaEntity)
+      .findOne({
         where: { id, tipo: "REFERENCIA_LEGAL" },
         lock: { mode: "pessimistic_write" },
       });
-      const detail =
-        header &&
-        (await manager
-          .getRepository(ReferenciaLegal)
-          .findOne({ where: { formularioId: id } }));
-      if (!header || !detail) throw new ErrorApi("REGISTRO_NO_ENCONTRADO");
-      await change(manager, header, detail);
-      return this.readReference(manager, id);
-    });
-  }
+
+    if (!header) {
+      throw new ErrorApi("REGISTRO_NO_ENCONTRADO");
+    }
+
+    const detail = await manager
+      .getRepository(ReferenciaLegal)
+      .findOne({
+        where: { formularioId: id },
+      });
+
+    if (!detail) {
+      throw new ErrorApi("REGISTRO_NO_ENCONTRADO");
+    }
+
+    const cambio = decidirCambio(header, detail);
+
+    if (cambio.tipo === "EDITAR") {
+      await manager
+        .getRepository(ReferenciaLegal)
+        .update(
+          { formularioId: id },
+          cambio.detalle,
+        );
+    } else {
+      await manager
+        .getRepository(FormularioAreaEntity)
+        .update(
+          { id },
+          {
+            estadoCodigo: cambio.estadoCodigo,
+            motivoCambio: reason,
+          },
+        );
+    }
+
+    return this.readReference(manager, id);
+  });
+}
 
   /** Cabecera y detalle se crean atómicamente; la edad mantiene el cálculo PostgreSQL histórico. */
-  async createReference(
-    beneficiaryId: string,
-    input: {
-      fechaAtencion: string;
-      profesionalId: string;
-      detalle: Partial<ReferenciaLegal>;
-    },
-    draftState: string,
-  ) {
+ async createReference(
+  beneficiaryId: string,
+  input: CrearReferenciaDto,
+  draftState: string,
+) {
     return auditedTransaction(
       this.data,
       "Creación de referencia Legal",
@@ -62,6 +103,30 @@ export class LegalRepository {
           .getRepository(TipoFormularioEntity)
           .findOne({ where: { codigo: "REFERENCIA_LEGAL" } });
         if (!type) throw new ErrorApi("CONFIGURACION_INCOMPLETA");
+        const existeEstado = await manager
+          .getRepository(EstadoFormularioEntity)
+          .exists({
+             where: { codigo: draftState },
+           });
+
+        if (!existeEstado) {
+            throw new ErrorApi("CONFIGURACION_INCOMPLETA");
+        }
+
+        const existeProfesional = await manager
+          .getRepository(ProfesionalFormularioEntity)
+          .exists({
+             where: { id: input.profesionalId },
+         });
+
+        if (!existeProfesional) {
+          throw new ErrorApi("DATOS_INVALIDOS", [
+        {
+            campo: "profesionalId",
+            mensaje: "El profesional seleccionado no existe.",
+        },
+  ]);
+}
         // PostgreSQL define la edad civil a la fecha de atención en Guatemala.
         const identity = await manager
           .getRepository(BeneficiariaEntity)
@@ -88,14 +153,21 @@ export class LegalRepository {
           capturadoPor: actor,
           identidadAlAtender: identity,
         });
+        // Persiste únicamente los campos propios de la referencia.
         await manager.getRepository(ReferenciaLegal).save({
-          ...input.detalle,
           formularioId: header.id,
+          destino: input.detalle.destino ?? null,
+          origen: input.detalle.origen ?? null,
+          motivoReferencia: input.detalle.motivoReferencia ?? null,
+          recomendaciones: input.detalle.recomendaciones ?? null,
+          medioEntrega: input.detalle.medioEntrega ?? null,
         });
+
         return this.readReference(manager, header.id);
       },
     );
   }
+
 
   private async readReference(manager: EntityManager, id: string) {
     const header = await manager
