@@ -1,11 +1,11 @@
 import { apiRequest } from "@/shared/api/http-client";
 
 export interface AdmissionSection {
-  id: string;
+  id?: string;
   seccion: string;
   contenido: Record<string, unknown>;
-  version: number;
-  actualizadoEn: string;
+  version?: number;
+  actualizadoEn?: string;
 }
 
 export interface AdmissionRecord {
@@ -18,6 +18,7 @@ export interface AdmissionRecord {
   version: number;
   actualizadoEn: string;
   secciones: AdmissionSection[];
+  hijos: ChildDraft[];
 }
 
 export interface ChildDraft {
@@ -25,6 +26,9 @@ export interface ChildDraft {
   version?: number;
   nombre?: string;
   cui?: string;
+  tipoDocumento?: "DPI_CUI" | "PASAPORTE" | "OTRO" | "SIN_DOCUMENTO";
+  documentoAlternativo?: string;
+  otroTipoDocumento?: string;
   fechaNacimiento?: string;
   reconocido?: boolean | null;
   genero?: "F" | "M" | "O";
@@ -90,7 +94,10 @@ export function listAdmissions(
 ) {
   const params = new URLSearchParams({ estado: status, limite: "20" });
   if (cursor) params.set("cursor", cursor);
-  return apiRequest<AdmissionListResponse>(`/fichas-iniciales?${params.toString()}`, { signal });
+  return apiRequest<AdmissionListResponse>(
+    `/fichas-iniciales?${params.toString()}`,
+    { signal },
+  );
 }
 
 export function saveAdmissionPage(
@@ -103,10 +110,13 @@ export function saveAdmissionPage(
     motivo: string;
   },
 ) {
-  return apiRequest<SavePageResponse>(`/fichas-iniciales/${id}/paginas/${page}`, {
-    method: "PATCH",
-    body: JSON.stringify(input),
-  });
+  return apiRequest<SavePageResponse>(
+    `/fichas-iniciales/${id}/paginas/${page}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(input),
+    },
+  );
 }
 
 export function confirmAdmission(id: string, version: number) {
