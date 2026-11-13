@@ -44,3 +44,7 @@ La compilación completa se comprobó con un DTO temporal de Niños solo en el d
 4. Revisar Social sobre esta base común. Su rama contiene la base de Legal más un commit de Social; mientras Legal no esté integrado, comparar social contra legal para ver únicamente el segundo módulo. Si se usa squash para Legal, reconciliar esa base antes del PR de Social hacia main.
 
 La entrega está preparada para revisión técnica; no certifica despliegue productivo sin autenticación ni garantiza cero regresiones. La hoja evolutiva, correcciones ordinarias de fichas confirmadas, revisión documental y las decisiones de producto pendientes conservan sus límites documentados.
+
+## Revisión final
+
+Se sincroniza la carga inicial del editor antes de permitir interacción, para evitar que una respuesta inicial sobrescriba texto recién ingresado. Las 17 pruebas específicas de React de Legal pasan. No cambia contratos ni persistencia.

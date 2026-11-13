@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useConsulta } from "@/shared/hooks/useConsulta";
 import { useUnsavedChanges } from "@/shared/hooks/useUnsavedChanges";
@@ -31,7 +31,8 @@ export function useLegalEditor(
   const [message, setMessage] = useState("");
   const locked = useRef(false);
   const allowNavigation = useUnsavedChanges(dirty);
-  useEffect(() => {
+  // Inicializa el borrador antes de habilitar la interacción con los campos.
+  useLayoutEffect(() => {
     setRecord(query.datos);
     setDetail(query.datos?.detalle ?? {});
     setDirty(false);
