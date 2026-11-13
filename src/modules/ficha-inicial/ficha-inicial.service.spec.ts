@@ -82,7 +82,6 @@ describe("FichaInicialService", () => {
     });
     const entrada = {
       secciones: {
-        "grupo-familiar": { otrasPersonasDelGrupoFamiliar: [] },
         agresores: { personasAgresoras: [] },
       },
       hijos: [{ nombre: "Hija sintética", genero: "F" }],
@@ -136,7 +135,17 @@ describe("FichaInicialService", () => {
     await expect(
       service.confirmar("1", { version: 2, motivo: "Validar completitud" }),
     ).rejects.toMatchObject({
-      response: expect.objectContaining({ code: "INCOMPLETE_INITIAL_INTAKE" }),
+      codigo: "SOLICITUD_INCOMPLETA",
+      erroresPublicos: [
+        {
+          campo: "salud",
+          mensaje: "Completa y guarda la sección: salud.",
+        },
+        {
+          campo: "seguimiento",
+          mensaje: "Completa y guarda la sección: seguimiento.",
+        },
+      ],
     });
     expect(repository.confirmar).toHaveBeenCalledWith(
       "1",
