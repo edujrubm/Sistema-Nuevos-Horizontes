@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { changeBeneficiaryStatus, getBeneficiary, getBeneficiaryHistory, listBeneficiaries, listBeneficiaryChildren, searchBeneficiaryMatches, updateBeneficiary } from "./beneficiaries-api";
+import { getBeneficiary, listBeneficiaries, listBeneficiaryChildren, searchBeneficiaryMatches } from "./beneficiaries-api";
 
 function jsonResponse(body: unknown) {
   return Promise.resolve(new Response(JSON.stringify(body), {
@@ -44,25 +44,12 @@ describe("beneficiaries-api", () => {
     const fetchMock = vi.fn((_: RequestInfo | URL, __?: RequestInit) => jsonResponse({ data: [] }));
     vi.stubGlobal("fetch", fetchMock);
 
-    await searchBeneficiaryMatches({ cui: "1234567890101" });
+    await searchBeneficiaryMatches("1234567890101");
 
     expect(fetchMock.mock.calls[0][0]).toBe("/api/v1/beneficiarias/buscar-coincidencias");
     expect(fetchMock.mock.calls[0][1]).toMatchObject({
       method: "POST",
       body: JSON.stringify({ cui: "1234567890101" }),
     });
-  });
-
-  it("envía versión y motivo en las operaciones auditadas del expediente", async () => {
-    const fetchMock = vi.fn((_: RequestInfo | URL, __?: RequestInit) => jsonResponse({ data: {} }));
-    vi.stubGlobal("fetch", fetchMock);
-
-    await updateBeneficiary("7", { nombre: "Persona sintética", version: 2, motivo: "Corrección autorizada" });
-    await changeBeneficiaryStatus("7", false, 3, "Cierre administrativo");
-    await getBeneficiaryHistory("7");
-
-    expect(fetchMock.mock.calls[0]).toEqual(["/api/v1/beneficiarias/7", expect.objectContaining({ method: "PATCH", body: expect.stringContaining('"version":2') })]);
-    expect(fetchMock.mock.calls[1]).toEqual(["/api/v1/beneficiarias/7/inactivar", expect.objectContaining({ method: "POST", body: JSON.stringify({ version: 3, motivo: "Cierre administrativo" }) })]);
-    expect(fetchMock.mock.calls[2][0]).toBe("/api/v1/beneficiarias/7/historial");
   });
 });

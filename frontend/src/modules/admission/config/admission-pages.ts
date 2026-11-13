@@ -1,9 +1,30 @@
 export interface AdmissionField {
   name: string;
   label: string;
-  type?: "text" | "textarea" | "date" | "tel" | "number" | "select" | "checkboxGroup";
+  type?:
+    | "text"
+    | "textarea"
+    | "date"
+    | "time"
+    | "tel"
+    | "number"
+    | "select"
+    | "checkboxGroup";
   hint?: string;
   options?: Array<{ value: string; label: string }>;
+  catalog?:
+    | "countries"
+    | "departments"
+    | "municipalities"
+    | "estados-civiles"
+    | "etnias"
+    | "ocupaciones"
+    | "niveles-estudio"
+    | "estados-estudio";
+  inputMode?: "numeric";
+  maxLength?: number;
+  fullWidth?: boolean;
+  collapseWhenHidden?: boolean;
   showWhen?: { field: string; equals?: string; includes?: string };
 }
 
@@ -26,54 +47,110 @@ export const admissionPages: AdmissionPageDefinition[] = [
     key: "identificacion",
     title: "Identificación",
     shortTitle: "Identificación",
-    sections: [{
-      key: "identificacion",
-      title: "Datos de identificación",
-      description: "Los datos maestros de la beneficiaria se mantienen en su perfil estructurado.",
-      fields: [
-        { name: "lugarNacimiento", label: "Lugar de nacimiento" },
-        { name: "nacionalidadDeclarada", label: "Nacionalidad declarada" },
-        { name: "personaAcompanante", label: "Persona acompañante" },
-        { name: "parentescoAcompanante", label: "Parentesco de la persona acompañante" },
-        { name: "cuiAcompanante", label: "DPI/CUI de la persona acompañante" },
-        { name: "observacionesIdentificacion", label: "Observaciones de identificación", type: "textarea" },
-      ],
-    }],
+    sections: [
+      {
+        key: "identificacion",
+        title: "Datos de identificación",
+        description:
+          "Los datos maestros de la beneficiaria se mantienen en su perfil estructurado.",
+        fields: [
+          { name: "lugarNacimiento", label: "Lugar de nacimiento" },
+          { name: "nacionalidadDeclarada", label: "Nacionalidad declarada" },
+          { name: "personaAcompanante", label: "Persona acompañante" },
+          {
+            name: "parentescoAcompanante",
+            label: "Parentesco de la persona acompañante",
+          },
+          {
+            name: "cuiAcompanante",
+            label: "DPI/CUI de la persona acompañante",
+            inputMode: "numeric",
+            maxLength: 13,
+            hint: "Si se registra un DPI/CUI, debe contener 13 dígitos.",
+          },
+          {
+            name: "observacionesIdentificacion",
+            label: "Observaciones de identificación",
+            type: "textarea",
+          },
+        ],
+      },
+    ],
   },
   {
     key: "residencia",
     title: "Residencia y contacto",
     shortTitle: "Residencia",
-    sections: [{
-      key: "residencia",
-      title: "Contacto y ubicación",
-      description: "Completa la ubicación actual, los medios de contacto y la clasificación residencial.",
-      fields: [
-        { name: "paisResidencia", label: "País de residencia" },
-        { name: "departamentoResidencia", label: "Departamento de residencia" },
-        { name: "municipioResidencia", label: "Municipio de residencia" },
-        { name: "direccionActual", label: "Dirección actual", type: "textarea" },
-        { name: "telefonoCasa", label: "Teléfono de casa", type: "tel" },
-        { name: "telefonoCelular", label: "Celular", type: "tel" },
-        { name: "direccionAlternativa", label: "Dirección alternativa", type: "textarea" },
-        { name: "personaEnlace", label: "Nombre de persona enlace" },
-        { name: "relacionPersonaEnlace", label: "Relación con persona enlace" },
-        { name: "telefonoPersonaEnlace", label: "Teléfono de persona enlace", type: "tel" },
-        { name: "celularPersonaEnlace", label: "Celular de persona enlace", type: "tel" },
-        {
-          name: "tipoArea",
-          label: "Tipo de área residencial",
-          type: "select",
-          options: [{ value: "URBANA", label: "Área urbana" }, { value: "RURAL", label: "Área rural" }],
-        },
-        { name: "coloniaBarrio", label: "Colonia o barrio popular" },
-        { name: "asentamientoZona", label: "Asentamiento o zona" },
-        { name: "aldea", label: "Aldea" },
-        { name: "caserio", label: "Caserío" },
-        { name: "canton", label: "Cantón" },
-        { name: "otroDetalleResidencial", label: "Otro detalle residencial" },
-      ],
-    }],
+    sections: [
+      {
+        key: "residencia",
+        title: "Contacto y ubicación",
+        description:
+          "Completa la ubicación actual, los medios de contacto y la clasificación residencial.",
+        fields: [
+          {
+            name: "paisResidenciaId",
+            label: "País de residencia",
+            type: "select",
+            catalog: "countries",
+          },
+          {
+            name: "departamentoResidenciaId",
+            label: "Departamento de residencia",
+            type: "select",
+            catalog: "departments",
+          },
+          {
+            name: "municipioResidenciaId",
+            label: "Municipio de residencia",
+            type: "select",
+            catalog: "municipalities",
+          },
+          {
+            name: "direccionActual",
+            label: "Dirección actual",
+            type: "textarea",
+          },
+          { name: "telefonoCasa", label: "Teléfono de casa", type: "tel" },
+          { name: "telefonoCelular", label: "Celular", type: "tel" },
+          {
+            name: "direccionAlternativa",
+            label: "Dirección alternativa",
+            type: "textarea",
+          },
+          { name: "personaEnlace", label: "Nombre de persona enlace" },
+          {
+            name: "relacionPersonaEnlace",
+            label: "Relación con persona enlace",
+          },
+          {
+            name: "telefonoPersonaEnlace",
+            label: "Teléfono de persona enlace",
+            type: "tel",
+          },
+          {
+            name: "celularPersonaEnlace",
+            label: "Celular de persona enlace",
+            type: "tel",
+          },
+          {
+            name: "areaResidencial",
+            label: "Tipo de área residencial",
+            type: "select",
+            options: [
+              { value: "URBANA", label: "Área urbana" },
+              { value: "RURAL", label: "Área rural" },
+            ],
+          },
+          { name: "coloniaBarrio", label: "Colonia o barrio popular" },
+          { name: "asentamientoZona", label: "Asentamiento o zona" },
+          { name: "aldea", label: "Aldea" },
+          { name: "caserio", label: "Caserío" },
+          { name: "canton", label: "Cantón" },
+          { name: "otroDetalleResidencial", label: "Otro detalle residencial" },
+        ],
+      },
+    ],
   },
   {
     key: "datos-salud",
@@ -84,27 +161,100 @@ export const admissionPages: AdmissionPageDefinition[] = [
         key: "datos-generales",
         title: "Datos generales",
         fields: [
-          { name: "estadoCivilDeclarado", label: "Estado civil" },
-          { name: "etniaDeclarada", label: "Etnia" },
-          { name: "ocupacionDeclarada", label: "Ocupación" },
+          {
+            name: "estadoCivilDeclarado",
+            label: "Estado civil",
+            type: "select",
+            options: [
+              "Casada",
+              "Soltera",
+              "Unida",
+              "Separada",
+              "Divorciada",
+              "Noviazgo",
+              "Otra",
+            ].map((label) => ({ value: label, label })),
+          },
+          {
+            name: "otroEstadoCivil",
+            label: "Especificar otro estado civil",
+            showWhen: { field: "estadoCivilDeclarado", equals: "Otra" },
+          },
+          {
+            name: "etniaDeclarada",
+            label: "Etnia",
+            type: "select",
+            options: ["Mestiza", "Maya", "Garífuna", "Xinca", "Otra"].map(
+              (label) => ({ value: label, label }),
+            ),
+          },
+          {
+            name: "otraEtnia",
+            label: "Especificar otra etnia",
+            showWhen: { field: "etniaDeclarada", equals: "Otra" },
+          },
+          {
+            name: "ocupacionDeclarada",
+            label: "Ocupación",
+          },
           {
             name: "estudiaActualmente",
             label: "¿Estudia actualmente?",
             type: "select",
-            options: [{ value: "SI", label: "Sí" }, { value: "NO", label: "No" }],
+            options: [
+              { value: "SI", label: "Sí" },
+              { value: "NO", label: "No" },
+            ],
           },
-          { name: "lugarTrabajoEstudio", label: "Lugar de trabajo o estudio" },
-          { name: "direccionTrabajoEstudio", label: "Dirección de trabajo o estudio", type: "textarea" },
-          { name: "telefonoTrabajoEstudio", label: "Teléfono de trabajo o estudio", type: "tel" },
-          { name: "personaContactoTrabajoEstudio", label: "Persona de contacto" },
-          { name: "cargoPersonaContacto", label: "Cargo de la persona de contacto" },
+          { name: "lugarTrabajoOEstudio", label: "Lugar de trabajo o estudio" },
           {
-            name: "sabeLeerEscribir",
+            name: "direccionTrabajoOEstudio",
+            label: "Dirección de trabajo o estudio",
+          },
+          {
+            name: "telefonoTrabajoOEstudio",
+            label: "Teléfono de trabajo o estudio",
+            type: "tel",
+          },
+          {
+            name: "personaContactoTrabajoOEstudio",
+            label: "Persona de contacto",
+          },
+          {
+            name: "cargoPersonaContacto",
+            label: "Cargo de la persona de contacto",
+          },
+          {
+            name: "alfabetismo",
             label: "¿Sabe leer y escribir?",
             type: "select",
-            options: [{ value: "SI", label: "Sí" }, { value: "NO", label: "No" }],
+            options: [
+              { value: "true", label: "Sí" },
+              { value: "false", label: "No" },
+            ],
           },
-          { name: "nivelEscolaridadDeclarado", label: "Nivel de escolaridad alcanzado" },
+          {
+            name: "nivelEscolaridadDeclarado",
+            label: "Nivel de escolaridad alcanzado",
+            type: "select",
+            options: [
+              "Sin escolaridad",
+              "Primaria incompleta",
+              "Primaria completa",
+              "Secundaria incompleta",
+              "Secundaria completa",
+              "Diversificado incompleto",
+              "Diversificado completo",
+              "Universidad incompleta",
+              "Universidad completa",
+              "Otros",
+            ].map((label) => ({ value: label, label })),
+          },
+          {
+            name: "otroNivelEscolaridad",
+            label: "Especificar otro nivel de escolaridad",
+            showWhen: { field: "nivelEscolaridadDeclarado", equals: "Otros" },
+          },
         ],
       },
       {
@@ -115,11 +265,27 @@ export const admissionPages: AdmissionPageDefinition[] = [
             name: "enfermedadPermanente",
             label: "¿Tiene una enfermedad permanente?",
             type: "select",
-            options: [{ value: "SI", label: "Sí" }, { value: "NO", label: "No" }],
+            options: [
+              { value: "true", label: "Sí" },
+              { value: "false", label: "No" },
+            ],
           },
-          { name: "nombreEnfermedad", label: "¿Cuál enfermedad?", showWhen: { field: "enfermedadPermanente", equals: "SI" } },
-          { name: "tratamiento", label: "Tratamiento que lleva", type: "textarea", showWhen: { field: "enfermedadPermanente", equals: "SI" } },
-          { name: "otrosPadecimientos", label: "Otros padecimientos", type: "textarea" },
+          {
+            name: "nombreEnfermedad",
+            label: "¿Cuál enfermedad?",
+            showWhen: { field: "enfermedadPermanente", equals: "true" },
+          },
+          {
+            name: "tipoTratamiento",
+            label: "Tratamiento que lleva",
+            type: "textarea",
+            showWhen: { field: "enfermedadPermanente", equals: "true" },
+          },
+          {
+            name: "otrosPadecimientos",
+            label: "Otros padecimientos",
+            type: "textarea",
+          },
         ],
       },
     ],
@@ -130,27 +296,45 @@ export const admissionPages: AdmissionPageDefinition[] = [
     shortTitle: "Familia",
     sections: [
       {
-        key: "grupo-familiar",
-        title: "Grupo familiar",
-        fields: [
-          { name: "descripcion", label: "Descripción del grupo familiar", type: "textarea" },
-          { name: "observaciones", label: "Observaciones del núcleo familiar", type: "textarea" },
-        ],
-      },
-      {
         key: "agresores",
         title: "Personas agresoras",
-        description: "Agrega cada persona agresora declarada como un registro independiente dentro del mismo borrador.",
+        description:
+          "Captura inicial de la persona agresora declarada. La API deberá definir el contrato repetible definitivo.",
         fields: [
           { name: "nombre", label: "Nombre" },
           { name: "edad", label: "Edad", type: "number" },
-          { name: "cuiPasaporte", label: "DPI/CUI o pasaporte" },
+          {
+            name: "tipoDocumento",
+            label: "Tipo de documento",
+            type: "select",
+            options: [
+              { value: "DPI_CUI", label: "DPI/CUI" },
+              { value: "PASAPORTE", label: "Pasaporte" },
+              { value: "OTRO", label: "Otro" },
+            ],
+          },
+          {
+            name: "otroTipoDocumento",
+            label: "Especificar otro documento",
+            showWhen: { field: "tipoDocumento", equals: "OTRO" },
+          },
+          {
+            name: "cuiPasaporte",
+            label: "Número de documento",
+            maxLength: 20,
+            hint: "Para DPI/CUI se requieren exactamente 13 dígitos.",
+          },
           { name: "ocupacion", label: "Ocupación" },
           { name: "ingresoMensual", label: "Ingreso mensual" },
           { name: "lugarTrabajo", label: "Lugar de trabajo" },
-          { name: "horario", label: "Horario" },
+          { name: "horarioInicio", label: "Hora de inicio", type: "time" },
+          { name: "horarioFin", label: "Hora de salida", type: "time" },
           { name: "telefono", label: "Teléfono", type: "tel" },
-          { name: "direccion", label: "Dirección o residencia", type: "textarea" },
+          {
+            name: "direccion",
+            label: "Dirección o residencia",
+            type: "textarea",
+          },
           {
             name: "conocimientoViolenciaSexual",
             label: "En violencia sexual, persona conocida o desconocida",
@@ -173,7 +357,9 @@ export const admissionPages: AdmissionPageDefinition[] = [
       {
         key: "motivo-consulta",
         title: "Motivo de consulta",
-        fields: [{ name: "relato", label: "Motivo expresado", type: "textarea" }],
+        fields: [
+          { name: "relato", label: "Motivo expresado", type: "textarea" },
+        ],
       },
       {
         key: "tipos-violencia",
@@ -183,9 +369,26 @@ export const admissionPages: AdmissionPageDefinition[] = [
             name: "seleccion",
             label: "Selecciona todas las opciones que correspondan",
             type: "checkboxGroup",
-            options: ["Física", "Psicológica", "Verbal", "Sexual", "Patrimonial", "Económica", "Trata", "Violación", "Amenaza de muerte", "Misoginia", "Femicidio", "Otra"].map((label) => ({ value: label, label })),
+            options: [
+              "Física",
+              "Psicológica",
+              "Verbal",
+              "Sexual",
+              "Patrimonial",
+              "Económica",
+              "Trata",
+              "Violación",
+              "Amenaza de muerte",
+              "Misoginia",
+              "Femicidio",
+              "Otra",
+            ].map((label) => ({ value: label, label })),
           },
-          { name: "otra", label: "Especificar otra", showWhen: { field: "seleccion", includes: "Otra" } },
+          {
+            name: "otra",
+            label: "Especificar otra",
+            showWhen: { field: "seleccion", includes: "Otra" },
+          },
         ],
       },
       {
@@ -196,9 +399,22 @@ export const admissionPages: AdmissionPageDefinition[] = [
             name: "seleccion",
             label: "Selecciona todas las opciones que correspondan",
             type: "checkboxGroup",
-            options: ["Manos", "Pies", "Arma blanca", "Brazos", "Arma de fuego", "Objeto", "Todas", "Otra"].map((label) => ({ value: label, label })),
+            options: [
+              "Manos",
+              "Pies",
+              "Arma blanca",
+              "Brazos",
+              "Arma de fuego",
+              "Objeto",
+              "Todas",
+              "Otra",
+            ].map((label) => ({ value: label, label })),
           },
-          { name: "otra", label: "Especificar otra", showWhen: { field: "seleccion", includes: "Otra" } },
+          {
+            name: "otra",
+            label: "Especificar otra",
+            showWhen: { field: "seleccion", includes: "Otra" },
+          },
         ],
       },
     ],
@@ -227,45 +443,81 @@ export const admissionPages: AdmissionPageDefinition[] = [
               "Otra situación",
             ].map((label) => ({ value: label, label })),
           },
-          { name: "tiempoEmbarazo", label: "Tiempo de embarazo", showWhen: { field: "factores", includes: "Se encuentra embarazada" } },
-          { name: "otraSituacion", label: "Otra situación", showWhen: { field: "factores", includes: "Otra situación" } },
+          {
+            name: "tiempoEmbarazo",
+            label: "Tiempo de embarazo",
+            showWhen: {
+              field: "factores",
+              includes: "Se encuentra embarazada",
+            },
+          },
+          {
+            name: "otraSituacion",
+            label: "Otra situación",
+            showWhen: { field: "factores", includes: "Otra situación" },
+          },
           {
             name: "tiempoAgresion",
             label: "Tiempo de agresión",
             type: "select",
-            options: ["Varios días", "Varios meses", "Varios años", "Otro"].map((label) => ({ value: label, label })),
+            options: ["Varios días", "Varios meses", "Varios años", "Otro"].map(
+              (label) => ({ value: label, label }),
+            ),
           },
-          { name: "otroPeriodo", label: "Otro período", showWhen: { field: "tiempoAgresion", equals: "Otro" } },
+          {
+            name: "otroPeriodo",
+            label: "Otro período",
+            showWhen: { field: "tiempoAgresion", equals: "Otro" },
+            fullWidth: true,
+          },
           {
             name: "vinculosAgresores",
             label: "¿Quién la ha estado agrediendo?",
             type: "checkboxGroup",
-            options: ["Padre", "Esposo", "Conviviente", "Compañero", "Exesposo", "Padrastro", "Hijo", "Familia del cónyuge", "Hermano", "Exconviviente", "Tío", "Abuelo", "Novio", "Exnovio", "Otro"].map((label) => ({ value: label, label })),
+            options: [
+              "Padre",
+              "Esposo",
+              "Conviviente",
+              "Compañero",
+              "Exesposo",
+              "Padrastro",
+              "Hijo",
+              "Familia del cónyuge",
+              "Hermano",
+              "Exconviviente",
+              "Tío",
+              "Abuelo",
+              "Novio",
+              "Exnovio",
+              "Otro",
+            ].map((label) => ({ value: label, label })),
+          },
+          {
+            name: "otroVinculoAgresor",
+            label: "Especificar otro vínculo",
+            showWhen: { field: "vinculosAgresores", includes: "Otro" },
           },
           {
             name: "agredeOtrosFamiliares",
             label: "¿Agrede a otros familiares?",
             type: "select",
-            options: [{ value: "SI", label: "Sí" }, { value: "NO", label: "No" }],
+            options: [
+              { value: "SI", label: "Sí" },
+              { value: "NO", label: "No" },
+            ],
           },
-          { name: "familiaresAgredidos", label: "¿A quién?", showWhen: { field: "agredeOtrosFamiliares", equals: "SI" } },
-          { name: "formaAgresionFamiliares", label: "¿De qué forma?", type: "textarea", showWhen: { field: "agredeOtrosFamiliares", equals: "SI" } },
+          {
+            name: "familiaresAgredidos",
+            label: "¿A quién?",
+            showWhen: { field: "agredeOtrosFamiliares", equals: "SI" },
+          },
+          {
+            name: "formaAgresionFamiliares",
+            label: "¿De qué forma?",
+            type: "textarea",
+            showWhen: { field: "agredeOtrosFamiliares", equals: "SI" },
+          },
         ],
-      },
-      {
-        key: "episodio-reciente",
-        title: "Último episodio violento",
-        fields: [{ name: "relato", label: "Historia del episodio reciente", type: "textarea" }],
-      },
-      {
-        key: "analisis-riesgo",
-        title: "Análisis de riesgo",
-        fields: [{ name: "analisis", label: "Análisis realizado", type: "textarea" }],
-      },
-      {
-        key: "plan-seguridad",
-        title: "Plan de seguridad",
-        fields: [{ name: "plan", label: "Plan acordado", type: "textarea" }],
       },
     ],
   },
@@ -282,23 +534,31 @@ export const admissionPages: AdmissionPageDefinition[] = [
             name: "origen",
             label: "Institución o medio que refirió",
             type: "select",
-            options: ["Oficina de Atención a la Víctima del MP", "Otra oficina del MP", "Defensoría de la Mujer PDH", "Otra oficina PDH", "Bufete universitario", "Bufete particular", "Juzgado", "PGN", "Policía Nacional Civil", "Grupo de mujeres o feministas", "Centro de Salud", "Amistades o familiares", "Radio, televisión o prensa", "ONG", "Defensa Pública Penal", "Secretaría de la Mujer del OJ", "Otra"].map((label) => ({ value: label, label })),
+            options: [
+              "Oficina de Atención a la Víctima del MP",
+              "Otra oficina del MP",
+              "Defensoría de la Mujer PDH",
+              "Otra oficina PDH",
+              "Bufete universitario",
+              "Bufete particular",
+              "Juzgado",
+              "PGN",
+              "Policía Nacional Civil",
+              "Grupo de mujeres o feministas",
+              "Centro de Salud",
+              "Amistades o familiares",
+              "Radio, televisión o prensa",
+              "ONG",
+              "Defensa Pública Penal",
+              "Secretaría de la Mujer del OJ",
+              "Otra",
+            ].map((label) => ({ value: label, label })),
           },
-          { name: "otroOrigen", label: "Especificar otro origen", showWhen: { field: "origen", equals: "Otra" } },
           {
-            name: "internas",
-            label: "Referencias internas",
-            type: "checkboxGroup",
-            options: ["Psicología", "Legal", "Albergue Temporal", "Trabajo Social", "Medicina", "Grupos de apoyo", "Otra"].map((label) => ({ value: label, label })),
+            name: "otroOrigen",
+            label: "Especificar otro origen",
+            showWhen: { field: "origen", equals: "Otra" },
           },
-          { name: "otraInterna", label: "Especificar otra referencia interna", showWhen: { field: "internas", includes: "Otra" } },
-          {
-            name: "externas",
-            label: "Referencias externas",
-            type: "checkboxGroup",
-            options: ["Ministerio Público", "PDH", "Bufete universitario", "RENAP", "Municipalidad", "Juzgado", "PGN", "Policía Nacional Civil", "Hospital o Centro de Salud", "DEMI", "Otra"].map((label) => ({ value: label, label })),
-          },
-          { name: "otraExterna", label: "Especificar otra referencia externa", showWhen: { field: "externas", includes: "Otra" } },
         ],
       },
       {
@@ -309,16 +569,88 @@ export const admissionPages: AdmissionPageDefinition[] = [
             name: "recibioApoyo",
             label: "¿Recibió apoyo?",
             type: "select",
-            options: [{ value: "SI", label: "Sí" }, { value: "NO", label: "No" }],
+            options: [
+              { value: "SI", label: "Sí" },
+              { value: "NO", label: "No" },
+            ],
           },
-          { name: "lugar", label: "¿Dónde?", showWhen: { field: "recibioApoyo", equals: "SI" } },
-          { name: "tipo", label: "Tipo de apoyo", showWhen: { field: "recibioApoyo", equals: "SI" } },
-          { name: "fecha", label: "Fecha", type: "date", showWhen: { field: "recibioApoyo", equals: "SI" } },
+          {
+            name: "lugar",
+            label: "¿Dónde?",
+            showWhen: { field: "recibioApoyo", equals: "SI" },
+            collapseWhenHidden: true,
+          },
+          {
+            name: "tipo",
+            label: "Tipo de apoyo",
+            showWhen: { field: "recibioApoyo", equals: "SI" },
+            collapseWhenHidden: true,
+          },
+          {
+            name: "fecha",
+            label: "Fecha",
+            type: "date",
+            showWhen: { field: "recibioApoyo", equals: "SI" },
+            collapseWhenHidden: true,
+          },
           {
             name: "traeDenuncia",
             label: "¿Trae denuncia?",
             type: "select",
-            options: [{ value: "SI", label: "Sí" }, { value: "NO", label: "No" }],
+            options: [
+              { value: "SI", label: "Sí" },
+              { value: "NO", label: "No" },
+            ],
+          },
+          {
+            name: "internas",
+            label: "¿A dónde fue referida dentro del CAIMUS?",
+            type: "checkboxGroup",
+            options: [
+              "Área Psicológica",
+              "Área Legal",
+              "Área de Albergue Temporal",
+              "Área Social",
+              "Área Médica",
+              "Grupos de Autoayuda o Apoyo",
+              "Otra",
+            ].map((label) => ({ value: label, label })),
+          },
+          {
+            name: "otraInterna",
+            label: "Especificar otra referencia interna",
+            showWhen: { field: "internas", includes: "Otra" },
+          },
+          {
+            name: "externas",
+            label: "¿A dónde fue referida externamente?",
+            type: "checkboxGroup",
+            options: [
+              "Oficina de Atención a la Víctima del MP",
+              "Otras oficinas MP",
+              "Defensoría de la Mujer PDH",
+              "Otras oficinas PDH",
+              "Bufetes universitarios",
+              "Bufetes particulares",
+              "RENAP",
+              "Municipalidades",
+              "Centro de Prácticas de la Universidad",
+              "Otros juzgados",
+              "Oficina de la Mujer y Niñez de la PGN",
+              "Otra oficina PGN",
+              "Policía Nacional Civil",
+              "Grupos de mujeres y feministas",
+              "Juzgados de familia",
+              "Hospitales",
+              "Centro de Salud",
+              "DEMI",
+              "Otra",
+            ].map((label) => ({ value: label, label })),
+          },
+          {
+            name: "otraExterna",
+            label: "Especificar otra referencia externa",
+            showWhen: { field: "externas", includes: "Otra" },
           },
         ],
       },
@@ -330,6 +662,29 @@ export const admissionPages: AdmissionPageDefinition[] = [
     shortTitle: "Cierre",
     sections: [
       {
+        key: "episodio-reciente",
+        title: "Último episodio violento",
+        fields: [
+          {
+            name: "relato",
+            label: "Historia del episodio reciente",
+            type: "textarea",
+          },
+        ],
+      },
+      {
+        key: "analisis-riesgo",
+        title: "Análisis de riesgo",
+        fields: [
+          { name: "analisis", label: "Análisis realizado", type: "textarea" },
+        ],
+      },
+      {
+        key: "plan-seguridad",
+        title: "Plan de seguridad",
+        fields: [{ name: "plan", label: "Plan acordado", type: "textarea" }],
+      },
+      {
         key: "evaluacion",
         title: "Evaluación del estado actual",
         fields: [{ name: "detalle", label: "Evaluación", type: "textarea" }],
@@ -337,12 +692,24 @@ export const admissionPages: AdmissionPageDefinition[] = [
       {
         key: "entrevista-inicial",
         title: "Entrevista inicial",
-        fields: [{ name: "detalle", label: "Síntesis de entrevista", type: "textarea" }],
+        fields: [
+          {
+            name: "detalle",
+            label: "Síntesis de entrevista",
+            type: "textarea",
+          },
+        ],
       },
       {
         key: "seguimiento",
         title: "Seguimiento inmediato",
-        fields: [{ name: "detalle", label: "Acciones de seguimiento", type: "textarea" }],
+        fields: [
+          {
+            name: "detalle",
+            label: "Acciones de seguimiento",
+            type: "textarea",
+          },
+        ],
       },
       {
         key: "observaciones",
