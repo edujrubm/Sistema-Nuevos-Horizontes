@@ -26,6 +26,14 @@ export function clasificarError(
 ): { codigo: CodigoError; estado: number } {
   if (error instanceof ErrorApi)
     return { codigo: error.codigo, estado: error.getStatus() };
+  if (
+    error instanceof ErrorPublicoException &&
+    Object.prototype.hasOwnProperty.call(CATALOGO, error.codigo)
+  )
+    return {
+      codigo: error.codigo as CodigoError,
+      estado: error.getStatus(),
+    };
   const raw = error as { type?: string } | null;
   if (["charset.unsupported", "encoding.unsupported"].includes(raw?.type || ""))
     return { codigo: "TIPO_CONTENIDO_NO_ADMITIDO", estado: 415 };

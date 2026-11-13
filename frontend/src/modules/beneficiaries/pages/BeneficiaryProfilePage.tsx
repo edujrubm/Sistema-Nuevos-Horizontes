@@ -1,7 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import {
+  createBeneficiaryChild,
   getBeneficiary,
   listBeneficiaryChildren,
 } from "../api/beneficiaries-api";
@@ -22,6 +24,15 @@ function yesNoUnknown(value?: boolean | null) {
 
 export function BeneficiaryProfilePage() {
   const { id = "" } = useParams();
+  const queryClient = useQueryClient();
+  const [showChildForm, setShowChildForm] = useState(false);
+  const [childForm, setChildForm] = useState({
+    nombre: "",
+    cui: "",
+    fechaNacimiento: "",
+    reconocido: "",
+    genero: "",
+  });
   const beneficiaryQuery = useQuery({
     queryKey: ["beneficiary", id],
     queryFn: ({ signal }) => getBeneficiary(id, signal),
@@ -37,6 +48,37 @@ export function BeneficiaryProfilePage() {
       ? beneficiaryQuery.error.body
       : undefined;
   const beneficiary = beneficiaryQuery.data;
+  const createChild = useMutation({
+    mutationFn: () =>
+      createBeneficiaryChild(id, {
+        nombre: childForm.nombre.trim(),
+        ...(childForm.cui && { cui: childForm.cui }),
+        ...(childForm.fechaNacimiento && {
+          fechaNacimiento: childForm.fechaNacimiento,
+        }),
+        ...(childForm.reconocido && {
+          reconocido: childForm.reconocido === "true",
+        }),
+        ...(childForm.genero && {
+          genero: childForm.genero as "F" | "M" | "O",
+        }),
+      }),
+    onSuccess: async () => {
+      setChildForm({
+        nombre: "",
+        cui: "",
+        fechaNacimiento: "",
+        reconocido: "",
+        genero: "",
+      });
+      setShowChildForm(false);
+      await queryClient.invalidateQueries({
+        queryKey: ["beneficiary", id, "children"],
+      });
+    },
+  });
+  const createChildError =
+    createChild.error instanceof ApiError ? createChild.error.body : undefined;
 
   if (beneficiaryQuery.isLoading)
     return (
@@ -69,7 +111,6 @@ export function BeneficiaryProfilePage() {
     childrenQuery.error instanceof ApiError
       ? childrenQuery.error.body
       : undefined;
-
   return (
     <section>
       <PageHeader
@@ -221,6 +262,139 @@ export function BeneficiaryProfilePage() {
             </span>
           )}
         </div>
+        <div className="card-actions children-actions">
+          <button
+            className="button primary"
+            type="button"
+            onClick={() => {
+              setShowChildForm((current) => !current);
+              createChild.reset();
+            }}
+          >
+            {showChildForm ? "Cancelar registro" : "Registrar hija o hijo"}
+          </button>
+        </div>
+        {showChildForm && (
+          <form
+            className="child-create-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (childForm.nombre.trim().length >= 2) createChild.mutate();
+            }}
+          >
+            <div className="form-grid">
+              <div className="field full">
+                <label htmlFor="new-child-name">Nombre completo</label>
+                <input
+                  id="new-child-name"
+                  value={childForm.nombre}
+                  onChange={(event) =>
+                    setChildForm((current) => ({
+                      ...current,
+                      nombre: event.target.value,
+                    }))
+                  }
+                  required
+                  minLength={2}
+                  maxLength={60}
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="new-child-cui">DPI/CUI</label>
+                <input
+                  id="new-child-cui"
+                  inputMode="numeric"
+                  maxLength={13}
+                  value={childForm.cui}
+                  onChange={(event) =>
+                    setChildForm((current) => ({
+                      ...current,
+                      cui: event.target.value.replace(/\D/g, ""),
+                    }))
+                  }
+                />
+                <small>Opcional. Si se registra, debe tener 13 dígitos.</small>
+              </div>
+              <div className="field">
+                <label htmlFor="new-child-birth">Fecha de nacimiento</label>
+                <input
+                  id="new-child-birth"
+                  type="date"
+                  value={childForm.fechaNacimiento}
+                  onChange={(event) =>
+                    setChildForm((current) => ({
+                      ...current,
+                      fechaNacimiento: event.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="new-child-gender">Género</label>
+                <select
+                  id="new-child-gender"
+                  value={childForm.genero}
+                  onChange={(event) =>
+                    setChildForm((current) => ({
+                      ...current,
+                      genero: event.target.value,
+                    }))
+                  }
+                >
+                  <option value="">Seleccionar</option>
+                  <option value="F">Femenino</option>
+                  <option value="M">Masculino</option>
+                  <option value="O">Otro</option>
+                </select>
+              </div>
+              <div className="field">
+                <label htmlFor="new-child-recognized">Reconocimiento</label>
+                <select
+                  id="new-child-recognized"
+                  value={childForm.reconocido}
+                  onChange={(event) =>
+                    setChildForm((current) => ({
+                      ...current,
+                      reconocido: event.target.value,
+                    }))
+                  }
+                >
+                  <option value="">Seleccionar</option>
+                  <option value="true">Reconocida/o</option>
+                  <option value="false">No reconocida/o</option>
+                </select>
+              </div>
+            </div>
+            {childForm.cui && childForm.cui.length !== 13 && (
+              <p className="field-error">
+                El DPI/CUI debe contener 13 dígitos.
+              </p>
+            )}
+            {createChildError && (
+              <div className="alert error" role="alert">
+                <strong>{createChildError.mensaje}</strong>
+                {createChildError.errores.map((item) => (
+                  <span key={`${item.campo}-${item.mensaje}`}>
+                    {item.mensaje}
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="form-actions">
+              <button
+                className="button primary"
+                type="submit"
+                disabled={
+                  createChild.isPending ||
+                  childForm.nombre.trim().length < 2 ||
+                  (!!childForm.cui && childForm.cui.length !== 13)
+                }
+              >
+                {createChild.isPending ? "Registrando…" : "Guardar hija o hijo"}
+              </button>
+            </div>
+          </form>
+        )}
         {childrenQuery.isLoading && (
           <p className="status-message" role="status">
             Cargando registros vinculados…

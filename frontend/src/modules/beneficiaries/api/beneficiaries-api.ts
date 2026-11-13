@@ -47,11 +47,25 @@ export interface BeneficiaryChild {
   version: number;
 }
 
-export function listBeneficiaries(search: string, cursor?: string, signal?: AbortSignal) {
+export interface CreateBeneficiaryChildInput {
+  nombre: string;
+  cui?: string;
+  fechaNacimiento?: string;
+  reconocido?: boolean;
+  genero?: "F" | "M" | "O";
+}
+
+export function listBeneficiaries(
+  search: string,
+  cursor?: string,
+  signal?: AbortSignal,
+) {
   const query = new URLSearchParams({ limite: "20" });
   if (search.trim()) query.set("nombre", search.trim());
   if (cursor) query.set("cursor", cursor);
-  return apiRequest<BeneficiariesResponse>(`/beneficiarias?${query}`, { signal });
+  return apiRequest<BeneficiariesResponse>(`/beneficiarias?${query}`, {
+    signal,
+  });
 }
 
 export function getBeneficiary(id: string, signal?: AbortSignal) {
@@ -59,13 +73,29 @@ export function getBeneficiary(id: string, signal?: AbortSignal) {
 }
 
 export function listBeneficiaryChildren(id: string, signal?: AbortSignal) {
-  return apiRequest<{ data: BeneficiaryChild[] }>(`/beneficiarias/${id}/hijos`, { signal });
+  return apiRequest<{ data: BeneficiaryChild[] }>(
+    `/beneficiarias/${id}/hijos`,
+    { signal },
+  );
+}
+
+export function createBeneficiaryChild(
+  beneficiaryId: string,
+  input: CreateBeneficiaryChildInput,
+) {
+  return apiRequest<{ data: BeneficiaryChild }>(
+    `/beneficiarias/${beneficiaryId}/hijos`,
+    { method: "POST", body: JSON.stringify(input) },
+  );
 }
 
 export function searchBeneficiaryMatches(cui: string, signal?: AbortSignal) {
-  return apiRequest<{ data: BeneficiarySummary[] }>("/beneficiarias/buscar-coincidencias", {
-    method: "POST",
-    body: JSON.stringify({ cui }),
-    signal,
-  });
+  return apiRequest<{ data: BeneficiarySummary[] }>(
+    "/beneficiarias/buscar-coincidencias",
+    {
+      method: "POST",
+      body: JSON.stringify({ cui }),
+      signal,
+    },
+  );
 }

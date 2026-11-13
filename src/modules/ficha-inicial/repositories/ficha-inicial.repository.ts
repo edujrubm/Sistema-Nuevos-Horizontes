@@ -59,10 +59,139 @@ export class FichaInicialRepository {
   async obtener(id: string) {
     const ficha = await this.fichas.findOne({ where: { id } });
     if (!ficha) return null;
-    const secciones = await this.dataSource
+    const seccionesGuardadas = await this.dataSource
       .getRepository(FichaSeccionEntity)
       .find({ where: { fichaInicialId: id }, order: { seccion: "ASC" } });
-    return { ficha, secciones };
+    const [datos] = await this.dataSource.query<Array<Record<string, unknown>>>(
+      `SELECT b.nombre AS "nombreCompleto", b.cui,
+              b.fecha_nac AS "fechaNacimiento",
+              b.pais_cui_id::text AS "paisEmisionId",
+              b.pais_origen_id::text AS "paisOrigenId",
+              b.departamento_origen_id::text AS "departamentoOrigenId",
+              b.municipio_origen_id::text AS "municipioOrigenId",
+              b.ocupacion_id::text AS "ocupacionId",
+              b.estado_civil_id::text AS "estadoCivilId",
+              b.nivel_estudio_id::text AS "nivelEstudioId",
+              b.estado_estudio_id::text AS "estadoEstudioId",
+              b.alfabetismo,
+              b.enfermedad_permanente AS "enfermedadPermanente",
+              b.nombre_enfermedad AS "nombreEnfermedad",
+              b.tipo_tratamiento AS "tipoTratamiento",
+              b.otros_padecimientos AS "otrosPadecimientos",
+              r.pais_residencia_id::text AS "paisResidenciaId",
+              r.departamento_residencia_id::text AS "departamentoResidenciaId",
+              r.municipio_residencia_id::text AS "municipioResidenciaId",
+              r.direccion_actual AS "direccionActual",
+              r.num_celular AS "telefonoCelular",
+              r.direccion_alternativa AS "direccionAlternativa",
+              r.persona_enlace AS "personaEnlace",
+              r.relacion_persona_enlace AS "relacionPersonaEnlace",
+              CASE WHEN r.urbano IS TRUE THEN 'URBANA'
+                   WHEN r.urbano IS FALSE THEN 'RURAL' END AS "areaResidencial",
+              lo.nombre AS "lugarTrabajoOEstudio",
+              lo.direccion AS "direccionTrabajoOEstudio",
+              lo.telefono AS "telefonoTrabajoOEstudio",
+              lo.persona_contacto AS "personaContactoTrabajoOEstudio",
+              lo.cargo_persona_contacto AS "cargoPersonaContacto"
+       FROM new_horizons.expediente e
+       JOIN new_horizons.beneficiaria b ON b.id_beneficiaria=e.beneficiaria_id
+       LEFT JOIN new_horizons.residencia r ON r.id_residencia=b.residencia_id
+       LEFT JOIN new_horizons.lugar_ocupacion lo ON lo.lugar_ocupacion_id=b.lugar_ocupacion_id
+       WHERE e.id_expediente=$1::bigint`,
+      [ficha.expedienteId],
+    );
+    const hijos = await this.dataSource.getRepository(NinoEntity).find({
+      where: { expedienteId: ficha.expedienteId, activo: true },
+      order: { id: "ASC" },
+    });
+
+    const sinNulos = (entrada: Record<string, unknown>) =>
+      Object.fromEntries(
+        Object.entries(entrada).filter(
+          ([, valor]) => valor !== null && valor !== undefined,
+        ),
+      );
+    const contenidos = new Map(
+      seccionesGuardadas.map((seccion) => [seccion.seccion, seccion.contenido]),
+    );
+    const mezclar = (
+      seccion: string,
+      estructurados: Record<string, unknown>,
+    ) => ({
+      ...(contenidos.get(seccion) ?? {}),
+      ...sinNulos(estructurados),
+    });
+    if (datos) {
+      contenidos.set(
+        "identificacion",
+        mezclar("identificacion", {
+          nombreCompleto: datos.nombreCompleto,
+          cui: datos.cui,
+          fechaNacimiento: datos.fechaNacimiento,
+          paisEmisionId: datos.paisEmisionId,
+          paisOrigenId: datos.paisOrigenId,
+          departamentoOrigenId: datos.departamentoOrigenId,
+          municipioOrigenId: datos.municipioOrigenId,
+        }),
+      );
+      contenidos.set(
+        "residencia",
+        mezclar("residencia", {
+          paisResidenciaId: datos.paisResidenciaId,
+          departamentoResidenciaId: datos.departamentoResidenciaId,
+          municipioResidenciaId: datos.municipioResidenciaId,
+          direccionActual: datos.direccionActual,
+          telefonoCelular: datos.telefonoCelular,
+          direccionAlternativa: datos.direccionAlternativa,
+          personaEnlace: datos.personaEnlace,
+          relacionPersonaEnlace: datos.relacionPersonaEnlace,
+          areaResidencial: datos.areaResidencial,
+        }),
+      );
+      contenidos.set(
+        "datos-generales",
+        mezclar("datos-generales", {
+          ocupacionId: datos.ocupacionId,
+          estadoCivilId: datos.estadoCivilId,
+          nivelEstudioId: datos.nivelEstudioId,
+          estadoEstudioId: datos.estadoEstudioId,
+          alfabetismo: datos.alfabetismo,
+          lugarTrabajoOEstudio: datos.lugarTrabajoOEstudio,
+          direccionTrabajoOEstudio: datos.direccionTrabajoOEstudio,
+          telefonoTrabajoOEstudio: datos.telefonoTrabajoOEstudio,
+          personaContactoTrabajoOEstudio: datos.personaContactoTrabajoOEstudio,
+          cargoPersonaContacto: datos.cargoPersonaContacto,
+        }),
+      );
+      contenidos.set(
+        "salud",
+        mezclar("salud", {
+          enfermedadPermanente: datos.enfermedadPermanente,
+          nombreEnfermedad: datos.nombreEnfermedad,
+          tipoTratamiento: datos.tipoTratamiento,
+          otrosPadecimientos: datos.otrosPadecimientos,
+        }),
+      );
+    }
+    const secciones = [...contenidos.entries()].map(([seccion, contenido]) => {
+      const guardada = seccionesGuardadas.find(
+        (item) => item.seccion === seccion,
+      );
+      return guardada ? { ...guardada, contenido } : { seccion, contenido };
+    });
+    return {
+      ficha,
+      secciones,
+      hijos: hijos.map((nino) => ({
+        id: nino.id,
+        nombre: nino.nombre,
+        cui: nino.cui,
+        fechaNacimiento: nino.fechaNacimiento,
+        reconocido: nino.reconocido,
+        genero: nino.genero,
+        version: nino.version,
+      })),
+    };
   }
 
   async guardarSeccion(
@@ -264,10 +393,10 @@ export class FichaInicialRepository {
 
     if (pagina === "residencia") {
       const contenido = resultado.residencia ?? {};
-      const persona = (contenido.personaEnlace ?? {}) as Record<
-        string,
-        unknown
-      >;
+      const persona =
+        typeof contenido.personaEnlace === "object"
+          ? ((contenido.personaEnlace ?? {}) as Record<string, unknown>)
+          : {};
       const {
         paisResidenciaId,
         departamentoResidenciaId,
@@ -301,8 +430,8 @@ export class FichaInicialRepository {
           direccionActual ?? null,
           telefonoCelular ?? null,
           direccionAlternativa ?? null,
-          persona.nombreCompleto ?? null,
-          persona.relacion ?? null,
+          persona.nombreCompleto ?? personaEnlace ?? null,
+          persona.relacion ?? contenido.relacionPersonaEnlace ?? null,
           areaResidencial === "URBANA"
             ? true
             : areaResidencial === "RURAL"
@@ -329,6 +458,8 @@ export class FichaInicialRepository {
         direccionTrabajoOEstudio,
         telefonoTrabajoOEstudio,
         contactoTrabajoOEstudio,
+        personaContactoTrabajoOEstudio,
+        cargoPersonaContacto,
         ...datosExclusivos
       } = datos;
       const {
@@ -368,8 +499,8 @@ export class FichaInicialRepository {
           lugarTrabajoOEstudio,
           direccionTrabajoOEstudio ?? null,
           telefonoTrabajoOEstudio ?? null,
-          contacto.nombreCompleto ?? null,
-          contacto.cargo ?? null,
+          contacto.nombreCompleto ?? personaContactoTrabajoOEstudio ?? null,
+          contacto.cargo ?? cargoPersonaContacto ?? null,
         ];
         if (actual?.id) {
           await manager.query(
@@ -413,7 +544,7 @@ export class FichaInicialRepository {
         return { estado: "CONFLICTO_VERSION" as const };
       const rows = await manager.query<Array<{ seccion: string }>>(
         `SELECT seccion FROM new_horizons.ficha_inicial_seccion
-         WHERE ficha_inicial_id=$1::bigint AND contenido <> '{}'::jsonb`,
+         WHERE ficha_inicial_id=$1::bigint`,
         [id],
       );
       const presentes = new Set(rows.map((row) => row.seccion));

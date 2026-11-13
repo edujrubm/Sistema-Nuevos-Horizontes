@@ -5,6 +5,7 @@ import { ParseBigIntIdPipe } from "../../common/pipes/parse-bigint-id.pipe";
 
 import { ActualizarNinoDto } from "./dto/actualizar-nino.dto";
 import { CambiarEstadoNinoDto } from "./dto/cambiar-estado-nino.dto";
+import { CrearNinoDto } from "./dto/crear-nino.dto";
 import { NinosService } from "./ninos.service";
 
 @Controller("v1")
@@ -16,6 +17,15 @@ export class NinosController {
   @ApiOperation({ summary: "Lista las hijas e hijos vinculados al expediente" })
   listar(@Param("id", ParseBigIntIdPipe) id: string) {
     return this.service.listar(id);
+  }
+
+  @Post("beneficiarias/:id/hijos")
+  @ApiOperation({ summary: "Registra una hija o hijo en el expediente activo" })
+  crear(
+    @Param("id", ParseBigIntIdPipe) id: string,
+    @Body() entrada: CrearNinoDto,
+  ) {
+    return this.service.crear(id, entrada);
   }
 
   @Get("hijos/:id")

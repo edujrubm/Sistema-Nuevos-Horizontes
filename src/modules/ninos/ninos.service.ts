@@ -6,6 +6,7 @@ import {
 
 import { ActualizarNinoDto } from "./dto/actualizar-nino.dto";
 import { CambiarEstadoNinoDto } from "./dto/cambiar-estado-nino.dto";
+import { CrearNinoDto } from "./dto/crear-nino.dto";
 import { NinoEntity } from "./entities/nino.entity";
 import { NinosRepository } from "./repositories/ninos.repository";
 
@@ -41,6 +42,22 @@ export class NinosService {
     const nino = await this.repository.buscarPorId(id);
     if (!nino) throw new NotFoundException("Hija o hijo no encontrado.");
     return { data: respuesta(nino) };
+  }
+
+  async crear(beneficiariaId: string, entrada: CrearNinoDto) {
+    const resultado = await this.repository.crear(beneficiariaId, entrada);
+    if (resultado.estado === "BENEFICIARIA_NO_ENCONTRADA")
+      throw new NotFoundException("Beneficiaria no encontrada.");
+    if (resultado.estado === "EXPEDIENTE_NO_ENCONTRADO")
+      throw new NotFoundException(
+        "La beneficiaria no tiene un expediente activo.",
+      );
+    if (resultado.estado === "CUI_DUPLICADO")
+      throw new ConflictException({
+        code: "DUPLICATE_CUI",
+        message: "El CUI ya está registrado.",
+      });
+    return { data: respuesta(resultado.nino) };
   }
 
   async actualizar(id: string, entrada: ActualizarNinoDto) {
