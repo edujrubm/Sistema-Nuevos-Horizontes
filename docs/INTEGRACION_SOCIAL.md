@@ -53,3 +53,9 @@ La compilación completa se verificó con un DTO temporal de Niños solo local, 
 5. No presentar como terminadas las correcciones ordinarias de fichas confirmadas ni la revisión/aprobación documental. Esos flujos conservan sus pendientes y no se han habilitado por suposición.
 
 Esta entrega permite solicitar revisión técnica del alcance descrito. No se crea PR ni se fusiona main de manera automática, ni se promete ausencia absoluta de regresiones.
+
+## Revisión final de compatibilidad
+
+Se detectó y corrigió una carrera de carga inicial del editor que podía sobrescribir texto recién escrito. La hidratación se completa antes de habilitar la interacción, tanto en Legal como en Social, sin modificar API ni esquema. Tras la corrección pasan nuevamente las 48 pruebas backend y 163 frontend y la compilación con el requisito local de Niños satisfecho.
+
+La comparación contra main conserva las 65 rutas HTTP sin duplicados. React conserva sus 29 rutas anteriores y añade tres rutas específicas de edición de Legal/Social. No hay cambios respecto a main en database/, src/database/, arranque, Niños, ficha inicial ni las pantallas de admisión/beneficiarias. Las condiciones de DTO, configuración y autenticación descritas arriba siguen vigentes.
