@@ -19,6 +19,7 @@ before(async()=>{
  for(const row of await db.query('SELECT id,tipo FROM new_horizons.formulario_area'))forms[row.tipo]=row.id;
 });
 after(async()=>{if(app)await app.close();});
+
 test('Social: resumen, persistencia semilla y ficha tipada',async()=>{
  const r=await call('GET','/trabajo-social/beneficiarias/100/resumen');assert.equal(r.totalFichas,1);
  const f=await call('GET','/trabajo-social/beneficiarias/100/fichas');assert.equal(f.datos[0].detalle.historiaViolencia,'Historia sintética');
@@ -302,4 +303,45 @@ test('Postman: errores normalizados contra HTTP real',async()=>{
  const summary=await new Promise((resolve,reject)=>newman.run({collection:path.join(__dirname,'../postman/Errores.postman_collection.json'),envVar:[{key:'baseUrl',value:url}],reporters:[]},(e,s)=>e?reject(e):resolve(s)));
  assert.equal(summary.run.failures.length,0,JSON.stringify(summary.run.failures));assert.equal(summary.run.stats.requests.total,3);
  require('node:fs').writeFileSync(path.join(__dirname,'../test-results/newman-errores.json'),JSON.stringify({peticiones:summary.run.stats.requests,comprobaciones:summary.run.stats.assertions,fallos:summary.run.failures},null,2));
+});
+
+test('Social Postman: colección completa contra PostgreSQL y HTTP reales',async()=>{
+ const previous=process.env.AREA_TEST_NOMBRE;
+ process.env.AREA_TEST_NOMBRE='Trabajo Social';
+ try {
+  const path=require('node:path');
+  const summary=await new Promise((resolve,reject)=>require('newman').run({
+   collection:path.join(__dirname,'../postman/Social.postman_collection.json'),
+   workingDir:path.join(__dirname,'..'),
+   envVar:[{key:'baseUrl',value:url},{key:'beneficiariaId',value:'100'},{key:'profesionalId',value:'1'}],
+   reporters:[]
+  },(error,result)=>error?reject(error):resolve(result)));
+  const result={peticiones:summary.run.stats.requests,comprobaciones:summary.run.stats.assertions,
+   fallos:summary.run.failures.map(f=>({nombre:f.source?.name,prueba:f.error?.test,mensaje:f.error?.message}))};
+  require('node:fs').writeFileSync(path.join(__dirname,'../test-results/social-newman.json'),JSON.stringify(result,null,2));
+  assert.equal(summary.run.stats.requests.total,30);
+  assert.equal(summary.run.failures.length,0,JSON.stringify(result.fallos));
+ } finally {process.env.AREA_TEST_NOMBRE=previous;}
+});
+
+test('Social PDF: exige ficha confirmada, conserva vínculo y rechaza otro expediente',async()=>{
+ const previous=process.env.AREA_TEST_NOMBRE;
+ process.env.AREA_TEST_NOMBRE='Trabajo Social';
+ try {
+  const created=await call('POST','/beneficiarias/100/formularios-area',{
+   tipo:'SOCIAL',fechaAtencion:'2026-11-13T09:00:00-06:00',profesionalId:'1',detalle:{diagnosticoSocial:'Ficha sintética para PDF'}
+  },201);
+  const id=created.data.id;
+  const [before]=await db.query('SELECT count(*)::int AS total FROM new_horizons.documento_area WHERE formulario_id=$1',[id]);
+  const invalid=await cargarPdf({formularioId:id},409);
+  assert.equal(invalid.codigo,'ESTADO_NO_PERMITIDO');
+  const [afterFailure]=await db.query('SELECT count(*)::int AS total FROM new_horizons.documento_area WHERE formulario_id=$1',[id]);
+  assert.equal(afterFailure.total,before.total);
+  await call('POST','/formularios-area/'+id+'/confirmar',{version:created.data.version,motivo:'Confirmación inicial de ficha'},201);
+  const doc=await cargarPdf({formularioId:id,categoria:'Copia firmada sintética'},201);
+  assert.equal(doc.formularioId,id);
+  const stored=await call('GET','/documentos/'+doc.id);
+  assert.equal(stored.formularioId,id);
+  await cargarPdf({beneficiaria:'200',formularioId:id},404);
+ } finally {process.env.AREA_TEST_NOMBRE=previous;}
 });

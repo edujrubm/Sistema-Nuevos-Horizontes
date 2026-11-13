@@ -39,6 +39,8 @@ export function EditorFicha({
   );
   if (q.cargando) return <Cargando />;
   if (q.error) return <ErrorVista error={q.error} reintentar={q.recargar} />;
+  if (q.datos?.tipo === "SOCIAL" && !esReferencia)
+    return <Navigate replace to={`/beneficiarias/${beneficiariaId}/social/${fichaId}`} />;
   if (q.datos?.tipo === "LEGAL" && !esReferencia)
     return (
       <Navigate

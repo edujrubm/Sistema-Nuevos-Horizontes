@@ -454,7 +454,7 @@ describe("Distribución de los mockups", () => {
       screen.getByRole("button", { name: /2 Historia de violencia/ }),
     );
     await userEvent.type(
-      screen.getByLabelText("Historia de vida y situación actual"),
+      screen.getByLabelText("Historia de vida de la problemática de violencia"),
       "Historia sintética",
     );
     await userEvent.click(

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { getBeneficiary } from "@/modules/beneficiaries/api/beneficiaries-api";
 import { ApiError } from "@/shared/api/api-error";
 import {
@@ -33,10 +33,25 @@ const mensaje = (e: unknown) =>
     : "No se pudo completar la solicitud. Comprueba la conexión e intenta consultar de nuevo.";
 export function DocumentsPage() {
   const { beneficiaryId = "" } = useParams();
+  const [params] = useSearchParams();
+  const social = params.get("tipo") === "SOCIAL";
+  const initialForm = social ? (params.get("formularioId") ?? "") : undefined;
   // Remontar al cambiar de caso impide mezclar archivos, filtros o solicitudes anteriores.
-  return <DocumentsCase key={beneficiaryId} id={beneficiaryId} />;
+  return (
+    <DocumentsCase
+      key={beneficiaryId + ":" + (initialForm ?? "")}
+      id={beneficiaryId}
+      initialSocialForm={initialForm}
+    />
+  );
 }
-export function DocumentsCase({ id }: { id: string }) {
+export function DocumentsCase({
+  id,
+  initialSocialForm,
+}: {
+  id: string;
+  initialSocialForm?: string;
+}) {
   const client = useQueryClient();
   const [filtros, setFiltros] = useState({
     pagina: 1,
@@ -92,8 +107,9 @@ export function DocumentsCase({ id }: { id: string }) {
   }
   function abrir(d?: Documento) {
     if (ocupado) return;
+    if (!d && initialSocialForm !== undefined && !socialForm) return;
     setAnterior(d);
-    setFormulario(d?.formularioId || "");
+    setFormulario(d?.formularioId || socialForm?.id || "");
     setCategoria(d?.categoria || "");
     setDia("");
     setDescripcion("");
@@ -123,6 +139,16 @@ export function DocumentsCase({ id }: { id: string }) {
     ) {
       setError(
         "Completa la ficha, el tipo, la fecha y el motivo cuando corresponda.",
+      );
+      return;
+    }
+    if (
+      !anterior &&
+      initialSocialForm !== undefined &&
+      (!socialForm || formulario !== socialForm.id)
+    ) {
+      setError(
+        "La ficha social no está disponible o no está confirmada. Vuelve a consultar su estado.",
       );
       return;
     }
@@ -194,6 +220,13 @@ export function DocumentsCase({ id }: { id: string }) {
     }
   }
   const c = contexto.data;
+  // El parámetro de navegación no concede acceso: debe existir en el contexto del servidor.
+  const socialForm = c?.formularios.find(
+    (f) =>
+      f.id === initialSocialForm &&
+      f.tipo === "SOCIAL" &&
+      f.estadoCodigo?.endsWith("CONFIRMADO"),
+  );
   const loadError = contexto.error || lista.error || persona.error;
   return (
     <div className="documentos-area">
@@ -211,12 +244,23 @@ export function DocumentsCase({ id }: { id: string }) {
         </div>
         <button
           className="btn primary"
-          disabled={!c?.capacidades.cargar || ocupado}
+          disabled={
+            !c?.capacidades.cargar ||
+            ocupado ||
+            (initialSocialForm !== undefined && !socialForm)
+          }
           onClick={() => abrir()}
         >
           + Agregar documento
         </button>
       </div>
+      {initialSocialForm !== undefined && c && (
+        <div className="notice" role="status">
+          {socialForm
+            ? `Carga vinculada a la ficha social #${socialForm.id}. Adjunta el PDF firmado en papel.`
+            : "La ficha social solicitada no está confirmada o no pertenece a las fichas autorizadas del área."}
+        </div>
+      )}
       {!!error && (
         <div className="notice error" role="alert">
           {error}
@@ -288,7 +332,7 @@ export function DocumentsCase({ id }: { id: string }) {
                 <select
                   id="doc-ficha"
                   required
-                  disabled={!!anterior}
+                  disabled={!!anterior || initialSocialForm !== undefined}
                   value={formulario}
                   onChange={(e) => setFormulario(e.target.value)}
                 >

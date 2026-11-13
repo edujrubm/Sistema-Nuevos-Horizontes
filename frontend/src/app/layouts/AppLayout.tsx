@@ -20,50 +20,70 @@ export function AppLayout() {
   const documentos = useMatch("/beneficiarias/:id/documentos");
   const legal = useMatch("/beneficiarias/:id/legal/*");
   const references = useMatch("/beneficiarias/:id/referencias/*");
+  const social = useMatch("/beneficiarias/:id/social/*");
   const legalCaseId = legal?.params.id ?? references?.params.id;
   const albergue = location.pathname.startsWith("/albergue");
   const links = albergue
     ? shelterNavigation
-    : legalCaseId
+    : social
       ? [
           { to: "/beneficiarias", label: "Beneficiarias" },
-          { to: `/beneficiarias/${legalCaseId}`, label: "Expediente" },
-          { to: `/beneficiarias/${legalCaseId}/legal`, label: "Ficha Legal" },
+          { to: `/beneficiarias/${social.params.id}`, label: "Expediente" },
           {
-            to: `/beneficiarias/${legalCaseId}/referencias`,
-            label: "Referencias legales",
+            to: `/beneficiarias/${social.params.id}/social`,
+            label: "Ficha social",
           },
           {
-            to: `/beneficiarias/${legalCaseId}/evolucion`,
-            label: "Hoja evolutiva",
+            to: `/beneficiarias/${social.params.id}/evolucion`,
+            label: "Seguimiento y hoja evolutiva",
           },
           {
-            to: `/beneficiarias/${legalCaseId}/documentos`,
+            to: `/beneficiarias/${social.params.id}/documentos`,
             label: "Documentos",
           },
         ]
-      : documentos
+      : legalCaseId
         ? [
             { to: "/beneficiarias", label: "Beneficiarias" },
+            { to: `/beneficiarias/${legalCaseId}`, label: "Expediente" },
+            { to: `/beneficiarias/${legalCaseId}/legal`, label: "Ficha Legal" },
             {
-              to: `/beneficiarias/${documentos.params.id}`,
-              label: "Expediente",
+              to: `/beneficiarias/${legalCaseId}/referencias`,
+              label: "Referencias legales",
             },
             {
-              to: `/beneficiarias/${documentos.params.id}/evolucion`,
+              to: `/beneficiarias/${legalCaseId}/evolucion`,
               label: "Hoja evolutiva",
             },
-            { to: location.pathname, label: "Documentos" },
+            {
+              to: `/beneficiarias/${legalCaseId}/documentos`,
+              label: "Documentos",
+            },
           ]
-        : admissionNavigation;
+        : documentos
+          ? [
+              { to: "/beneficiarias", label: "Beneficiarias" },
+              {
+                to: `/beneficiarias/${documentos.params.id}`,
+                label: "Expediente",
+              },
+              {
+                to: `/beneficiarias/${documentos.params.id}/evolucion`,
+                label: "Hoja evolutiva",
+              },
+              { to: location.pathname, label: "Documentos" },
+            ]
+          : admissionNavigation;
   const moduleHome = albergue ? "/albergue" : "/beneficiarias";
   const moduleLabel = albergue
     ? "Módulo de Albergue"
-    : legalCaseId
-      ? "Área Legal"
-      : documentos
-        ? "Módulo de Documentos"
-        : "Admisión y ficha inicial";
+    : social
+      ? "Trabajo Social"
+      : legalCaseId
+        ? "Área Legal"
+        : documentos
+          ? "Módulo de Documentos"
+          : "Admisión y ficha inicial";
   return (
     <div className="app-shell">
       <header className="app-header">
@@ -88,9 +108,10 @@ export function AppLayout() {
               to={item.to}
               end={
                 !(
-                  legalCaseId &&
-                  (item.to.endsWith("/legal") ||
-                    item.to.endsWith("/referencias"))
+                  (social && item.to.endsWith("/social")) ||
+                  (legalCaseId &&
+                    (item.to.endsWith("/legal") ||
+                      item.to.endsWith("/referencias")))
                 )
               }
               className={({ isActive }) =>

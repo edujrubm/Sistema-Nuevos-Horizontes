@@ -6,6 +6,7 @@ import {
   MaxLength,
   IsDateString,
 } from "class-validator";
+import { IsPgId } from "../../../../common/validation/pg-id.validator";
 
 // Campos opcionales en borrador; obligatorios al confirmar pendientes del equipo.
 export class FichaSocialDetalleDto {
@@ -15,7 +16,7 @@ export class FichaSocialDetalleDto {
   @IsOptional() @IsBoolean() dependenciaEconomica?: boolean | null;
   @IsOptional() @IsString() @MaxLength(20000) responsablePlan?: string | null;
   @IsOptional() @IsDateString({ strict: true }) @Matches(/^\d{4}-\d{2}-\d{2}$/) fechaRevision?: string | null;
-  @IsOptional() @Matches(/^[1-9]\d{0,18}$/) areaCoordinacionId?: string | null;
+  @IsOptional() @IsPgId() areaCoordinacionId?: string | null;
   @IsOptional() @IsString() @MaxLength(20000) resultadosAlcanzados?: string | null;
   @IsOptional() @IsDateString({ strict: true }) @Matches(/^\d{4}-\d{2}-\d{2}$/) fechaCierre?: string | null;
   @IsOptional() @IsString() @MaxLength(20000) observaciones?: string | null;

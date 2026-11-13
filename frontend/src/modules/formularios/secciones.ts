@@ -1,51 +1,11 @@
+import { socialSections } from "../social";
 export interface Seccion {
   titulo: string;
   tarjeta: string;
   campos: string[];
 }
 export const secciones: Record<string, Seccion[]> = {
-  SOCIAL: [
-    {
-      titulo: "Identificación",
-      tarjeta: "Identificación y contexto familiar",
-      campos: ["tipoVivienda", "composicionFamiliar"],
-    },
-    {
-      titulo: "Historia de violencia",
-      tarjeta: "Historia de violencia",
-      campos: ["historiaViolencia", "redesApoyo", "dependenciaEconomica"],
-    },
-    {
-      titulo: "Diagnóstico y riesgos",
-      tarjeta: "Diagnóstico social y riesgos",
-      campos: [
-        "diagnosticoSocial",
-        "riesgosIdentificados",
-        "planEliminacionRiesgos",
-      ],
-    },
-    {
-      titulo: "Plan de intervención",
-      tarjeta: "Plan de intervención",
-      campos: [
-        "objetivoGeneral",
-        "actividades",
-        "responsablePlan",
-        "fechaRevision",
-        "areaCoordinacionId",
-      ],
-    },
-    {
-      titulo: "Cierre",
-      tarjeta: "Evaluación y cierre",
-      campos: [
-        "evaluacion",
-        "resultadosAlcanzados",
-        "fechaCierre",
-        "observaciones",
-      ],
-    },
-  ],
+  SOCIAL: socialSections,
   LEGAL: [
     {
       titulo: "Partes y fecha",

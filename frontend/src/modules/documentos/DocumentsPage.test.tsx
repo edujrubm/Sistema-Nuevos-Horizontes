@@ -37,7 +37,7 @@ const doc = {
   anuladoEn: null,
   cargadoPor: "1",
 };
-function page() {
+function page(initialSocialForm?: string) {
   return render(
     <QueryClientProvider
       client={
@@ -50,7 +50,7 @@ function page() {
       }
     >
       <MemoryRouter>
-        <DocumentsCase id="100" />
+        <DocumentsCase id="100" initialSocialForm={initialSocialForm} />
       </MemoryRouter>
     </QueryClientProvider>,
   );
@@ -102,6 +102,66 @@ async function preparar() {
   );
 }
 describe("Documentos funcionales", () => {
+  it("precarga y bloquea la ficha Social confirmada recibida desde su editor", async () => {
+    mocks.contextoDocumentos.mockResolvedValue({
+      area: "Trabajo Social",
+      formularios: [{ id: "20", tipo: "SOCIAL", estadoCodigo: "CONFIRMADO" }],
+      categorias: [],
+      resumen: {},
+      capacidades: { cargar: true, anular: false },
+    });
+    page("20");
+    await screen.findByText(
+      "Carga vinculada a la ficha social #20. Adjunta el PDF firmado en papel.",
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "+ Agregar documento" }),
+    );
+    expect(screen.getByLabelText("Ficha correspondiente")).toHaveValue("20");
+    expect(screen.getByLabelText("Ficha correspondiente")).toBeDisabled();
+    fireEvent.change(screen.getByLabelText("Tipo de documento"), {
+      target: { value: "Ficha firmada" },
+    });
+    fireEvent.change(screen.getByLabelText("Fecha del documento"), {
+      target: { value: "2026-11-13" },
+    });
+    await userEvent.upload(
+      screen.getByLabelText("Archivo PDF"),
+      new File(["%PDF-test"], "firmado.pdf", { type: "application/pdf" }),
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "Guardar documento" }),
+    );
+    await waitFor(() => expect(mocks.cargarDocumento).toHaveBeenCalled());
+    expect(mocks.cargarDocumento.mock.calls[0][1].get("formularioId")).toBe(
+      "20",
+    );
+  });
+  it("una ficha fuera del contexto autorizado no permite iniciar carga dirigida", async () => {
+    page("999999");
+    await screen.findByText(
+      "La ficha social solicitada no está confirmada o no pertenece a las fichas autorizadas del área.",
+    );
+    expect(
+      screen.getByRole("button", { name: "+ Agregar documento" }),
+    ).toBeDisabled();
+  });
+  it("un borrador Social no permite cargar su copia firmada", async () => {
+    mocks.contextoDocumentos.mockResolvedValue({
+      area: "Trabajo Social",
+      formularios: [{ id: "20", tipo: "SOCIAL", estadoCodigo: "BORRADOR" }],
+      categorias: [],
+      resumen: {},
+      capacidades: { cargar: true, anular: false },
+    });
+    page("20");
+    await screen.findByText(
+      "La ficha social solicitada no está confirmada o no pertenece a las fichas autorizadas del área.",
+    );
+    expect(
+      screen.getByRole("button", { name: "+ Agregar documento" }),
+    ).toBeDisabled();
+  });
   it("muestra nombre como texto seguro, datos del área y conserva bigint", async () => {
     page();
     expect(await screen.findByText(doc.nombreDocumento)).toBeInTheDocument();

@@ -1,22 +1,5 @@
-export const social: Record<string, string> = {
-  tipoVivienda: "Tipo de vivienda",
-  composicionFamiliar: "Composición familiar",
-  historiaViolencia: "Historia de vida y situación actual",
-  redesApoyo: "Redes familiares y comunitarias",
-  dependenciaEconomica: "Dependencia económica",
-  diagnosticoSocial: "Diagnóstico social",
-  riesgosIdentificados: "Riesgos identificados",
-  planEliminacionRiesgos: "Medidas para reducir riesgos",
-  objetivoGeneral: "Objetivo general",
-  actividades: "Actividades acordadas",
-  responsablePlan: "Responsable del plan",
-  fechaRevision: "Fecha de revisión",
-  areaCoordinacionId: "Coordinación con otras áreas",
-  evaluacion: "Evaluación del proceso",
-  resultadosAlcanzados: "Resultados alcanzados",
-  fechaCierre: "Fecha de cierre",
-  observaciones: "Observaciones",
-};
+// Compatibilidad temporal del editor anterior; el dominio conserva la definición.
+export { socialFields as social } from "../social";
 export const referencia: Record<string, string> = {
   destino: "Destino",
   origen: "Origen",

@@ -101,6 +101,9 @@ export class CargaPdfService {
             [f.area_id],
           );
           this.ambito.comprobar(area.nombre_area);
+          // Social adjunta la copia firmada después de confirmar la ficha.
+          if (f.tipo === "SOCIAL" && f.estado_codigo !== (process.env.FORM_CONFIRMED_STATE_CODE || "CONFIRMADO"))
+            throw new ErrorApi("ESTADO_NO_PERMITIDO");
           if (f.tipo === "GUARDERIA") {
             const [inscripcion] = await m.query(
               "SELECT EXISTS(SELECT 1 FROM new_horizons.formulario_area WHERE nino_id=$1 AND tipo='GUARDERIA' AND estado_codigo=$2) AS inscrito",

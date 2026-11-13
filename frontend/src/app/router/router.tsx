@@ -12,6 +12,12 @@ const AreaRecordsLayout = lazy(() =>
 const LegalListPage = lazy(() =>
   import("../../modules/legal").then((m) => ({ default: m.LegalListPage })),
 );
+const SocialListPage = lazy(() =>
+  import("../../modules/social").then((m) => ({ default: m.SocialListPage })),
+);
+const SocialEditorPage = lazy(() =>
+  import("../../modules/social").then((m) => ({ default: m.SocialEditorPage })),
+);
 const LegalEditorPage = lazy(() =>
   import("../../modules/legal").then((m) => ({ default: m.LegalEditorPage })),
 );
@@ -179,8 +185,9 @@ export const router = createBrowserRouter([
         path: "beneficiarias/:beneficiariaId",
         element: lazyPage(<AreaRecordsLayout />),
         children: [
-          { path: "social", element: <ListadoFichas area="trabajo-social" /> },
-          { path: "social/nueva", element: <EditorFicha nueva /> },
+          { path: "social", element: lazyPage(<SocialListPage />) },
+          { path: "social/nueva", element: lazyPage(<SocialEditorPage />) },
+          { path: "social/:fichaId", element: lazyPage(<SocialEditorPage />) },
           { path: "legal", element: lazyPage(<LegalListPage />) },
           { path: "legal/nueva", element: lazyPage(<LegalEditorPage />) },
           { path: "legal/:fichaId", element: lazyPage(<LegalEditorPage />) },
