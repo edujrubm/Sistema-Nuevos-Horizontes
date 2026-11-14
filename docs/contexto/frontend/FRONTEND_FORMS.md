@@ -118,7 +118,7 @@ La ficha registra a una niña o niño y su responsable:
 
 1. **Ingreso e identificación:** número, fecha, nombre, edad, nacimiento, etnia y dirección.
 2. **Responsable de traslado:** persona que lleva y recoge, DPI/CUI, parentesco y teléfono.
-3. **Situación familiar:** vivienda, número de proceso de la madre, estado civil y ocupación.
+3. **Situación familiar:** vivienda, número de ficha inicial de la madre, estado civil y ocupación. La etiqueta de proceso del mockup fue corregida por confirmación explícita de Eduardo (D-10).
 4. **Madre y padre:** nombres, direcciones, DPI/CUI y teléfonos.
 5. **Escolaridad y salud:** escolaridad, centro, teléfono, enfermedad, tratamiento y observaciones.
 

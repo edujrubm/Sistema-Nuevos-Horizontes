@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException } from "@nestjs/common";
+import { ConflictException } from "@nestjs/common";
 
 import { FormularioSharedRepository } from "./formulario-shared.repository";
 import { FormularioSharedService } from "./formulario-shared.service";
@@ -39,7 +39,10 @@ describe("FormularioSharedService", () => {
         profesionalId: "2",
         detalle: { temperaturaC: 37 },
       }),
-    ).rejects.toBeInstanceOf(BadRequestException);
+    ).rejects.toMatchObject({
+      codigo: "DATOS_INVALIDOS",
+      errores: [{ campo: "detalle.temperaturaC", mensaje: expect.any(String) }],
+    });
   });
 
   it("traduce la concurrencia a VERSION_CONFLICT", async () => {
@@ -73,5 +76,54 @@ describe("FormularioSharedService", () => {
       2,
       "Se inició para la persona equivocada.",
     );
+  });
+  it("identifica el profesional inexistente al crear", async () => {
+    repository.crear.mockResolvedValue({ estado: "PROFESIONAL_NO_ENCONTRADO" });
+    await expect(
+      service.crear("100", {
+        tipo: "LEGAL",
+        fechaAtencion: "2026-11-13T10:00:00-06:00",
+        profesionalId: "99999",
+        detalle: {},
+      }),
+    ).rejects.toMatchObject({
+      codigo: "DATOS_INVALIDOS",
+      errores: [{ campo: "profesionalId", mensaje: expect.any(String) }],
+    });
+  });
+
+  it("identifica el profesional inexistente al editar", async () => {
+    repository.obtener.mockResolvedValue({ tipo: "LEGAL" });
+    repository.actualizar.mockResolvedValue({
+      estado: "PROFESIONAL_NO_ENCONTRADO",
+    });
+    await expect(
+      service.actualizar("10", {
+        version: 1,
+        motivo: "Prueba sintética",
+        profesionalId: "99999",
+      }),
+    ).rejects.toMatchObject({
+      codigo: "DATOS_INVALIDOS",
+      errores: [{ campo: "profesionalId", mensaje: expect.any(String) }],
+    });
+  });
+
+  it("devuelve todos los campos inválidos del detalle sin sus valores", async () => {
+    await expect(
+      service.crear("100", {
+        tipo: "LEGAL",
+        fechaAtencion: "2026-11-13T10:00:00-06:00",
+        profesionalId: "1",
+        detalle: { inicioProcesoFecha: "2026-02-31", juzgado: 123 },
+      }),
+    ).rejects.toMatchObject({
+      codigo: "DATOS_INVALIDOS",
+      errores: [
+        { campo: "detalle.inicioProcesoFecha", mensaje: expect.any(String) },
+        { campo: "detalle.juzgado", mensaje: expect.any(String) },
+      ],
+    });
+    expect(repository.crear).not.toHaveBeenCalled();
   });
 });

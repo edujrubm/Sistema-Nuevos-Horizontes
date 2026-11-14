@@ -4,7 +4,7 @@ import { ErrorPublicoException } from "../errors/error-publico.exception";
 @Injectable()
 export class ParseBigIntIdPipe implements PipeTransform<string, string> {
   transform(value: string): string {
-    if (!/^\d+$/.test(value) || value === "0") {
+    if (!/^[1-9]\d{0,18}$/.test(value) || BigInt(value) > 9223372036854775807n) {
       throw new ErrorPublicoException(
         HttpStatus.BAD_REQUEST,
         "IDENTIFICADOR_INVALIDO",

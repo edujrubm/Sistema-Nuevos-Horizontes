@@ -5,7 +5,7 @@ import {
   Matches,
   MaxLength,
 } from "class-validator";
-import { IsPgId } from "../persona3/dto/pg-id.validator";
+import { IsPgId } from "../../common/validation/pg-id.validator";
 
 export class CargaPdfDto {
   @IsPgId() formularioId!: string;

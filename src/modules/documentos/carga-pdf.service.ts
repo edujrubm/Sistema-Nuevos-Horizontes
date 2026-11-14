@@ -5,8 +5,8 @@ import { PDFDocument } from "pdf-lib";
 import { createHash, randomUUID } from "node:crypto";
 import { mkdir, open, unlink } from "node:fs/promises";
 import { resolve } from "node:path";
-import { Persona3Repository } from "../persona3/persona3.repository";
-import { AmbitoLocalService } from "../persona3/ambito-local.service";
+import { RegistroAreaRepository } from "../../common/registros-area/registro-area.repository";
+import { AmbitoLocalService } from "../../common/registros-area/ambito-local.service";
 import { CargaPdfDto } from "./carga-pdf.dto";
 
 export interface ArchivoPdf {
@@ -19,7 +19,7 @@ export interface ArchivoPdf {
 @Injectable()
 export class CargaPdfService {
   constructor(
-    readonly repo: Persona3Repository,
+    readonly repo: RegistroAreaRepository,
     readonly ambito: AmbitoLocalService,
   ) {}
 
@@ -50,7 +50,7 @@ export class CargaPdfService {
     }
 
     const directory = resolve(
-      process.env.P3_DOCUMENTS_DIR || "test-results/documentos-privados",
+      process.env.DOCUMENTOS_DIR || "test-results/documentos-privados",
     );
 
     const key = randomUUID() + ".pdf";
@@ -101,10 +101,13 @@ export class CargaPdfService {
             [f.area_id],
           );
           this.ambito.comprobar(area.nombre_area);
+          // Social adjunta la copia firmada después de confirmar la ficha.
+          if (f.tipo === "SOCIAL" && f.estado_codigo !== (process.env.FORM_CONFIRMED_STATE_CODE || "CONFIRMADO"))
+            throw new ErrorApi("ESTADO_NO_PERMITIDO");
           if (f.tipo === "GUARDERIA") {
             const [inscripcion] = await m.query(
               "SELECT EXISTS(SELECT 1 FROM new_horizons.formulario_area WHERE nino_id=$1 AND tipo='GUARDERIA' AND estado_codigo=$2) AS inscrito",
-              [f.nino_id, process.env.P3_CONFIRMED_STATE],
+              [f.nino_id, process.env.FORM_CONFIRMED_STATE_CODE],
             );
             if (!inscripcion.inscrito)
               throw new ErrorApi("REGISTRO_NO_ENCONTRADO");

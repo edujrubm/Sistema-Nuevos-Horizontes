@@ -1,11 +1,11 @@
 import { DocumentosService } from "./documentos.service";
 import { Module } from "@nestjs/common";
-import { Persona3CoreModule } from "../persona3/persona3.module";
+import { RegistroAreaModule } from "../../common/registros-area/registro-area.module";
 import { DocumentosController } from "./documentos.controller";
 import { CargaPdfService } from "./carga-pdf.service";
 
 @Module({
-  imports: [Persona3CoreModule],
+  imports: [RegistroAreaModule],
   controllers: [DocumentosController],
   providers: [CargaPdfService, DocumentosService],
 })

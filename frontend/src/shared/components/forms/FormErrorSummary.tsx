@@ -7,11 +7,15 @@ export interface FormValidationError {
 interface FormErrorSummaryProps {
   errors: FormValidationError[];
   title?: string;
+  requestId?: string;
+  onFieldClick?: (fieldId: string) => void;
 }
 
 export function FormErrorSummary({
   errors,
   title = "Revisa los campos indicados",
+  requestId,
+  onFieldClick,
 }: FormErrorSummaryProps) {
   if (errors.length === 0) return null;
 
@@ -25,12 +29,21 @@ export function FormErrorSummary({
       <ul>
         {errors.map((error) => (
           <li key={error.fieldId}>
-            <a href={`#${error.fieldId}`}>
+            <a
+              href={`#${error.fieldId}`}
+              onClick={(event) => {
+                if (onFieldClick) {
+                  event.preventDefault();
+                  onFieldClick(error.fieldId);
+                }
+              }}
+            >
               {error.label}: {error.message}
             </a>
           </li>
         ))}
       </ul>
+      {requestId && <small>Solicitud: {requestId}</small>}
     </section>
   );
 }

@@ -1,34 +1,29 @@
+import { legalRoutes } from "../../modules/legal/routes";
+import { socialRoutes } from "../../modules/social/routes";
+import { guarderiaRoutes } from "../../modules/guarderia/routes";
 import { lazy, Suspense, type ReactNode } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import { AppLayout } from "../layouts/AppLayout";
 import { NotFoundPage } from "@/shared/components/NotFoundPage";
 
-const Persona3Layout = lazy(() =>
-  import("../Persona3Layout").then((m) => ({ default: m.Persona3Layout })),
+const AreaRecordsLayout = lazy(() =>
+  import("../AreaRecordsLayout").then((m) => ({
+    default: m.AreaRecordsLayout,
+  })),
 );
 const DocumentsPage = lazy(() =>
   import("../../modules/documentos/DocumentsPage").then((m) => ({
     default: m.DocumentsPage,
   })),
 );
-const ListadoFichas = lazy(() =>
-  import("../../modules/persona3/Listados").then((m) => ({
-    default: m.ListadoFichas,
-  })),
-);
-const Guarderia = lazy(() =>
-  import("../../modules/persona3/Listados").then((m) => ({
-    default: m.Guarderia,
-  })),
-);
 const EditorFicha = lazy(() =>
-  import("../../modules/persona3/EditorFicha").then((m) => ({
+  import("../../modules/formularios/EditorFicha").then((m) => ({
     default: m.EditorFicha,
   })),
 );
 const Evolucion = lazy(() =>
-  import("../../modules/persona3/Evolucion").then((m) => ({
+  import("../../modules/evolucion/Evolucion").then((m) => ({
     default: m.Evolucion,
   })),
 );
@@ -169,30 +164,13 @@ export const router = createBrowserRouter([
       { path: "fichas/:id", element: lazyPage(<AdmissionWizardPage />) },
       {
         path: "beneficiarias/:beneficiariaId",
-        element: lazyPage(<Persona3Layout />),
+        element: lazyPage(<AreaRecordsLayout />),
         children: [
-          { path: "social", element: <ListadoFichas area="trabajo-social" /> },
-          { path: "social/nueva", element: <EditorFicha nueva /> },
-          { path: "legal", element: <ListadoFichas area="legal" /> },
-          { path: "fichas/:fichaId", element: <EditorFicha /> },
-          {
-            path: "referencias",
-            element: <ListadoFichas area="referencias" />,
-          },
-          {
-            path: "referencias/nueva",
-            element: <EditorFicha esReferencia nueva />,
-          },
-          {
-            path: "referencias/:fichaId",
-            element: <EditorFicha esReferencia />,
-          },
-          { path: "guarderia", element: <Guarderia /> },
-          {
-            path: "guarderia/:hijoId",
-            element: <ListadoFichas area="guarderia" />,
-          },
-          { path: "evolucion", element: <Evolucion /> },
+          ...legalRoutes,
+          ...socialRoutes,
+          ...guarderiaRoutes,
+          { path: "fichas/:fichaId", element: lazyPage(<EditorFicha />) },
+          { path: "evolucion", element: lazyPage(<Evolucion />) },
         ],
       },
       { path: "*", element: <NotFoundPage /> },

@@ -1,4 +1,4 @@
-import { IsPgId } from "../../../persona3/dto/pg-id.validator";
+import { IsPgId } from "../../../../common/validation/pg-id.validator";
 import {
   IsOptional,
   IsString,

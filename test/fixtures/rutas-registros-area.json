@@ -1,0 +1,58 @@
+[
+  {
+    "metodo": "GET",
+    "ruta": "/trabajo-social/beneficiarias/:id/resumen"
+  },
+  {
+    "metodo": "GET",
+    "ruta": "/trabajo-social/beneficiarias/:id/fichas"
+  },
+  {
+    "metodo": "GET",
+    "ruta": "/legal/beneficiarias/:id/fichas"
+  },
+  {
+    "metodo": "GET",
+    "ruta": "/legal/beneficiarias/:id/referencias"
+  },
+  {
+    "metodo": "POST",
+    "ruta": "/legal/beneficiarias/:id/referencias"
+  },
+  {
+    "metodo": "GET",
+    "ruta": "/legal/referencias/:id"
+  },
+  {
+    "metodo": "PATCH",
+    "ruta": "/legal/referencias/:id"
+  },
+  {
+    "metodo": "POST",
+    "ruta": "/legal/referencias/:id/confirmar"
+  },
+  {
+    "metodo": "GET",
+    "ruta": "/guarderia/beneficiarias/:id/hijos"
+  },
+  {
+    "metodo": "GET",
+    "ruta": "/guarderia/hijos/:id/fichas"
+  },
+  {
+    "metodo": "GET",
+    "ruta": "/beneficiarias/:id/hoja-evolutiva"
+  },
+  {
+    "metodo": "POST",
+    "ruta": "/beneficiarias/:id/hoja-evolutiva"
+  },
+  {
+    "metodo": "PATCH",
+    "ruta": "/entradas-evolutivas/:id"
+  },
+  {
+    "metodo": "GET",
+    "ruta": "/entradas-evolutivas/:id/revisiones"
+  }
+]

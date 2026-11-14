@@ -1,23 +1,18 @@
-import {
-  IsDateString,
-  IsObject,
-  IsOptional,
-  IsString,
-  Matches,
-} from "class-validator";
+import { IsPgId } from "../../../../common/validation/pg-id.validator";
+import { IsDateString, IsObject, IsOptional, IsString } from "class-validator";
 
 export class CrearFormularioDto {
   @IsString()
   tipo!: string;
 
   @IsOptional()
-  @Matches(/^\d+$/)
+  @IsPgId()
   ninoId?: string;
 
   @IsDateString()
   fechaAtencion!: string;
 
-  @Matches(/^\d+$/)
+  @IsPgId()
   profesionalId!: string;
 
   @IsObject()
