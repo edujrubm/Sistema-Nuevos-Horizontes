@@ -1,15 +1,21 @@
 import { Injectable } from "@nestjs/common";
-import { ConsultaActualRepository } from "./repositories/consulta-actual.repository";
-/** Conserva el contrato público de main durante la sustitución independiente del área. */
+import { ListaDto } from "../../../common/dto/pagina.dto";
+import { SocialRepository } from "./repositories/social.repository";
+import { SocialResumenRepository } from "./repositories/social-resumen.repository";
+
+/** Casos de uso propios de Trabajo Social; persistencia encapsulada en el repositorio. */
 @Injectable()
 export class SocialService {
-  constructor(private readonly repository: ConsultaActualRepository) {}
-  fichas(...args: Parameters<ConsultaActualRepository["fichas"]>) {
-    return this.repository.fichas(...args);
+  constructor(
+    private readonly repository: SocialRepository,
+    private readonly resumenRepository: SocialResumenRepository,
+  ) {}
+
+  consultarResumen(beneficiariaId: string) {
+    return this.resumenRepository.consultar(beneficiariaId);
   }
-  resumenSocial(
-    ...args: Parameters<ConsultaActualRepository["resumenSocial"]>
-  ) {
-    return this.repository.resumenSocial(...args);
+
+  listarFichas(beneficiariaId: string, filtro: ListaDto) {
+    return this.repository.listar(beneficiariaId, filtro.pagina, filtro.limite);
   }
 }

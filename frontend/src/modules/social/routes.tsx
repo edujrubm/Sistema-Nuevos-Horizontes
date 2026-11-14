@@ -1,23 +1,15 @@
 import { lazy } from "react";
 import type { RouteObject } from "react-router-dom";
 import { lazyPage } from "@/shared/components/LazyPage";
-const ListadoFichas = lazy(() =>
-  import("../formularios/Listados").then((m) => ({ default: m.ListadoFichas })),
+/** Rutas públicas: no modifica la composición de otros módulos. */
+const SocialListPage = lazy(() =>
+  import("./index").then((m) => ({ default: m.SocialListPage })),
 );
-const Guarderia = lazy(() =>
-  import("../formularios/Listados").then((m) => ({ default: m.Guarderia })),
+const SocialEditorPage = lazy(() =>
+  import("./index").then((m) => ({ default: m.SocialEditorPage })),
 );
-const EditorFicha = lazy(() =>
-  import("../formularios/EditorFicha").then((m) => ({
-    default: m.EditorFicha,
-  })),
-);
-/** Entrada pública de rutas del módulo; conserva la vista actual hasta su reconstrucción. */
 export const socialRoutes: RouteObject[] = [
-  {
-    path: "social",
-    element: lazyPage(<ListadoFichas area="trabajo-social" />),
-  },
-  { path: "social/nueva", element: lazyPage(<EditorFicha nueva legacy />) },
-  { path: "social/:fichaId", element: lazyPage(<EditorFicha legacy />) },
+  { path: "social", element: lazyPage(<SocialListPage />) },
+  { path: "social/nueva", element: lazyPage(<SocialEditorPage />) },
+  { path: "social/:fichaId", element: lazyPage(<SocialEditorPage />) },
 ];

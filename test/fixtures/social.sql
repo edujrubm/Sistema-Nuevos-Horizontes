@@ -5,6 +5,17 @@ SET LOCAL new_horizons.motivo = 'Preparación sintética de Trabajo Social';
 INSERT INTO new_horizons.estado_formulario(codigo,descripcion)
 VALUES ('BORRADOR','Borrador de ensayo'),('CONFIRMADO','Confirmado de ensayo')
 ON CONFLICT (codigo) DO NOTHING;
+-- Datos de soporte propios del ensayo; no requiere instalar el paquete Legal.
+INSERT INTO new_horizons.empleado(id_empleado,nombre,rol_id) VALUES(67,'Profesional sintético de Social',1) ON CONFLICT DO NOTHING;
+SELECT setval(pg_get_serial_sequence('new_horizons.empleado','id_empleado'),(SELECT max(id_empleado) FROM new_horizons.empleado));
+-- Registro de otro tipo para verificar aislamiento de consultas de Social.
+WITH ajena AS (
+ INSERT INTO new_horizons.formulario_area(expediente_id,area_id,tipo,estado_codigo,fecha_atencion,profesional_id,capturado_por)
+ SELECT e.id_expediente,t.area_id,'LEGAL','CONFIRMADO','2026-10-26T09:00:00-06:00',1,1
+ FROM new_horizons.expediente e CROSS JOIN new_horizons.tipo_formulario t
+ WHERE e.beneficiaria_id=100 AND t.codigo='LEGAL' RETURNING id
+)
+INSERT INTO new_horizons.ficha_legal(formulario_id,diagnostico_juridico) SELECT id,'Control sintético de aislamiento de Social' FROM ajena;
 UPDATE new_horizons.beneficiaria SET cui='1234567890123',fecha_nac='1990-06-15' WHERE id_beneficiaria=100;
 
 DO $$
