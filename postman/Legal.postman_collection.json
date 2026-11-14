@@ -1,0 +1,623 @@
+{
+  "info": {
+    "name": "Legal — ORM y formularios",
+    "description": "Solo para una base local desechable con datos sintéticos. Prueba las seis rutas de Legal y el flujo común de ficha Legal. No acredita autenticación productiva.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:3000/api/v1"
+    },
+    {
+      "key": "beneficiaryId",
+      "value": "100"
+    },
+    {
+      "key": "professionalId",
+      "value": "1"
+    },
+    {
+      "key": "documentId",
+      "value": ""
+    },
+    {
+      "key": "documentVersion",
+      "value": "1"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (!/^http:\\/\\/(127\\.0\\.0\\.1|localhost):\\d+\\/api\\/v1$/.test(pm.variables.get(\"baseUrl\"))) { throw new Error(\"Usar exclusivamente la API local de pruebas.\"); }"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Catálogo y estados",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/tipos-formulario"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(200));",
+              "const json = pm.response.json();"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Crear ficha Legal",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/beneficiarias/{{beneficiaryId}}/formularios-area",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tipo\": \"LEGAL\",\n  \"fechaAtencion\": \"2026-11-12T10:00:00-06:00\",\n  \"profesionalId\": \"{{professionalId}}\",\n  \"detalle\": {\n    \"demandadoNombreDeclarado\": \"Parte sintética Postman\",\n    \"diagnosticoJuridico\": \"Diagnóstico de prueba\",\n    \"diligenciamiento\": \"Texto sintético amplio\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(201));",
+              "const json = pm.response.json();",
+              "pm.test(\"Variante Legal e ID de texto\", () => { pm.expect(json.data.tipo).to.eql(\"LEGAL\"); pm.expect(json.data.id).to.be.a(\"string\"); });",
+              "pm.collectionVariables.set(\"legalVersion\", json.data.version);",
+              "pm.collectionVariables.set(\"legalId\", json.data.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Consultar ficha Legal",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/formularios-area/{{legalId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(200));",
+              "const json = pm.response.json();",
+              "pm.test(\"Detalle persistido\", () => pm.expect(json.data.detalle.diligenciamiento).to.eql(\"Texto sintético amplio\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Guardar ficha Legal",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/formularios-area/{{legalId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"version\": {{legalVersion}},\n  \"motivo\": \"Guardado sintético Postman\",\n  \"detalle\": {\n    \"juzgado\": \"Juzgado sintético\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(200));",
+              "const json = pm.response.json();",
+              "pm.collectionVariables.set(\"legalVersion\", json.data.version);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Confirmar ficha Legal",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/formularios-area/{{legalId}}/confirmar",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"version\": {{legalVersion}},\n  \"motivo\": \"Confirmación sintética\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(201));",
+              "const json = pm.response.json();"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Listar fichas legales",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/legal/beneficiarias/{{beneficiaryId}}/fichas"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(200));",
+              "const json = pm.response.json();",
+              "pm.test(\"Paginación completa\", () => { pm.expect(json).to.have.all.keys(\"datos\",\"pagina\",\"limite\",\"total\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Crear referencia",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/legal/beneficiarias/{{beneficiaryId}}/referencias",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fechaAtencion\": \"2026-11-12T10:00:00-06:00\",\n  \"profesionalId\": \"{{professionalId}}\",\n  \"detalle\": {\n    \"destino\": \"Entidad sintética\",\n    \"motivoReferencia\": \"Prueba Postman\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(201));",
+              "const json = pm.response.json();",
+              "pm.collectionVariables.set(\"referenceVersion\", json.version);",
+              "pm.collectionVariables.set(\"referenceId\", json.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Consultar referencia",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/legal/referencias/{{referenceId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(200));",
+              "const json = pm.response.json();",
+              "pm.test(\"Referencia de la beneficiaria\", () => pm.expect(json.beneficiariaId).to.eql(pm.variables.get(\"beneficiaryId\")));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Editar referencia",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/legal/referencias/{{referenceId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"version\": {{referenceVersion}},\n  \"motivo\": \"Corrección sintética\",\n  \"detalle\": {\n    \"origen\": \"Origen sintético\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(200));",
+              "const json = pm.response.json();",
+              "pm.collectionVariables.set(\"referenceVersion\", json.version);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Confirmar referencia",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/legal/referencias/{{referenceId}}/confirmar",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"version\": {{referenceVersion}},\n  \"motivo\": \"Confirmación sintética\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(201));",
+              "const json = pm.response.json();",
+              "pm.collectionVariables.set(\"referenceVersion\", json.version);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Corregir referencia confirmada",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/legal/referencias/{{referenceId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"version\": {{referenceVersion}},\n  \"motivo\": \"Corrección posterior documentada\",\n  \"detalle\": {\n    \"recomendaciones\": \"Seguimiento sintético\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(200));",
+              "const json = pm.response.json();"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Listar referencias",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/legal/beneficiarias/{{beneficiaryId}}/referencias"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(200));",
+              "const json = pm.response.json();"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rechazar ID inválido",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/legal/beneficiarias/letras/fichas"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(400));",
+              "const json = pm.response.json();",
+              "pm.test(\"Contrato español de error\", () => { pm.expect(json).to.have.all.keys(\"estado\",\"codigo\",\"mensaje\",\"errores\",\"idSolicitud\"); pm.expect(json.codigo).to.eql(\"IDENTIFICADOR_INVALIDO\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rechazar escritura sobre ficha confirmada",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/formularios-area/{{legalId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"version\": {{legalVersion}},\n  \"motivo\": \"Intento negativo sintético\",\n  \"detalle\": {\n    \"juzgado\": \"No debe guardarse\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(409));",
+              "const json = pm.response.json();"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Crear borrador para descartar",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/beneficiarias/{{beneficiaryId}}/formularios-area",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tipo\": \"LEGAL\",\n  \"fechaAtencion\": \"2026-11-12T10:00:00-06:00\",\n  \"profesionalId\": \"{{professionalId}}\",\n  \"detalle\": {}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(201));",
+              "const json = pm.response.json();",
+              "pm.collectionVariables.set(\"discardVersion\", json.data.version);",
+              "pm.collectionVariables.set(\"discardId\", json.data.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Descartar borrador",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/formularios-area/{{discardId}}/descartar",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"version\": {{discardVersion}},\n  \"motivo\": \"Borrador de prueba duplicado\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(201));",
+              "const json = pm.response.json();",
+              "pm.test(\"Descarte lógico\", () => pm.expect(json.data.estado).to.eql(\"DESCARTADO\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Consultas y documentos — solo laboratorio Legal",
+      "description": "Usar el ámbito Legal en servidor y datos ficticios. Seleccionar legalId/documentId/version vigentes. Estos ejemplos no preparan automáticamente un archivo ni conceden permisos. El formulario de versiones usa la misma ruta de cargas con documentoAnteriorId y motivoCambio.",
+      "item": [
+        {
+          "name": "Listar formularios Legal por cursor",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/beneficiarias/{{beneficiaryId}}/formularios-area?tipo=LEGAL&limite=20"
+          }
+        },
+        {
+          "name": "Contexto documental de Legal",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/beneficiarias/{{beneficiaryId}}/documentos/contexto"
+          }
+        },
+        {
+          "name": "Listar documentos de Legal",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/beneficiarias/{{beneficiaryId}}/documentos?pagina=1&limite=20"
+          }
+        },
+        {
+          "name": "Adjuntar PDF a ficha Legal",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/beneficiarias/{{beneficiaryId}}/documentos/cargas",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "formularioId",
+                  "value": "{{legalId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "categoria",
+                  "value": "Constancia",
+                  "type": "text"
+                },
+                {
+                  "key": "archivo",
+                  "type": "file",
+                  "src": "postman/fixtures/documento.pdf"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"PDF creado\", () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json(); const doc = body.data || body;",
+                  "pm.collectionVariables.set(\"documentId\", doc.id);",
+                  "pm.collectionVariables.set(\"documentVersion\", doc.versionRegistro);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar PDF",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/documentos/{{documentId}}"
+          }
+        },
+        {
+          "name": "Consultar versiones de PDF",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/documentos/{{documentId}}/versiones"
+          }
+        },
+        {
+          "name": "Descargar PDF",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/documentos/{{documentId}}/archivo"
+          }
+        },
+        {
+          "name": "Anular PDF (con motivo, conserva archivo)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/documentos/{{documentId}}/anular",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"version\": {{documentVersion}},\n  \"motivo\": \"Anulación ficticia de QA\"\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,19 +1,16 @@
-import { IsPgId } from "../../../../common/validation/pg-id.validator";
 import { Type } from "class-transformer";
 import {
-  IsDefined,
-  IsInt,
-  IsISO8601,
-  IsObject,
   IsOptional,
   IsString,
-  Matches,
-  Max,
   MaxLength,
-  Min,
+  IsISO8601,
+  Matches,
+  IsDefined,
+  IsObject,
   ValidateNested,
 } from "class-validator";
-import {TransicionDto} from '../../../../common/dto/version.dto';
+import { IsPgId } from "../../../../common/validation/pg-id.validator";
+import { TransicionDto } from "../../../../common/dto/version.dto";
 export class DetalleReferenciaDto {
   @IsOptional() @IsString() @MaxLength(20000) destino?: string | null;
   @IsOptional() @IsString() @MaxLength(20000) origen?: string | null;
@@ -30,7 +27,7 @@ export class CrearReferenciaDto {
   @IsObject()
   @ValidateNested()
   @Type(() => DetalleReferenciaDto)
-  detalle: DetalleReferenciaDto = new DetalleReferenciaDto();
+  detalle!: DetalleReferenciaDto;
 }
 export class EditarReferenciaDto extends TransicionDto {
   @IsDefined()
@@ -39,3 +36,4 @@ export class EditarReferenciaDto extends TransicionDto {
   @Type(() => DetalleReferenciaDto)
   detalle!: DetalleReferenciaDto;
 }
+export { DetalleReferenciaDto as ReferenciaLegalDetalleDto };

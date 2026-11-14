@@ -1,32 +1,24 @@
 import { lazy } from "react";
 import type { RouteObject } from "react-router-dom";
 import { lazyPage } from "@/shared/components/LazyPage";
-const ListadoFichas = lazy(() =>
-  import("../formularios/Listados").then((m) => ({ default: m.ListadoFichas })),
+/** Rutas públicas: no modifica la composición de otros módulos. */
+const LegalListPage = lazy(() =>
+  import("./index").then((m) => ({ default: m.LegalListPage })),
 );
-const Guarderia = lazy(() =>
-  import("../formularios/Listados").then((m) => ({ default: m.Guarderia })),
+const LegalEditorPage = lazy(() =>
+  import("./index").then((m) => ({ default: m.LegalEditorPage })),
 );
-const EditorFicha = lazy(() =>
-  import("../formularios/EditorFicha").then((m) => ({
-    default: m.EditorFicha,
-  })),
-);
-/** Entrada pública de rutas del módulo; conserva la vista actual hasta su reconstrucción. */
 export const legalRoutes: RouteObject[] = [
-  { path: "legal", element: lazyPage(<ListadoFichas area="legal" />) },
-  { path: "legal/nueva", element: lazyPage(<EditorFicha nueva legacy />) },
-  { path: "legal/:fichaId", element: lazyPage(<EditorFicha legacy />) },
-  {
-    path: "referencias",
-    element: lazyPage(<ListadoFichas area="referencias" />),
-  },
+  { path: "legal", element: lazyPage(<LegalListPage />) },
+  { path: "legal/nueva", element: lazyPage(<LegalEditorPage />) },
+  { path: "legal/:fichaId", element: lazyPage(<LegalEditorPage />) },
+  { path: "referencias", element: lazyPage(<LegalListPage reference />) },
   {
     path: "referencias/nueva",
-    element: lazyPage(<EditorFicha nueva esReferencia legacy />),
+    element: lazyPage(<LegalEditorPage reference />),
   },
   {
     path: "referencias/:fichaId",
-    element: lazyPage(<EditorFicha esReferencia legacy />),
+    element: lazyPage(<LegalEditorPage reference />),
   },
 ];
