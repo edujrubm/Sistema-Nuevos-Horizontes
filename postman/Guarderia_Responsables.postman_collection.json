@@ -1,0 +1,85 @@
+{
+  "info": {
+    "name": "Guardería — Responsables autorizados (local)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Solo laboratorio local. Elegir una ficha GUARDERIA en borrador del expediente y consultar su versión antes de escribir. No ejecutar en ambientes compartidos."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:3049/api/v1"
+    },
+    {
+      "key": "beneficiariaId",
+      "value": "100"
+    },
+    {
+      "key": "formularioId",
+      "value": ""
+    },
+    {
+      "key": "responsableId",
+      "value": ""
+    },
+    {
+      "key": "version",
+      "value": ""
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const target = pm.variables.replaceIn(pm.request.url.toString());",
+          "if (!/^http:\\/\\/127\\.0\\.0\\.1:\\d+\\/api\\/v1\\//.test(target)) throw new Error(\"Usa únicamente el laboratorio local autorizado.\");"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Listar responsables",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/guarderia/beneficiarias/{{beneficiariaId}}/fichas/{{formularioId}}/responsables?pagina=1&limite=20",
+        "header": []
+      }
+    },
+    {
+      "name": "Registrar responsable autorizado",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/guarderia/beneficiarias/{{beneficiariaId}}/fichas/{{formularioId}}/responsables",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"version\": {{version}},\n  \"motivo\": \"Captura sintética de QA\",\n  \"nombre\": \"Gabriela López ficticia\",\n  \"cui\": \"0000000000067\",\n  \"relacion\": \"Abuela\",\n  \"telefono\": \"55550067\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Corregir responsable en borrador",
+      "request": {
+        "method": "PATCH",
+        "url": "{{baseUrl}}/guarderia/beneficiarias/{{beneficiariaId}}/fichas/{{formularioId}}/responsables/{{responsableId}}",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"version\": {{version}},\n  \"motivo\": \"Captura sintética de QA\",\n  \"nombre\": \"Gabriela López ficticia\",\n  \"cui\": \"0000000000067\",\n  \"relacion\": \"Abuela\",\n  \"telefono\": \"55550067\"\n}"
+        }
+      }
+    }
+  ]
+}

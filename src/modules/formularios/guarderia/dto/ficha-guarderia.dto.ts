@@ -1,3 +1,4 @@
+import { IsPgId } from "../../../../common/validation/pg-id.validator";
 import {
   IsOptional,
   IsString,
@@ -15,7 +16,7 @@ export class FichaGuarderiaDetalleDto {
   @Matches(/^\d{4}-\d{2}-\d{2}$/)
   @IsDateString({ strict: true })
   fechaIngreso?: string | null;
-  @IsOptional() @IsString() @Matches(/^[1-9]\d{0,18}$/) etniaId?: string | null;
+  @IsOptional() @IsPgId() etniaId?: string | null;
   @IsOptional() @IsString() @MaxLength(20000) situacionSocioeconomica?:
     string | null;
   @IsOptional() @IsString() @MaxLength(20000) condicionVivienda?: string | null;
@@ -25,8 +26,8 @@ export class FichaGuarderiaDetalleDto {
   @IsOptional() @IsString() @MaxLength(20000) tratamiento?: string | null;
   @IsOptional() @IsString() @MaxLength(20000) observaciones?: string | null;
   @IsOptional() @IsBoolean() padeceEnfermedad?: boolean | null;
-  @IsOptional() @IsString() @Matches(/^[1-9]\d{0,18}$/) escolaridadId?:
+  @IsOptional() @IsPgId() escolaridadId?: string | null;
+  @IsOptional() @IsString() @MaxLength(20000) observacionesFamiliares?:
     string | null;
-  @IsOptional() @IsString() @MaxLength(20000) observacionesFamiliares?: string | null;
   @IsOptional() @IsString() @MaxLength(20000) indicacionesSalud?: string | null;
 }
