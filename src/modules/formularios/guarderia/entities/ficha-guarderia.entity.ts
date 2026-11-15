@@ -28,6 +28,8 @@ export class FichaGuarderia {
   padeceEnfermedad!: boolean | null;
   @Column({ name: "escolaridad_id", type: "bigint", nullable: true })
   escolaridadId!: string | null;
-  @Column({ name: "observaciones_familiares", type: "text", nullable: true }) observacionesFamiliares!: string | null;
-  @Column({ name: "indicaciones_salud", type: "text", nullable: true }) indicacionesSalud!: string | null;
+  @Column({ name: "observaciones_familiares", type: "text", nullable: true })
+  observacionesFamiliares!: string | null;
+  @Column({ name: "indicaciones_salud", type: "text", nullable: true })
+  indicacionesSalud!: string | null;
 }

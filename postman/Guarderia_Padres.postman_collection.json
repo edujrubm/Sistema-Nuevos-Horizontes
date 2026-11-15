@@ -1,0 +1,122 @@
+{
+  "info": {
+    "name": "Guardería — Datos del padre (local)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Captura propia de Guardería vinculada al niño. No modifica ficha inicial ni concede autorización de recogida. Solo datos ficticios en servidor local."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:3049/api/v1"
+    },
+    {
+      "key": "beneficiariaId",
+      "value": "100"
+    },
+    {
+      "key": "ninoId",
+      "value": "101"
+    },
+    {
+      "key": "padreId",
+      "value": ""
+    },
+    {
+      "key": "padreVersion",
+      "value": ""
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (!/^http:\\/\\/127\\.0\\.0\\.1:\\d+\\/api\\/v1$/.test(pm.variables.get(\"baseUrl\"))) throw new Error(\"Usar únicamente el laboratorio local.\");"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Consultar padres del niño",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/guarderia/beneficiarias/{{beneficiariaId}}/hijos/{{ninoId}}/padres?pagina=1&limite=20"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Registrar padre biológico",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/guarderia/beneficiarias/{{beneficiariaId}}/hijos/{{ninoId}}/padres",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tipoVinculo\": \"BIOLOGICO\",\n  \"nombre\": \"Carlos Méndez ficticio\",\n  \"cui\": \"0000000000067\",\n  \"telefono\": null,\n  \"direccion\": null\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP\", () => pm.response.to.have.status(201));",
+              "const padre = pm.response.json();",
+              "pm.collectionVariables.set(\"padreId\", padre.id);",
+              "pm.collectionVariables.set(\"padreVersion\", padre.version);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Corregir padre con motivo",
+      "request": {
+        "method": "PATCH",
+        "url": "{{baseUrl}}/guarderia/beneficiarias/{{beneficiariaId}}/hijos/{{ninoId}}/padres/{{padreId}}",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tipoVinculo\": \"BIOLOGICO\",\n  \"nombre\": \"Carlos Méndez ficticio\",\n  \"cui\": \"0000000000067\",\n  \"telefono\": \"55550067\",\n  \"direccion\": null,\n  \"version\": {{padreVersion}},\n  \"motivo\": \"Corrección ficticia de contacto\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP\", () => pm.response.to.have.status(200));",
+              "const padre = pm.response.json();",
+              "pm.collectionVariables.set(\"padreId\", padre.id);",
+              "pm.collectionVariables.set(\"padreVersion\", padre.version);"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
