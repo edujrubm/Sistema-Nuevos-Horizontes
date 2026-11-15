@@ -151,6 +151,10 @@ export const router = createBrowserRouter([
         element: lazyPage(<ShelterMovementsPage />),
       },
       { path: "albergue/cierres", element: lazyPage(<ShelterClosurePage />) },
+      {
+        path: "albergue/nacimientos",
+        element: lazyPage(<ShelterClosurePage mode="nacimiento" />),
+      },
       { path: "albergue/historial", element: lazyPage(<ShelterHistoryPage />) },
       { path: "fichas/nueva", element: lazyPage(<StartAdmissionPage />) },
       {

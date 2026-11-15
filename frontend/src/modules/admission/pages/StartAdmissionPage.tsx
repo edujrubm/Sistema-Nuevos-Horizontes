@@ -126,7 +126,7 @@ export function StartAdmissionPage() {
   });
   const duplicateSearch = useMutation({
     mutationFn: (cui: string) =>
-      searchBeneficiaryMatches(cui.replace(/\D/g, "")),
+      searchBeneficiaryMatches({ cui: cui.replace(/\D/g, "") }),
   });
   const apiError =
     mutation.error instanceof ApiError ? mutation.error.body : undefined;

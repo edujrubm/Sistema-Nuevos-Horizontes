@@ -1,4 +1,5 @@
 :root {
+  font-size: 17px;
   font-family: Inter, Arial, sans-serif;
   color: #24212a;
   background: #f7f7fa;
@@ -21,6 +22,9 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+}
+small {
+  font-size: 15px;
 }
 button,
 input,
@@ -168,7 +172,9 @@ select:focus {
   outline: 3px solid rgba(91, 42, 157, 0.2);
   border-color: var(--primary-700);
 }
-input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="true"] {
+input[aria-invalid="true"],
+textarea[aria-invalid="true"],
+select[aria-invalid="true"] {
   border-color: var(--danger);
 }
 .button {
@@ -300,6 +306,56 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 .shelter-match small {
   color: var(--text-600);
   font-size: 14px;
+}
+.shelter-entry-confirmation {
+  display: grid;
+  gap: 18px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+.shelter-children-selector {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.shelter-children-selector legend {
+  padding: 0 6px;
+  font-size: 18px;
+  font-weight: 700;
+}
+.shelter-children-selector p {
+  margin: 0;
+  color: var(--text-600);
+}
+.shelter-children-list {
+  display: grid;
+  gap: 10px;
+}
+.shelter-children-list label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.shelter-children-list input {
+  width: 20px;
+  min-height: 20px;
+}
+.shelter-concurrency-layout,
+.shelter-movement-grid,
+.shelter-history-filters {
+  font-size: 18px;
+}
+.shelter-concurrency-layout input,
+.shelter-concurrency-layout select,
+.shelter-movement-grid input,
+.shelter-movement-grid select,
+.shelter-history-filters input,
+.shelter-history-filters select {
+  font-size: 18px;
 }
 .shelter-movement-grid {
   display: grid;
@@ -482,9 +538,10 @@ th {
   font-size: 15px;
 }
 .field-hint {
-  color: var(--text-600);
-  font-size: 14px;
-  line-height: 1.4;
+  color: var(--text-700);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.45;
 }
 .required-marker {
   color: var(--danger);

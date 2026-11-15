@@ -82,34 +82,11 @@ describe("ShelterClosurePage", () => {
     );
   });
 
-  it("registra el nacimiento únicamente con los datos mínimos válidos", async () => {
+  it("no muestra el registro de nacimiento mientras se revisa su alcance", async () => {
     renderPage();
-    fireEvent.click(screen.getByRole("tab", { name: "Registrar nacimiento" }));
-    await screen.findByRole("option", { name: /Estancia #8/ });
-    fireEvent.change(
-      screen.getByRole("combobox", { name: /estancia activa/i }),
-      { target: { value: "8" } },
-    );
-    fireEvent.change(screen.getByRole("textbox", { name: /nombre/i }), {
-      target: { value: "Bebé sintética" },
-    });
-    fireEvent.change(screen.getByLabelText(/Fecha de nacimiento/), {
-      target: { value: "2026-11-09" },
-    });
-    fireEvent.click(
-      screen.getByRole("checkbox", { name: /Confirmo el registro/ }),
-    );
-    fireEvent.click(
-      screen.getByRole("button", { name: "Registrar nacimiento" }),
-    );
-    await waitFor(() =>
-      expect(apiMocks.registerShelterBirth).toHaveBeenCalledWith(
-        "8",
-        expect.objectContaining({
-          nombre: "Bebé sintética",
-          fechaNacimiento: "2026-11-09",
-        }),
-      ),
-    );
+    expect(
+      screen.queryByRole("tab", { name: "Registrar nacimiento" }),
+    ).not.toBeInTheDocument();
+    expect(apiMocks.registerShelterBirth).not.toHaveBeenCalled();
   });
 });

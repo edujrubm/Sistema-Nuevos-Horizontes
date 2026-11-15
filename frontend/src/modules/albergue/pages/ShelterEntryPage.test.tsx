@@ -107,7 +107,7 @@ describe("ShelterEntryPage", () => {
     });
 
     expect(
-      screen.getByText("Ingresa un DPI/CUI de 13 dígitos."),
+      screen.getByText(/El DPI\/CUI debe tener 13 dígitos/),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Buscar beneficiaria" }),

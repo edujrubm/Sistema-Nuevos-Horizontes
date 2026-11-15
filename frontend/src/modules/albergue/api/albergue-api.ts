@@ -38,7 +38,8 @@ export interface CreateShelterStayInput {
 
 export interface CreateTemporaryExitInput {
   destino: string;
-  trabajadorAsignado?: string;
+  trabajadorAsignado: string;
+  ninoIds?: string[];
 }
 
 export interface PendingTemporaryExit {
@@ -193,7 +194,13 @@ export interface ShelterEvent {
   beneficiariaNombre: string;
 }
 export function listShelterHistory(
-  filters: { pagina: number; tipo: string; desde: string; hasta: string },
+  filters: {
+    pagina: number;
+    tipo: string;
+    desde: string;
+    hasta: string;
+    buscar?: string;
+  },
   signal?: AbortSignal,
 ) {
   const q = new URLSearchParams({
@@ -203,6 +210,7 @@ export function listShelterHistory(
   if (filters.tipo) q.set("tipo", filters.tipo);
   if (filters.desde) q.set("desde", filters.desde);
   if (filters.hasta) q.set("hasta", filters.hasta);
+  if (filters.buscar?.trim()) q.set("buscar", filters.buscar.trim());
   return apiRequest<{
     datos: ShelterEvent[];
     paginacion: {

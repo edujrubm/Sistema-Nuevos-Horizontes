@@ -78,6 +78,26 @@ export function clasificarError(
   }
   return { codigo: "ERROR_INTERNO", estado: 500 };
 }
+
+/** Conserva solo metadatos de PostgreSQL seguros para diagnosticar fallos internos. */
+function diagnosticoBaseDatos(error: unknown) {
+  const driver = (error as { driverError?: unknown } | null)?.driverError as
+    | { code?: unknown; constraint?: unknown; table?: unknown }
+    | undefined;
+  const seguro = (value: unknown, pattern: RegExp) =>
+    typeof value === "string" && pattern.test(value) ? value : undefined;
+  return {
+    ...(seguro(driver?.code, /^[A-Z0-9]{5}$/) && {
+      codigoPostgres: seguro(driver?.code, /^[A-Z0-9]{5}$/),
+    }),
+    ...(seguro(driver?.constraint, /^[a-zA-Z0-9_]{1,63}$/) && {
+      restriccion: seguro(driver?.constraint, /^[a-zA-Z0-9_]{1,63}$/),
+    }),
+    ...(seguro(driver?.table, /^[a-z_]{1,63}$/) && {
+      tabla: seguro(driver?.table, /^[a-z_]{1,63}$/),
+    }),
+  };
+}
 @Catch()
 export class ErroresApiFilter implements ExceptionFilter {
   private readonly logger = new Logger("ErroresApi");
@@ -109,6 +129,7 @@ export class ErroresApiFilter implements ExceptionFilter {
           codigo,
           tipo: error instanceof Error ? error.name : "Desconocido",
           ...(code && /^[A-Z0-9_]{1,30}$/.test(code) ? { causa: code } : {}),
+          ...diagnosticoBaseDatos(error),
         }),
       );
     } catch {

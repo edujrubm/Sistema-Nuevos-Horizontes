@@ -19,27 +19,33 @@ function apiMessage(error: unknown) {
 export function ShelterEntryPage() {
   const queryClient = useQueryClient();
   const [ninoIds, setNinoIds] = useState<string[]>([]);
-  const [cui, setCui] = useState("");
+  const [searchText, setSearchText] = useState("");
   const [matches, setMatches] = useState<BeneficiarySummary[]>([]);
   const [selected, setSelected] = useState<BeneficiarySummary>();
-  const [searchError, setSearchError] = useState<string>();
+  const [searchRequestError, setSearchRequestError] = useState<string>();
 
   const childrenQuery = useQuery({
     queryKey: ["beneficiary", selected?.id, "children"],
     queryFn: ({ signal }) => listBeneficiaryChildren(selected!.id, signal),
     enabled: !!selected,
   });
+  const activeChildren = childrenQuery.data?.data.filter((child) => child.activo) ?? [];
   const searchMutation = useMutation({
-    mutationFn: () => searchBeneficiaryMatches(cui.trim()),
+    mutationFn: () =>
+      searchBeneficiaryMatches(
+        /^\d+$/.test(searchText.trim())
+          ? { cui: searchText.trim() }
+          : { nombre: searchText.trim() },
+      ),
     onSuccess: (response) => {
       setMatches(response.data);
       setSelected(undefined);
-      setSearchError(undefined);
+      setSearchRequestError(undefined);
     },
     onError: (error) => {
       setMatches([]);
       setSelected(undefined);
-      setSearchError(
+      setSearchRequestError(
         apiMessage(error) ?? "No fue posible buscar la beneficiaria.",
       );
     },
@@ -52,13 +58,20 @@ export function ShelterEntryPage() {
     },
   });
 
-  const cuiError =
-    cui.trim() && !/^\d{13}$/.test(cui.trim())
-      ? "Ingresa un DPI/CUI de 13 dígitos."
-      : undefined;
+  const searchError =
+    /^\d+$/.test(searchText.trim()) &&
+    searchText.trim() &&
+    !/^\d{13}$/.test(searchText.trim())
+      ? "El DPI/CUI debe tener 13 dígitos; para buscar por nombre escribe al menos 2 letras."
+      : searchText.trim() &&
+          !/^\d+$/.test(searchText.trim()) &&
+          searchText.trim().length < 2
+        ? "Escribe al menos 2 caracteres del nombre."
+        : undefined;
 
   function search() {
-    if (cuiError || !cui.trim()) return;
+    if (searchError || !searchText.trim()) return;
+    entryMutation.reset();
     searchMutation.mutate();
   }
 
@@ -93,17 +106,16 @@ export function ShelterEntryPage() {
           </div>
           <div className="form-grid">
             <TextField
-              label="DPI/CUI"
-              inputMode="numeric"
-              maxLength={13}
-              value={cui}
-              error={cuiError}
-              hint="Ingresa los 13 dígitos, sin espacios ni guiones."
+              label="Nombre o DPI/CUI"
+              value={searchText}
+              error={searchError}
+              hint="Escribe al menos 2 letras del nombre o los 13 dígitos del DPI/CUI."
               onChange={(event) => {
-                setCui(event.target.value.replace(/\D/g, ""));
+                setSearchText(event.target.value);
                 setSelected(undefined);
                 setMatches([]);
                 setNinoIds([]);
+                entryMutation.reset();
               }}
               disabled={entryMutation.isPending}
               required
@@ -114,8 +126,8 @@ export function ShelterEntryPage() {
               className="button secondary"
               type="button"
               disabled={
-                Boolean(cuiError) ||
-                !cui.trim() ||
+                Boolean(searchError) ||
+                !searchText.trim() ||
                 searchMutation.isPending ||
                 entryMutation.isPending
               }
@@ -125,14 +137,14 @@ export function ShelterEntryPage() {
             </button>
           </div>
 
-          {searchError ? (
+          {searchRequestError ? (
             <div className="alert error" role="alert">
-              <strong>{searchError}</strong>
+              <strong>{searchRequestError}</strong>
             </div>
           ) : null}
           {matches.length === 0 && searchMutation.isSuccess ? (
             <div className="alert warning" role="status">
-              <strong>No se encontró una beneficiaria con ese DPI/CUI.</strong>
+              <strong>No se encontró una beneficiaria con esos datos.</strong>
               <span>
                 Verifica el dato o registra la ficha inicial antes de crear la
                 estancia.
@@ -152,12 +164,13 @@ export function ShelterEntryPage() {
                     onChange={() => {
                       setSelected(beneficiary);
                       setNinoIds([]);
+                      entryMutation.reset();
                     }}
                   />
                   <span>
                     <strong>{beneficiary.nombre}</strong>
                     <small>
-                      {beneficiary.cuiEnmascarado ?? "DPI/CUI registrado"}
+                      {beneficiary.cuiEnmascarado ?? "DPI/CUI sin registrar"}
                     </small>
                   </span>
                 </label>
@@ -166,47 +179,60 @@ export function ShelterEntryPage() {
           ) : null}
 
           {selected ? (
-            <div className="alert warning" role="status">
-              <strong>Confirmación requerida</strong>
-              <fieldset disabled={entryMutation.isPending}>
-                <legend>Hijas e hijos que ingresan como acompañantes</legend>
-                {childrenQuery.isLoading && <p>Cargando hijos…</p>}
-                {childrenQuery.error && (
-                  <p role="alert">
-                    No fue posible consultar los hijos. Reintenta la consulta
-                    antes de confirmar.
+            <section className="shelter-entry-confirmation">
+              {childrenQuery.isLoading && <p>Cargando hijas e hijos…</p>}
+              {childrenQuery.error && (
+                <div className="alert error" role="alert">
+                  No fue posible consultar las hijas e hijos. Reintenta antes de confirmar.
+                  <button
+                    className="button secondary"
+                    type="button"
+                    onClick={() => void childrenQuery.refetch()}
+                  >
+                    Reintentar
+                  </button>
+                </div>
+              )}
+              {activeChildren.length > 0 ? (
+                <fieldset className="shelter-children-selector" disabled={entryMutation.isPending}>
+                  <legend>¿Ingresará con hijas o hijos?</legend>
+                  <p>Selecciona todos o únicamente quienes la acompañarán.</p>
+                  <div className="form-actions">
                     <button
                       className="button secondary"
                       type="button"
-                      onClick={() => void childrenQuery.refetch()}
+                      onClick={() => setNinoIds(activeChildren.map((child) => child.id))}
                     >
-                      Reintentar hijos
+                      Seleccionar todos
                     </button>
-                  </p>
-                )}
-                {childrenQuery.data?.data
-                  .filter((n) => n.activo)
-                  .map((n) => (
-                    <label key={n.id}>
-                      <input
-                        type="checkbox"
-                        checked={ninoIds.includes(n.id)}
-                        onChange={(e) =>
-                          setNinoIds(
-                            e.target.checked
-                              ? [...ninoIds, n.id]
-                              : ninoIds.filter((id) => id !== n.id),
-                          )
-                        }
-                      />
-                      {n.nombre}
-                    </label>
-                  ))}
-              </fieldset>
-              <span>
-                Vas a registrar un ingreso para {selected.nombre}. Se verificará
-                nuevamente que no tenga una estancia activa.
-              </span>
+                    <button
+                      className="button text"
+                      type="button"
+                      onClick={() => setNinoIds([])}
+                    >
+                      Ninguno
+                    </button>
+                  </div>
+                  <div className="shelter-children-list">
+                    {activeChildren.map((child) => (
+                      <label key={child.id}>
+                        <input
+                          type="checkbox"
+                          checked={ninoIds.includes(child.id)}
+                          onChange={(event) =>
+                            setNinoIds(
+                              event.target.checked
+                                ? [...ninoIds, child.id]
+                                : ninoIds.filter((id) => id !== child.id),
+                            )
+                          }
+                        />
+                        {child.nombre}
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              ) : null}
               <button
                 className="button primary"
                 type="button"
@@ -217,9 +243,9 @@ export function ShelterEntryPage() {
                 }
                 onClick={() => entryMutation.mutate(selected.id)}
               >
-                {entryMutation.isPending ? "Registrando…" : "Confirmar ingreso"}
+                {entryMutation.isPending ? "Registrando…" : "Registrar ingreso"}
               </button>
-            </div>
+            </section>
           ) : null}
           {entryMutation.error ? (
             <div className="alert error" role="alert">

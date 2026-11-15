@@ -7,6 +7,11 @@ export interface BeneficiarySummary {
   cuiEnmascarado?: string | null;
 }
 
+export interface BeneficiaryMatchSearch {
+  nombre?: string;
+  cui?: string;
+}
+
 export interface BeneficiariesResponse {
   data: BeneficiarySummary[];
   page: { nextCursor: string | null; hasMore: boolean };
@@ -89,12 +94,15 @@ export function createBeneficiaryChild(
   );
 }
 
-export function searchBeneficiaryMatches(cui: string, signal?: AbortSignal) {
+export function searchBeneficiaryMatches(
+  filters: BeneficiaryMatchSearch,
+  signal?: AbortSignal,
+) {
   return apiRequest<{ data: BeneficiarySummary[] }>(
     "/beneficiarias/buscar-coincidencias",
     {
       method: "POST",
-      body: JSON.stringify({ cui }),
+      body: JSON.stringify(filters),
       signal,
     },
   );

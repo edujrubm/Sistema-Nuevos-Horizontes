@@ -20,4 +20,5 @@ export class HistorialAlbergueDto extends ListaDto {
   tipo?: string;
   @IsOptional() @Matches(/^\d{4}-\d{2}-\d{2}$/) desde?: string;
   @IsOptional() @Matches(/^\d{4}-\d{2}-\d{2}$/) hasta?: string;
+  @IsOptional() @IsString() @MaxLength(100) buscar?: string;
 }

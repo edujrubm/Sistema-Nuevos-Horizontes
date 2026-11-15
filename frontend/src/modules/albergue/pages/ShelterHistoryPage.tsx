@@ -13,12 +13,14 @@ export const tiposMovimiento: Record<string, string> = {
 export function ShelterHistoryPage() {
   const [tipo, setTipo] = useState(""),
     [desde, setDesde] = useState(""),
-    [hasta, setHasta] = useState("");
+    [hasta, setHasta] = useState(""),
+    [buscar, setBuscar] = useState("");
   const [filtros, setFiltros] = useState({
     pagina: 1,
     tipo: "",
     desde: "",
     hasta: "",
+    buscar: "",
   });
   const q = useQuery({
     queryKey: ["shelter", "history", filtros],
@@ -41,7 +43,7 @@ export function ShelterHistoryPage() {
           className="form-grid shelter-history-filters"
           onSubmit={(e) => {
             e.preventDefault();
-            if (!invalid) setFiltros({ pagina: 1, tipo, desde, hasta });
+            if (!invalid) setFiltros({ pagina: 1, tipo, desde, hasta, buscar });
           }}
         >
           <label>
@@ -54,6 +56,10 @@ export function ShelterHistoryPage() {
                 </option>
               ))}
             </select>
+          </label>
+          <label>
+            Persona (nombre o DPI/CUI)
+            <input value={buscar} onChange={(e) => setBuscar(e.target.value)} />
           </label>
           <label>
             Desde

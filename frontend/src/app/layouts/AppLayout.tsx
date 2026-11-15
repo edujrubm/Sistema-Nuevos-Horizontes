@@ -11,7 +11,8 @@ const shelterNavigation = [
   { to: "/albergue", label: "Concurrencia" },
   { to: "/albergue/ingreso", label: "Registrar ingreso" },
   { to: "/albergue/movimientos", label: "Salidas y retornos" },
-  { to: "/albergue/cierres", label: "Egreso y nacimiento" },
+  { to: "/albergue/cierres", label: "Egresos" },
+  { to: "/albergue/nacimientos", label: "Nacimientos" },
   { to: "/albergue/historial", label: "Historial" },
 ];
 

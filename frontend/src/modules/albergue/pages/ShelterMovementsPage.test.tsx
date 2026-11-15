@@ -70,7 +70,7 @@ describe("ShelterMovementsPage", () => {
 
   afterEach(cleanup);
 
-  it("registra una salida temporal solo cuando hay estancia y destino", async () => {
+  it("registra una salida temporal con responsable o con la marca Salió sola", async () => {
     renderPage();
 
     await screen.findByRole("option", { name: /Estancia #8/ });
@@ -81,6 +81,7 @@ describe("ShelterMovementsPage", () => {
     fireEvent.change(screen.getByRole("textbox", { name: /destino/i }), {
       target: { value: "Centro de salud" },
     });
+    fireEvent.click(screen.getByRole("checkbox", { name: "Salió sola" }));
     fireEvent.click(
       screen.getByRole("button", { name: "Registrar salida temporal" }),
     );
@@ -88,7 +89,7 @@ describe("ShelterMovementsPage", () => {
     await waitFor(() =>
       expect(apiMocks.createTemporaryExit).toHaveBeenCalledWith("8", {
         destino: "Centro de salud",
-        trabajadorAsignado: undefined,
+        trabajadorAsignado: "Salió sola",
       }),
     );
   });
