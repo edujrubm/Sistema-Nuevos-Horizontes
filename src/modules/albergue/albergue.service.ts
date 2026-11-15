@@ -79,7 +79,10 @@ export class AlbergueService {
     q: ConsultaEstanciasDto = new ConsultaEstanciasDto(),
   ) {
     const where = `FROM new_horizons.activos_albergue a JOIN new_horizons.beneficiaria b ON b.id_beneficiaria=a.beneficiaria_id
-     WHERE ($1='TODAS' OR ($1='ACTIVAS' AND a.fecha_egreso IS NULL) OR ($1='FINALIZADAS' AND a.fecha_egreso IS NOT NULL))
+     WHERE ($1='TODAS' OR ($1='ACTIVAS' AND a.fecha_egreso IS NULL) OR ($1='FINALIZADAS' AND a.fecha_egreso IS NOT NULL AND NOT EXISTS(
+       SELECT 1 FROM new_horizons.activos_albergue activa
+       WHERE activa.beneficiaria_id=a.beneficiaria_id AND activa.fecha_egreso IS NULL
+     )))
      AND ($2='TODOS' OR ($2='SALIDA' AND EXISTS(SELECT 1 FROM new_horizons.movimiento_albergue m WHERE m.activo_albergue_id=a.activo_albergue_id AND m.entrada IS NULL)) OR ($2='SITIO' AND NOT EXISTS(SELECT 1 FROM new_horizons.movimiento_albergue m WHERE m.activo_albergue_id=a.activo_albergue_id AND m.entrada IS NULL)))
      AND ($3='' OR strpos(lower(b.nombre),lower($3))>0 OR b.cui=$3)`;
     const args = [
@@ -321,6 +324,21 @@ export class AlbergueService {
         [estanciaId, dto.destino, dto.trabajadorAsignado ?? null],
       );
 
+      for (const ninoId of dto.ninoIds ?? []) {
+        const [estanciaNino] = await manager.query(
+          `SELECT id::text AS id FROM new_horizons.estancia_nino
+           WHERE activo_albergue_id=$1 AND nino_id=$2 AND fecha_egreso IS NULL FOR UPDATE`,
+          [estanciaId, ninoId],
+        );
+        if (!estanciaNino)
+          throw new BadRequestException("La hija o hijo no pertenece a esta estancia activa");
+        await manager.query(
+          `INSERT INTO new_horizons.movimiento_nino(estancia_nino_id,tipo,destino,responsable,registrado_por)
+           VALUES($1,'SALIDA_TEMPORAL',$2,$3,$4)`,
+          [estanciaNino.id, dto.destino, dto.trabajadorAsignado, await this.actor(manager)],
+        );
+      }
+
       await this.evento(
         manager,
         estanciaId,
@@ -392,6 +410,16 @@ export class AlbergueService {
       if (filas.length === 0) {
         throw new ConflictException("El retorno ya fue registrado");
       }
+
+      const actor = await this.actor(manager);
+      await manager.query(
+        `INSERT INTO new_horizons.movimiento_nino(estancia_nino_id,tipo,registrado_por)
+         SELECT en.id,'RETORNO',$2
+         FROM new_horizons.estancia_nino en
+         WHERE en.activo_albergue_id=$1 AND en.fecha_egreso IS NULL
+           AND (SELECT mn.tipo FROM new_horizons.movimiento_nino mn WHERE mn.estancia_nino_id=en.id ORDER BY mn.fecha DESC,mn.id DESC LIMIT 1)='SALIDA_TEMPORAL'`,
+        [estanciaId, actor],
+      );
 
       await this.evento(
         manager,
@@ -755,10 +783,15 @@ export class AlbergueService {
       (q.desde && q.hasta && q.desde > q.hasta)
     )
       throw new BadRequestException("Rango de fechas inválido");
-    const from = `FROM new_horizons.evento_albergue ev JOIN new_horizons.activos_albergue a ON a.activo_albergue_id=ev.estancia_id JOIN new_horizons.beneficiaria b ON b.id_beneficiaria=a.beneficiaria_id JOIN new_horizons.usuario u ON u.id_usuario=ev.registrado_por WHERE ($1::text IS NULL OR ev.tipo=$1) AND ($2::date IS NULL OR (ev.fecha AT TIME ZONE 'America/Guatemala')::date >=$2::date) AND ($3::date IS NULL OR (ev.fecha AT TIME ZONE 'America/Guatemala')::date <=$3::date)`;
-    const args = [q.tipo || null, q.desde || null, q.hasta || null];
+    const from = `FROM new_horizons.evento_albergue ev JOIN new_horizons.activos_albergue a ON a.activo_albergue_id=ev.estancia_id JOIN new_horizons.beneficiaria b ON b.id_beneficiaria=a.beneficiaria_id JOIN new_horizons.usuario u ON u.id_usuario=ev.registrado_por WHERE ($1::text IS NULL OR ev.tipo=$1) AND ($2::date IS NULL OR (ev.fecha AT TIME ZONE 'America/Guatemala')::date >=$2::date) AND ($3::date IS NULL OR (ev.fecha AT TIME ZONE 'America/Guatemala')::date <=$3::date) AND ($4='' OR strpos(lower(b.nombre), lower($4)) > 0 OR b.cui=$4)`;
+    const args = [
+      q.tipo || null,
+      q.desde || null,
+      q.hasta || null,
+      q.buscar?.trim() || "",
+    ];
     const datos = await this.dataSource.query(
-      `SELECT ev.id::text,ev.estancia_id::text AS "estanciaId",ev.tipo,ev.fecha,ev.motivo,u.nombre_usuario AS responsable,b.nombre AS "beneficiariaNombre" ${from} ORDER BY ev.fecha DESC,ev.id DESC LIMIT $4 OFFSET $5`,
+      `SELECT ev.id::text,ev.estancia_id::text AS "estanciaId",ev.tipo,ev.fecha,ev.motivo,u.nombre_usuario AS responsable,b.nombre AS "beneficiariaNombre" ${from} ORDER BY ev.fecha DESC,ev.id DESC LIMIT $5 OFFSET $6`,
       [...args, q.limite, (q.pagina - 1) * q.limite],
     );
     const [c] = await this.dataSource.query(

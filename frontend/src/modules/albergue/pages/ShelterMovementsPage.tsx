@@ -33,6 +33,8 @@ export function ShelterMovementsPage() {
   const [stayId, setStayId] = useState("");
   const [destination, setDestination] = useState("");
   const [worker, setWorker] = useState("");
+  const [leftAlone, setLeftAlone] = useState(false);
+  const [ninoIds, setNinoIds] = useState<string[]>([]);
   const [returnCandidate, setReturnCandidate] =
     useState<PendingTemporaryExit>();
   const staysQuery = useQuery({
@@ -54,12 +56,15 @@ export function ShelterMovementsPage() {
     mutationFn: () =>
       createTemporaryExit(stayId, {
         destino: destination.trim(),
-        trabajadorAsignado: worker.trim() || undefined,
+        trabajadorAsignado: leftAlone ? "Salió sola" : worker.trim(),
+        ninoIds,
       }),
     onSuccess: async () => {
       setStayId("");
       setDestination("");
       setWorker("");
+      setLeftAlone(false);
+      setNinoIds([]);
       await queryClient.invalidateQueries({ queryKey: ["shelter"] });
     },
   });
@@ -73,6 +78,12 @@ export function ShelterMovementsPage() {
   const destinationError = destination.trim()
     ? undefined
     : "El destino es obligatorio.";
+  const workerError =
+    !leftAlone && !worker.trim()
+      ? "La trabajadora o el trabajador asignado es obligatorio."
+      : undefined;
+  const selectedStay = activeStays.find((stay) => stay.id === stayId);
+  const children = selectedStay?.acompanantes ?? [];
   const loadError = staysQuery.error ?? pendingQuery.error;
 
   return (
@@ -106,13 +117,16 @@ export function ShelterMovementsPage() {
               <SelectField
                 label="Estancia activa"
                 value={stayId}
-                onChange={(event) => setStayId(event.target.value)}
+                onChange={(event) => {
+                  setStayId(event.target.value);
+                  setNinoIds([]);
+                }}
                 required
               >
                 <option value="">Selecciona una estancia</option>
                 {activeStays.map((stay) => (
                   <option key={stay.id} value={stay.id}>
-                    Estancia #{stay.id} ·{" "}
+                    Estancia de albergue ·{" "}
                     {stay.beneficiariaNombre ||
                       `Expediente #${stay.beneficiariaId}`}
                   </option>
@@ -132,9 +146,40 @@ export function ShelterMovementsPage() {
                 label="Trabajadora o trabajador asignado"
                 value={worker}
                 maxLength={200}
-                hint="Opcional."
+                error={worker && workerError ? workerError : undefined}
                 onChange={(event) => setWorker(event.target.value)}
+                disabled={leftAlone}
+                required={!leftAlone}
               />
+              <label className="shelter-checkbox">
+                <input
+                  type="checkbox"
+                  checked={leftAlone}
+                  onChange={(event) => {
+                    setLeftAlone(event.target.checked);
+                    if (event.target.checked) setWorker("");
+                  }}
+                />{" "}
+                Salió sola
+              </label>
+              {children.length > 0 ? (
+                <fieldset className="shelter-children-selector">
+                  <legend>¿Quiénes salen con la beneficiaria?</legend>
+                  <p>Selecciona todas, algunos o ninguno.</p>
+                  <div className="form-actions">
+                    <button className="button secondary" type="button" onClick={() => setNinoIds(children.map((child) => child.id))}>Seleccionar todos</button>
+                    <button className="button text" type="button" onClick={() => setNinoIds([])}>Ninguno</button>
+                  </div>
+                  <div className="shelter-children-list">
+                    {children.map((child) => (
+                      <label key={child.id}>
+                        <input type="checkbox" checked={ninoIds.includes(child.id)} onChange={(event) => setNinoIds(event.target.checked ? [...ninoIds, child.id] : ninoIds.filter((id) => id !== child.id))} />
+                        {child.nombre}
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              ) : null}
             </div>
             <div className="form-actions">
               <button
@@ -143,6 +188,7 @@ export function ShelterMovementsPage() {
                 disabled={
                   !stayId ||
                   Boolean(destinationError) ||
+                  Boolean(workerError) ||
                   createMutation.isPending
                 }
                 onClick={() => createMutation.mutate()}

@@ -31,6 +31,7 @@ function StayState({ stay }: { stay: ShelterStay }) {
 export function ShelterDashboardPage() {
   const [filters, setFilters] = useState({
     pagina: 1,
+    estado: "ACTIVAS",
     presencia: "SITIO",
     buscar: "",
   });
@@ -41,7 +42,7 @@ export function ShelterDashboardPage() {
   const staysQuery = useQuery({
     queryKey: ["shelter", "stays", filters],
     queryFn: ({ signal }) =>
-      listShelterStays(signal, { ...filters, estado: "ACTIVAS" }),
+      listShelterStays(signal, filters),
   });
   const recent = useQuery({
     queryKey: ["shelter", "recent"],
@@ -98,7 +99,7 @@ export function ShelterDashboardPage() {
           </article>
           <article className="panel shelter-metric">
             <strong>{summary.estanciasActivas}</strong>
-            <span>Beneficiarias</span>
+            <span>Usuarias</span>
           </article>
           <article className="panel shelter-metric warning">
             <strong>{summary.salidasTemporalesPendientes}</strong>
@@ -120,127 +121,133 @@ export function ShelterDashboardPage() {
 
       <div className="shelter-concurrency-layout">
         <div>
-          {stays.length > 0 ? (
-            <section
-              className="panel table-panel"
-              aria-labelledby="shelter-stays-title"
-            >
-              <div className="panel-section-header">
-                <div>
-                  <h2 id="shelter-stays-title">Estancias registradas</h2>
-                  <p>Estancias activas y acompañantes registrados.</p>
-                  <label>
-                    Buscar por nombre o DPI/CUI
-                    <input
-                      value={filters.buscar}
-                      onChange={(e) =>
-                        setFilters({
-                          ...filters,
-                          buscar: e.target.value,
-                          pagina: 1,
-                        })
-                      }
-                    />
-                  </label>
-                </div>
-              </div>
-              <div className="shelter-tabs">
-                {[
-                  ["SITIO", "En sitio"],
-                  ["SALIDA", "Con salida registrada"],
-                  ["TODOS", "Todos"],
-                ].map(([v, t]) => (
-                  <button
-                    type="button"
-                    className={filters.presencia === v ? "active" : ""}
-                    key={v}
-                    onClick={() =>
-                      setFilters({ ...filters, presencia: v, pagina: 1 })
+          <section
+            className="panel table-panel"
+            aria-labelledby="shelter-stays-title"
+          >
+            <div className="panel-section-header">
+              <div>
+                <h2 id="shelter-stays-title">Estancias registradas</h2>
+                <p>
+                  Consulta las usuarias según su situación actual en Albergue.
+                </p>
+                <label>
+                  Buscar por nombre o DPI/CUI
+                  <input
+                    value={filters.buscar}
+                    onChange={(e) =>
+                      setFilters({
+                        ...filters,
+                        buscar: e.target.value,
+                        pagina: 1,
+                      })
                     }
-                  >
-                    {t}
-                  </button>
-                ))}
+                  />
+                </label>
               </div>
-              <div className="table-scroll">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Estancia</th>
-                      <th>Beneficiaria</th>
-                      <th>Ingreso</th>
-                      <th>Estado</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {stays.map((stay) => (
-                      <Fragment key={stay.id}>
-                        <tr>
-                          <td>#{stay.id}</td>
+            </div>
+            <div className="shelter-tabs">
+              {[
+                { estado: "ACTIVAS", presencia: "SITIO", texto: "En sitio" },
+                { estado: "ACTIVAS", presencia: "SALIDA", texto: "Con salida registrada" },
+                { estado: "FINALIZADAS", presencia: "TODOS", texto: "Egresadas" },
+                { estado: "TODAS", presencia: "TODOS", texto: "Todos" },
+              ].map((tab) => (
+                <button
+                  type="button"
+                  className={filters.estado === tab.estado && filters.presencia === tab.presencia ? "active" : ""}
+                  key={tab.texto}
+                  onClick={() =>
+                    setFilters({ ...filters, estado: tab.estado, presencia: tab.presencia, pagina: 1 })
+                  }
+                >
+                  {tab.texto}
+                </button>
+              ))}
+            </div>
+            {stays.length === 0 && !staysQuery.isLoading ? (
+              <p className="empty-state">
+                No hay estancias para mostrar con los criterios actuales.
+              </p>
+            ) : null}
+            <div className="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Estancia</th>
+                    <th>Beneficiaria</th>
+                    <th>Ingreso</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stays.map((stay) => (
+                    <Fragment key={stay.id}>
+                      <tr>
+                        <td>Estancia de albergue</td>
+                        <td>
+                          {stay.beneficiariaNombre ||
+                            `Expediente vinculado #${stay.beneficiariaId}`}
+                        </td>
+                        <td>{displayDate(stay.fechaIngreso)}</td>
+                        <td>
+                          {stay.salidaPendiente ? (
+                            <span className="status draft">
+                              Salida temporal
+                            </span>
+                          ) : (
+                            <StayState stay={stay} />
+                          )}
+                        </td>
+                      </tr>
+                      {stay.acompanantes?.map((n) => (
+                        <tr key={n.id}>
+                          <td>Infante</td>
                           <td>
-                            {stay.beneficiariaNombre ||
-                              `Expediente vinculado #${stay.beneficiariaId}`}
+                            {n.nombre}
+                            <small>
+                              {" "}
+                              · Vinculado a {stay.beneficiariaNombre}
+                            </small>
                           </td>
                           <td>{displayDate(stay.fechaIngreso)}</td>
-                          <td>
-                            {stay.salidaPendiente ? (
-                              <span className="status draft">
-                                Salida temporal
-                              </span>
-                            ) : (
-                              <StayState stay={stay} />
-                            )}
-                          </td>
+                          <td>Acompañante de estancia activa</td>
                         </tr>
-                        {stay.acompanantes?.map((n) => (
-                          <tr key={n.id}>
-                            <td>Infante</td>
-                            <td>
-                              {n.nombre}
-                              <small>
-                                {" "}
-                                · Vinculado a {stay.beneficiariaNombre}
-                              </small>
-                            </td>
-                            <td>{displayDate(stay.fechaIngreso)}</td>
-                            <td>Acompañante de estancia activa</td>
-                          </tr>
-                        ))}
-                      </Fragment>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <div className="form-actions">
-                <span>
-                  {staysQuery.data?.paginacion.total ?? 0} estancias · Página{" "}
-                  {filters.pagina}
-                </span>
-                <button
-                  className="button secondary"
-                  disabled={filters.pagina === 1 || staysQuery.isFetching}
-                  onClick={() =>
-                    setFilters({ ...filters, pagina: filters.pagina - 1 })
-                  }
-                >
-                  Anterior
-                </button>
-                <button
-                  className="button secondary"
-                  disabled={
-                    !staysQuery.data ||
-                    filters.pagina >= staysQuery.data.paginacion.totalPaginas ||
-                    staysQuery.isFetching
-                  }
-                  onClick={() =>
-                    setFilters({ ...filters, pagina: filters.pagina + 1 })
-                  }
-                >
-                  Siguiente
-                </button>
-              </div>
-            </section>
-          ) : null}
+                      ))}
+                    </Fragment>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="form-actions">
+              <span>
+                {staysQuery.data?.paginacion.total ?? 0} estancias · Página{" "}
+                {filters.pagina}
+              </span>
+              <button
+                className="button secondary"
+                disabled={filters.pagina === 1 || staysQuery.isFetching}
+                onClick={() =>
+                  setFilters({ ...filters, pagina: filters.pagina - 1 })
+                }
+              >
+                Anterior
+              </button>
+              <button
+                className="button secondary"
+                disabled={
+                  !staysQuery.data ||
+                  filters.pagina >= staysQuery.data.paginacion.totalPaginas ||
+                  staysQuery.isFetching
+                }
+                onClick={() =>
+                  setFilters({ ...filters, pagina: filters.pagina + 1 })
+                }
+              >
+                Siguiente
+              </button>
+            </div>
+          </section>
         </div>
         <aside className="shelter-right">
           <section className="panel shelter-occupancy">

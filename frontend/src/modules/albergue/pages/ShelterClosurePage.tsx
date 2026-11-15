@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 
@@ -23,11 +23,10 @@ function isoToday() {
   }).format(new Date());
 }
 
-export function ShelterClosurePage() {
+export function ShelterClosurePage({ mode = "egreso" }: { mode?: Panel }) {
   const queryClient = useQueryClient();
   const [reason, setReason] = useState("");
   const [birthConfirmation, setBirthConfirmation] = useState(false);
-  const [panel, setPanel] = useState<Panel>("egreso");
   const [stayId, setStayId] = useState("");
   const [egressConfirmation, setEgressConfirmation] = useState(false);
   const [name, setName] = useState("");
@@ -35,6 +34,12 @@ export function ShelterClosurePage() {
   const [cui, setCui] = useState("");
   const [gender, setGender] = useState("");
   const [recognized, setRecognized] = useState(false);
+  useEffect(() => {
+    setStayId("");
+    setReason("");
+    setEgressConfirmation(false);
+    setBirthConfirmation(false);
+  }, [mode]);
   const staysQuery = useQuery({
     queryKey: ["shelter", "stays"],
     queryFn: ({ signal }) => listAllActiveStays(signal),
@@ -86,8 +91,12 @@ export function ShelterClosurePage() {
   return (
     <section>
       <PageHeader
-        title="Egreso y nacimiento"
-        description="Gestiona acciones excepcionales de una estancia activa de Albergue."
+        title={mode === "nacimiento" ? "Nacimientos" : "Egresos"}
+        description={
+          mode === "nacimiento"
+            ? "Registra un nacimiento vinculado a una estancia activa de Albergue."
+            : "Gestiona el egreso definitivo de una estancia activa de Albergue."
+        }
         action={
           <Link className="button secondary" to="/albergue">
             Volver a Albergue
@@ -100,44 +109,12 @@ export function ShelterClosurePage() {
           <span>{apiMessage(staysQuery.error) ?? "Inténtalo nuevamente."}</span>
         </div>
       ) : null}
-      <div
-        className="shelter-tabs"
-        role="tablist"
-        aria-label="Acciones de estancia"
-      >
-        <button
-          className={panel === "egreso" ? "active" : ""}
-          type="button"
-          role="tab"
-          aria-selected={panel === "egreso"}
-          onClick={() => {
-            setPanel("egreso");
-            setBirthConfirmation(false);
-            setEgressConfirmation(false);
-          }}
-        >
-          Registrar egreso
-        </button>
-        <button
-          className={panel === "nacimiento" ? "active" : ""}
-          type="button"
-          role="tab"
-          aria-selected={panel === "nacimiento"}
-          onClick={() => {
-            setPanel("nacimiento");
-            setBirthConfirmation(false);
-            setEgressConfirmation(false);
-          }}
-        >
-          Registrar nacimiento
-        </button>
-      </div>
       <section className="panel form-panel">
         <fieldset
           className="shelter-operation"
           disabled={egressMutation.isPending || birthMutation.isPending}
         >
-          {panel === "egreso" ? (
+          {mode === "egreso" ? (
             <>
               <div className="section-heading">
                 <h2>Egreso definitivo</h2>
@@ -159,7 +136,7 @@ export function ShelterClosurePage() {
                   <option value="">Selecciona una estancia</option>
                   {activeStays.map((stay) => (
                     <option key={stay.id} value={stay.id}>
-                      Estancia #{stay.id} ·{" "}
+                      Estancia de albergue ·{" "}
                       {stay.beneficiariaNombre ||
                         `Expediente #${stay.beneficiariaId}`}
                     </option>
@@ -185,8 +162,9 @@ export function ShelterClosurePage() {
                     }}
                   />
                   <span>
-                    La estancia seleccionada quedará finalizada y no admitirá
-                    nuevos movimientos ni nacimientos.
+                    La estancia seleccionada quedará finalizada. Las hijas e
+                    hijos que ingresaron como acompañantes también egresarán
+                    del Albergue.
                   </span>
                   <label className="shelter-confirmation">
                     <input
@@ -251,7 +229,7 @@ export function ShelterClosurePage() {
                   <option value="">Selecciona una estancia</option>
                   {activeStays.map((stay) => (
                     <option key={stay.id} value={stay.id}>
-                      Estancia #{stay.id} ·{" "}
+                      Estancia de albergue ·{" "}
                       {stay.beneficiariaNombre ||
                         `Expediente #${stay.beneficiariaId}`}
                     </option>
