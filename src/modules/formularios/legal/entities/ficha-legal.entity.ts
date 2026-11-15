@@ -26,13 +26,22 @@ export class FichaLegal {
   diligenciamiento!: string | null;
   @Column({ name: "inicio_proceso_fecha", type: "date", nullable: true })
   inicioProcesoFecha!: string | null;
-  @Column({ name: "relacion_partes", type: "text", nullable: true }) relacionPartes!: string | null;
-  @Column({ name: "normativa_aplicable", type: "text", nullable: true }) normativaAplicable!: string | null;
-  @Column({ name: "objetivo_legal", type: "text", nullable: true }) objetivoLegal!: string | null;
-  @Column({ name: "tipo_juicio", type: "text", nullable: true }) tipoJuicio!: string | null;
-  @Column({ name: "estado_proceso", type: "text", nullable: true }) estadoProceso!: string | null;
-  @Column({ name: "proxima_actuacion_fecha", type: "date", nullable: true }) proximaActuacionFecha!: string | null;
-  @Column({ name: "actuaciones_realizadas", type: "text", nullable: true }) actuacionesRealizadas!: string | null;
-  @Column({ name: "acuerdos_proximos_pasos", type: "text", nullable: true }) acuerdosProximosPasos!: string | null;
-  @Column({ name: "observaciones", type: "text", nullable: true }) observaciones!: string | null;
+  @Column({ name: "relacion_partes", type: "text", nullable: true })
+  relacionPartes!: string | null;
+  @Column({ name: "normativa_aplicable", type: "text", nullable: true })
+  normativaAplicable!: string | null;
+  @Column({ name: "objetivo_legal", type: "text", nullable: true })
+  objetivoLegal!: string | null;
+  @Column({ name: "tipo_juicio", type: "text", nullable: true }) tipoJuicio!:
+    string | null;
+  @Column({ name: "estado_proceso", type: "text", nullable: true })
+  estadoProceso!: string | null;
+  @Column({ name: "proxima_actuacion_fecha", type: "date", nullable: true })
+  proximaActuacionFecha!: string | null;
+  @Column({ name: "actuaciones_realizadas", type: "text", nullable: true })
+  actuacionesRealizadas!: string | null;
+  @Column({ name: "acuerdos_proximos_pasos", type: "text", nullable: true })
+  acuerdosProximosPasos!: string | null;
+  @Column({ name: "observaciones", type: "text", nullable: true })
+  observaciones!: string | null;
 }

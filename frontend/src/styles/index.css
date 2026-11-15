@@ -168,7 +168,7 @@ select:focus {
   outline: 3px solid rgba(91, 42, 157, 0.2);
   border-color: var(--primary-700);
 }
-input[aria-invalid="true"] {
+input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="true"] {
   border-color: var(--danger);
 }
 .button {

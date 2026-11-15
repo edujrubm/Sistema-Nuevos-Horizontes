@@ -1,5 +1,10 @@
+import { EvolucionService } from "./evolucion.service";
 import { Module } from "@nestjs/common";
-import { Persona3CoreModule } from "../persona3/persona3.module";
+import { RegistroAreaModule } from "../../common/registros-area/registro-area.module";
 import { EvolucionController } from "./evolucion.controller";
-@Module({ imports: [Persona3CoreModule], controllers: [EvolucionController] })
+@Module({
+  imports: [RegistroAreaModule],
+  providers: [EvolucionService],
+  controllers: [EvolucionController],
+})
 export class EvolucionModule {}

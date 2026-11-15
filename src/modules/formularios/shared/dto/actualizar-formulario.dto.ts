@@ -1,3 +1,4 @@
+import { IsPgId } from "../../../../common/validation/pg-id.validator";
 import {
   IsDateString,
   IsInt,
@@ -5,7 +6,6 @@ import {
   IsOptional,
   IsString,
   Length,
-  Matches,
   Min,
 } from "class-validator";
 
@@ -23,7 +23,7 @@ export class ActualizarFormularioDto {
   fechaAtencion?: string;
 
   @IsOptional()
-  @Matches(/^\d+$/)
+  @IsPgId()
   profesionalId?: string;
 
   @IsOptional()

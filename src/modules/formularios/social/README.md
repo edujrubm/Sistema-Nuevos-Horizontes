@@ -1,16 +1,3 @@
-# Trabajo Social
+# social
 
-Módulo implementado e integrado en `main`. `SocialController` publica las siguientes rutas; el prefijo global es `/api` y el controlador añade `/v1`.
-
-| Método | Ruta |
-|---|---|
-| GET | `/api/v1/trabajo-social/beneficiarias/:id/resumen` |
-| GET | `/api/v1/trabajo-social/beneficiarias/:id/fichas` |
-
-## Registro y lógica
-
-`AppModule → DomainModule → FormulariosModule → SocialModule → SocialController`. El módulo importa `Persona3CoreModule` e inyecta `Persona3Service`; las reglas y el acceso a datos se encuentran en `src/modules/persona3/`.
-
-La creación, edición y confirmación de fichas usa también el [motor compartido de formularios](../README.md). Los seguimientos e historial usan `src/modules/evolucion/evolucion.controller.ts`.
-
-La existencia y registro del controlador no sustituye las pruebas con una base de datos preparada. Las reglas aún no acordadas se registran en `docs/DECISIONES_Y_DUDAS.md`.
+Conserva las consultas publicadas en main, reubicadas dentro de su módulo. Su reconstrucción se entrega en un paquete independiente sobre la base común.

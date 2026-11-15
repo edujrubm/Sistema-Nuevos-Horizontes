@@ -1,8 +1,8 @@
 import { useCallback, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { api } from "../shared/api/persona3";
-import { useConsulta } from "../modules/persona3/useConsulta";
-import { useBeneficiaria } from "../modules/persona3/contexto";
+import { api } from "../shared/api/area-records";
+import { useConsulta } from "../modules/formularios/useConsulta";
+import { useBeneficiaria } from "../modules/formularios/contexto";
 import { Cargando, ErrorVista } from "../shared/components/feedback";
 export function Beneficiarias() {
   const [texto, setTexto] = useState("");

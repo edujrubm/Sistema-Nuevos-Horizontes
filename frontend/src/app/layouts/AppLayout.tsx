@@ -18,30 +18,85 @@ const shelterNavigation = [
 export function AppLayout() {
   const location = useLocation();
   const documentos = useMatch("/beneficiarias/:id/documentos");
+  const legal = useMatch("/beneficiarias/:id/legal/*");
+  const references = useMatch("/beneficiarias/:id/referencias/*");
+  const social = useMatch("/beneficiarias/:id/social/*");
+  const guarderia = useMatch("/beneficiarias/:id/guarderia/*");
+  const areaModule = social ?? guarderia;
+  const areaPath = guarderia ? "guarderia" : "social";
+  const legalCaseId = legal?.params.id ?? references?.params.id;
   const albergue = location.pathname.startsWith("/albergue");
   const links = albergue
     ? shelterNavigation
-    : documentos
+    : areaModule
       ? [
           { to: "/beneficiarias", label: "Beneficiarias" },
-          { to: `/beneficiarias/${documentos.params.id}`, label: "Expediente" },
+          { to: `/beneficiarias/${areaModule.params.id}`, label: "Expediente" },
           {
-            to: `/beneficiarias/${documentos.params.id}/evolucion`,
-            label: "Hoja evolutiva",
+            to: `/beneficiarias/${areaModule.params.id}/${areaPath}`,
+            label: guarderia ? "Fichas de Guardería" : "Ficha social",
           },
-          { to: location.pathname, label: "Documentos" },
+          {
+            to: `/beneficiarias/${areaModule.params.id}/evolucion`,
+            label: "Seguimiento y hoja evolutiva",
+          },
+          {
+            to: `/beneficiarias/${areaModule.params.id}/documentos`,
+            label: "Documentos",
+          },
         ]
-      : admissionNavigation;
+      : legalCaseId
+        ? [
+            { to: "/beneficiarias", label: "Beneficiarias" },
+            { to: `/beneficiarias/${legalCaseId}`, label: "Expediente" },
+            { to: `/beneficiarias/${legalCaseId}/legal`, label: "Ficha Legal" },
+            {
+              to: `/beneficiarias/${legalCaseId}/referencias`,
+              label: "Referencias legales",
+            },
+            {
+              to: `/beneficiarias/${legalCaseId}/evolucion`,
+              label: "Hoja evolutiva",
+            },
+            {
+              to: `/beneficiarias/${legalCaseId}/documentos`,
+              label: "Documentos",
+            },
+          ]
+        : documentos
+          ? [
+              { to: "/beneficiarias", label: "Beneficiarias" },
+              {
+                to: `/beneficiarias/${documentos.params.id}`,
+                label: "Expediente",
+              },
+              {
+                to: `/beneficiarias/${documentos.params.id}/evolucion`,
+                label: "Hoja evolutiva",
+              },
+              { to: location.pathname, label: "Documentos" },
+            ]
+          : admissionNavigation;
   const moduleHome = albergue ? "/albergue" : "/beneficiarias";
   const moduleLabel = albergue
     ? "Módulo de Albergue"
-    : documentos
-      ? "Módulo de Documentos"
-      : "Admisión y ficha inicial";
+    : areaModule
+      ? guarderia
+        ? "Guardería"
+        : "Trabajo Social"
+      : legalCaseId
+        ? "Área Legal"
+        : documentos
+          ? "Módulo de Documentos"
+          : "Admisión y ficha inicial";
   return (
     <div className="app-shell">
       <header className="app-header">
-        <Link className="brand" to={moduleHome} aria-label={`Ir al inicio de ${moduleLabel}`}>
+        <Link
+          className="brand"
+          to={moduleHome}
+          aria-label={`Ir al inicio de ${moduleLabel}`}
+        >
           <span className="brand-mark" aria-hidden="true">
             NH
           </span>
@@ -56,7 +111,14 @@ export function AppLayout() {
             <NavLink
               key={item.to}
               to={item.to}
-              end
+              end={
+                !(
+                  (areaModule && item.to.endsWith("/" + areaPath)) ||
+                  (legalCaseId &&
+                    (item.to.endsWith("/legal") ||
+                      item.to.endsWith("/referencias")))
+                )
+              }
               className={({ isActive }) =>
                 `nav-link${isActive ? " active" : ""}`
               }

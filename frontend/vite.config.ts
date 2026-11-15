@@ -23,6 +23,7 @@ export default defineConfig({
     sourcemap: true,
   },
   test: {
+    maxWorkers: 2,
     environment: "jsdom",
     setupFiles: ["./src/test-setup.ts"],
     restoreMocks: true,

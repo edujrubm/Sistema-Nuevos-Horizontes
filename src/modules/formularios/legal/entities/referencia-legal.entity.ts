@@ -12,5 +12,6 @@ export class ReferenciaLegal {
   motivoReferencia!: string | null;
   @Column({ name: "recomendaciones", type: "text", nullable: true })
   recomendaciones!: string | null;
-  @Column({ name: "medio_entrega", type: "text", nullable: true }) medioEntrega!: string | null;
+  @Column({ name: "medio_entrega", type: "text", nullable: true })
+  medioEntrega!: string | null;
 }

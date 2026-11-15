@@ -12,7 +12,7 @@ import {
 import { AlbergueService } from "./albergue.service";
 import { CrearEstanciaDto } from "./dto/crear-estancia.dto";
 import { CrearSalidaTemporalDto } from "./dto/crear-salida-temporal.dto";
-import { BigintIdPipe } from "../persona3/bigint-id.pipe";
+import { ParseBigIntIdPipe as BigintIdPipe } from "../../common/pipes/parse-bigint-id.pipe";
 import { CrearNacimientoDto } from "./dto/crear-nacimiento.dto";
 import {
   ConsultaEstanciasDto,

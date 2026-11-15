@@ -5,6 +5,7 @@ export interface DefinicionTipoFormulario {
   tabla: string;
   requiereNino: boolean;
   admiteExamenMental?: boolean;
+  requiereValidacionConfirmacion?: boolean;
   campos: Readonly<Record<string, TipoCampoFormulario>>;
 }
 
@@ -191,6 +192,7 @@ export const TIPOS_FORMULARIO = {
   },
   REFERENCIA_LEGAL: {
     tabla: "referencia_legal",
+    requiereValidacionConfirmacion: true,
     requiereNino: false,
     campos: {
       ...campos("texto", [

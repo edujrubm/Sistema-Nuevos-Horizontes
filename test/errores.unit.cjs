@@ -2,7 +2,7 @@ const {test}=require('node:test');const assert=require('node:assert/strict');
 const {HttpException,Logger}=require('@nestjs/common');Logger.overrideLogger(false);
 const {ErrorApi}=require('../dist/common/errors/error-api');
 const {clasificarError,ErroresApiFilter}=require('../dist/common/errors/errores.filter');
-const {Persona3Repository}=require('../dist/modules/persona3/persona3.repository');
+const {RegistroAreaRepository}=require('../dist/common/registros-area/registro-area.repository');
 test('Catálogo: 66 códigos y respaldo seguro para excepciones no reconocidas',()=>{
  const {CATALOGO}=require('../dist/common/errors/catalogo');assert.equal(Object.keys(CATALOGO).length,66);
  for(const [codigo,value] of Object.entries(CATALOGO)){const e=new ErrorApi(codigo);assert.equal(e.getStatus(),value.estado);assert.equal(clasificarError(e).codigo,codigo);}
@@ -14,11 +14,16 @@ test('Filtro: no envía un segundo JSON después de iniciar la respuesta',()=>{
  const host={switchToHttp:()=>({getRequest:()=>({idSolicitud:'SOL-prueba'}),getResponse:()=>res})};new ErroresApiFilter().catch(new Error('privado'),host);assert.equal(cerrado,true);
 });
 function repositorio({commitError,rollbackError,queryError}={}){
- const runner={isTransactionActive:false,manager:{query:async()=>{}},connect:async()=>{},startTransaction:async()=>{runner.isTransactionActive=true;},commitTransaction:async()=>{if(commitError)throw commitError;runner.isTransactionActive=false;},rollbackTransaction:async()=>{if(rollbackError)throw rollbackError;runner.isTransactionActive=false;},release:async()=>{}};
- return new Persona3Repository({createQueryRunner:()=>runner});
+ const runner={isTransactionActive:false,manager: {
+  query: async (sql) =>
+    sql.includes("FROM new_horizons.usuario")
+      ? [{ id: "1" }]
+      : [],
+},connect:async()=>{},startTransaction:async()=>{runner.isTransactionActive=true;},commitTransaction:async()=>{if(commitError)throw commitError;runner.isTransactionActive=false;},rollbackTransaction:async()=>{if(rollbackError)throw rollbackError;runner.isTransactionActive=false;},release:async()=>{}};
+ return new RegistroAreaRepository({createQueryRunner:()=>runner});
 }
 test('Transacción: commit perdido o rollback no confirmado usa resultado incierto',async()=>{
- process.env.NODE_ENV='test';process.env.P3_TEST_ACTOR_ID='1';
+ process.env.NODE_ENV='test';process.env.AUDIT_ACTOR_USERNAME = "laboratorio-local";
  for(const options of [{commitError:Object.assign(new Error('privado'),{code:'ECONNRESET'})},{rollbackError:new Error('sin confirmación')}]){
   const repo=repositorio(options);await assert.rejects(repo.transaction('Prueba',async()=>{if(options.rollbackError)throw new Error('falló');return {}; }),e=>e instanceof ErrorApi&&e.codigo==='RESULTADO_OPERACION_INCIERTO');
  }
@@ -38,7 +43,7 @@ test('Integración: códigos heredados de main mantienen conflicto en español',
 test('Integración: laboratorio ausente incluso con variable antigua activada',()=>{
  const {spawnSync}=require('node:child_process');
  for(const flag of ['false','true']){
-  const r=spawnSync(process.execPath,['-e',"require('reflect-metadata');const {AppModule}=require('./dist/app.module');const xs=Reflect.getMetadata('imports',AppModule)||[];console.log(xs.some(x=>x?.name==='LaboratorioModule'))"],{cwd:process.cwd(),env:{...process.env,NODE_ENV:'test',P3_ENABLE_LAB:flag},encoding:'utf8'});
+  const r=spawnSync(process.execPath,['-e',"require('reflect-metadata');const {AppModule}=require('./dist/app.module');const xs=Reflect.getMetadata('imports',AppModule)||[];console.log(xs.some(x=>x?.name==='LaboratorioModule'))"],{cwd:process.cwd(),env:{...process.env,NODE_ENV:'test',AREA_ENABLE_LAB:flag},encoding:'utf8'});
   assert.equal(r.status,0,r.stderr);assert.equal(r.stdout.trim(),'false');
  }
 });

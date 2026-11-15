@@ -12,6 +12,8 @@ export interface Ficha {
   version: number;
   fechaAtencion: string;
   profesionalId: string;
+  creadoEn?: string;
+  identidadAlAtender?: { edad_a_la_atencion?: number | null };
   ninoId?: string | null;
   detalle: Record<string, unknown>;
 }

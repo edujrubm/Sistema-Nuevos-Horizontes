@@ -1,4 +1,4 @@
-import { IsPgId } from "../../../persona3/dto/pg-id.validator";
+import { IsPgId } from "../../../../common/validation/pg-id.validator";
 import {
   IsOptional,
   IsString,
@@ -11,13 +11,19 @@ import {
 // Campos opcionales en borrador; obligatorios al confirmar pendientes del equipo.
 export class FichaLegalDetalleDto {
   @IsOptional() @IsString() @MaxLength(20000) relacionPartes?: string | null;
-  @IsOptional() @IsString() @MaxLength(20000) normativaAplicable?: string | null;
+  @IsOptional() @IsString() @MaxLength(20000) normativaAplicable?:
+    string | null;
   @IsOptional() @IsString() @MaxLength(20000) objetivoLegal?: string | null;
   @IsOptional() @IsString() @MaxLength(20000) tipoJuicio?: string | null;
   @IsOptional() @IsString() @MaxLength(20000) estadoProceso?: string | null;
-  @IsOptional() @IsDateString({ strict: true }) @Matches(/^\d{4}-\d{2}-\d{2}$/) proximaActuacionFecha?: string | null;
-  @IsOptional() @IsString() @MaxLength(20000) actuacionesRealizadas?: string | null;
-  @IsOptional() @IsString() @MaxLength(20000) acuerdosProximosPasos?: string | null;
+  @IsOptional()
+  @IsDateString({ strict: true })
+  @Matches(/^\d{4}-\d{2}-\d{2}$/)
+  proximaActuacionFecha?: string | null;
+  @IsOptional() @IsString() @MaxLength(20000) actuacionesRealizadas?:
+    string | null;
+  @IsOptional() @IsString() @MaxLength(20000) acuerdosProximosPasos?:
+    string | null;
   @IsOptional() @IsString() @MaxLength(20000) observaciones?: string | null;
   @IsOptional() @IsPgId() demandadoAgresorId?: string | null;
   @IsOptional() @IsString() @MaxLength(20000) demandadoNombreDeclarado?:

@@ -7,21 +7,18 @@ import {
   Post,
   Query,
 } from "@nestjs/common";
-import { BigintIdPipe } from "../persona3/bigint-id.pipe";
-import { Persona3Service } from "../persona3/persona3.service";
+import { ParseBigIntIdPipe as BigintIdPipe } from "../../common/pipes/parse-bigint-id.pipe";
+import { EvolucionService } from "./evolucion.service";
 import {
   CorregirEntradaDto,
   CrearEntradaDto,
-  CrearReferenciaDto,
-  EditarReferenciaDto,
   EvolucionListaDto,
   ListaDto,
-  TransicionDto,
-} from "../persona3/dto/contratos.dto";
+} from "./dto/entrada-evolutiva.dto";
 
 @Controller("v1")
 export class EvolucionController {
-  constructor(readonly service: Persona3Service) {}
+  constructor(readonly service: EvolucionService) {}
   @Get("beneficiarias/:id/hoja-evolutiva") evolucion(
     @Param("id", BigintIdPipe) id: string,
     @Query() q: EvolucionListaDto,

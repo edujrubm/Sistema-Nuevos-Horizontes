@@ -1,5 +1,11 @@
+import { SocialService } from "./social.service";
 import { Module } from "@nestjs/common";
-import { Persona3CoreModule } from "../../persona3/persona3.module";
+import { RegistroAreaModule } from "../../../common/registros-area/registro-area.module";
 import { SocialController } from "./social.controller";
-@Module({ imports: [Persona3CoreModule], controllers: [SocialController] })
+import { ConsultaActualRepository } from "./repositories/consulta-actual.repository";
+@Module({
+  imports: [RegistroAreaModule],
+  providers: [SocialService, ConsultaActualRepository],
+  controllers: [SocialController],
+})
 export class SocialModule {}
