@@ -1,0 +1,868 @@
+{
+  "info": {
+    "name": "Social — fichas ORM y PDF",
+    "description": "Ensayo ordenado sobre una base local desechable con beneficiaria 100 y profesional 1. Requiere contexto técnico de Trabajo Social y coordinación para anular únicamente el PDF creado por esta colección. Crea datos sintéticos; no acredita autorización productiva. Seleccionar test/fixtures/documento.pdf en las tres cargas si Postman solicita acceso local. No incluye escrituras de hoja evolutiva.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:3033/api/v1"
+    },
+    {
+      "key": "beneficiariaId",
+      "value": "100"
+    },
+    {
+      "key": "profesionalId",
+      "value": "1"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if(!/^http:\\/\\/(127\\.0\\.0\\.1|localhost):\\d+\\/api\\/v1$/.test(pm.variables.get('baseUrl'))){pm.request.url.update('http://127.0.0.1:1/api/v1/ensayo-bloqueado');postman.setNextRequest(null);throw new Error('Solo se permite el laboratorio local con datos sintéticos.');}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "01 Catálogo y estados",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/tipos-formulario"
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "['socialId','versionSocial','versionAnterior','documentoId','documentoOriginal','versionDocumento','descartableId','versionDescartable'].forEach(key=>pm.collectionVariables.unset(key));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(200));",
+              "const body=pm.response.json(); pm.test('SOCIAL habilitado y estados disponibles',()=>{pm.expect(body.data.some(f=>f.codigo==='SOCIAL')).to.eql(true);pm.expect(body.estados.listo).to.eql(true);});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Resumen de Social",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/trabajo-social/beneficiarias/{{beneficiariaId}}/resumen"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(200));",
+              "pm.test('Resumen conserva fichas, riesgos e historial',()=>{const b=pm.response.json();pm.expect(b.totalFichas).to.be.a('number');pm.expect(b.totalRiesgos).to.eql(null);pm.expect(b.historialReciente).to.be.an('array');pm.expect(b.historialReciente.length).to.be.at.most(5);});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Listado histórico con total",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/trabajo-social/beneficiarias/{{beneficiariaId}}/fichas?pagina=1&limite=20"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(200));",
+              "pm.test('Paginación histórica',()=>{const b=pm.response.json();pm.expect(b.datos).to.be.an('array');pm.expect(b.total).to.be.a('number');pm.expect(b.pagina).to.eql(1);});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 Crear borrador Social",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/formularios-area",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tipo\": \"SOCIAL\",\n  \"fechaAtencion\": \"2026-11-13T09:00:00-06:00\",\n  \"profesionalId\": \"{{profesionalId}}\",\n  \"detalle\": {\n    \"historiaViolencia\": \"Historia sintética de ensayo\",\n    \"diagnosticoSocial\": \"Diagnóstico sintético\",\n    \"riesgosIdentificados\": \"Descripción textual sintética\",\n    \"planEliminacionRiesgos\": \"Plan sintético\",\n    \"objetivoGeneral\": \"Objetivo sintético\",\n    \"actividades\": \"Actividades sintéticas\",\n    \"evaluacion\": \"Evaluación sintética\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(201));",
+              "const form=pm.response.json().data; pm.test('Ficha Social e identificadores de texto',()=>{pm.expect(form.tipo).to.eql('SOCIAL');pm.expect(form.id).to.match(/^[1-9][0-9]*$/);pm.expect(form.ninoId).to.eql(null);});",
+              "pm.collectionVariables.set(\"socialId\", form.id);",
+              "pm.collectionVariables.set(\"versionSocial\", form.version);",
+              "pm.collectionVariables.set(\"versionAnterior\", form.version);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 Consultar ficha",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/formularios-area/{{socialId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(200));",
+              "pm.test('Detalle institucional persistido',()=>{const f=pm.response.json().data;pm.expect(f.id).to.eql(pm.collectionVariables.get('socialId'));pm.expect(f.detalle.historiaViolencia).to.eql('Historia sintética de ensayo');});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 Guardar cambios con versión",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "url": "{{baseUrl}}/formularios-area/{{socialId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"version\": {{versionSocial}},\n  \"motivo\": \"Corrección sintética en Postman\",\n  \"detalle\": {\n    \"actividades\": \"Actividades corregidas\",\n    \"dependenciaEconomica\": false\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(200));",
+              "const f=pm.response.json().data;pm.test('Cambio y nueva versión',()=>{pm.expect(f.detalle.actividades).to.eql('Actividades corregidas');pm.expect(f.detalle.dependenciaEconomica).to.eql(false);pm.expect(f.version).to.be.above(Number(pm.collectionVariables.get('versionAnterior')));});",
+              "pm.collectionVariables.set(\"versionSocial\", f.version);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 Rechazar versión anterior",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "url": "{{baseUrl}}/formularios-area/{{socialId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"version\": {{versionAnterior}},\n  \"motivo\": \"Versión anterior de ensayo\",\n  \"detalle\": {\n    \"actividades\": \"No debe sobrescribir\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(409));",
+              "const error = pm.response.json();",
+              "pm.test('Error público en español y solicitud identificada', () => { pm.expect(error.mensaje).to.be.a('string').and.not.empty; pm.expect(error.idSolicitud).to.match(/^SOL-/); pm.expect(error.errores).to.be.an('array'); });",
+              "pm.test('Conflicto de versión específico',()=>pm.expect(error.codigo).to.eql('VERSION_DESACTUALIZADA'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 Listado común por cursor",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/formularios-area?tipo=SOCIAL&limite=1"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(200));",
+              "pm.test('Contrato de cursor',()=>{const b=pm.response.json();pm.expect(b.data).to.be.an('array');pm.expect(b.page.hasMore).to.be.a('boolean');pm.expect(b).to.have.property('page');});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 Rechazar paginación inválida",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/formularios-area?tipo=SOCIAL&limite=101"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(400));",
+              "const error = pm.response.json();",
+              "pm.test('Error público en español y solicitud identificada', () => { pm.expect(error.mensaje).to.be.a('string').and.not.empty; pm.expect(error.idSolicitud).to.match(/^SOL-/); pm.expect(error.errores).to.be.an('array'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 Rechazar niño en ficha Social",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/formularios-area",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tipo\": \"SOCIAL\",\n  \"fechaAtencion\": \"2026-11-13T09:00:00-06:00\",\n  \"profesionalId\": \"{{profesionalId}}\",\n  \"detalle\": {\n    \"historiaViolencia\": \"Historia sintética de ensayo\",\n    \"diagnosticoSocial\": \"Diagnóstico sintético\",\n    \"riesgosIdentificados\": \"Descripción textual sintética\",\n    \"planEliminacionRiesgos\": \"Plan sintético\",\n    \"objetivoGeneral\": \"Objetivo sintético\",\n    \"actividades\": \"Actividades sintéticas\",\n    \"evaluacion\": \"Evaluación sintética\"\n  },\n  \"ninoId\": \"100\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(400));",
+              "const error = pm.response.json();",
+              "pm.test('Error público en español y solicitud identificada', () => { pm.expect(error.mensaje).to.be.a('string').and.not.empty; pm.expect(error.idSolicitud).to.match(/^SOL-/); pm.expect(error.errores).to.be.an('array'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 Rechazar profesional inexistente",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/formularios-area",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tipo\": \"SOCIAL\",\n  \"fechaAtencion\": \"2026-11-13T09:00:00-06:00\",\n  \"profesionalId\": \"999999\",\n  \"detalle\": {\n    \"historiaViolencia\": \"Historia sintética de ensayo\",\n    \"diagnosticoSocial\": \"Diagnóstico sintético\",\n    \"riesgosIdentificados\": \"Descripción textual sintética\",\n    \"planEliminacionRiesgos\": \"Plan sintético\",\n    \"objetivoGeneral\": \"Objetivo sintético\",\n    \"actividades\": \"Actividades sintéticas\",\n    \"evaluacion\": \"Evaluación sintética\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(400));",
+              "const error = pm.response.json();",
+              "pm.test('Error público en español y solicitud identificada', () => { pm.expect(error.mensaje).to.be.a('string').and.not.empty; pm.expect(error.idSolicitud).to.match(/^SOL-/); pm.expect(error.errores).to.be.an('array'); });",
+              "pm.test('Señala profesionalId',()=>pm.expect(error.errores.some(e=>e.campo==='profesionalId')).to.eql(true));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 Rechazar coordinación fuera de bigint",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/formularios-area",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tipo\": \"SOCIAL\",\n  \"fechaAtencion\": \"2026-11-13T09:00:00-06:00\",\n  \"profesionalId\": \"{{profesionalId}}\",\n  \"detalle\": {\n    \"areaCoordinacionId\": \"9223372036854775808\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(400));",
+              "const error = pm.response.json();",
+              "pm.test('Error público en español y solicitud identificada', () => { pm.expect(error.mensaje).to.be.a('string').and.not.empty; pm.expect(error.idSolicitud).to.match(/^SOL-/); pm.expect(error.errores).to.be.an('array'); });",
+              "pm.test('Señala el campo de coordinación',()=>pm.expect(error.errores.some(e=>e.campo==='detalle.areaCoordinacionId')).to.eql(true));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 Rechazar campo no permitido",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/formularios-area",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tipo\": \"SOCIAL\",\n  \"fechaAtencion\": \"2026-11-13T09:00:00-06:00\",\n  \"profesionalId\": \"{{profesionalId}}\",\n  \"detalle\": {\n    \"campoInventado\": \"Texto sintético\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(400));",
+              "const error = pm.response.json();",
+              "pm.test('Error público en español y solicitud identificada', () => { pm.expect(error.mensaje).to.be.a('string').and.not.empty; pm.expect(error.idSolicitud).to.match(/^SOL-/); pm.expect(error.errores).to.be.an('array'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 PDF rechazado antes de confirmar",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/documentos/cargas",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "formularioId",
+              "value": "{{socialId}}",
+              "type": "text"
+            },
+            {
+              "key": "categoria",
+              "value": "Copia firmada sintética",
+              "type": "text"
+            },
+            {
+              "key": "fechaDocumento",
+              "value": "2026-11-13",
+              "type": "text"
+            },
+            {
+              "key": "archivo",
+              "type": "file",
+              "src": "test/fixtures/documento.pdf",
+              "contentType": "application/pdf"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(409));",
+              "const error = pm.response.json();",
+              "pm.test('Error público en español y solicitud identificada', () => { pm.expect(error.mensaje).to.be.a('string').and.not.empty; pm.expect(error.idSolicitud).to.match(/^SOL-/); pm.expect(error.errores).to.be.an('array'); });",
+              "pm.test('Estado no permitido',()=>pm.expect(error.codigo).to.eql('ESTADO_NO_PERMITIDO'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "15 Confirmar ficha guardada",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/formularios-area/{{socialId}}/confirmar",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"version\": {{versionSocial}},\n  \"motivo\": \"Confirmación inicial de ficha\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(201));",
+              "const f=pm.response.json().data;pm.test('Confirmada',()=>pm.expect(f.estado).to.match(/CONFIRMADO$/));",
+              "pm.collectionVariables.set(\"versionSocial\", f.version);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "16 Rechazar edición normal de confirmada",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "url": "{{baseUrl}}/formularios-area/{{socialId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"version\": {{versionSocial}},\n  \"motivo\": \"Ensayo de edición no permitida\",\n  \"detalle\": {\n    \"evaluacion\": \"No debe persistir\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(409));",
+              "const error = pm.response.json();",
+              "pm.test('Error público en español y solicitud identificada', () => { pm.expect(error.mensaje).to.be.a('string').and.not.empty; pm.expect(error.idSolicitud).to.match(/^SOL-/); pm.expect(error.errores).to.be.an('array'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "17 Contexto de documentos autorizado",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/documentos/contexto"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(200));",
+              "pm.test('Ficha Social en contexto autorizado',()=>pm.expect(pm.response.json().formularios.some(f=>f.id===pm.collectionVariables.get('socialId')&&f.tipo==='SOCIAL')).to.eql(true));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "18 Adjuntar PDF a la ficha",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/documentos/cargas",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "formularioId",
+              "value": "{{socialId}}",
+              "type": "text"
+            },
+            {
+              "key": "categoria",
+              "value": "Copia firmada sintética",
+              "type": "text"
+            },
+            {
+              "key": "fechaDocumento",
+              "value": "2026-11-13",
+              "type": "text"
+            },
+            {
+              "key": "archivo",
+              "type": "file",
+              "src": "test/fixtures/documento.pdf",
+              "contentType": "application/pdf"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(201));",
+              "const d=pm.response.json();pm.test('PDF asociado a su ficha',()=>{pm.expect(d.formularioId).to.eql(pm.collectionVariables.get('socialId'));pm.expect(d.mime).to.eql('application/pdf');pm.expect(d).not.to.have.property('objetoPrivado');});",
+              "pm.collectionVariables.set(\"documentoId\", d.id);",
+              "pm.collectionVariables.set(\"documentoOriginal\", d.id);",
+              "pm.collectionVariables.set(\"versionDocumento\", d.versionRegistro);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "19 Consultar documento",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/documentos/{{documentoId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(200));",
+              "pm.test('Asociación conservada',()=>pm.expect(pm.response.json().formularioId).to.eql(pm.collectionVariables.get('socialId')));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "20 Recuperar archivo PDF privado",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/documentos/{{documentoId}}/archivo"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(200));",
+              "pm.test('Archivo PDF y sin caché',()=>{pm.expect(pm.response.headers.get('Content-Type')).to.include('application/pdf');pm.expect(pm.response.headers.get('Cache-Control')).to.include('no-store');pm.expect(pm.response.text().startsWith('%PDF-')).to.eql(true);});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "21 Crear versión documental con motivo",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/documentos/cargas",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "formularioId",
+              "value": "{{socialId}}",
+              "type": "text"
+            },
+            {
+              "key": "categoria",
+              "value": "Copia firmada sintética",
+              "type": "text"
+            },
+            {
+              "key": "fechaDocumento",
+              "value": "2026-11-13",
+              "type": "text"
+            },
+            {
+              "key": "archivo",
+              "type": "file",
+              "src": "test/fixtures/documento.pdf",
+              "contentType": "application/pdf"
+            },
+            {
+              "key": "documentoAnteriorId",
+              "value": "{{documentoOriginal}}",
+              "type": "text"
+            },
+            {
+              "key": "motivoCambio",
+              "value": "Nueva copia sintética de ensayo",
+              "type": "text"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(201));",
+              "const d=pm.response.json();pm.test('Segunda versión conserva ficha',()=>{pm.expect(d.versionDocumento).to.eql(2);pm.expect(d.formularioId).to.eql(pm.collectionVariables.get('socialId'));});",
+              "pm.collectionVariables.set(\"documentoId\", d.id);",
+              "pm.collectionVariables.set(\"versionDocumento\", d.versionRegistro);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "22 Historial de versiones",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/documentos/{{documentoId}}/versiones"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(200));",
+              "pm.test('Dos versiones conservadas',()=>{const b=pm.response.json();pm.expect(b.total).to.eql(2);pm.expect(b.datos.every(d=>d.formularioId===pm.collectionVariables.get('socialId'))).to.eql(true);});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "23 Listado de documentos del área",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/documentos?pagina=1&limite=20&ultimas=true"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(200));",
+              "pm.test('Lista documental paginada',()=>{const b=pm.response.json();pm.expect(b.datos).to.be.an('array');pm.expect(b.total).to.be.a('number');});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "24 Anulación lógica de la versión de ensayo",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/documentos/{{documentoId}}/anular",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"version\": {{versionDocumento}},\n  \"motivo\": \"Fin del ensayo documental sintético\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(201));",
+              "pm.test('Anulación conserva metadatos',()=>{const d=pm.response.json();pm.expect(d.anuladoEn).not.to.eql(null);pm.expect(d.formularioId).to.eql(pm.collectionVariables.get('socialId'));});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "25 Descarga de versión anulada rechazada",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/documentos/{{documentoId}}/archivo"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(409));",
+              "const error = pm.response.json();",
+              "pm.test('Error público en español y solicitud identificada', () => { pm.expect(error.mensaje).to.be.a('string').and.not.empty; pm.expect(error.idSolicitud).to.match(/^SOL-/); pm.expect(error.errores).to.be.an('array'); });",
+              "pm.test('Documento anulado',()=>pm.expect(error.codigo).to.eql('DOCUMENTO_ANULADO'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "26 Crear borrador descartable",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/formularios-area",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tipo\": \"SOCIAL\",\n  \"fechaAtencion\": \"2026-11-13T09:00:00-06:00\",\n  \"profesionalId\": \"{{profesionalId}}\",\n  \"detalle\": {}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(201));",
+              "const f=pm.response.json().data;",
+              "pm.collectionVariables.set(\"descartableId\", f.id);",
+              "pm.collectionVariables.set(\"versionDescartable\", f.version);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "27 Descartar borrador con motivo",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/formularios-area/{{descartableId}}/descartar",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"version\": {{versionDescartable}},\n  \"motivo\": \"Fin de prueba de borrador sintético\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(201));",
+              "pm.test('Descarte lógico',()=>pm.expect(pm.response.json().data.estado).to.match(/DESCARTADO$/));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "28 Consulta conserva el descartado",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/formularios-area/{{descartableId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(200));",
+              "pm.test('Detalle conservado',()=>{const f=pm.response.json().data;pm.expect(f.id).to.eql(pm.collectionVariables.get('descartableId'));pm.expect(f.estado).to.match(/DESCARTADO$/);});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "29 Beneficiaria inexistente",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/trabajo-social/beneficiarias/999999/fichas"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(404));",
+              "const error = pm.response.json();",
+              "pm.test('Error público en español y solicitud identificada', () => { pm.expect(error.mensaje).to.be.a('string').and.not.empty; pm.expect(error.idSolicitud).to.match(/^SOL-/); pm.expect(error.errores).to.be.an('array'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "30 Identificador inválido",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/trabajo-social/beneficiarias/letras/fichas"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Estado HTTP esperado\", () => pm.response.to.have.status(400));",
+              "const error = pm.response.json();",
+              "pm.test('Error público en español y solicitud identificada', () => { pm.expect(error.mensaje).to.be.a('string').and.not.empty; pm.expect(error.idSolicitud).to.match(/^SOL-/); pm.expect(error.errores).to.be.an('array'); });",
+              "pm.test('Identificador inválido',()=>pm.expect(error.codigo).to.eql('IDENTIFICADOR_INVALIDO'));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
