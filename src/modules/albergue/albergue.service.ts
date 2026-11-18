@@ -92,8 +92,9 @@ export class AlbergueService {
     ];
     const datos = await this.dataSource.query(
       `SELECT a.activo_albergue_id::text AS id,a.beneficiaria_id::text AS "beneficiariaId",b.nombre AS "beneficiariaNombre", a.fecha_ingreso::text AS "fechaIngreso",a.fecha_egreso::text AS "fechaEgreso",a.estado_albergue_id::text AS "estadoAlbergueId",
-      (SELECT COALESCE(jsonb_agg(jsonb_build_object('id',n.nino_id::text,'nombre',n.nombre)),'[]'::jsonb) FROM new_horizons.estancia_nino en JOIN new_horizons.nino n ON n.nino_id=en.nino_id WHERE en.activo_albergue_id=a.activo_albergue_id AND en.fecha_egreso IS NULL) AS acompanantes,
+      (SELECT COALESCE(jsonb_agg(jsonb_build_object('id',n.nino_id::text,'nombre',n.nombre,'fechaEgreso',en.fecha_egreso::text,'salidaTemporal',COALESCE((SELECT mn.tipo='SALIDA_TEMPORAL' FROM new_horizons.movimiento_nino mn WHERE mn.estancia_nino_id=en.id ORDER BY mn.fecha DESC,mn.id DESC LIMIT 1),false))),'[]'::jsonb) FROM new_horizons.estancia_nino en JOIN new_horizons.nino n ON n.nino_id=en.nino_id WHERE en.activo_albergue_id=a.activo_albergue_id) AS acompanantes,
       EXISTS(SELECT 1 FROM new_horizons.movimiento_albergue m WHERE m.activo_albergue_id=a.activo_albergue_id AND m.entrada IS NULL) AS "salidaPendiente",
+      (SELECT m.trabajador_asignado FROM new_horizons.movimiento_albergue m WHERE m.activo_albergue_id=a.activo_albergue_id AND m.entrada IS NULL ORDER BY m.salida DESC,m.movimiento_albergue_id DESC LIMIT 1) AS "trabajadorAsignado",
       (SELECT count(*)::int FROM new_horizons.estancia_nino n WHERE n.activo_albergue_id=a.activo_albergue_id AND n.fecha_egreso IS NULL) AS "menoresActivos" ${where} ORDER BY a.activo_albergue_id DESC LIMIT $4 OFFSET $5`,
       [...args, limite, (pagina - 1) * limite],
     );

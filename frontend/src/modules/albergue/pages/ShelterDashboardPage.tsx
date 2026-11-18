@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 
@@ -26,6 +26,43 @@ function StayState({ stay }: { stay: ShelterStay }) {
   if (stay.fechaEgreso)
     return <span className="status inactive">Egresada</span>;
   return <span className="status active">Estancia activa</span>;
+}
+
+function childCount(count: number) {
+  return `${count} ${count === 1 ? "hija o hijo" : "hijas e hijos"}`;
+}
+
+function companionDetails(stay: ShelterStay) {
+  const vinculados = stay.acompanantes ?? [];
+  const activos = vinculados.filter((child) => !child.fechaEgreso);
+
+  if (stay.fechaEgreso) {
+    return vinculados.length > 0
+      ? [`Acompañantes en el egreso (${childCount(vinculados.length)}): ${vinculados.map((child) => child.nombre).join(", ")}`]
+      : ["Egresó sin hijas ni hijos acompañantes"];
+  }
+
+  if (stay.salidaPendiente) {
+    const salieron = activos.filter((child) => child.salidaTemporal);
+    const permanecen = activos.filter((child) => !child.salidaTemporal);
+    return [
+      salieron.length > 0
+        ? `Acompañantes en la salida (${childCount(salieron.length)}): ${salieron.map((child) => child.nombre).join(", ")}`
+        : "Salió sin hijas ni hijos acompañantes",
+      ...(permanecen.length > 0
+        ? [
+            `Acompañantes que permanecen en Albergue (${childCount(permanecen.length)}): ${permanecen.map((child) => child.nombre).join(", ")}`,
+          ]
+        : []),
+      ...(stay.trabajadorAsignado
+        ? [`Responsable de salida: ${stay.trabajadorAsignado}`]
+        : []),
+    ];
+  }
+
+  return activos.length > 0
+    ? [`Acompañantes en Albergue (${childCount(activos.length)}): ${activos.map((child) => child.nombre).join(", ")}`]
+    : ["Sin hijas ni hijos acompañantes en Albergue"];
 }
 
 export function ShelterDashboardPage() {
@@ -181,13 +218,20 @@ export function ShelterDashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {stays.map((stay) => (
-                    <Fragment key={stay.id}>
-                      <tr>
+                  {stays.map((stay) => {
+                    const detallesAcompanantes = companionDetails(stay);
+
+                    return (
+                      <tr key={stay.id}>
                         <td>Estancia de albergue</td>
                         <td>
                           {stay.beneficiariaNombre ||
                             `Expediente vinculado #${stay.beneficiariaId}`}
+                          <small className="shelter-companions">
+                            {detallesAcompanantes.map((detail) => (
+                              <span key={detail}>{detail}</span>
+                            ))}
+                          </small>
                         </td>
                         <td>{displayDate(stay.fechaIngreso)}</td>
                         <td>
@@ -200,22 +244,8 @@ export function ShelterDashboardPage() {
                           )}
                         </td>
                       </tr>
-                      {stay.acompanantes?.map((n) => (
-                        <tr key={n.id}>
-                          <td>Infante</td>
-                          <td>
-                            {n.nombre}
-                            <small>
-                              {" "}
-                              · Vinculado a {stay.beneficiariaNombre}
-                            </small>
-                          </td>
-                          <td>{displayDate(stay.fechaIngreso)}</td>
-                          <td>Acompañante de estancia activa</td>
-                        </tr>
-                      ))}
-                    </Fragment>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

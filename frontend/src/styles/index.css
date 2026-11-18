@@ -26,6 +26,16 @@ body {
 small {
   font-size: 15px;
 }
+
+.shelter-companions {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--text-600);
+}
+
+.shelter-companions span {
+  display: block;
+}
 button,
 input,
 textarea,

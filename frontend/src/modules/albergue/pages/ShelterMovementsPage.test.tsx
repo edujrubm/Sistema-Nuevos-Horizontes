@@ -50,6 +50,7 @@ describe("ShelterMovementsPage", () => {
           fechaIngreso: "2026-11-09",
           fechaEgreso: null,
           estadoAlbergueId: "1",
+          acompanantes: [{ id: "23", nombre: "Hija sintética" }],
         },
       ],
     });
@@ -70,10 +71,10 @@ describe("ShelterMovementsPage", () => {
 
   afterEach(cleanup);
 
-  it("registra una salida temporal con responsable o con la marca Salió sola", async () => {
+  it("incluye por defecto a las hijas e hijos en una salida temporal", async () => {
     renderPage();
 
-    await screen.findByRole("option", { name: /Estancia #8/ });
+    await screen.findByRole("option", { name: /Estancia de albergue/ });
     fireEvent.change(
       screen.getByRole("combobox", { name: /estancia activa/i }),
       { target: { value: "8" } },
@@ -90,6 +91,7 @@ describe("ShelterMovementsPage", () => {
       expect(apiMocks.createTemporaryExit).toHaveBeenCalledWith("8", {
         destino: "Centro de salud",
         trabajadorAsignado: "Salió sola",
+        ninoIds: ["23"],
       }),
     );
   });

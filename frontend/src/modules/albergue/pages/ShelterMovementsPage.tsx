@@ -118,8 +118,13 @@ export function ShelterMovementsPage() {
                 label="Estancia activa"
                 value={stayId}
                 onChange={(event) => {
+                  const selectedStay = activeStays.find(
+                    (stay) => stay.id === event.target.value,
+                  );
                   setStayId(event.target.value);
-                  setNinoIds([]);
+                  setNinoIds(
+                    selectedStay?.acompanantes?.map((child) => child.id) ?? [],
+                  );
                 }}
                 required
               >
@@ -165,7 +170,10 @@ export function ShelterMovementsPage() {
               {children.length > 0 ? (
                 <fieldset className="shelter-children-selector">
                   <legend>¿Quiénes salen con la beneficiaria?</legend>
-                  <p>Selecciona todas, algunos o ninguno.</p>
+                  <p>
+                    Se seleccionan todas por defecto. Puedes dejar algunas o
+                    ninguna.
+                  </p>
                   <div className="form-actions">
                     <button className="button secondary" type="button" onClick={() => setNinoIds(children.map((child) => child.id))}>Seleccionar todos</button>
                     <button className="button text" type="button" onClick={() => setNinoIds([])}>Ninguno</button>
