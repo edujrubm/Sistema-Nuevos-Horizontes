@@ -13,6 +13,21 @@ La configuración y las pruebas están en
 Las colecciones por integrante que siguen se conservan como contexto histórico
 y regresión de otras áreas; no definen la organización del código nuevo.
 
+## Social integrado
+
+Usar `Social.postman_collection.json` junto con
+`Social_Local.postman_environment.json`. La colección sólo acepta una URL
+`http` de loopback con puerto explícito y prefijo `/api/v1`; ejecutarla desde la
+petición 01 sobre PostgreSQL local sintético. Crea fichas, documentos y
+versiones sintéticas, y nunca debe dirigirse a Neon compartido o producción.
+
+Comprueba listado, resumen, borrador, edición, versión, confirmación, descarte,
+documentos y errores de contrato. Para regenerar y ejecutar la verificación
+local: `node scripts/generar-postman-social.cjs`, `pnpm run build:api`,
+`node --test test/postman-social.contract.test.cjs` y
+`./scripts/test-areas.ps1 -NodeExe node -Port 55487`. Los resultados de una
+ejecución se registran en `docs/HISTORIAL_DOCUMENTAL.md`, no en otro README.
+
 API local por defecto: http://127.0.0.1:3016/api/v1. Iniciar con pnpm start:areas (PostgreSQL local sintético); importar el entorno local. No usar fixtures en la BD del grupo.
 
 - registros-area.postman_collection.json: 14 rutas originales, flujo ejecutable con la semilla áreas.

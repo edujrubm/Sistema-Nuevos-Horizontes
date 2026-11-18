@@ -24,6 +24,10 @@ en `../../DECISIONES_Y_DUDAS.md`, formular la pregunta concreta para el equipo
 y detener la parte que dependa de la respuesta. Sólo puede continuar con una
 interfaz reversible que no introduzca comportamiento institucional nuevo.
 
+No crear Markdown de avance, QA, integración o contexto. Registrar la entrega
+y su push en `../../HISTORIAL_DOCUMENTAL.md`; actualizar únicamente la guía
+canónica que corresponda.
+
 ## Reglas obligatorias
 
 - Implementar únicamente requisitos identificados y aprobados.
