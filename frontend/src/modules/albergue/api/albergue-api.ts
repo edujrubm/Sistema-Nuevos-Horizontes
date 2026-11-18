@@ -14,8 +14,14 @@ export interface ShelterStay {
   beneficiariaId: string;
   beneficiariaNombre?: string;
   salidaPendiente?: boolean;
+  trabajadorAsignado?: string | null;
   menoresActivos?: number;
-  acompanantes?: { id: string; nombre: string }[];
+  acompanantes?: {
+    id: string;
+    nombre: string;
+    salidaTemporal?: boolean;
+    fechaEgreso?: string | null;
+  }[];
   fechaIngreso: string;
   fechaEgreso: string | null;
   estadoAlbergueId: string | null;
