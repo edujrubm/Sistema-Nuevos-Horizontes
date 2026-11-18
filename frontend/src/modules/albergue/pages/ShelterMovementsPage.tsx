@@ -53,6 +53,7 @@ export function ShelterMovementsPage() {
     [staysQuery.data],
   );
   const createMutation = useMutation({
+    retry: false,
     mutationFn: () =>
       createTemporaryExit(stayId, {
         destino: destination.trim(),
@@ -69,6 +70,7 @@ export function ShelterMovementsPage() {
     },
   });
   const returnMutation = useMutation({
+    retry: false,
     mutationFn: (id: string) => registerShelterReturn(id),
     onSuccess: async () => {
       setReturnCandidate(undefined);
@@ -175,13 +177,37 @@ export function ShelterMovementsPage() {
                     ninguna.
                   </p>
                   <div className="form-actions">
-                    <button className="button secondary" type="button" onClick={() => setNinoIds(children.map((child) => child.id))}>Seleccionar todos</button>
-                    <button className="button text" type="button" onClick={() => setNinoIds([])}>Ninguno</button>
+                    <button
+                      className="button secondary"
+                      type="button"
+                      onClick={() =>
+                        setNinoIds(children.map((child) => child.id))
+                      }
+                    >
+                      Seleccionar todos
+                    </button>
+                    <button
+                      className="button text"
+                      type="button"
+                      onClick={() => setNinoIds([])}
+                    >
+                      Ninguno
+                    </button>
                   </div>
                   <div className="shelter-children-list">
                     {children.map((child) => (
                       <label key={child.id}>
-                        <input type="checkbox" checked={ninoIds.includes(child.id)} onChange={(event) => setNinoIds(event.target.checked ? [...ninoIds, child.id] : ninoIds.filter((id) => id !== child.id))} />
+                        <input
+                          type="checkbox"
+                          checked={ninoIds.includes(child.id)}
+                          onChange={(event) =>
+                            setNinoIds(
+                              event.target.checked
+                                ? [...ninoIds, child.id]
+                                : ninoIds.filter((id) => id !== child.id),
+                            )
+                          }
+                        />
                         {child.nombre}
                       </label>
                     ))}

@@ -35,3 +35,12 @@ test('Albergue: búsqueda por cuerpo, paginación y privacidad de CUI',async()=>
  const r=await call('POST','/albergue/estancias/buscar',{pagina:1,limite:1,estado:'TODAS',buscar:'histórica'} ,201);assert.ok(r.datos.length>0);assert.ok(!Object.hasOwn(r.datos[0],'cui'));assert.ok(r.paginacion.total>0);
  await call('POST','/albergue/estancias/buscar',{pagina:0,buscar:'prueba'},400);
 });
+
+// La restricción de estancia única debe sostenerse aun con solicitudes simultáneas.
+test('Albergue: ingresos simultáneos crean una sola estancia y un evento',async()=>{
+ const [antes]=await db.query('SELECT count(*)::int AS total FROM new_horizons.evento_albergue');
+ const responses=await Promise.all([1,2].map(()=>fetch(url+'/albergue/estancias',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({beneficiariaId:'100',ninoIds:['100']})})));
+ assert.deepEqual(responses.map(r=>r.status).sort(),[201,409]);
+ const [abiertas]=await db.query('SELECT count(*)::int AS total FROM new_horizons.activos_albergue WHERE beneficiaria_id=100 AND fecha_egreso IS NULL');assert.equal(abiertas.total,1);
+ const [despues]=await db.query('SELECT count(*)::int AS total FROM new_horizons.evento_albergue');assert.equal(despues.total,antes.total+1);
+});

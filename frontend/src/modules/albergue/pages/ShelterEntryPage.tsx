@@ -29,8 +29,10 @@ export function ShelterEntryPage() {
     queryFn: ({ signal }) => listBeneficiaryChildren(selected!.id, signal),
     enabled: !!selected,
   });
-  const activeChildren = childrenQuery.data?.data.filter((child) => child.activo) ?? [];
+  const activeChildren =
+    childrenQuery.data?.data.filter((child) => child.activo) ?? [];
   const searchMutation = useMutation({
+    retry: false,
     mutationFn: () =>
       searchBeneficiaryMatches(
         /^\d+$/.test(searchText.trim())
@@ -51,6 +53,7 @@ export function ShelterEntryPage() {
     },
   });
   const entryMutation = useMutation({
+    retry: false,
     mutationFn: (beneficiariaId: string) =>
       createShelterStay({ beneficiariaId, ninoIds }),
     onSuccess: () => {
@@ -183,7 +186,8 @@ export function ShelterEntryPage() {
               {childrenQuery.isLoading && <p>Cargando hijas e hijos…</p>}
               {childrenQuery.error && (
                 <div className="alert error" role="alert">
-                  No fue posible consultar las hijas e hijos. Reintenta antes de confirmar.
+                  No fue posible consultar las hijas e hijos. Reintenta antes de
+                  confirmar.
                   <button
                     className="button secondary"
                     type="button"
@@ -194,14 +198,19 @@ export function ShelterEntryPage() {
                 </div>
               )}
               {activeChildren.length > 0 ? (
-                <fieldset className="shelter-children-selector" disabled={entryMutation.isPending}>
+                <fieldset
+                  className="shelter-children-selector"
+                  disabled={entryMutation.isPending}
+                >
                   <legend>¿Ingresará con hijas o hijos?</legend>
                   <p>Selecciona todos o únicamente quienes la acompañarán.</p>
                   <div className="form-actions">
                     <button
                       className="button secondary"
                       type="button"
-                      onClick={() => setNinoIds(activeChildren.map((child) => child.id))}
+                      onClick={() =>
+                        setNinoIds(activeChildren.map((child) => child.id))
+                      }
                     >
                       Seleccionar todos
                     </button>

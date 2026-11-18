@@ -5,7 +5,7 @@ import {
   Matches,
   MaxLength,
 } from "class-validator";
-import { ListaDto } from "../../evolucion/dto/entrada-evolutiva.dto";
+import { ListaDto } from "../../../common/dto/pagina.dto";
 export class EgresoDto {
   @IsString() @Matches(/\S/) @MaxLength(2000) motivo!: string;
 }

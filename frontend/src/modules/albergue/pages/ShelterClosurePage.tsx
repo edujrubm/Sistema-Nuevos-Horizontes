@@ -49,6 +49,7 @@ export function ShelterClosurePage({ mode = "egreso" }: { mode?: Panel }) {
     [staysQuery.data],
   );
   const egressMutation = useMutation({
+    retry: false,
     mutationFn: () => closeShelterStay(stayId, reason.trim()),
     onSuccess: async () => {
       setEgressConfirmation(false);
@@ -58,6 +59,7 @@ export function ShelterClosurePage({ mode = "egreso" }: { mode?: Panel }) {
     },
   });
   const birthMutation = useMutation({
+    retry: false,
     mutationFn: () =>
       registerShelterBirth(stayId, {
         nombre: name.trim(),
@@ -163,8 +165,8 @@ export function ShelterClosurePage({ mode = "egreso" }: { mode?: Panel }) {
                   />
                   <span>
                     La estancia seleccionada quedará finalizada. Las hijas e
-                    hijos que ingresaron como acompañantes también egresarán
-                    del Albergue.
+                    hijos que ingresaron como acompañantes también egresarán del
+                    Albergue.
                   </span>
                   <label className="shelter-confirmation">
                     <input
