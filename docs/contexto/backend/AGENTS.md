@@ -3,6 +3,7 @@
 ## Reglas obligatorias
 
 - Cumplir primero `../../../AGENTS.md`. Si una regla de negocio, persistencia, autorización, estado o contrato no está confirmada, no elegirla: registrar la duda y pedir al equipo una respuesta explícita.
+- No crear Markdown de avance, QA, integración o contexto. Registrar la entrega y su push en `../../HISTORIAL_DOCUMENTAL.md`; actualizar únicamente la guía canónica que corresponda.
 - Leer `../../DECISIONES_Y_DUDAS.md` antes de convertir una necesidad en código o migración.
 - Mantener el monolito modular NestJS con MVC adaptado a API REST: Model para dominio y persistencia, View para representaciones/DTO de salida y Controller para HTTP. Los servicios orquestan casos de uso; los controladores no contienen reglas de negocio ni SQL.
 - PostgreSQL es la autoridad de integridad. Las validaciones de DTO mejoran mensajes, pero no reemplazan `FOREIGN KEY`, `UNIQUE`, `CHECK`, transacciones ni bloqueos.

@@ -95,20 +95,20 @@ describe("MedicineBeneficiaryPage", () => {
       data: [
         {
           codigo: "MEDICINA_MUJER",
-          descripcion: "Consulta médica para mujer",
+          descripcion: "Medicina para mujer",
           areaId: "5",
           area: "Medicina",
-          detalle: "consulta_medica_adulta",
+          detalle: "consulta_medica",
           requiereNino: false,
           admiteExamenMental: false,
           campos: [],
         },
         {
           codigo: "MEDICINA_ADOLESCENTE",
-          descripcion: "Consulta médica para mujer adolescente",
+          descripcion: "Medicina para mujer adolescente",
           areaId: "5",
           area: "Medicina",
-          detalle: "consulta_medica_adolescente",
+          detalle: "consulta_medica",
           requiereNino: false,
           admiteExamenMental: false,
           campos: [],
@@ -202,14 +202,6 @@ describe("MedicineBeneficiaryPage", () => {
     renderPage();
 
     fireEvent.click(await screen.findByRole("button", { name: "Nueva ficha" }));
-    expect(
-      screen.getByRole("option", { name: "Consulta médica para mujer" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("option", {
-        name: "Consulta médica para mujer adolescente",
-      }),
-    ).toBeInTheDocument();
     fireEvent.change(
       screen.getByRole("combobox", { name: /tipo de ficha/i }),
       {

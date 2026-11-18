@@ -40,6 +40,20 @@ una decisión confirmada, se conserva la decisión y se informa la discrepancia.
 ## Convenciones de cambio
 
 - Respetar módulos, contratos, nombres, idioma y capas existentes.
+- No crear archivos Markdown nuevos, incluidos informes de avance, contexto,
+  reconstrucción, QA, integración, entrega o cierre. Actualizar sólo el
+  documento canónico existente que corresponda. Los únicos documentos globales
+  autorizados para esos fines son `HISTORIAL_DOCUMENTAL.md`,
+  `INTEGRACION_MODULOS.md`, `PLANES_TECNICOS.md` y
+  `VERIFICACION_CALIDAD.md`.
+- Usar este destino sin excepciones: avance, entrega, cierre o push →
+  `HISTORIAL_DOCUMENTAL.md`; integración → `INTEGRACION_MODULOS.md`;
+  reconstrucción o estado técnico → `PLANES_TECNICOS.md`; QA o pruebas →
+  `VERIFICACION_CALIDAD.md`; regla o arquitectura → el documento canónico ya
+  existente; decisión pendiente → `DECISIONES_Y_DUDAS.md`.
+- Registrar cada entrega que vaya a confirmarse y publicarse en
+  `docs/HISTORIAL_DOCUMENTAL.md`; incluir alcance, pruebas, rama y destino del
+  push. No crear un Markdown separado para documentar un cambio o un push.
 - Usar las herramientas exactamente como indica `docs/GUIA_TECNICA.md`; no usar
   SQL en controladores, sincronización automática del ORM ni migraciones no
   aprobadas.

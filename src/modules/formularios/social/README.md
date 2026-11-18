@@ -1,6 +1,7 @@
 # Trabajo Social
 
-Reconstrucción preparada localmente para revisión; no se declara integrada en main ni desplegada.
+Módulo integrado en `main`. No se declara desplegado ni sustituye la verificación
+del ambiente destino.
 
 SocialController recibe HTTP; SocialService orquesta; los repositorios del área implementan consultas, resumen y persistencia con TypeORM. La lectura de Evolución se usa por su interfaz pública. El motor común no importa repositorios privados de Social.
 
@@ -19,7 +20,7 @@ Se aplica sobre la base común, sin instalar Legal ni Guardería reconstruidos. 
 
 Test y ejecutor: test/social-listado.integration.cjs, test/social-postman.integration.cjs y scripts/test-social.ps1. Incluyen ORM, auditoría, PDF, React con HTTP real y la colección Social de Newman. Los datos son ficticios y sólo se ejecutan en PostgreSQL local desechable. No agrega migraciones.
 
-No resuelve autenticación productiva ni reglas institucionales que sigan pendientes en el registro de decisiones.
+No resuelve autenticación productiva ni reglas institucionales que sigan pendientes en `docs/DECISIONES_Y_DUDAS.md`.
 
 ## Convención del cliente
 
