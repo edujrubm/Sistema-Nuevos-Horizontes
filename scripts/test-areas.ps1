@@ -57,6 +57,8 @@ try {
   }
   foreach ($name in $names) { [Environment]::SetEnvironmentVariable($name, $settings[$name]) }
   $suites = @('test/arquitectura-modulos.unit.cjs','test/modulos-independientes.unit.cjs','test/errores.unit.cjs','test/registros-area.integration.cjs','test/zzz-documentos-unificados.integration.cjs','test/zzzz-albergue.integration.cjs')
+  # Cada rama ejecuta únicamente los límites del módulo que incluye.
+  $suites += Get-ChildItem -LiteralPath test -Filter '*-arquitectura.unit.cjs' | Sort-Object Name | ForEach-Object FullName
   $report = 'areas.integration.tap'
   foreach ($suite in $suites) {
     if (-not (Test-Path -LiteralPath $suite -PathType Leaf)) {

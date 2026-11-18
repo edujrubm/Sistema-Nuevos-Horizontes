@@ -43,3 +43,11 @@ módulo.
    presenta una prueba local como despliegue productivo.
 5. Registrar la entrega y su push en `HISTORIAL_DOCUMENTAL.md`; no crear un
    informe por módulo ni por pull request.
+
+## Entrega de Albergue y Documentos — 2026-11-18
+
+Base: main 1bf827f. Las ramas normales albergue y documentos incluyen un mismo commit de saneamiento mecánico: import duplicado de Evolución, conflictos del lockfile y expectativas de pruebas de Albergue que no coincidían con las etiquetas/DTO ya existentes. El lockfile conserva exactamente las versiones e integridades del lado Updated upstream; no se modifican package.json ni reglas de Evolución.
+
+Cada rama añade sólo los repositorios, entidades y frontend de su dominio. No depende de la reconstrucción de la otra. El ejecutor de áreas incorpora las pruebas de arquitectura presentes en la rama. No hay DDL nuevo, modificación de migraciones ni sincronización automática. No se publica el paquete visual de Legal/Social/Guardería. No copiar test-results, dependencias, entornos o bases de ensayo al repositorio.
+
+Antes de fusionar revisar la base común y los consumidores; tras squash/rebase volver a comprobar los diffs restantes. No equiparar aprobación de PR con disponibilidad de autenticación, almacenamiento o revisión documental productivos (D-02, D-03 y D-13).

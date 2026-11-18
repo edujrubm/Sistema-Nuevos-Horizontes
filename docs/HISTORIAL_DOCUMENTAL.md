@@ -28,6 +28,16 @@ de archivos: usar los enlaces de Git, el commit o el pull request.
 
 ## Entregas
 
+### 2026-11-18 — Albergue y Documentos preparados para revisión
+
+- Alcance: persistencia de Albergue/Documentos en repositorios propios, operaciones simples con TypeORM, auditoría y frontend institucional. Incluye saneamientos mecánicos del lockfile, un import duplicado y pruebas desactualizadas. No modifica tablas, migraciones ni código funcional de compañeros.
+- Decisiones: publicación autorizada por Eduardo en las ramas normales de cada módulo. D-02, D-03 y D-13 siguen explícitos; no se inventa sesión ni aprobación documental.
+- Verificación: check completo por rama y en combinación (49 backend, 257 frontend, 3 omisiones explícitas de servidor); PostgreSQL 71/71/75 sin fallos. Flujo real React/HTTP/PostgreSQL/PDF aprobado en las tres áreas consumidoras. Ambos órdenes de fusión se verificaron sin conflictos.
+- Ramas y destino: albergue → origin/albergue; documentos → origin/documentos. Base main 1bf827f. Los ajustes visuales de Legal/Social/Guardería quedan fuera de esta publicación.
+- Push: destino autorizado; confirmar los hashes remotos al publicar. Sin PR ni fusión a main y sin operaciones sobre la BD compartida.
+
+
+
 ### 2026-11-17 — Consolidación de informes por módulo
 
 - Alcance: los informes puntuales de integración, reconstrucción, QA y cierre de Social, Legal y Guardería se concentran en las guías globales de integración, planificación y verificación; la guía específica de Postman Social se incorpora al README general de Postman.

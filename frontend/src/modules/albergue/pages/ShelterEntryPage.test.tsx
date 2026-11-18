@@ -84,10 +84,10 @@ describe("ShelterEntryPage", () => {
     fireEvent.click(screen.getByRole("radio"));
     await waitFor(() =>
       expect(
-        screen.getByRole("button", { name: "Confirmar ingreso" }),
+        screen.getByRole("button", { name: "Registrar ingreso" }),
       ).toBeEnabled(),
     );
-    fireEvent.click(screen.getByRole("button", { name: "Confirmar ingreso" }));
+    fireEvent.click(screen.getByRole("button", { name: "Registrar ingreso" }));
 
     await waitFor(() =>
       expect(apiMocks.createShelterStay).toHaveBeenCalledWith({
