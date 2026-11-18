@@ -11,7 +11,7 @@ export interface Documento {
   cargadoEn: string;
   fechaDocumento: string | null;
   descripcion: string | null;
-  estadoRevisionCodigo: string;
+  estado: "VIGENTE" | "ANULADO";
   anuladoEn: string | null;
   motivoAnulacion: string | null;
   motivoCambio?: string | null;
@@ -30,7 +30,7 @@ export interface ContextoDocumentos {
   resumen: {
     documentosActivos: number;
     versionesConservadas: number;
-    pendientesRevision: number;
+    documentosAnulados: number;
     tamanoBytes: string;
   };
   categorias: string[];

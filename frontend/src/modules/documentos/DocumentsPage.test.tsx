@@ -33,7 +33,7 @@ const doc = {
   cargadoEn: "2026-11-11T12:00:00Z",
   fechaDocumento: null,
   descripcion: null,
-  estadoRevisionCodigo: "BORRADOR",
+  estado: "VIGENTE",
   anuladoEn: null,
   cargadoPor: "1",
 };
@@ -68,7 +68,7 @@ beforeEach(() => {
     resumen: {
       documentosActivos: 1,
       versionesConservadas: 2,
-      pendientesRevision: 1,
+      documentosAnulados: 0,
       tamanoBytes: "1024",
     },
     capacidades: { cargar: true, anular: true },
@@ -181,7 +181,7 @@ describe("Documentos funcionales", () => {
   it("envía multipart y espera confirmación; no fuerza Content-Type JSON", async () => {
     await preparar();
     fireEvent.click(screen.getByRole("button", { name: "Guardar documento" }));
-    await screen.findByText("Documento guardado correctamente como borrador.");
+    await screen.findByText("Documento guardado correctamente.");
     const args = mocks.cargarDocumento.mock.calls[0];
     expect(args[0]).toBe("100");
     expect(args[1].get("formularioId")).toBe("2");
@@ -321,4 +321,14 @@ it("bloquea una ficha dirigida de Guardería ajena al contexto", async () => {
     ).toBeDisabled(),
   );
   expect(mocks.cargarDocumento).not.toHaveBeenCalled();
+});
+
+it("los PDF vigentes no necesitan aprobación, incluso ante metadatos históricos", async () => {
+  mocks.listarDocumentos.mockResolvedValue({datos:[{...doc,estadoRevisionCodigo:"BORRADOR"}],total:1,pagina:1,limite:20});
+  page();
+  await screen.findByText(doc.nombreDocumento);
+  expect(screen.queryByText("Pendientes de revisión")).not.toBeInTheDocument();
+  expect(screen.queryByRole("option",{name:"Borrador"})).not.toBeInTheDocument();
+  expect(screen.queryByText("Borrador",{selector:"span"})).not.toBeInTheDocument();
+  expect(screen.getByText("Vigente",{selector:"span"})).toBeVisible();
 });

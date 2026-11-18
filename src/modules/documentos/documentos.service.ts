@@ -29,9 +29,10 @@ export class DocumentosService {
     }
     return f;
   }
-  private presentar(d: Record<string, unknown>) {
-    const { objeto_privado, ...publico } = d;
-    return camel(publico);
+  private presentar(d: Record<string, unknown>): Record<string, unknown> {
+    // Los campos históricos de revisión no definen el estado operativo del PDF.
+    const { objeto_privado, estado_revision_codigo, revisado_por, revisado_en, ...publico } = d;
+    return { ...camel(publico), estado: d.anulado_en ? "ANULADO" : "VIGENTE" };
   }
   async obtener(id: string) {
     const d = await this.repository.documento(id);

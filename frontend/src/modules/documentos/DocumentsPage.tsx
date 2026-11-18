@@ -209,7 +209,7 @@ export function DocumentsCase({
       await carga.mutateAsync({ datos, signal: control.current.signal });
       setPanel(false);
       setArchivo(undefined);
-      setExito("Documento guardado correctamente como borrador.");
+      setExito("Documento guardado correctamente.");
       await actualizar();
     } catch (e) {
       setError(mensaje(e));
@@ -499,7 +499,7 @@ export function DocumentsCase({
         {[
           ["Documentos activos", c?.resumen.documentosActivos],
           ["Versiones conservadas", c?.resumen.versionesConservadas],
-          ["Pendientes de revisión", c?.resumen.pendientesRevision],
+          ["Documentos anulados", c?.resumen.documentosAnulados],
           ["Espacio utilizado", c ? bytes(c.resumen.tamanoBytes) : undefined],
         ].map(([t, v]) => (
           <article className="metric" key={t}>
@@ -547,7 +547,6 @@ export function DocumentsCase({
             >
               <option value="">Todos</option>
               <option value="VIGENTE">Vigente</option>
-              <option value="BORRADOR">Borrador</option>
               <option value="ANULADO">Anulado</option>
             </select>
           </div>
@@ -587,13 +586,9 @@ export function DocumentsCase({
                   <td>{fecha(d.fechaDocumento || d.cargadoEn)}</td>
                   <td>
                     <span
-                      className={`tag ${d.anuladoEn ? "danger" : d.estadoRevisionCodigo === "BORRADOR" ? "warn" : "ok"}`}
+                      className={`tag ${d.anuladoEn ? "danger" : "ok"}`}
                     >
-                      {d.anuladoEn
-                        ? "Anulado"
-                        : d.estadoRevisionCodigo === "BORRADOR"
-                          ? "Borrador"
-                          : "Vigente"}
+                      {d.anuladoEn ? "Anulado" : "Vigente"}
                     </span>
                   </td>
                   <td>

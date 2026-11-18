@@ -49,7 +49,7 @@ export class DocumentosRepository {
     const [resumen] = await this.repo.data.query(
       `SELECT count(*)::int AS "versionesConservadas", COALESCE(sum(tamano_bytes),0)::text AS "tamanoBytes",
       count(*) FILTER(WHERE anulado_en IS NULL AND NOT EXISTS(SELECT 1 FROM new_horizons.documento_area h WHERE h.documento_anterior_id=d.id))::int AS "documentosActivos",
-      count(*) FILTER(WHERE anulado_en IS NULL AND estado_revision_codigo='BORRADOR' AND NOT EXISTS(SELECT 1 FROM new_horizons.documento_area h WHERE h.documento_anterior_id=d.id))::int AS "pendientesRevision"
+      count(*) FILTER(WHERE anulado_en IS NOT NULL AND NOT EXISTS(SELECT 1 FROM new_horizons.documento_area h WHERE h.documento_anterior_id=d.id))::int AS "documentosAnulados"
       FROM new_horizons.documento_area d WHERE formulario_id=ANY($1::bigint[])`,
       [ids],
     );
@@ -67,7 +67,7 @@ export class DocumentosRepository {
     const where = `FROM new_horizons.documento_area d JOIN new_horizons.formulario_area f ON f.id=d.formulario_id JOIN new_horizons.expediente e ON e.id_expediente=f.expediente_id JOIN new_horizons.area a ON a.id_area=f.area_id WHERE e.beneficiaria_id=$1 AND a.nombre_area=$2 AND (f.tipo<>'GUARDERIA' OR EXISTS(SELECT 1 FROM new_horizons.formulario_area i WHERE i.nino_id=f.nino_id AND i.tipo='GUARDERIA' AND i.estado_codigo=$3))
     AND ($4::text IS NULL OR strpos(lower(COALESCE(d.nombre_documento,'')||' '||d.categoria),lower($4))>0)
     AND ($5::text IS NULL OR d.categoria=$5)
-    AND ($6::text IS NULL OR ($6='ANULADO' AND d.anulado_en IS NOT NULL) OR ($6='BORRADOR' AND d.anulado_en IS NULL AND d.estado_revision_codigo='BORRADOR') OR ($6='VIGENTE' AND d.anulado_en IS NULL AND d.estado_revision_codigo='REVISADO'))
+    AND ($6::text IS NULL OR ($6='ANULADO' AND d.anulado_en IS NOT NULL) OR ($6='VIGENTE' AND d.anulado_en IS NULL))
     AND (NOT $7::boolean OR NOT EXISTS(SELECT 1 FROM new_horizons.documento_area h WHERE h.documento_anterior_id=d.id))`;
     const pagina = q.pagina || 1,
       limite = q.limite || 20,

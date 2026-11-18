@@ -231,15 +231,14 @@ Por la petición de Eduardo de separar la infraestructura y los paquetes de cada
 Eduardo solicitó alinear Legal, Social y Guardería con los módulos del equipo. Las reconstrucciones utilizan apiRequest y la representación ApiError.body públicas, useQuery/useMutation y el QueryClient existente. La fachada http.ts delega al mismo transporte y reexporta la misma clase para consumidores publicados; no define otra configuración ni otro cliente. Se conservan los borradores, la cancelación de consultas y el bloqueo ante respuestas de escritura inciertas. No cambia el contrato del backend ni las reglas de negocio.
 
 
-### D-13 — Responsable y operación de revisión documental
+### D-13 — Los documentos PDF no requieren aprobación
 
-- Estado: pendiente; no bloquea carga, consulta, versionado y anulación ya implementados.
-- Responsable de decidir: equipo y coordinación responsable del área.
-- Fecha de registro: 2026-11-18.
-- Contexto: el esquema tiene BORRADOR/REVISADO y la interfaz muestra pendientes de revisión, pero el contrato operativo no publica una ruta de aprobación ni identifica al responsable de revisarlos. Relacionado con D-03 y D-06.
-- Decisión requerida: confirmar si en este ciclo habrá aprobación digital y quién puede realizarla; definir motivo, historial y capacidades antes de añadir la transición.
-- Opciones: conservar carga/versiones con estado pendiente sin aprobación digital en este ciclo; o implementar revisión autorizada con un contrato acordado.
-- Impacto: API, capacidades de sesión, auditoría y acciones de Documentos. No cambiar automáticamente el estado al subir ni inventar un aprobador.
-- Evidencia: documento_area, estado_revision_documento, DocumentosController y DocumentsPage revisados en la copia local.
-- Pregunta para el equipo: «El PDF se sube y se puede consultar, pero queda pendiente de revisión. ¿En este ciclo alguien lo aprobará dentro del sistema? Si sí, ¿quién: coordinación del área u otra persona? Por ejemplo, ¿quién marca como revisada una constancia de Legal?».
-- Resolución: pendiente. No se añadió un endpoint o permiso por suposición.
+- Estado: confirmada por Eduardo e implementada en esta entrega.
+- Responsable de decidir: Eduardo, responsable del alcance indicado en el chat.
+- Fecha: 2026-11-18.
+- Evidencia: «No es necesaria esa aprobación, quita eso».
+- Resolución: no existe un paso de aprobación o revisión de PDF. Al cargar un archivo válido queda disponible para consulta, descarga y nuevas versiones con los permisos del área. Su estado operativo es VIGENTE; una anulación autorizada lo cambia a ANULADO conservando archivo e historial.
+- Interfaz y API: se retiran pendientes de revisión, estado/filtro documental BORRADOR y mensajes que sugieran autorización posterior. VIGENTE no depende del antiguo estado_revision_codigo. El resumen presenta documentos anulados en lugar de pendientes de revisión.
+- Compatibilidad: las columnas y migraciones históricas de revisión se conservan en BD sin utilizarlas para permitir o bloquear el flujo. No se marca artificialmente ningún archivo como revisado ni se inventa un aprobador; no se borra información histórica.
+- Alcance: sólo documentos. No cambia la confirmación de fichas de las áreas, su auditoría, los permisos definitivos o el proveedor de almacenamiento pendientes en D-02/D-03.
+- Sustituye la duda anterior sobre quién aprobaría PDFs. No es un requisito pendiente y no bloquea el PR.

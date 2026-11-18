@@ -91,7 +91,7 @@ describe("Transporte documental", () => {
       pagina: 2,
       buscar: "A&B",
       categoria: "Plan",
-      estado: "BORRADOR",
+      estado: "VIGENTE",
     });
     expect(fetch.mock.calls[0][0]).toContain("buscar=A%26B");
     expect(fetch.mock.calls[0][0]).toContain("9007199254740993");
