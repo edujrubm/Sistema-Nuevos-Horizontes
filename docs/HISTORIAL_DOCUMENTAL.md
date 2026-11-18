@@ -34,7 +34,7 @@ de archivos: usar los enlaces de Git, el commit o el pull request.
 - Decisiones: publicación autorizada por Eduardo en las ramas normales de cada módulo. D-02, D-03 y D-13 siguen explícitos; no se inventa sesión ni aprobación documental.
 - Verificación: check completo por rama y en combinación (49 backend, 257 frontend, 3 omisiones explícitas de servidor); PostgreSQL 71/71/75 sin fallos. Flujo real React/HTTP/PostgreSQL/PDF aprobado en las tres áreas consumidoras. Ambos órdenes de fusión se verificaron sin conflictos.
 - Ramas y destino: albergue → origin/albergue; documentos → origin/documentos. Base main 1bf827f. Los ajustes visuales de Legal/Social/Guardería quedan fuera de esta publicación.
-- Push: destino autorizado; confirmar los hashes remotos al publicar. Sin PR ni fusión a main y sin operaciones sobre la BD compartida.
+- Push funcional publicado y verificado: [albergue 1fa9873](https://github.com/edujrubm/Sistema-Nuevos-Horizontes/commit/1fa9873dcf8360991858fce87199c2a9ec1036e7); [documentos 348d20b](https://github.com/edujrubm/Sistema-Nuevos-Horizontes/commit/348d20be2df114be4452374166d6e039f786fdef). Actualización atómica, sin force-push. Sin PR, fusión a main u operaciones sobre la BD compartida.
 
 
 
