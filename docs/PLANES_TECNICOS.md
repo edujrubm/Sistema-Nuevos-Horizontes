@@ -57,7 +57,7 @@ Las transacciones extensas permanecen juntas en el repositorio de escritura porq
 
 ### Límites que esta revisión no convierte en reglas
 
-La autenticación/autorización productiva y almacenamiento definitivo siguen pendientes (D-02 y D-03). El esquema admite documentos BORRADOR/REVISADO, pero no hay una operación HTTP para aprobar la revisión: no se inventó quién autoriza ni se marcó un PDF como revisado automáticamente. El endpoint heredado de salidas pendientes devuelve un arreglo sin paginación; cambiar esa respuesta exige revisar sus consumidores. La escritura de hoja evolutiva sigue fuera de este cambio. Son límites explícitos; las pruebas locales no acreditan preparación productiva completa.
+La autenticación/autorización productiva y almacenamiento definitivo siguen pendientes (D-02 y D-03). Eduardo confirmó en D-13 que los PDF no requieren aprobación. Se retiran los pendientes y filtros de revisión del flujo operativo; la carga válida queda vigente de inmediato. Las columnas históricas de revisión no se utilizan para autorizar el documento ni se alteran migraciones. El endpoint heredado de salidas pendientes devuelve un arreglo sin paginación; cambiar esa respuesta exige revisar sus consumidores. La escritura de hoja evolutiva sigue fuera de este cambio. Son límites explícitos; las pruebas locales no acreditan preparación productiva completa.
 
 
 ### Alcance de publicación

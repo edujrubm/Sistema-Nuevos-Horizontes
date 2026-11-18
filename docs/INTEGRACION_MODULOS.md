@@ -50,4 +50,8 @@ Base: main 1bf827f. Las ramas normales albergue y documentos incluyen un mismo c
 
 Cada rama añade sólo los repositorios, entidades y frontend de su dominio. No depende de la reconstrucción de la otra. El ejecutor de áreas incorpora las pruebas de arquitectura presentes en la rama. No hay DDL nuevo, modificación de migraciones ni sincronización automática. No se publica el paquete visual de Legal/Social/Guardería. No copiar test-results, dependencias, entornos o bases de ensayo al repositorio.
 
-Antes de fusionar revisar la base común y los consumidores; tras squash/rebase volver a comprobar los diffs restantes. No equiparar aprobación de PR con disponibilidad de autenticación, almacenamiento o revisión documental productivos (D-02, D-03 y D-13).
+Antes de fusionar revisar la base común y los consumidores; tras squash/rebase volver a comprobar los diffs restantes. No equiparar aprobación de PR con disponibilidad de autenticación o almacenamiento productivos (D-02 y D-03). D-13 está resuelta: los PDFs no requieren aprobación y quedan vigentes tras una carga válida.
+
+### Retiro del flujo de aprobación documental — 2026-11-18
+
+El cambio de aplicación se entrega únicamente en documentos. Albergue recibe sólo la actualización de estas guías para no conservar una duda ya resuelta. No hay migración ni cambio en las fichas de las áreas. El filtro VIGENTE usa ausencia de anulación; ANULADO usa su presencia. El API ya no publica campos de revisión como estado de trabajo ni ofrece BORRADOR como filtro de PDF. Los consumidores internos y las pruebas se actualizan juntos. Las columnas de revisión quedan como compatibilidad histórica de la BD, sin automatizar una aprobación ficticia.

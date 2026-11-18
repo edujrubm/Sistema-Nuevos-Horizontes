@@ -28,6 +28,15 @@ de archivos: usar los enlaces de Git, el commit o el pull request.
 
 ## Entregas
 
+### 2026-11-18 — PDFs disponibles sin aprobación
+
+- Alcance: retiro del flujo de aprobación de PDF en Documentos: vigencia desde la carga, filtros VIGENTE/ANULADO y textos/indicadores acordes. Albergue recibe sólo la actualización documental de la decisión.
+- Decisión: D-13 confirmada por Eduardo: «No es necesaria esa aprobación, quita eso». No se modifican fichas, permisos por área ni migraciones históricas.
+- Verificación: check completo aprobado (49 backend, 258 frontend y compilación; 3 omisiones explícitas de servidor), 72 pruebas PostgreSQL sin fallos y tres flujos reales React/HTTP/PostgreSQL/PDF sin aprobación. No se alteran fichas ni migraciones.
+- Ramas: documentos para aplicación y documentación; albergue sólo para guías canónicas.
+- Push: pendiente de validación y publicación en sus ramas. Sin PR ni fusión a main; sin escrituras sobre BD compartida.
+
+
 ### 2026-11-18 — Albergue y Documentos preparados para revisión
 
 - Alcance: persistencia de Albergue/Documentos en repositorios propios, operaciones simples con TypeORM, auditoría y frontend institucional. Incluye saneamientos mecánicos del lockfile, un import duplicado y pruebas desactualizadas. No modifica tablas, migraciones ni código funcional de compañeros.
