@@ -5,7 +5,7 @@ import { PDFDocument } from "pdf-lib";
 import { createHash, randomUUID } from "node:crypto";
 import { mkdir, open, unlink } from "node:fs/promises";
 import { resolve } from "node:path";
-import { RegistroAreaRepository } from "../../common/registros-area/registro-area.repository";
+import { CargaPdfRepository } from "./repositories/carga-pdf.repository";
 import { AmbitoLocalService } from "../../common/registros-area/ambito-local.service";
 import { CargaPdfDto } from "./carga-pdf.dto";
 
@@ -19,7 +19,7 @@ export interface ArchivoPdf {
 @Injectable()
 export class CargaPdfService {
   constructor(
-    readonly repo: RegistroAreaRepository,
+    readonly repo: CargaPdfRepository,
     readonly ambito: AmbitoLocalService,
   ) {}
 
@@ -90,86 +90,11 @@ export class CargaPdfService {
       throw error;
     }
     try {
-      return await this.repo.transaction(
-        dto.motivoCambio ?? "Carga de PDF del área",
-        async (m, actor) => {
-          const f = await this.repo.formulario(dto.formularioId, m, true);
-          if (f.beneficiaria_id !== beneficiaria)
-            throw new ErrorApi("REGISTRO_NO_ENCONTRADO");
-          const [area] = await m.query(
-            "SELECT nombre_area FROM new_horizons.area WHERE id_area=$1",
-            [f.area_id],
-          );
-          this.ambito.comprobar(area.nombre_area);
-          // Social adjunta la copia firmada después de confirmar la ficha.
-          if (f.tipo === "SOCIAL" && f.estado_codigo !== (process.env.FORM_CONFIRMED_STATE_CODE || "CONFIRMADO"))
-            throw new ErrorApi("ESTADO_NO_PERMITIDO");
-          if (f.tipo === "GUARDERIA") {
-            const [inscripcion] = await m.query(
-              "SELECT EXISTS(SELECT 1 FROM new_horizons.formulario_area WHERE nino_id=$1 AND tipo='GUARDERIA' AND estado_codigo=$2) AS inscrito",
-              [f.nino_id, process.env.FORM_CONFIRMED_STATE_CODE],
-            );
-            if (!inscripcion.inscrito)
-              throw new ErrorApi("REGISTRO_NO_ENCONTRADO");
-          }
-          let versionDocumento = 1;
-          let nombreDocumento = dto.nombreDocumento?.trim() ?? null;
-          if (dto.documentoAnteriorId) {
-            const [anterior] = await m.query(
-              "SELECT * FROM new_horizons.documento_area WHERE id=$1 FOR UPDATE",
-              [dto.documentoAnteriorId],
-            );
-            if (
-              !anterior ||
-              anterior.formulario_id !== f.id ||
-              anterior.anulado_en
-            )
-              throw new ErrorApi("RELACION_INCOMPATIBLE");
-            const [sucesor] = await m.query(
-              "SELECT id FROM new_horizons.documento_area WHERE documento_anterior_id=$1",
-              [anterior.id],
-            );
-            if (sucesor)
-              throw new ErrorApi("VERSION_DOCUMENTAL_DESACTUALIZADA");
-            versionDocumento = anterior.version_documento + 1;
-            nombreDocumento ??= anterior.nombre_documento;
-          }
-          const [doc] = await m.query(
-            "INSERT INTO new_horizons.documento_area(formulario_id,categoria,objeto_privado,mime,tamano_bytes,sha256,version_documento,cargado_por,fecha_documento,descripcion,nombre_documento,documento_anterior_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING id,cargado_en,fecha_documento,descripcion,nombre_documento,estado_revision_codigo,version_registro",
-            [
-              f.id,
-              dto.categoria,
-              key,
-              "application/pdf",
-              archivo.buffer.length,
-              sha256,
-              versionDocumento,
-              actor,
-              dto.fechaDocumento ?? null,
-              dto.descripcion ?? null,
-              nombreDocumento,
-              dto.documentoAnteriorId ?? null,
-            ],
-          );
-          return {
-            id: doc.id,
-            formularioId: f.id,
-            areaId: f.area_id,
-            expedienteId: f.expediente_id,
-            categoria: dto.categoria,
-            mime: "application/pdf",
-            tamanoBytes: String(archivo.buffer.length),
-            sha256,
-            versionDocumento,
-            nombreDocumento: doc.nombre_documento ?? dto.categoria,
-            estadoRevisionCodigo: doc.estado_revision_codigo,
-            versionRegistro: doc.version_registro,
-            cargadoEn: doc.cargado_en,
-            fechaDocumento: doc.fecha_documento,
-            descripcion: doc.descripcion,
-          };
-        },
-      );
+      return await this.repo.registrar(beneficiaria, dto, {
+        key,
+        sha256,
+        tamanoBytes: archivo.buffer.length,
+      });
     } catch (error) {
       // Si se perdió la confirmación, el archivo puede tener un documento persistido: no borrarlo.
       if (!(

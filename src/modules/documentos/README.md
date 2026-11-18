@@ -1,6 +1,6 @@
 # Documentos unificados
 
-Único módulo operativo para PDFs. CargaPdfService valida/persiste bytes; DocumentosService consulta, lista versiones, verifica descarga y anula lógicamente. No hay otra solicitud de carga Firebase ni registro ficticio de éxito.
+Único módulo operativo para PDFs. CargaPdfService valida y almacena bytes; DocumentosService orquesta consulta, descarga y anulación. DocumentosRepository y CargaPdfRepository resuelven persistencia tipada y proyecciones con el mismo contexto transaccional. No hay otra solicitud de carga Firebase ni registro ficticio de éxito.
 
 Contrato y ejemplos: `postman/Documentos_Unificados.postman_collection.json`. Pruebas HTTP: `test/zzz-documentos-unificados.integration.cjs`. Las decisiones de almacenamiento y acceso productivo están en `docs/DECISIONES_Y_DUDAS.md`.
 

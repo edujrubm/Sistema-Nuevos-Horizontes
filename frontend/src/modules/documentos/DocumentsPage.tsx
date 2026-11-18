@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { getBeneficiary } from "@/modules/beneficiaries/api/beneficiaries-api";
 import { ApiError } from "@/shared/api/api-error";
@@ -109,6 +109,23 @@ export function DocumentsCase({
     [candidato, setCandidato] = useState<Documento>(),
     [motivoAnular, setMotivoAnular] = useState("");
   const control = useRef<AbortController | null>(null);
+  // El ref cierra la ventana entre dos eventos antes de que React actualice los botones.
+  const escrituraEnCurso = useRef(false);
+  const carga = useMutation({
+    mutationFn: ({ datos, signal }: { datos: FormData; signal: AbortSignal }) =>
+      cargarDocumento(id, datos, setProgreso, signal),
+    retry: false,
+  });
+  const anulacion = useMutation({
+    mutationFn: ({
+      documento,
+      motivo,
+    }: {
+      documento: Documento;
+      motivo: string;
+    }) => anularDocumento(documento, motivo),
+    retry: false,
+  });
   useEffect(() => () => control.current?.abort(), []);
   useEffect(() => {
     if (!ocupado) return;
@@ -137,7 +154,7 @@ export function DocumentsCase({
   }
   async function guardar(e: React.FormEvent) {
     e.preventDefault();
-    if (ocupado || incierto) return;
+    if (ocupado || incierto || escrituraEnCurso.current) return;
     if (!archivo) {
       setError("Selecciona un archivo PDF.");
       return;
@@ -182,13 +199,14 @@ export function DocumentsCase({
       datos.append("documentoAnteriorId", anterior.id);
       datos.append("motivoCambio", motivo.trim());
     }
+    escrituraEnCurso.current = true;
     setOcupado(true);
     setError("");
     setExito("");
     setProgreso(0);
     control.current = new AbortController();
     try {
-      await cargarDocumento(id, datos, setProgreso, control.current.signal);
+      await carga.mutateAsync({ datos, signal: control.current.signal });
       setPanel(false);
       setArchivo(undefined);
       setExito("Documento guardado correctamente como borrador.");
@@ -201,6 +219,7 @@ export function DocumentsCase({
       )
         setIncierto(true);
     } finally {
+      escrituraEnCurso.current = false;
       setOcupado(false);
       control.current = null;
     }
@@ -220,11 +239,20 @@ export function DocumentsCase({
     }
   }
   async function anular() {
-    if (!candidato || ocupado || !motivoAnular.trim()) return;
+    if (
+      !candidato ||
+      ocupado ||
+      escrituraEnCurso.current ||
+      !motivoAnular.trim()
+    )
+      return;
     setOcupado(true);
     setError("");
     try {
-      await anularDocumento(candidato, motivoAnular.trim());
+      await anulacion.mutateAsync({
+        documento: candidato,
+        motivo: motivoAnular.trim(),
+      });
       setCandidato(undefined);
       setMotivoAnular("");
       setExito("Documento anulado. Se conserva el archivo y su historial.");
@@ -232,6 +260,7 @@ export function DocumentsCase({
     } catch (e) {
       setError(mensaje(e));
     } finally {
+      escrituraEnCurso.current = false;
       setOcupado(false);
     }
   }

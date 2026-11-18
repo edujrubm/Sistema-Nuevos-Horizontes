@@ -30,3 +30,13 @@ test('Documentos UI: contexto, filtros de servidor y resumen solo del área',asy
  await call('GET','/beneficiarias/100/documentos?estado=INVALIDO',undefined,400);
  process.env.AREA_TEST_NOMBRE='Medicina';const ajeno=await call('GET','/beneficiarias/100/documentos/contexto');assert.ok(ajeno.formularios.every(f=>f.tipo.startsWith('MEDICINA')));process.env.AREA_TEST_NOMBRE='Legal';
 });
+
+test('Documentos: dos versiones simultáneas no crean bifurcaciones ni archivos huérfanos',async()=>{
+ process.env.AREA_TEST_NOMBRE='Legal';const inicial=await cargar({categoria:'Versionado concurrente'});
+ const enviar=async()=>{const form=new FormData();for(const [k,v]of Object.entries({formularioId:fid,categoria:'Versionado concurrente',documentoAnteriorId:inicial.id,motivoCambio:'Corrección ficticia concurrente'}))form.set(k,v);form.set('archivo',new Blob([fs.readFileSync('test/fixtures/documento.pdf')],{type:'application/pdf'}),'documento.pdf');return fetch(url+'/beneficiarias/100/documentos/cargas',{method:'POST',body:form});};
+ const responses=await Promise.all([enviar(),enviar()]);assert.deepEqual(responses.map(r=>r.status).sort(),[201,409]);
+ const versiones=await call('GET','/documentos/'+inicial.id+'/versiones');assert.equal(versiones.total,2);
+ const [r]=await db.query('SELECT count(*)::int AS total FROM new_horizons.documento_area WHERE documento_anterior_id=$1',[inicial.id]);assert.equal(r.total,1);
+ const keys=new Set((await db.query('SELECT objeto_privado FROM new_horizons.documento_area')).map(d=>d.objeto_privado));
+ assert.ok(fs.readdirSync(process.env.DOCUMENTOS_DIR).every(f=>keys.has(f)),'La carga rechazada dejó un archivo sin registro');
+});

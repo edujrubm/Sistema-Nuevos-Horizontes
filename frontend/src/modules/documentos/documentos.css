@@ -145,9 +145,9 @@
 .documentos-area .actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 16px;
   align-items: center;
-  margin-top: 12px;
+  margin-top: 24px;
 }
 .documentos-area .tag {
   padding: 5px 10px;
@@ -209,4 +209,20 @@
   .documentos-area h1 {
     font-size: 26px;
   }
+}
+
+/* Las acciones de tabla no heredan el espacio reservado a un pie de formulario. */
+.documentos-area td .actions {
+  margin-top: 0;
+}
+.documentos-area .notice:not(form) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.documentos-area form.notice {
+  display: grid;
+  gap: 24px;
 }

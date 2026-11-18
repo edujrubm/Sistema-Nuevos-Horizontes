@@ -1,6 +1,6 @@
 import type { Response } from "express";
 import { DocumentosService } from "./documentos.service";
-import { ListaDto, TransicionDto } from "../evolucion/dto/entrada-evolutiva.dto";
+import { TransicionDto } from "../../common/dto/version.dto";
 import { LIMITE_PDF_BYTES } from "./limites";
 import { DocumentosListaDto } from "./documentos-lista.dto";
 import {
