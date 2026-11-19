@@ -63,7 +63,7 @@ describe("ShelterDashboardPage", () => {
     renderPage();
 
     expect(await screen.findByText("Personas activas")).toBeInTheDocument();
-    expect(screen.getByText("#8")).toBeInTheDocument();
+    expect(screen.getByText("Estancia de albergue")).toBeInTheDocument();
     expect(screen.getByText("Expediente vinculado #16")).toBeInTheDocument();
     expect(screen.queryByText(/1234567890123/)).not.toBeInTheDocument();
   });

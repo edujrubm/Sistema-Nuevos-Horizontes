@@ -57,7 +57,9 @@ describe("ShelterClosurePage", () => {
 
   it("exige una confirmación explícita antes del egreso", async () => {
     renderPage();
-    await screen.findByRole("option", { name: /Estancia #8/ });
+    await screen.findByRole("option", {
+      name: /Estancia de albergue.*Expediente #16/,
+    });
     fireEvent.change(
       screen.getByRole("combobox", { name: /estancia activa/i }),
       { target: { value: "8" } },

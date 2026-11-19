@@ -28,6 +28,25 @@ de archivos: usar los enlaces de Git, el commit o el pull request.
 
 ## Entregas
 
+### 2026-11-18 — PDFs disponibles sin aprobación
+
+- Alcance: retiro del flujo de aprobación de PDF en Documentos: vigencia desde la carga, filtros VIGENTE/ANULADO y textos/indicadores acordes. Albergue recibe sólo la actualización documental de la decisión.
+- Decisión: D-13 confirmada por Eduardo: «No es necesaria esa aprobación, quita eso». No se modifican fichas, permisos por área ni migraciones históricas.
+- Verificación: check completo aprobado (49 backend, 258 frontend y compilación; 3 omisiones explícitas de servidor), 72 pruebas PostgreSQL sin fallos y tres flujos reales React/HTTP/PostgreSQL/PDF sin aprobación. No se alteran fichas ni migraciones.
+- Ramas: documentos para aplicación y documentación; albergue sólo para guías canónicas.
+- Push verificado: [Documentos 655bccb](https://github.com/edujrubm/Sistema-Nuevos-Horizontes/commit/655bccb29e1ccc8b22a146c6b4fbaa96f0dcaadc) y [guías de Albergue ecf0d3d](https://github.com/edujrubm/Sistema-Nuevos-Horizontes/commit/ecf0d3d85b1d338f17412eda2ba571a6a42f98f3). Sin PR ni fusión a main; sin escrituras sobre BD compartida.
+
+
+### 2026-11-18 — Albergue y Documentos preparados para revisión
+
+- Alcance: persistencia de Albergue/Documentos en repositorios propios, operaciones simples con TypeORM, auditoría y frontend institucional. Incluye saneamientos mecánicos del lockfile, un import duplicado y pruebas desactualizadas. No modifica tablas, migraciones ni código funcional de compañeros.
+- Decisiones: publicación autorizada por Eduardo en las ramas normales de cada módulo. D-02, D-03 y D-13 siguen explícitos; no se inventa sesión ni aprobación documental.
+- Verificación: check completo por rama y en combinación (49 backend, 257 frontend, 3 omisiones explícitas de servidor); PostgreSQL 71/71/75 sin fallos. Flujo real React/HTTP/PostgreSQL/PDF aprobado en las tres áreas consumidoras. Ambos órdenes de fusión se verificaron sin conflictos.
+- Ramas y destino: albergue → origin/albergue; documentos → origin/documentos. Base main 1bf827f. Los ajustes visuales de Legal/Social/Guardería quedan fuera de esta publicación.
+- Push funcional publicado y verificado: [albergue 1fa9873](https://github.com/edujrubm/Sistema-Nuevos-Horizontes/commit/1fa9873dcf8360991858fce87199c2a9ec1036e7); [documentos 348d20b](https://github.com/edujrubm/Sistema-Nuevos-Horizontes/commit/348d20be2df114be4452374166d6e039f786fdef). Actualización atómica, sin force-push. Sin PR, fusión a main u operaciones sobre la BD compartida.
+
+
+
 ### 2026-11-17 — Consolidación de informes por módulo
 
 - Alcance: los informes puntuales de integración, reconstrucción, QA y cierre de Social, Legal y Guardería se concentran en las guías globales de integración, planificación y verificación; la guía específica de Postman Social se incorpora al README general de Postman.

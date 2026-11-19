@@ -229,3 +229,16 @@ Por la petición de Eduardo de separar la infraestructura y los paquetes de cada
 ### Alineación técnica del frontend — 2026-11-14
 
 Eduardo solicitó alinear Legal, Social y Guardería con los módulos del equipo. Las reconstrucciones utilizan apiRequest y la representación ApiError.body públicas, useQuery/useMutation y el QueryClient existente. La fachada http.ts delega al mismo transporte y reexporta la misma clase para consumidores publicados; no define otra configuración ni otro cliente. Se conservan los borradores, la cancelación de consultas y el bloqueo ante respuestas de escritura inciertas. No cambia el contrato del backend ni las reglas de negocio.
+
+
+### D-13 — Los documentos PDF no requieren aprobación
+
+- Estado: confirmada por Eduardo e implementada en esta entrega.
+- Responsable de decidir: Eduardo, responsable del alcance indicado en el chat.
+- Fecha: 2026-11-18.
+- Evidencia: «No es necesaria esa aprobación, quita eso».
+- Resolución: no existe un paso de aprobación o revisión de PDF. Al cargar un archivo válido queda disponible para consulta, descarga y nuevas versiones con los permisos del área. Su estado operativo es VIGENTE; una anulación autorizada lo cambia a ANULADO conservando archivo e historial.
+- Interfaz y API: se retiran pendientes de revisión, estado/filtro documental BORRADOR y mensajes que sugieran autorización posterior. VIGENTE no depende del antiguo estado_revision_codigo. El resumen presenta documentos anulados en lugar de pendientes de revisión.
+- Compatibilidad: las columnas y migraciones históricas de revisión se conservan en BD sin utilizarlas para permitir o bloquear el flujo. No se marca artificialmente ningún archivo como revisado ni se inventa un aprobador; no se borra información histórica.
+- Alcance: sólo documentos. No cambia la confirmación de fichas de las áreas, su auditoría, los permisos definitivos o el proveedor de almacenamiento pendientes en D-02/D-03.
+- Sustituye la duda anterior sobre quién aprobaría PDFs. No es un requisito pendiente y no bloquea el PR.
