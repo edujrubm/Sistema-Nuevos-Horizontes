@@ -30,3 +30,26 @@ test('Documentos UI: contexto, filtros de servidor y resumen solo del área',asy
  await call('GET','/beneficiarias/100/documentos?estado=INVALIDO',undefined,400);
  process.env.AREA_TEST_NOMBRE='Medicina';const ajeno=await call('GET','/beneficiarias/100/documentos/contexto');assert.ok(ajeno.formularios.every(f=>f.tipo.startsWith('MEDICINA')));process.env.AREA_TEST_NOMBRE='Legal';
 });
+
+test('Documentos: dos versiones simultáneas no crean bifurcaciones ni archivos huérfanos',async()=>{
+ process.env.AREA_TEST_NOMBRE='Legal';const inicial=await cargar({categoria:'Versionado concurrente'});
+ const enviar=async()=>{const form=new FormData();for(const [k,v]of Object.entries({formularioId:fid,categoria:'Versionado concurrente',documentoAnteriorId:inicial.id,motivoCambio:'Corrección ficticia concurrente'}))form.set(k,v);form.set('archivo',new Blob([fs.readFileSync('test/fixtures/documento.pdf')],{type:'application/pdf'}),'documento.pdf');return fetch(url+'/beneficiarias/100/documentos/cargas',{method:'POST',body:form});};
+ const responses=await Promise.all([enviar(),enviar()]);assert.deepEqual(responses.map(r=>r.status).sort(),[201,409]);
+ const versiones=await call('GET','/documentos/'+inicial.id+'/versiones');assert.equal(versiones.total,2);
+ const [r]=await db.query('SELECT count(*)::int AS total FROM new_horizons.documento_area WHERE documento_anterior_id=$1',[inicial.id]);assert.equal(r.total,1);
+ const keys=new Set((await db.query('SELECT objeto_privado FROM new_horizons.documento_area')).map(d=>d.objeto_privado));
+ assert.ok(fs.readdirSync(process.env.DOCUMENTOS_DIR).every(f=>keys.has(f)),'La carga rechazada dejó un archivo sin registro');
+});
+
+test('Documentos: el PDF queda vigente desde la carga, sin revisión o aprobación',async()=>{
+ process.env.AREA_TEST_NOMBRE='Legal';const pdf=await cargar({categoria:'Disponible sin aprobación'});assert.equal(pdf.estado,'VIGENTE');assert.equal(Object.hasOwn(pdf,'estadoRevisionCodigo'),false);
+ const detalle=await call('GET','/documentos/'+pdf.id);assert.equal(detalle.estado,'VIGENTE');assert.ok(!Object.hasOwn(detalle,'estadoRevisionCodigo'));assert.ok(!Object.hasOwn(detalle,'revisadoPor'));
+ const [legacy]=await db.query('SELECT estado_revision_codigo,revisado_por,revisado_en FROM new_horizons.documento_area WHERE id=$1',[pdf.id]);assert.equal(legacy.estado_revision_codigo,'BORRADOR');assert.equal(legacy.revisado_por,null);assert.equal(legacy.revisado_en,null);
+ const vigentes=await call('GET','/beneficiarias/100/documentos?estado=VIGENTE&buscar='+encodeURIComponent('Disponible sin aprobación'));assert.equal(vigentes.total,1);assert.equal(vigentes.datos[0].id,pdf.id);assert.equal(vigentes.datos[0].estado,'VIGENTE');
+ const c=await call('GET','/beneficiarias/100/documentos/contexto');assert.equal(Object.hasOwn(c.resumen,'pendientesRevision'),false);assert.ok(Number.isInteger(c.resumen.documentosAnulados));
+ const archivo=await fetch(url+'/documentos/'+pdf.id+'/archivo');assert.equal(archivo.status,200);assert.deepEqual(Buffer.from(await archivo.arrayBuffer()),fs.readFileSync('test/fixtures/documento.pdf'));
+ await call('GET','/beneficiarias/100/documentos?estado=BORRADOR',undefined,400);
+ const anulado=await call('POST','/documentos/'+pdf.id+'/anular',{version:pdf.versionRegistro,motivo:'Anulación sintética sin revisión'},201);assert.equal(anulado.estado,'ANULADO');
+ const anulados=await call('GET','/beneficiarias/100/documentos?estado=ANULADO&buscar='+encodeURIComponent('Disponible sin aprobación'));assert.equal(anulados.total,1);assert.equal(anulados.datos[0].estado,'ANULADO');
+ assert.equal((await call('GET','/beneficiarias/100/documentos?estado=VIGENTE&buscar='+encodeURIComponent('Disponible sin aprobación'))).total,0);
+});
