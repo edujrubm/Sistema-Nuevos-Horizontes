@@ -1,0 +1,419 @@
+{
+  "info": {
+    "name": "Nuevos Horizontes — Seguridad v1",
+    "_postman_id": "a8c29998-67e6-4594-a4f9-0916c4ca20dc",
+    "description": "Colección de integración frontend para Seguridad v1 (NestJS). Base por defecto http://localhost:3001. JWT HS256 con sesión PostgreSQL, expiración 900 s. Orden: Login → Perfil → Logout. Otros endpoints modifican datos reales. Esta colección es una plantilla sin secretos: NO exportar valores actuales de tokens o contraseñas de Postman.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "item": [
+    {
+      "name": "Autenticación — flujo recomendado",
+      "description": "Ejecutar en orden 01, 02, 03 para validar login, perfil y cierre de sesión.",
+      "item": [
+        {
+          "name": "01 · Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/seguridad/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "seguridad",
+                "login"
+              ]
+            },
+            "description": "Público. Valida usuario/contraseña; devuelve access_token, token_type, expires_in=900 y datos de usuario. Guarda JWT en variable de colección para las demás solicitudes. Nunca exportar una colección que contenga el token en variables locales.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_usuario\": \"{{nombre_usuario}}\",\n  \"contrasena\": \"{{contrasena}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Login 200\", () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "  const r = pm.response.json();",
+                  "  pm.test(\"Incluye access_token\", () => pm.expect(r.access_token).to.be.a(\"string\").and.not.empty);",
+                  "  if (r.access_token) pm.collectionVariables.set(\"access_token\", r.access_token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 · Perfil autenticado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/seguridad/perfil",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "seguridad",
+                "perfil"
+              ]
+            },
+            "description": "JWT obligatorio. Devuelve mensaje y usuario autenticado (id_usuario, id_empleado, id_rol, tipo_rol, id_area, id_sesion). No es el mismo objeto usuario que se devuelve en login.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Perfil 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 · Logout (revoca la sesión)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/seguridad/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "seguridad",
+                "logout"
+              ]
+            },
+            "description": "Revoca exclusivamente la sesión actual. Se elimina la variable local access_token tras respuesta 200; la siguiente consulta /perfil con el mismo JWT debería dar 401.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Logout 200\", () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) pm.collectionVariables.unset(\"access_token\");"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cuenta — operación sensible",
+      "item": [
+        {
+          "name": "04 · Cambiar contraseña (revoca sesiones)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/seguridad/cambiar-contrasena",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "seguridad",
+                "cambiar-contrasena"
+              ]
+            },
+            "description": "Requiere JWT. Compara contraseña actual, nueva y confirmación. La nueva debe tener 12–128 caracteres y ser distinta. Operación REAL: cambia la contraseña y revoca sesiones, por lo que habrá que iniciar sesión de nuevo. Usar solo cuenta de pruebas.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contrasena_actual\": \"{{contrasena_actual}}\",\n  \"contrasena_nueva\": \"{{contrasena_nueva}}\",\n  \"confirmar_contrasena\": \"{{confirmar_contrasena}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Respuesta HTTP de cambio de contraseña\", () => pm.expect(pm.response.code).to.be.oneOf([200,400,401,403]));",
+                  "if (pm.response.code === 200) pm.collectionVariables.unset(\"access_token\");"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Administración — MODIFICA DATOS",
+      "item": [
+        {
+          "name": "05 · Crear usuario [ADMIN, modifica datos]",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/seguridad/usuarios",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "seguridad",
+                "usuarios"
+              ]
+            },
+            "description": "Requiere JWT y permiso crear:usuarios. Empleado existente con rol asignado. id_empleado string positivo, nombre_usuario 4–60 caracteres con letras/números/._-, contraseña 12–128. Retorna 201 y objeto usuario sin contraseña/hash. No disparar en una base de producción.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_empleado\": \"{{id_empleado_nuevo}}\",\n  \"nombre_usuario\": \"{{nombre_usuario_nuevo}}\",\n  \"contrasena\": \"{{contrasena_usuario_nuevo}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Crear usuario: código aceptado\", () => pm.expect(pm.response.code).to.be.oneOf([201,400,401,403,404,409]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 · Desactivar usuario [ADMIN, modifica datos]",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/seguridad/usuarios/{{id_usuario_objetivo}}/desactivar",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "seguridad",
+                "usuarios",
+                "{{id_usuario_objetivo}}",
+                "desactivar"
+              ]
+            },
+            "description": "Requiere JWT y permiso inhabilitar:usuarios. No permite autodesactivarse. Desactiva usuario, audita cambio y revoca todas sus sesiones; operación potencialmente disruptiva. Ejecutar solo con usuario de prueba.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Desactivar: código aceptado\", () => pm.expect(pm.response.code).to.be.oneOf([200,400,401,403,404]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 · Reactivar usuario [ADMIN, modifica datos]",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/seguridad/usuarios/{{id_usuario_objetivo}}/reactivar",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "seguridad",
+                "usuarios",
+                "{{id_usuario_objetivo}}",
+                "reactivar"
+              ]
+            },
+            "description": "Requiere JWT y permiso habilitar:usuarios. Reactiva la cuenta, audita cambio y conserva sesiones anteriores revocadas; necesita nuevo login.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Reactivar: código aceptado\", () => pm.expect(pm.response.code).to.be.oneOf([200,400,401,403,404]));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3001",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "nombre_usuario",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "contrasena",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "contrasena_actual",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "contrasena_nueva",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "confirmar_contrasena",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "id_empleado_nuevo",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "nombre_usuario_nuevo",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "contrasena_usuario_nuevo",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "id_usuario_objetivo",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
