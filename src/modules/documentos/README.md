@@ -6,4 +6,4 @@ Contrato y ejemplos: `postman/Documentos_Unificados.postman_collection.json`. Pr
 
 Almacenamiento privado local DOCUMENTOS_DIR, límite 20 MiB. No servir ese directorio como estático. La sesión/almacenamiento productivos se integrarán posteriormente; el arranque sigue limitado a loopback en desarrollo/pruebas.
 
-Los PDFs cargados quedan disponibles inmediatamente, sin aprobación o revisión documental. Su estado operativo es VIGENTE o ANULADO. Los campos históricos de revisión permanecen en la BD por compatibilidad de migraciones, pero no se utilizan para habilitar consulta, versión o descarga ni se exponen como un pendiente del usuario.
+Los PDFs cargados quedan disponibles inmediatamente, sin aprobación o revisión documental. Su estado operativo es VIGENTE o ANULADO. La entidad ORM y el contrato público no incluyen revisión. La migración 024 archiva los metadatos históricos y retira sus columnas de la tabla operativa. No modifica versiones ni archivos. Es compatible con la aplicación antes y después de ejecutarla; su ejecución compartida requiere respaldo y revisión del encargado.

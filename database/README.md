@@ -16,3 +16,9 @@ El repositorio contiene las migraciones anteriores como evidencia versionada,
 pero su presencia no confirma que una base remota específica las tenga
 aplicadas. Consultar `../docs/DECISIONES_Y_DUDAS.md` y verificar el ambiente
 antes de tomar una decisión de despliegue o asumir el estado de PostgreSQL.
+
+El inventario vigente y sus equivalencias están en migrations/manifest.json.
+La normalización del 24 de noviembre conserva los nombres y hashes originales
+como procedencia y mantiene el orden ejecutable. No volver a ejecutar un renombre
+como si fuera una migración nueva. Consultar migrations/README.md y ejecutar el
+verificador sin conexión antes de coordinar una actualización con el encargado.

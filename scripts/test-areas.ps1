@@ -10,10 +10,11 @@ $cluster = Join-Path $results ('legal-pg-' + [guid]::NewGuid().ToString('N'))
 $database = 'legal_orm_test_' + [guid]::NewGuid().ToString('N').Substring(0, 8)
 $started = $false
 $settings = @{
+  QA_POSTGRES_BIN=$PostgresBin
   LEGAL_TEST_HOST='127.0.0.1'; LEGAL_TEST_PORT="$Port"; LEGAL_TEST_DATABASE=$database; LEGAL_TEST_USER='legal_test'; LEGAL_TEST_PASSWORD='local-test'
   DATABASE_HOST='127.0.0.1'; DATABASE_PORT="$Port"; DATABASE_NAME=$database; DATABASE_USER='legal_test'; DATABASE_PASSWORD='local-test'; DATABASE_SSL='false'
-  NODE_ENV='test'; AREA_TEST_NOMBRE='Legal'; AREA_TEST_ROL='COORDINACION'
-  AREA_ENABLE_LAB='false'; DOCUMENTOS_DIR=(Join-Path $cluster 'documents'); FORM_DRAFT_STATE_CODE='BORRADOR'; FORM_CONFIRMED_STATE_CODE='CONFIRMADO'; FORM_DISCARDED_STATE_CODE='DESCARTADO'; AUDIT_ACTOR_USERNAME='laboratorio-local'
+  NODE_ENV='test'; AREA_TEST_NOMBRE='Legal'; AREA_TEST_ROL='COORDINACION'; JWT_SECRET=([guid]::NewGuid().ToString('N')+[guid]::NewGuid().ToString('N'))
+  DOCUMENTOS_DIR=(Join-Path $cluster 'documents'); FORM_DRAFT_STATE_CODE='BORRADOR'; FORM_CONFIRMED_STATE_CODE='CONFIRMADO'; FORM_DISCARDED_STATE_CODE='DESCARTADO'; AUDIT_ACTOR_USERNAME='laboratorio-local'
 }
 $names = @($settings.Keys)
 $previous = @{}
@@ -56,7 +57,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "Falló el script de ensayo $file" }
   }
   foreach ($name in $names) { [Environment]::SetEnvironmentVariable($name, $settings[$name]) }
-  $suites = @('test/arquitectura-modulos.unit.cjs','test/modulos-independientes.unit.cjs','test/errores.unit.cjs','test/registros-area.integration.cjs','test/zzz-documentos-unificados.integration.cjs','test/zzzz-albergue.integration.cjs')
+  $suites = @('test/arquitectura-modulos.unit.cjs','test/modulos-independientes.unit.cjs','test/errores.unit.cjs','test/retiro-revision-documental.integration.cjs','test/actualizacion-migraciones.integration.cjs','test/migraciones-inventario.unit.cjs','test/registros-area.integration.cjs','test/zzz-documentos-unificados.integration.cjs','test/zzzz-albergue.integration.cjs')
   # Cada rama ejecuta únicamente los límites del módulo que incluye.
   $suites += Get-ChildItem -LiteralPath test -Filter '*-arquitectura.unit.cjs' | Sort-Object Name | ForEach-Object FullName
   $report = 'areas.integration.tap'

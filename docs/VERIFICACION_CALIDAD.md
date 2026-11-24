@@ -55,3 +55,68 @@ El registro del módulo Documentos incluye explícitamente las entidades compart
 Se verifica que una carga válida se presenta como VIGENTE aunque su columna histórica de revisión conserve BORRADOR, sin asignar revisado_por/revisado_en. El filtro VIGENTE incluye inmediatamente el archivo, la descarga conserva sus bytes y una anulación lo excluye de vigentes y lo incluye en ANULADO. La UI no ofrece el filtro Borrador ni el contador de pendientes de revisión; el mensaje de carga no sugiere aprobación posterior. Los estados de borrador y confirmación de las fichas de área se conservan.
 
 Resultado: 49 pruebas backend y 258 frontend aprobadas; 3 omisiones explícitas de servidor en la suite ordinaria; tipos y compilación aprobados. La suite PostgreSQL pasó 72 pruebas sin fallos. Los tres flujos reales desde React (Legal, Social y Guardería) comprobaron carga, disponibilidad inmediata y recuperación de bytes, sin indicador de aprobación pendiente.
+
+## Depuración del legado — 2026-11-24
+
+Base: origin/main 520e1a3. PostgreSQL 18 desechable en loopback 55591,
+sin conexión a Neon ni ejecución en una base del grupo. Se aplicó el esquema
+base y todos los SQL vigentes, incluida 024: 79 pruebas de arquitectura, HTTP,
+Postman, PDFs, versiones concurrentes, referencias, evolución y Albergue aprobadas.
+Dos escenarios adicionales dentro de esa suite verifican que 024 conserva tanto
+revisión completa como ausencia de revisión, conserva catálogo/contenido/versiones
+y revierte toda la transacción ante una vista externa dependiente.
+
+Los primeros intentos identificaron desajustes del banco de pruebas tras integrar
+autenticación: faltaba JWT_SECRET local, AuthProvider en tres tests de navegación
+y la etiqueta vigente Área Trabajo Social. Se corrige sólo el montaje de nuestras
+pruebas y el entorno desechable; no se cambia Seguridad ni el layout del equipo.
+Las 45 pruebas dirigidas de Legal/Social/Guardería pasan después del ajuste.
+
+Los SQL históricos permanecen intactos. El mapa/renombre del PR 36 es una propuesta
+separada; esta depuración no modifica ese PR. main incorporó otra migración 009 de
+Seguridad: coordinar su numeración con el responsable, no renombrarla como parte
+de esta limpieza. No existe evidencia para borrar tablas experimentales de una
+base compartida: se retiró su propuesta sin ejecutar DROP sobre esos ambientes.
+
+Cierre de pruebas: 50 pruebas unitarias de backend y 265 de frontend aprobadas;
+3 de frontend permanecen omitidas por el repositorio. Tipos del frontend y
+compilaciones de API/web correctos. Las 79 comprobaciones de PostgreSQL/HTTP
+finalizaron sin fallos. No se ejecutaron pruebas contra ambientes compartidos.
+
+## Revisión final conjunta — 2026-11-24
+
+Base final f931ee70e13789134b0ecc73ea348747c23c6ad6; entrega depuracion hacia main,
+en sustitución del PR 36. Los resultados siguientes sustituyen el estado local
+previo de esta misma depuración.
+
+| Verificación | Resultado |
+| --- | --- |
+| pnpm check | Correcto: inventario, tipos, 50 pruebas API, 265 pruebas web y compilaciones; 3 web omitidas por la suite existente |
+| TypeScript API y web con noUnusedLocals y noUnusedParameters | Sin errores |
+| Integración con PostgreSQL 18 desechable | 84 aprobadas, cero fallos |
+| Legal independiente y React/HTTP real | 31 aprobadas |
+| Social independiente y Postman real | 30 aprobadas |
+| Guardería independiente y React/HTTP real | 31 aprobadas |
+| Paternidad independiente | 9 aprobadas |
+| Identificadores de la agrupación retirada | Ausentes de código, herramientas, Postman y SQL vigentes; sólo se conservan identidades históricas en manifest.json |
+| Inventario SQL | 22 archivos, secuencia 003–024 única, hashes verificados y orden histórico conservado |
+
+La prueba de actualización reconstruye otra BD desechable desde los scripts
+originales recuperados del commit base y verificados por hash. Crea un PDF
+histórico sintético con revisión, consulta la API antes y después de 024, y exige
+la misma respuesta operativa. Compara todos los registros de todos los módulos y
+la auditoría, salvo los tres campos trasladados al archivo histórico. Verifica
+su conservación, y compara columnas, restricciones, índices, triggers y funciones
+con la instalación nueva. Otro escenario comprueba rollback ante una vista externa
+dependiente. No se ejecuta CASCADE en 024 ni se modifica una base compartida.
+
+Los escenarios se ejecutan con la misma configuración de archivo SQL del instalador,
+para no confundir diferencias CRLF/LF de stdin con cambios en cuerpos de funciones.
+Se mantienen excepciones de formato acotadas en .gitattributes para preservar los
+bytes SQL y el formato histórico de los archivos modificados. La lista de hashes
+incluye el comentario de cabecera normalizado y su identidad anterior.
+
+Límite: estas pruebas no acreditan el estado de Neon/producción ni protegen
+consumidores externos no presentes en el repositorio. El responsable debe cotejar
+su historial y respaldar antes de aplicar 024. No se promete disponibilidad
+productiva de permisos/almacenamiento pendientes ni se fusiona automáticamente.

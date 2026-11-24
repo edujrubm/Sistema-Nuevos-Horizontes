@@ -11,6 +11,7 @@ import { soloLectura, type Capacidades, type Ficha } from "@/shared/types/api";
 
 import { guarderiaApi } from "./api/guarderia-api";
 import { AppLayout } from "@/app/layouts/AppLayout";
+import { AuthProvider } from "@/modules/auth/AuthContext";
 import {
   GuarderiaChildrenPage,
   GuarderiaEditorPage,
@@ -122,7 +123,11 @@ describe("Guardería: vistas propias", () => {
       ],
       { initialEntries: ["/beneficiarias/100/guarderia"] },
     );
-    render(<RouterProvider router={router} />);
+    render(
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>,
+    );
     expect(
       screen.getByRole("link", { name: "Fichas de Guardería" }),
     ).toHaveAttribute("href", "/beneficiarias/100/guarderia");

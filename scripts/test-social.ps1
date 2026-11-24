@@ -25,6 +25,7 @@ $settings = @{
   AREA_TEST_ROL = 'COORDINACION'
   DOCUMENTOS_DIR = (Join-Path $cluster 'documentos')
   NODE_ENV = 'test'
+  JWT_SECRET = ([guid]::NewGuid().ToString('N')+[guid]::NewGuid().ToString('N'))
   FORM_DRAFT_STATE_CODE = 'BORRADOR'
   FORM_CONFIRMED_STATE_CODE = 'CONFIRMADO'
   FORM_DISCARDED_STATE_CODE = 'DESCARTADO'

@@ -2,7 +2,6 @@ import { IsPgId } from "../../../../common/validation/pg-id.validator";
 import {
   IsOptional,
   IsString,
-  IsBoolean,
   Matches,
   MaxLength,
   IsDateString,

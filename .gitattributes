@@ -2,3 +2,19 @@
 # Conservar PDF y evidencias como binarios, sin conversión de fin de línea.
 *.pdf binary
 *.png binary
+
+# Preservar los bytes aprobados y sus hashes al cambiar nombres de SQL.
+database/migrations/*.sql -text
+docs/DECISIONES_Y_DUDAS.md -text
+scripts/start-registros-area.ps1 -text
+scripts/test-areas.ps1 -text
+scripts/test-guarderia-consultas.ps1 -text
+scripts/test-legal.ps1 -text
+scripts/test-padres-consultas.ps1 -text
+scripts/test-social.ps1 -text
+src/common/database/audited-transaction.ts -text
+src/modules/albergue/dto/crear-estancia.dto.ts -text
+src/modules/formularios/legal/dto/ficha-legal.dto.ts -text
+src/modules/formularios/legal/legal.service.ts -text
+test/arquitectura-modulos.unit.cjs -text
+* whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

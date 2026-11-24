@@ -13,11 +13,13 @@ function archivos(relative) {
 }
 
 test("Los módulos activos y sus herramientas usan nombres de dominio", () => {
-  const rutas = ["src", "frontend/src", "scripts", "test", "postman", "package.json", ".env.example"]
+  const rutas = ["src", "frontend/src", "scripts", "test", "postman", "database/migrations", "package.json", ".env.example"]
     .flatMap(archivos);
   const fallos = [];
   for (const relative of rutas) {
     if (nombreAnterior.test(relative)) fallos.push(relative);
+    // El manifiesto conserva identidades anteriores sólo para impedir reaplicaciones.
+    if (relative.replaceAll(path.sep, "/") === "database/migrations/manifest.json") continue;
     if (!/\.(?:ts|tsx|cjs|json|md|ps1|sql|css)$|\.env\.example$/.test(relative)) continue;
     if (nombreAnterior.test(fs.readFileSync(path.join(root, relative), "utf8"))) fallos.push(relative);
   }

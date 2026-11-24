@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { DataSource, EntityManager } from "typeorm";
+import { DataSource } from "typeorm";
 import { RegistroAreaRepository } from "../../../common/registros-area/registro-area.repository";
 import { ErrorApi } from "../../../common/errors/error-api";
 import { DocumentoArea } from "../entities/documento-area.entity";
@@ -29,7 +29,8 @@ export class DocumentosRepository {
     )?.nombre;
   }
   inscrito(ninoId: string, manager = this.data.manager) {
-    if (!ninoId || !process.env.FORM_CONFIRMED_STATE_CODE) return Promise.resolve(false);
+    if (!ninoId || !process.env.FORM_CONFIRMED_STATE_CODE)
+      return Promise.resolve(false);
     return manager.getRepository(FormularioAreaEntity).exists({
       where: {
         ninoId,

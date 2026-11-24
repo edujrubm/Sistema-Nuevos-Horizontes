@@ -6,7 +6,7 @@ New-Item -ItemType Directory $results -Force | Out-Null
 $cluster=Join-Path $results 'local-mockups-pg'
 $marker=Join-Path $cluster '.integracion-documentos-008-initialized'
 $started=$false
-$names=@('DATABASE_HOST','DATABASE_PORT','DATABASE_NAME','DATABASE_USER','DATABASE_PASSWORD','DATABASE_SSL','NODE_ENV','AUDIT_TEST_ACTOR_ID','FORM_DRAFT_STATE_CODE','FORM_CONFIRMED_STATE_CODE','AREA_TEST_NOMBRE','AREA_TEST_ROL','DOCUMENTOS_DIR','AREA_ENABLE_LAB','PORT','FORM_DRAFT_STATE_CODE','FORM_CONFIRMED_STATE_CODE','AUDIT_ACTOR_USERNAME')
+$names=@('DATABASE_HOST','DATABASE_PORT','DATABASE_NAME','DATABASE_USER','DATABASE_PASSWORD','DATABASE_SSL','NODE_ENV','FORM_DRAFT_STATE_CODE','FORM_CONFIRMED_STATE_CODE','AREA_TEST_NOMBRE','AREA_TEST_ROL','DOCUMENTOS_DIR','PORT','AUDIT_ACTOR_USERNAME')
 $previous=@{}
 foreach($name in $names){$previous[$name]=[Environment]::GetEnvironmentVariable($name)}
 Push-Location $root
@@ -33,9 +33,8 @@ try {
  }
  $env:PORT="$ApiPort"
  $env:DOCUMENTOS_DIR=Join-Path $results 'documentos-locales'
- $env:AREA_ENABLE_LAB='false'
  $env:FORM_DRAFT_STATE_CODE='BORRADOR';$env:FORM_CONFIRMED_STATE_CODE='CONFIRMADO';$env:AUDIT_ACTOR_USERNAME='laboratorio-local'
- $env:DATABASE_HOST='127.0.0.1';$env:DATABASE_PORT="$Port";$env:DATABASE_NAME='areas_test';$env:DATABASE_USER='areas_test';$env:DATABASE_PASSWORD='local-test';$env:DATABASE_SSL='false';$env:NODE_ENV='test';$env:AUDIT_TEST_ACTOR_ID='1';$env:FORM_DRAFT_STATE_CODE='BORRADOR';$env:FORM_CONFIRMED_STATE_CODE='CONFIRMADO';$env:AREA_TEST_NOMBRE=$Area;$env:AREA_TEST_ROL='COORDINACION'
+ $env:DATABASE_HOST='127.0.0.1';$env:DATABASE_PORT="$Port";$env:DATABASE_NAME='areas_test';$env:DATABASE_USER='areas_test';$env:DATABASE_PASSWORD='local-test';$env:DATABASE_SSL='false';$env:NODE_ENV='test';$env:AREA_TEST_NOMBRE=$Area;$env:AREA_TEST_ROL='COORDINACION'
  & pnpm run build
  if($LASTEXITCODE -ne 0){throw 'Falló compilación'}
  Write-Host "módulos de área: http://127.0.0.1:$ApiPort/api/v1 - Ctrl+C para detener"
