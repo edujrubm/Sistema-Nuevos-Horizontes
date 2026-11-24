@@ -119,3 +119,8 @@ Validación: pnpm check; TypeScript sin imports/parámetros sin uso en API y web
 Hay 3 pruebas web previamente omitidas. No hay ejecución SQL en el servidor del
 equipo, despliegue ni fusión. El encargado conserva revisión del registro real,
 respaldo y ejecución única de 024 cuando corresponda. Ver VERIFICACION_CALIDAD.md.
+
+Publicación confirmada: commit 45fe411 en origin/depuracion. PR nuevo:
+https://github.com/edujrubm/Sistema-Nuevos-Horizontes/pull/37 (abierto hacia main,
+listo para revisión y sin conflictos de Git al consultar). El PR 36 quedó cerrado
+sin fusionar. No se ejecutaron migraciones en el servidor del equipo.
