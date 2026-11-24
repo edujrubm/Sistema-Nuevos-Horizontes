@@ -1,4 +1,13 @@
-import { Link, NavLink, Outlet, useLocation, useMatch } from "react-router-dom";
+import {
+  Link,
+  NavLink,
+  Outlet,
+  useLocation,
+  useMatch,
+  useNavigate,
+} from "react-router-dom";
+import { useState } from "react";
+import { useAuth } from "@/modules/auth/AuthContext";
 
 const admissionNavigation = [
   { to: "/beneficiarias", label: "Beneficiarias" },
@@ -18,6 +27,9 @@ const shelterNavigation = [
 
 export function AppLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { session, signOut } = useAuth();
+  const [signingOut, setSigningOut] = useState(false);
   const documentos = useMatch("/beneficiarias/:id/documentos");
   const legal = useMatch("/beneficiarias/:id/legal/*");
   const references = useMatch("/beneficiarias/:id/referencias/*");
@@ -80,16 +92,16 @@ export function AppLayout() {
           : admissionNavigation;
   const moduleHome = albergue ? "/albergue" : "/beneficiarias";
   const moduleLabel = albergue
-    ? "Módulo de Albergue"
+    ? "Área Albergue"
     : areaModule
       ? guarderia
-        ? "Guardería"
-        : "Trabajo Social"
+        ? "Área Guardería"
+        : "Área Trabajo Social"
       : legalCaseId
         ? "Área Legal"
         : documentos
-          ? "Módulo de Documentos"
-          : "Admisión y ficha inicial";
+          ? "Área Documentos"
+          : "Área Admisión y ficha inicial";
   return (
     <div className="app-shell">
       <header className="app-header">
@@ -103,7 +115,27 @@ export function AppLayout() {
           </span>
           <span>Asociación Nuevos Horizontes</span>
         </Link>
-        <span className="environment-badge">Entorno de desarrollo</span>
+        <div className="app-account">
+          <div>
+            <strong>{session?.user.employeeName}</strong>
+            <span>{session?.user.role.replaceAll("_", " ")}</span>
+          </div>
+          <Link className="header-link" to="/cambiar-contrasena">
+            Contraseña
+          </Link>
+          <button
+            className="header-link"
+            type="button"
+            disabled={signingOut}
+            onClick={async () => {
+              setSigningOut(true);
+              await signOut();
+              navigate("/login", { replace: true });
+            }}
+          >
+            {signingOut ? "Saliendo…" : "Cerrar sesión"}
+          </button>
+        </div>
       </header>
       <aside className="app-sidebar" aria-label="Navegación principal">
         <p className="sidebar-module-label">{moduleLabel}</p>

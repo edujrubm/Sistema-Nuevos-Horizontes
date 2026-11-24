@@ -10,6 +10,7 @@ describe("FichaInicialService", () => {
     guardarSeccion: jest.fn(),
     guardarPagina: jest.fn(),
     confirmar: jest.fn(),
+    descartar: jest.fn(),
   };
   const beneficiarias = {
     crear: jest.fn(),
@@ -164,5 +165,24 @@ describe("FichaInicialService", () => {
         motivo: "Intento controlado",
       }),
     ).rejects.toBeInstanceOf(ConflictException);
+  });
+
+  it("descarta lógicamente un borrador con motivo y versión", async () => {
+    repository.descartar.mockResolvedValue({
+      estado: "DESCARTADA",
+      ficha: { id: "1", estado: "DESCARTADA", version: 5 },
+    });
+
+    await expect(
+      service.descartar("1", {
+        version: 4,
+        motivo: "  Registro duplicado de prueba  ",
+      }),
+    ).resolves.toMatchObject({ data: { estado: "DESCARTADA" } });
+    expect(repository.descartar).toHaveBeenCalledWith(
+      "1",
+      4,
+      "Registro duplicado de prueba",
+    );
   });
 });

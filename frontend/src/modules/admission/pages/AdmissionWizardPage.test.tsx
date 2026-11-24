@@ -46,13 +46,20 @@ function admission(
   };
 }
 
-function renderWizard() {
+function renderWizard(startAtFirstPage = false) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={["/fichas/1"]}>
+      <MemoryRouter
+        initialEntries={[
+          {
+            pathname: "/fichas/1",
+            state: startAtFirstPage ? { startAtFirstPage: true } : undefined,
+          },
+        ]}
+      >
         <Routes>
           <Route path="/fichas/:id" element={<AdmissionWizardPage />} />
         </Routes>
@@ -154,5 +161,23 @@ describe("AdmissionWizardPage", () => {
     ).toBeInTheDocument();
     expect(apiMocks.saveAdmissionPage).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: "Actualizar" })).toBeEnabled();
+  });
+
+  it("abre el paso uno inmediatamente después de crear el borrador", async () => {
+    apiMocks.getAdmission.mockResolvedValue(
+      admission([
+        {
+          seccion: "identificacion",
+          contenido: { tipoDocumento: "DPI_CUI" },
+        },
+      ]),
+    );
+
+    renderWizard(true);
+
+    expect(
+      await screen.findByRole("heading", { name: "Datos de identificación" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Paso 1 de 8")).toBeInTheDocument();
   });
 });

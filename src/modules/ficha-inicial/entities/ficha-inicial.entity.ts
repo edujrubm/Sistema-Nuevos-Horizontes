@@ -9,7 +9,8 @@ export class FichaInicialEntity {
   correlativo!: string | null;
   @Column({ type: "varchar", nullable: true }) lugar!: string | null;
   @Column({ type: "timestamptz", nullable: true }) fecha!: Date | null;
-  @Column({ type: "varchar" }) estado!: "BORRADOR" | "CONFIRMADA";
+  @Column({ type: "varchar" }) estado!:
+    "BORRADOR" | "CONFIRMADA" | "DESCARTADA";
   @Column({ name: "confirmada_en", type: "timestamptz", nullable: true })
   confirmadaEn!: Date | null;
   @Column({ type: "integer" }) version!: number;

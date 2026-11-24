@@ -11,6 +11,7 @@ import { CrearBeneficiariaDto } from "../beneficiarias/dto/crear-beneficiaria.dt
 import { ActualizarPaginaDto } from "./dto/actualizar-pagina.dto";
 import { ActualizarSeccionDto } from "./dto/actualizar-seccion.dto";
 import { ConfirmarFichaDto } from "./dto/confirmar-ficha.dto";
+import { DescartarFichaDto } from "./dto/descartar-ficha.dto";
 import { ListarFichasDto } from "./dto/listar-fichas.dto";
 import { IniciarFichaInicialDto } from "./dto/iniciar-ficha-inicial.dto";
 import {
@@ -273,6 +274,27 @@ export class FichaInicialService {
           mensaje: `Completa y guarda la sección: ${seccion}.`,
         })),
       );
+    return { data: resultado.ficha };
+  }
+
+  async descartar(id: string, entrada: DescartarFichaDto) {
+    const resultado = await this.repository.descartar(
+      id,
+      entrada.version,
+      entrada.motivo.trim(),
+    );
+    if (resultado.estado === "NO_ENCONTRADA")
+      throw new NotFoundException("Ficha inicial no encontrada.");
+    if (resultado.estado === "NO_ES_BORRADOR")
+      throw new ConflictException({
+        code: "STATE_CONFLICT",
+        message: "Solo se puede descartar una ficha inicial en borrador.",
+      });
+    if (resultado.estado === "CONFLICTO_VERSION")
+      throw new ConflictException({
+        code: "VERSION_CONFLICT",
+        message: "La ficha cambió desde que fue consultada.",
+      });
     return { data: resultado.ficha };
   }
 }

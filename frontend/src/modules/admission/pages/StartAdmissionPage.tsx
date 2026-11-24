@@ -122,7 +122,9 @@ export function StartAdmissionPage() {
         ) as FormValues,
       ),
     onSuccess: (response) =>
-      navigate(`/fichas/${response.data.fichaInicial.id}`),
+      navigate(`/fichas/${response.data.fichaInicial.id}`, {
+        state: { startAtFirstPage: true },
+      }),
   });
   const duplicateSearch = useMutation({
     mutationFn: (cui: string) =>

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 
 import {
   confirmAdmission,
@@ -33,6 +33,10 @@ function contentIsPresent(value: Record<string, unknown> | undefined) {
 
 export function AdmissionWizardPage() {
   const { id = "" } = useParams();
+  const location = useLocation();
+  const startAtFirstPage =
+    (location.state as { startAtFirstPage?: boolean } | null)
+      ?.startAtFirstPage === true;
   const queryClient = useQueryClient();
   const [activeIndex, setActiveIndex] = useState(0);
   const [values, setValues] = useState<SectionValues>({});
@@ -115,12 +119,15 @@ export function AdmissionWizardPage() {
         );
       }),
     );
-    const resumeIndex =
-      firstPendingPage === -1 ? admissionPages.length - 1 : firstPendingPage;
+    const resumeIndex = startAtFirstPage
+      ? 0
+      : firstPendingPage === -1
+        ? admissionPages.length - 1
+        : firstPendingPage;
     setActiveIndex(resumeIndex);
     setMaxReachedIndex(resumeIndex);
     window.scrollTo({ top: 0, behavior: "auto" });
-  }, [admissionQuery.data]);
+  }, [admissionQuery.data, startAtFirstPage]);
 
   useEffect(() => {
     if (!initialized.current) return;

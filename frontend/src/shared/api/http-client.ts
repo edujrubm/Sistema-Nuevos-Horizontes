@@ -1,7 +1,13 @@
 import { ApiError, parseApiError } from "./api-error";
+import {
+  AUTH_UNAUTHORIZED_EVENT,
+  clearAuthSession,
+  currentAccessToken,
+} from "@/modules/auth/auth-storage";
 
 export interface ApiRequestOptions {
   timeoutMs?: number;
+  baseUrl?: string;
 }
 /** Conserva el límite ya utilizado por los registros de área. */
 export const areaRequestOptions: ApiRequestOptions = { timeoutMs: 20_000 };
@@ -20,6 +26,9 @@ export async function apiRequest<T>(
   ) {
     headers.set("Content-Type", "application/json");
   }
+  const token = currentAccessToken();
+  if (token && !headers.has("Authorization"))
+    headers.set("Authorization", `Bearer ${token}`);
   const controller = new AbortController();
   const abort = () => controller.abort();
   init.signal?.addEventListener("abort", abort, { once: true });
@@ -32,6 +41,7 @@ export async function apiRequest<T>(
   try {
     // Configuración única para módulos actuales y consumidores de compatibilidad.
     const base =
+      options.baseUrl ||
       import.meta.env.VITE_API_BASE_URL ||
       import.meta.env.VITE_API_BASE ||
       "/api/v1";
@@ -43,7 +53,13 @@ export async function apiRequest<T>(
       credentials: "same-origin",
     });
     const payload: unknown = await response.json().catch(() => undefined);
-    if (!response.ok) throw parseApiError(payload, response.status);
+    if (!response.ok) {
+      if (response.status === 401 && token) {
+        clearAuthSession();
+        window.dispatchEvent(new Event(AUTH_UNAUTHORIZED_EVENT));
+      }
+      throw parseApiError(payload, response.status);
+    }
     return payload as T;
   } catch (error) {
     if (error instanceof ApiError || init.signal?.aborted) throw error;

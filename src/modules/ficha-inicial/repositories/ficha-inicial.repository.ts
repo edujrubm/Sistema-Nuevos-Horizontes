@@ -561,4 +561,26 @@ export class FichaInicialRepository {
       };
     });
   }
+
+  async descartar(id: string, version: number, motivo: string) {
+    return this.dataSource.transaction(async (manager) => {
+      await this.auditoria(manager, motivo);
+      const repository = manager.getRepository(FichaInicialEntity);
+      const ficha = await repository.findOne({
+        where: { id },
+        lock: { mode: "pessimistic_write" },
+      });
+      if (!ficha) return { estado: "NO_ENCONTRADA" as const };
+      if (ficha.estado !== "BORRADOR")
+        return { estado: "NO_ES_BORRADOR" as const };
+      if (ficha.version !== version)
+        return { estado: "CONFLICTO_VERSION" as const };
+      ficha.estado = "DESCARTADA";
+      await repository.save(ficha);
+      return {
+        estado: "DESCARTADA" as const,
+        ficha: await repository.findOneByOrFail({ id }),
+      };
+    });
+  }
 }

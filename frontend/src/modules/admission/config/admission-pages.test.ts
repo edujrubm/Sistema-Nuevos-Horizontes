@@ -64,4 +64,41 @@ describe("admissionPages", () => {
         ?.options,
     ).toHaveLength(10);
   });
+
+  it("incluye los nuevos datos de atención, salud y referencia interna", () => {
+    const identification = admissionPages
+      .find((page) => page.key === "identificacion")
+      ?.sections.find((section) => section.key === "identificacion")?.fields;
+    const health = admissionPages
+      .find((page) => page.key === "datos-salud")
+      ?.sections.find((section) => section.key === "salud")?.fields;
+    const references = admissionPages
+      .find((page) => page.key === "referencias")
+      ?.sections.find((section) => section.key === "referencias")?.fields;
+
+    expect(identification).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: "idiomaAtencion", type: "select" }),
+        expect.objectContaining({ name: "estadoMigratorio" }),
+      ]),
+    );
+    expect(
+      identification?.find((field) => field.name === "idiomaAtencion")?.options,
+    ).toHaveLength(25);
+    expect(health).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: "enGestacion" }),
+        expect.objectContaining({ name: "tiempoGestacionSemanas" }),
+        expect.objectContaining({
+          name: "tiposDiscapacidad",
+          type: "checkboxGroup",
+        }),
+      ]),
+    );
+    expect(
+      references
+        ?.find((field) => field.name === "referenciasInternas")
+        ?.options?.map((option) => option.value),
+    ).toContain("Guardería");
+  });
 });

@@ -14,7 +14,7 @@ export interface AdmissionRecord {
   correlativo: string | null;
   lugar: string | null;
   fecha: string | null;
-  estado: "BORRADOR" | "CONFIRMADA";
+  estado: "BORRADOR" | "CONFIRMADA" | "DESCARTADA";
   version: number;
   actualizadoEn: string;
   secciones: AdmissionSection[];
@@ -55,7 +55,7 @@ export interface AdmissionListItem {
   correlativo: string | null;
   lugar: string | null;
   fecha: string | null;
-  estado: "BORRADOR" | "CONFIRMADA";
+  estado: "BORRADOR" | "CONFIRMADA" | "DESCARTADA";
   version: number;
   actualizadoEn: string;
 }
@@ -126,5 +126,12 @@ export function confirmAdmission(id: string, version: number) {
       version,
       motivo: "Confirmación final de ficha inicial desde frontend",
     }),
+  });
+}
+
+export function discardAdmission(id: string, version: number, motivo: string) {
+  return apiRequest<AdmissionResponse>(`/fichas-iniciales/${id}/descartar`, {
+    method: "POST",
+    body: JSON.stringify({ version, motivo }),
   });
 }

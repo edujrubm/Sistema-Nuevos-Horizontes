@@ -2,8 +2,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { apiRequest, areaRequestOptions } from "./http-client";
 import { ApiError } from "./api-error";
 import { ApiError as CompatibilityError, http } from "./http";
+import { AUTH_SESSION_KEY } from "@/modules/auth/auth-storage";
 
 afterEach(() => {
+  sessionStorage.clear();
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
   vi.useRealTimers();
@@ -66,6 +68,56 @@ describe("Transporte HTTP compartido", () => {
     expect(options.headers.get("Accept")).toBe("application/json");
     expect(options.headers.get("Content-Type")).toBe("application/json");
     expect(options.credentials).toBe("same-origin");
+  });
+
+  it("adjunta el token de la sesión a las solicitudes", async () => {
+    sessionStorage.setItem(
+      AUTH_SESSION_KEY,
+      JSON.stringify({
+        accessToken: "token-sintetico",
+        expiresAt: Date.now() + 60_000,
+        mustChangePassword: false,
+        user: {},
+      }),
+    );
+    const fetcher = vi.fn().mockResolvedValue(new Response("{}"));
+    vi.stubGlobal("fetch", fetcher);
+
+    await apiRequest("/beneficiarias");
+
+    expect(fetcher.mock.calls[0][1].headers.get("Authorization")).toBe(
+      "Bearer token-sintetico",
+    );
+  });
+
+  it("elimina la sesión local cuando el servidor responde 401", async () => {
+    sessionStorage.setItem(
+      AUTH_SESSION_KEY,
+      JSON.stringify({
+        accessToken: "token-vencido",
+        expiresAt: Date.now() + 60_000,
+        mustChangePassword: false,
+        user: {},
+      }),
+    );
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            estado: 401,
+            codigo: "SESION_VENCIDA",
+            mensaje: "La sesión venció.",
+            errores: [],
+            idSolicitud: "SOL-sintetica",
+          }),
+          { status: 401 },
+        ),
+      ),
+    );
+
+    await expect(apiRequest("/beneficiarias")).rejects.toBeInstanceOf(ApiError);
+    expect(sessionStorage.getItem(AUTH_SESSION_KEY)).toBeNull();
   });
 
   it("deja que el navegador establezca el límite multipart del PDF", async () => {

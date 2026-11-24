@@ -7,6 +7,7 @@ import { FichaSeccionEntity } from "./entities/ficha-seccion.entity";
 import { FichaInicialController } from "./ficha-inicial.controller";
 import { FichaInicialService } from "./ficha-inicial.service";
 import { FichaInicialRepository } from "./repositories/ficha-inicial.repository";
+import { BorradoresFichaExpiradosService } from "./borradores-ficha-expirados.service";
 
 @Module({
   imports: [
@@ -14,6 +15,10 @@ import { FichaInicialRepository } from "./repositories/ficha-inicial.repository"
     BeneficiariasModule,
   ],
   controllers: [FichaInicialController],
-  providers: [FichaInicialService, FichaInicialRepository],
+  providers: [
+    FichaInicialService,
+    FichaInicialRepository,
+    BorradoresFichaExpiradosService,
+  ],
 })
 export class FichaInicialModule {}

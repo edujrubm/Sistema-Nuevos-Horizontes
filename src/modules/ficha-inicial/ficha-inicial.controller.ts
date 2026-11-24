@@ -21,6 +21,7 @@ import { ErrorApiDto } from "../../common/errors/error-api.dto";
 
 import { ActualizarPaginaDto } from "./dto/actualizar-pagina.dto";
 import { ConfirmarFichaDto } from "./dto/confirmar-ficha.dto";
+import { DescartarFichaDto } from "./dto/descartar-ficha.dto";
 import { ListarFichasDto } from "./dto/listar-fichas.dto";
 import { IniciarFichaInicialDto } from "./dto/iniciar-ficha-inicial.dto";
 import { FichaInicialService } from "./ficha-inicial.service";
@@ -87,5 +88,16 @@ export class FichaInicialController {
     @Body() entrada: ConfirmarFichaDto,
   ) {
     return this.service.confirmar(id, entrada);
+  }
+
+  @Post("fichas-iniciales/:id/descartar")
+  @ApiOperation({
+    summary: "Descarta de forma lógica un borrador de ficha inicial",
+  })
+  descartar(
+    @Param("id", ParseBigIntIdPipe) id: string,
+    @Body() entrada: DescartarFichaDto,
+  ) {
+    return this.service.descartar(id, entrada);
   }
 }

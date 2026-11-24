@@ -6,6 +6,9 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import { AppLayout } from "../layouts/AppLayout";
 import { NotFoundPage } from "@/shared/components/NotFoundPage";
+import { LoginPage } from "@/modules/auth/LoginPage";
+import { ChangePasswordPage } from "@/modules/auth/ChangePasswordPage";
+import { RequireAuth } from "@/modules/auth/RequireAuth";
 
 const AreaRecordsLayout = lazy(() =>
   import("../AreaRecordsLayout").then((m) => ({
@@ -114,9 +117,22 @@ function lazyPage(page: ReactNode) {
 }
 
 export const router = createBrowserRouter([
+  { path: "/login", element: <LoginPage /> },
+  {
+    path: "/cambiar-contrasena",
+    element: (
+      <RequireAuth>
+        <ChangePasswordPage />
+      </RequireAuth>
+    ),
+  },
   {
     path: "/",
-    element: <AppLayout />,
+    element: (
+      <RequireAuth>
+        <AppLayout />
+      </RequireAuth>
+    ),
     children: [
       { index: true, element: <Navigate to="/beneficiarias" replace /> },
       { path: "beneficiarias", element: lazyPage(<BeneficiariesPage />) },
