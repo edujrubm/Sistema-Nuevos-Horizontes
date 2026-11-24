@@ -27,7 +27,7 @@ interfaz invalida sólo las consultas necesarias.
 
 ## Base de datos
 
-Las migraciones `010_guarderia_responsables.sql` y `011_padre_nino.sql` forman
+Las migraciones `021_guarderia_responsables.sql` y `022_padre_nino.sql` forman
 parte del repositorio. Su presencia no acredita su ejecución: antes de un
 despliegue, revisar respaldo, orden, estado real del ambiente y las decisiones
 D-01 y D-04. Nunca activar `synchronize` ni `migrationsRun` para integrar un

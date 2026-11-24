@@ -29,7 +29,7 @@ La ficha utiliza también los endpoints del motor común de formularios.
 
 ## Migraciones y pruebas
 
-Requiere base común y revisión de 010_guarderia_responsables.sql y 011_padre_nino.sql. No modifica migraciones históricas, no recrea tablas del proyecto y no activa synchronize. Deben aplicarse una sola vez por el encargado de BD, con respaldo y verificación del estado real del ambiente.
+Requiere base común y revisión de 021_guarderia_responsables.sql y 022_padre_nino.sql. No modifica migraciones históricas, no recrea tablas del proyecto y no activa synchronize. Deben aplicarse una sola vez por el encargado de BD, con respaldo y verificación del estado real del ambiente.
 
 Pruebas: test/guarderia-consultas.integration.cjs y test/padres-consultas.integration.cjs; ejecutores scripts/test-guarderia-consultas.ps1 y scripts/test-padres-consultas.ps1. Usan datos sintéticos y PostgreSQL local desechable.
 

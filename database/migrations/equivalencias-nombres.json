@@ -1,0 +1,38 @@
+[
+  {
+    "anterior": "007_persona3_campos_mockups.sql",
+    "actual": "018_formularios_campos_complementarios.sql",
+    "sha256": "C75802CCB30D098B3D0151696BB7BAE40F5CE0239CE2D2351B13DF69E3AB480C",
+    "blob_git": "595a23ea0184bd1f7f5a3ba1e9eb69294b1397d1"
+  },
+  {
+    "anterior": "008_documentos_integracion.sql",
+    "actual": "019_documentos_integracion.sql",
+    "sha256": "B38FC93CA993EDC97AA70F05B977BE8E616809E3DC20E6B6BFE74D8009B23754",
+    "blob_git": "50153f0652f0a47124a6e8514149c7ec0e09b801"
+  },
+  {
+    "anterior": "009_albergue_trazabilidad.sql",
+    "actual": "020_albergue_trazabilidad.sql",
+    "sha256": "9C8F4985A4E5931DB621E3BB548B0D8D9254B2273DBFFB7742F7842D0A1E40C6",
+    "blob_git": "18449f3ba929f96a3007824c4cbe11ad8f7e7eab"
+  },
+  {
+    "anterior": "010_guarderia_responsables.sql",
+    "actual": "021_guarderia_responsables.sql",
+    "sha256": "CDBE0F88F64881C46FAAA6A76C3E2EDC337935F5E50C077340FD20E5A4F677EA",
+    "blob_git": "9b88e7e87a957b4e9b9659a7ca6a400a79712be9"
+  },
+  {
+    "anterior": "011_padre_nino.sql",
+    "actual": "022_padre_nino.sql",
+    "sha256": "F62A47AED09716CF7D00B493EAEE471CB9D12AB6713B22D648B16B13CD7C491C",
+    "blob_git": "2f0304f64e3206f9d48c51859c293a64d4b20b34"
+  },
+  {
+    "anterior": "012_albergue_estado_inactivo.sql",
+    "actual": "023_albergue_estado_inactivo.sql",
+    "sha256": "274D5986702D51074F48C664ED50D095BF39FE116F365D939622EE47F0C92EEA",
+    "blob_git": "c9cb3c1452857bf43b882734941af8164fe44355"
+  }
+]

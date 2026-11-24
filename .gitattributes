@@ -2,3 +2,9 @@
 # Conservar PDF y evidencias como binarios, sin conversión de fin de línea.
 *.pdf binary
 *.png binary
+database/migrations/018_formularios_campos_complementarios.sql -text
+database/migrations/019_documentos_integracion.sql -text
+database/migrations/020_albergue_trazabilidad.sql -text
+database/migrations/021_guarderia_responsables.sql -text
+database/migrations/022_padre_nino.sql -text
+database/migrations/023_albergue_estado_inactivo.sql -text

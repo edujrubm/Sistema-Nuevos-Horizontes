@@ -55,3 +55,12 @@ El registro del módulo Documentos incluye explícitamente las entidades compart
 Se verifica que una carga válida se presenta como VIGENTE aunque su columna histórica de revisión conserve BORRADOR, sin asignar revisado_por/revisado_en. El filtro VIGENTE incluye inmediatamente el archivo, la descarga conserva sus bytes y una anulación lo excluye de vigentes y lo incluye en ANULADO. La UI no ofrece el filtro Borrador ni el contador de pendientes de revisión; el mensaje de carga no sugiere aprobación posterior. Los estados de borrador y confirmación de las fichas de área se conservan.
 
 Resultado: 49 pruebas backend y 258 frontend aprobadas; 3 omisiones explícitas de servidor en la suite ordinaria; tipos y compilación aprobados. La suite PostgreSQL pasó 72 pruebas sin fallos. Los tres flujos reales desde React (Legal, Social y Guardería) comprobaron carga, disponibilidad inmediata y recuperación de bytes, sin indicador de aprobación pendiente.
+
+## Normalización de migraciones — 2026-11-24
+
+Verificación estática: seis SQL renombrados conservan el mismo objeto Git que
+su archivo original; sin prefijos SQL duplicados; referencias activas de las
+migraciones renombradas actualizadas; git diff --check correcto. No cambia
+código de aplicación y no se ejecuta SQL. No se acredita compatibilidad con
+registros de migraciones de ambientes compartidos: debe revisarla el encargado
+antes de fusionar. El PR se presenta como borrador por esa condición pendiente.

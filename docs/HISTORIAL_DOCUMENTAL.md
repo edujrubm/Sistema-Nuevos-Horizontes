@@ -80,3 +80,12 @@ El 12 de noviembre de 2026 se retiraron documentos de contexto duplicado,
 propuestas de esquema no aplicadas e informes puntuales de integración. Su
 contenido permanece recuperable desde Git si se necesita rastrear una entrega
 anterior.
+
+## Normalización local de nombres de migraciones — 2026-11-24
+
+Solicitada por Eduardo. Propuesta local basada en main: seis scripts pasan a
+018–023, sin cambiar sus bytes SQL. Se corrigen referencias documentales y se
+agrega mapa verificable de nombres y SHA-256. Las migraciones de otros módulos
+se conservan. No hay cambio de esquema ni ejecución SQL. Publicación solicitada por Eduardo en la rama migraciones, con PR borrador hacia main y sin fusión.
+Pendiente antes de integrar: cotejo del registro de migraciones de cada ambiente
+por el encargado, para impedir que un archivo renombrado se aplique dos veces.

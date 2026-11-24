@@ -16,3 +16,27 @@ El arranque de la API no aplica scripts automáticamente (`synchronize=false` y
 La existencia de un archivo en Git no acredita su aplicación en Neon, pruebas o
 producción. En especial, verificar funciones, triggers, índices y catálogos de
 los que dependa el backend antes de publicar código que los invoque.
+
+## Propuesta local de normalización del 24 de noviembre de 2026
+
+Se reservan 018–023 para los seis scripts de formularios, documentos, Albergue
+y Guardería cuyos prefijos colisionaban con otros módulos. Los demás SQL no
+cambian. `equivalencias-nombres.json` conserva nombre anterior, nombre propuesto
+y SHA-256 del contenido exacto. El SQL no fue editado: incluso sus comentarios
+históricos se conservan para no alterar la evidencia de un script aplicado.
+
+Este cambio de nombres es una propuesta de repositorio, no una migración de BD.
+Antes de integrarlo, el encargado debe cotejar los nombres anteriores y hashes
+con el registro de cada ambiente y reconocer ambos nombres como el mismo script.
+Si un nombre anterior ya está aplicado, NO ejecutar el nuevo. No renombrar filas
+del registro operativo ni alterar bases compartidas de manera automática.
+Si no puede reconciliarse el historial, mantener los nombres históricos hasta
+acordar una transición. La regla de inmutabilidad continúa vigente.
+
+En una base nueva se requiere primero el esquema base aprobado 001/002 y luego
+los scripts pendientes en orden. 019 depende de los cambios documentales de 018;
+021 y 022 requieren tablas y funciones de auditoría del esquema base.
+Los huecos numéricos no autorizan inventar ni ejecutar migraciones ausentes.
+
+blob_git y sha256 identifican los bytes originales versionados. Las seis reglas
+-text de .gitattributes evitan conversiones CRLF/LF de estos SQL históricos.

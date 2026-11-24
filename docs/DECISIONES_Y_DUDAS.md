@@ -179,7 +179,7 @@ Por petición de Eduardo se corrigieron validaciones de cabecera y la correspond
 - Resolución: nueva tabla padre_nino con nino_id, nombre, cui, telefono, direccion, fechas y version; tipo_vinculo distingue BIOLOGICO y LEGAL. Los datos personales son opcionales según la propuesta aprobada. No se presume identidad por agresor, convivencia o parentesco.
 - Límite: no se ha definido un máximo institucional de personas por tipo ni unicidad global de CUI; no se impone UNIQUE(nino_id) ni UNIQUE(nino_id,tipo_vinculo). La misma persona puede tener ambos tipos mediante registros diferenciados, y compartir paternidad con varios niños.
 - No concede autorización de recogida/traslado. La decisión de responsables de Guardería es independiente.
-- Archivos previstos: database/migrations/011_padre_nino.sql; src/modules/ninos/entities/padre-nino.entity.ts; pruebas y ejecutor local propios.
+- Archivos previstos: database/migrations/022_padre_nino.sql; src/modules/ninos/entities/padre-nino.entity.ts; pruebas y ejecutor local propios.
 - Se revoca la espera anterior solo para esta estructura aprobada. No se autoriza modificar la BD compartida, publicar a Git ni completar por inferencia reglas de captura/permisos aún pendientes.
 
 - Resultado de D-11: migración 011 aplicada primero en PostgreSQL desechable y luego exclusivamente en guarderia_qa_c4fa143d (loopback 55510). Nueve pruebas de paternidad y 24 de regresión Guardería aprobadas. Entidad ORM añadida sin cambiar módulos/controladores existentes. Informe: QA_PADRE_NINO.md.
