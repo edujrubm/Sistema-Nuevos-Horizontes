@@ -8,3 +8,4 @@ database/migrations/020_albergue_trazabilidad.sql -text
 database/migrations/021_guarderia_responsables.sql -text
 database/migrations/022_padre_nino.sql -text
 database/migrations/023_albergue_estado_inactivo.sql -text
+docs/DECISIONES_Y_DUDAS.md -text
