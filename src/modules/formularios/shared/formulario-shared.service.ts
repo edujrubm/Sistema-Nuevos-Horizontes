@@ -1,3 +1,4 @@
+import { ErrorApi, type ErrorCampo } from "../../../common/errors/error-api";
 import {
   BadRequestException,
   ConflictException,
@@ -9,11 +10,10 @@ import {
 import { ActualizarFormularioDto } from "./dto/actualizar-formulario.dto";
 import { ConfirmarFormularioDto } from "./dto/confirmar-formulario.dto";
 import { CrearFormularioDto } from "./dto/crear-formulario.dto";
+import { DescartarFormularioDto } from "./dto/descartar-formulario.dto";
 import { ListarFormulariosDto } from "./dto/listar-formularios.dto";
-import {
-  FormularioAreaRow,
-  FormularioSharedRepository,
-} from "./formulario-shared.repository";
+import { FormularioSharedRepository } from "./formulario-shared.repository";
+import type { FormularioAreaRow } from "./contracts/formulario-area-row";
 import {
   aCamelCase,
   CAMPOS_EXAMEN_MENTAL,
@@ -105,10 +105,15 @@ export class FormularioSharedService {
       }
     })();
     if (invalido)
-      throw new BadRequestException({
-        code: "INVALID_FORM_FIELD",
-        message: `El campo ${campo} no tiene un valor válido.`,
-      });
+      throw new ErrorApi("DATOS_INVALIDOS", [
+        {
+          campo,
+          mensaje:
+            tipo === "fecha"
+              ? "Ingresa una fecha válida con el formato año-mes-día."
+              : "Revisa el formato de este campo.",
+        },
+      ]);
   }
 
   private validarObjeto(
@@ -116,16 +121,24 @@ export class FormularioSharedService {
     permitidos: Readonly<Record<string, TipoCampoFormulario>>,
     nombre: string,
   ) {
+    const errores: ErrorCampo[] = [];
     for (const [campo, valor] of Object.entries(objeto)) {
       const tipo = permitidos[campo];
-      if (!tipo)
-        throw new BadRequestException({
-          code: "UNKNOWN_FORM_FIELD",
-          message: `El campo ${nombre}.${campo} no pertenece a esta variante.`,
-          allowed: Object.keys(permitidos),
+      if (!tipo) {
+        errores.push({
+          campo: `${nombre}.${campo}`,
+          mensaje: "Este campo no está permitido en este formulario.",
         });
-      this.validarValor(`${nombre}.${campo}`, valor, tipo);
+        continue;
+      }
+      try {
+        this.validarValor(`${nombre}.${campo}`, valor, tipo);
+      } catch (error) {
+        if (!(error instanceof ErrorApi)) throw error;
+        errores.push(...error.errores);
+      }
     }
+    if (errores.length) throw new ErrorApi("DATOS_INVALIDOS", errores);
   }
 
   private definicion(tipo: string): DefinicionTipoFormulario {
@@ -209,10 +222,16 @@ export class FormularioSharedService {
         message: "La hija o hijo no pertenece al expediente.",
       });
     if (resultado.estado === "PROFESIONAL_NO_ENCONTRADO")
-      throw new BadRequestException({
-        code: "INVALID_PROFESSIONAL",
-        message: "El profesional indicado no existe.",
-      });
+      throw new ErrorApi("DATOS_INVALIDOS", [
+        {
+          campo: "profesionalId",
+          mensaje:
+            "El profesional seleccionado no existe. Usa su identificador interno registrado en el sistema.",
+        },
+      ]);
+    if (resultado.formulario === undefined) {
+      throw new ErrorApi("CONFIGURACION_INCOMPLETA");
+    }
     return { data: presentar(resultado.formulario) };
   }
 
@@ -252,10 +271,16 @@ export class FormularioSharedService {
         message: "El formulario cambió desde que fue consultado.",
       });
     if (resultado.estado === "PROFESIONAL_NO_ENCONTRADO")
-      throw new BadRequestException({
-        code: "INVALID_PROFESSIONAL",
-        message: "El profesional indicado no existe.",
-      });
+      throw new ErrorApi("DATOS_INVALIDOS", [
+        {
+          campo: "profesionalId",
+          mensaje:
+            "El profesional seleccionado no existe. Usa su identificador interno registrado en el sistema.",
+        },
+      ]);
+    if (resultado.formulario === undefined) {
+      throw new ErrorApi("CONFIGURACION_INCOMPLETA");
+    }
     return { data: presentar(resultado.formulario) };
   }
 
@@ -279,6 +304,35 @@ export class FormularioSharedService {
         code: "VERSION_CONFLICT",
         message: "El formulario cambió desde que fue consultado.",
       });
+    if (resultado.formulario === undefined) {
+      throw new ErrorApi("CONFIGURACION_INCOMPLETA");
+    }
+    return { data: presentar(resultado.formulario) };
+  }
+
+  async descartar(id: string, entrada: DescartarFormularioDto) {
+    const resultado = await this.repository.descartar(
+      id,
+      entrada.version,
+      entrada.motivo.trim(),
+    );
+    if (resultado.estado === "CATALOGO_ESTADO_NO_CONFIGURADO")
+      this.errorCatalogoEstado();
+    if (resultado.estado === "NO_ENCONTRADO")
+      throw new NotFoundException("Formulario de área no encontrado.");
+    if (resultado.estado === "NO_ES_BORRADOR")
+      throw new ConflictException({
+        code: "STATE_CONFLICT",
+        message: "Solo se puede descartar un formulario en borrador.",
+      });
+    if (resultado.estado === "CONFLICTO_VERSION")
+      throw new ConflictException({
+        code: "VERSION_CONFLICT",
+        message: "El formulario cambió desde que fue consultado.",
+      });
+    if (resultado.formulario === undefined) {
+      throw new ErrorApi("CONFIGURACION_INCOMPLETA");
+    }
     return { data: presentar(resultado.formulario) };
   }
 
@@ -307,7 +361,8 @@ export class FormularioSharedService {
         catalogo: catalogoEstados,
         listo:
           disponibles.has(codigosEstado.borrador) &&
-          disponibles.has(codigosEstado.confirmado),
+          disponibles.has(codigosEstado.confirmado) &&
+          disponibles.has(codigosEstado.descartado),
       },
     };
   }

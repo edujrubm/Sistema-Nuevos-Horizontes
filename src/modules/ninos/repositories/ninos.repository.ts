@@ -10,6 +10,7 @@ import {
 
 import { ActualizarNinoDto } from "../dto/actualizar-nino.dto";
 import { CambiarEstadoNinoDto } from "../dto/cambiar-estado-nino.dto";
+import { CrearNinoDto } from "../dto/crear-nino.dto";
 import { NinoEntity } from "../entities/nino.entity";
 
 @Injectable()
@@ -58,6 +59,53 @@ export class NinosRepository {
 
   buscarPorId(id: string) {
     return this.repository.findOne({ where: { id } });
+  }
+
+  async crear(beneficiariaId: string, entrada: CrearNinoDto) {
+    return this.dataSource
+      .transaction(async (manager) => {
+        await this.prepararAuditoria(
+          manager,
+          "Registro de hija o hijo desde el expediente",
+        );
+        const existeBeneficiaria = await manager.query<Array<{ id: string }>>(
+          `SELECT id_beneficiaria::text AS id FROM new_horizons.beneficiaria
+           WHERE id_beneficiaria=$1::bigint`,
+          [beneficiariaId],
+        );
+        if (!existeBeneficiaria[0])
+          return { estado: "BENEFICIARIA_NO_ENCONTRADA" as const };
+        const [expediente] = await manager.query<Array<{ id: string }>>(
+          `SELECT id_expediente::text AS id FROM new_horizons.expediente
+           WHERE beneficiaria_id=$1::bigint AND activo=true
+           ORDER BY id_expediente DESC LIMIT 1`,
+          [beneficiariaId],
+        );
+        if (!expediente) return { estado: "EXPEDIENTE_NO_ENCONTRADO" as const };
+        const repository = manager.getRepository(NinoEntity);
+        const cui = entrada.cui?.trim() ?? null;
+        if (cui && (await repository.findOne({ where: { cui } })))
+          return { estado: "CUI_DUPLICADO" as const };
+        const nino = await repository.save(
+          repository.create({
+            expedienteId: expediente.id,
+            nombre: entrada.nombre.trim(),
+            cui,
+            fechaNacimiento: entrada.fechaNacimiento ?? null,
+            reconocido: entrada.reconocido ?? null,
+            genero: entrada.genero ?? null,
+          }),
+        );
+        return { estado: "CREADO" as const, nino };
+      })
+      .catch((error: unknown) => {
+        if (
+          error instanceof QueryFailedError &&
+          (error.driverError as { code?: string }).code === "23505"
+        )
+          return { estado: "CUI_DUPLICADO" as const };
+        throw error;
+      });
   }
 
   async actualizar(id: string, entrada: ActualizarNinoDto) {

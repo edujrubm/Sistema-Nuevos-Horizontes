@@ -2,7 +2,9 @@
 
 ## Reglas obligatorias
 
-- Leer `BACKEND_DECISIONS.md` antes de convertir una necesidad en código o migración.
+- Cumplir primero `../../../AGENTS.md`. Si una regla de negocio, persistencia, autorización, estado o contrato no está confirmada, no elegirla: registrar la duda y pedir al equipo una respuesta explícita.
+- No crear Markdown de avance, QA, integración o contexto. Registrar la entrega y su push en `../../HISTORIAL_DOCUMENTAL.md`; actualizar únicamente la guía canónica que corresponda.
+- Leer `../../DECISIONES_Y_DUDAS.md` antes de convertir una necesidad en código o migración.
 - Mantener el monolito modular NestJS con MVC adaptado a API REST: Model para dominio y persistencia, View para representaciones/DTO de salida y Controller para HTTP. Los servicios orquestan casos de uso; los controladores no contienen reglas de negocio ni SQL.
 - PostgreSQL es la autoridad de integridad. Las validaciones de DTO mejoran mensajes, pero no reemplazan `FOREIGN KEY`, `UNIQUE`, `CHECK`, transacciones ni bloqueos.
 - Autorizar cada solicitud en el servidor por **capacidad, ámbito, caso y estado del recurso**. Denegar de forma predeterminada.
@@ -32,15 +34,42 @@
 
 ## Antes de programar
 
-1. Identificar requisito, actor, capacidad y ámbito.
-2. Identificar agregado, invariantes y restricciones de base de datos.
-3. Definir DTO, respuesta, errores y efecto de auditoría.
-4. Definir casos de acceso denegado, conflicto, reintento y concurrencia.
-5. Añadir pruebas que demuestren la regla en PostgreSQL real.
+1. Identificar requisito confirmado, actor, capacidad y ámbito.
+2. Si falta una regla, registrar la pregunta para el equipo en `../../DECISIONES_Y_DUDAS.md` y no definirla por inferencia.
+3. Identificar agregado, invariantes y restricciones de base de datos.
+4. Definir DTO, respuesta, errores y efecto de auditoría conforme al contrato existente.
+5. Definir casos de acceso denegado, conflicto, reintento y concurrencia.
+6. Añadir pruebas que demuestren la regla en PostgreSQL real.
 
 ## Condición de terminado
 
 Una función está terminada cuando tiene migración cuando corresponda, autorización en servidor, validaciones, auditoría, manejo de concurrencia, contrato documentado, pruebas pertinentes y trazabilidad. Compilar sin errores no basta.
+
+## Legibilidad y sectorización del backend
+
+Los siguientes valores son **umbrales de revisión**, no límites rígidos. Al
+superarlos, analizar si la responsabilidad puede simplificarse, extraerse o
+dividirse sin romper cohesión, transacciones, autorización ni auditoría. Dejar
+una breve justificación cuando mantener el tamaño sea la opción más clara.
+
+| Elemento | Tamaño esperado | Revisar desde | Criterio de mejora |
+| --- | ---: | ---: | --- |
+| Función o método | hasta 40 líneas | más de 80 líneas | Extraer validación, mapeo, política o paso de negocio con nombre claro. |
+| Función transaccional | hasta 80 líneas | más de 120 líneas | Extraer helpers que reciban el mismo `EntityManager`; no partir la atomicidad. |
+| Controlador | hasta 150 líneas | más de 250 líneas | Mover reglas de negocio a servicios; SQL nunca pertenece aquí. |
+| Servicio | hasta 250 líneas | más de 400 líneas | Separar casos de uso, políticas, auditoría o coordinadores del dominio. |
+| Repositorio | hasta 350 líneas | más de 550 líneas | Separar por agregado, tipo de consulta o archivo `*.queries.ts`. |
+| Módulo de backend | hasta 1,500 líneas propias | más de 2,500 líneas | Revisar límites del dominio y dependencias entre responsabilidades. |
+
+También revisar cuando una función tenga más de cuatro parámetros, más de tres
+niveles de anidamiento o una complejidad ciclomática mayor de 10. Desde 15 se
+debe simplificar o justificar explícitamente la excepción.
+
+Las funciones públicas, consultas no triviales, transacciones, invariantes,
+conversiones delicadas y variables de significado no evidente deben llevar
+comentarios profesionales y breves. Explicar el **por qué**, el límite o la
+regla de negocio; no describir línea por línea lo que ya expresa un nombre
+claro. Usar nombres descriptivos antes que comentarios compensatorios.
 
 ## Reglas del esquema unificado v2
 
@@ -48,5 +77,5 @@ Una función está terminada cuando tiene migración cuando corresponda, autoriz
 - Crear `formulario_area` y su detalle tipado en una sola transacción.
 - Antes de escrituras auditadas, fijar actor y motivo mediante `SET LOCAL` en la misma conexión de la transacción.
 - No afirmar que el DDL v2 está desplegado hasta contar con ejecución exitosa en PostgreSQL de ensayo.
-- Consultar `BACKEND_SCHEMA_V2.md` antes de modificar entidades, repositorios o migraciones.
+- Consultar `../../GUIA_TECNICA.md` y el estado real de las migraciones antes de modificar entidades, repositorios o migraciones.
 

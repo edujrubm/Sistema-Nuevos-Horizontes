@@ -13,6 +13,7 @@ import { ParseBigIntIdPipe } from "../../../common/pipes/parse-bigint-id.pipe";
 import { ActualizarFormularioDto } from "./dto/actualizar-formulario.dto";
 import { ConfirmarFormularioDto } from "./dto/confirmar-formulario.dto";
 import { CrearFormularioDto } from "./dto/crear-formulario.dto";
+import { DescartarFormularioDto } from "./dto/descartar-formulario.dto";
 import { ListarFormulariosDto } from "./dto/listar-formularios.dto";
 import { FormularioSharedService } from "./formulario-shared.service";
 
@@ -63,6 +64,15 @@ export class FormularioSharedController {
     @Body() entrada: ConfirmarFormularioDto,
   ) {
     return this.service.confirmar(id, entrada);
+  }
+
+  @Post("formularios-area/:id/descartar")
+  @ApiOperation({ summary: "Descarta lógicamente un formulario en borrador" })
+  descartar(
+    @Param("id", ParseBigIntIdPipe) id: string,
+    @Body() entrada: DescartarFormularioDto,
+  ) {
+    return this.service.descartar(id, entrada);
   }
 
   @Get("tipos-formulario")

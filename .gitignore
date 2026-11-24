@@ -22,3 +22,11 @@ venv/
 __pycache__/
 dist/
 build/
+
+test-results/
+
+# Exportaciones y datos privados exclusivos del laboratorio local
+database/export/
+
+# Metadatos de compilación TypeScript
+*.tsbuildinfo

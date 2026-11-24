@@ -1,0 +1,86 @@
+import type { Response } from "express";
+import { DocumentosService } from "./documentos.service";
+import { TransicionDto } from "../../common/dto/version.dto";
+import { LIMITE_PDF_BYTES } from "./limites";
+import { DocumentosListaDto } from "./documentos-lista.dto";
+import {
+  Body,
+  Get,
+  Query,
+  Res,
+  Controller,
+  Param,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { ParseBigIntIdPipe as BigintIdPipe } from "../../common/pipes/parse-bigint-id.pipe";
+import { CargaPdfDto } from "./carga-pdf.dto";
+import { ArchivoPdf, CargaPdfService } from "./carga-pdf.service";
+
+@Controller("v1")
+export class DocumentosController {
+  constructor(
+    readonly carga: CargaPdfService,
+    readonly documentos: DocumentosService,
+  ) {}
+  @Get("beneficiarias/:id/documentos") listar(
+    @Param("id", BigintIdPipe) id: string,
+    @Query() q: DocumentosListaDto,
+  ) {
+    return this.documentos.listar(id, q);
+  }
+  @Get("beneficiarias/:id/documentos/contexto") contexto(
+    @Param("id", BigintIdPipe) id: string,
+  ) {
+    return this.documentos.contexto(id);
+  }
+  @Get("documentos/:id") consultar(@Param("id", BigintIdPipe) id: string) {
+    return this.documentos.obtener(id);
+  }
+  @Get("documentos/:id/versiones") versiones(
+    @Param("id", BigintIdPipe) id: string,
+  ) {
+    return this.documentos.versiones(id);
+  }
+  @Post("documentos/:id/anular") anular(
+    @Param("id", BigintIdPipe) id: string,
+    @Body() dto: TransicionDto,
+  ) {
+    return this.documentos.anular(id, dto);
+  }
+  @Get("documentos/:id/archivo") async archivo(
+    @Param("id", BigintIdPipe) id: string,
+    @Res() res: Response,
+  ) {
+    const bytes = await this.documentos.archivo(id);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="documento-${id}.pdf"`,
+    );
+    res.setHeader("Cache-Control", "no-store");
+    res.send(bytes);
+  }
+  // Ruta del PDF añadida a nuestro alcance; carga propia sin depender de otro módulo externo.
+  @Post("beneficiarias/:id/documentos/cargas")
+  @UseInterceptors(
+    FileInterceptor("archivo", {
+      limits: {
+        fileSize: LIMITE_PDF_BYTES,
+        files: 1,
+        fields: 8,
+        fieldSize: 80000,
+        parts: 9,
+      },
+    }),
+  )
+  cargar(
+    @Param("id", BigintIdPipe) id: string,
+    @Body() dto: CargaPdfDto,
+    @UploadedFile() archivo?: ArchivoPdf,
+  ) {
+    return this.carga.cargar(id, dto, archivo);
+  }
+}

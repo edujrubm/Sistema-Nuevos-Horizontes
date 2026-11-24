@@ -14,10 +14,9 @@ import { BeneficiariaEntity } from "./entities/beneficiaria.entity";
 import { BeneficiariasRepository } from "./repositories/beneficiarias.repository";
 import { esSeccionFicha } from "../ficha-inicial/ficha-inicial.constants";
 
-function enmascararCui(cui: string | null): string | null {
-  if (!cui) return null;
-  const limpio = cui.replace(/\s/g, "");
-  return `${"*".repeat(Math.max(0, limpio.length - 4))}${limpio.slice(-4)}`;
+// La visualización completa fue aprobada expresamente por el equipo para este ciclo.
+function presentarCui(cui: string | null): string | null {
+  return cui?.replace(/\s/g, "") || null;
 }
 
 function resumen(beneficiaria: BeneficiariaEntity) {
@@ -25,7 +24,7 @@ function resumen(beneficiaria: BeneficiariaEntity) {
     id: beneficiaria.id,
     nombre: beneficiaria.nombre,
     fechaNacimiento: beneficiaria.fechaNacimiento,
-    cuiEnmascarado: enmascararCui(beneficiaria.cui),
+    cuiEnmascarado: presentarCui(beneficiaria.cui),
   };
 }
 
@@ -54,7 +53,7 @@ export class BeneficiariasService {
     const { cui, ...perfil } = detalle.beneficiaria;
     return {
       ...perfil,
-      cuiEnmascarado: enmascararCui(cui),
+      cuiEnmascarado: presentarCui(cui),
       residencia: detalle.residencia ?? null,
       lugarOcupacion: detalle.lugarOcupacion ?? null,
       expediente: detalle.expediente ?? null,
@@ -144,7 +143,7 @@ export class BeneficiariasService {
     return {
       data: {
         ...perfil,
-        cuiEnmascarado: enmascararCui(cui),
+        cuiEnmascarado: presentarCui(cui),
         residencia: detalle.residencia ?? null,
         lugarOcupacion: detalle.lugarOcupacion ?? null,
         expediente: detalle.expediente,

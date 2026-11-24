@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { DataSource, EntityManager } from "typeorm";
+import { FormularioAdapterRegistry } from "./formulario-adapter.registry";
 
 import { ActualizarFormularioDto } from "./dto/actualizar-formulario.dto";
 import { CrearFormularioDto } from "./dto/crear-formulario.dto";
@@ -8,26 +9,11 @@ import { ListarFormulariosDto } from "./dto/listar-formularios.dto";
 import {
   aSnakeCase,
   CodigoTipoFormulario,
+  DefinicionTipoFormulario,
   TIPOS_FORMULARIO,
 } from "./formulario-tipos";
 
-export interface FormularioAreaRow {
-  id: string;
-  expedienteId: string;
-  ninoId: string | null;
-  areaId: string;
-  area: string;
-  tipo: CodigoTipoFormulario;
-  estado: string;
-  fechaAtencion: Date;
-  profesionalId: string;
-  capturadoPor: string;
-  creadoEn: Date;
-  actualizadoEn: Date;
-  version: number;
-  detalle: Record<string, unknown>;
-  examenMental: Record<string, unknown> | null;
-}
+import type { FormularioAreaRow } from "./contracts/formulario-area-row";
 
 interface ContextoAuditoria {
   usuarioId: string;
@@ -39,6 +25,7 @@ export class FormularioSharedRepository {
   constructor(
     private readonly dataSource: DataSource,
     private readonly config: ConfigService,
+    private readonly adaptadores: FormularioAdapterRegistry,
   ) {}
 
   private get estadoBorrador() {
@@ -47,6 +34,10 @@ export class FormularioSharedRepository {
 
   private get estadoConfirmado() {
     return this.config.get<string>("FORM_CONFIRMED_STATE_CODE", "CONFIRMADO");
+  }
+
+  private get estadoDescartado() {
+    return this.config.get<string>("FORM_DISCARDED_STATE_CODE", "DESCARTADO");
   }
 
   private async prepararAuditoria(
@@ -86,7 +77,7 @@ export class FormularioSharedRepository {
   }
 
   private detalleSql() {
-    return `COALESCE(
+    return `new_horizons.local_json_seguro(COALESCE(
       to_jsonb(pm) - 'formulario_id' - 'tipo',
       to_jsonb(pn) - 'formulario_id' - 'tipo',
       to_jsonb(fs) - 'formulario_id' - 'tipo',
@@ -95,7 +86,7 @@ export class FormularioSharedRepository {
       to_jsonb(rl) - 'formulario_id' - 'tipo',
       to_jsonb(fg) - 'formulario_id' - 'tipo',
       '{}'::jsonb
-    )`;
+    ))`;
   }
 
   private joinsDetalleSql() {
@@ -128,8 +119,14 @@ export class FormularioSharedRepository {
   }
 
   async listar(beneficiariaId: string, filtro: ListarFormulariosDto) {
-    const condiciones = ["e.beneficiaria_id = $1::bigint"];
-    const parametros: unknown[] = [beneficiariaId];
+    const adaptador = this.adaptadores.obtener(filtro.tipo);
+    if (adaptador)
+      return adaptador.list(beneficiariaId, filtro, this.estadoDescartado);
+    const condiciones = [
+      "e.beneficiaria_id = $1::bigint",
+      "f.estado_codigo <> $2",
+    ];
+    const parametros: unknown[] = [beneficiariaId, this.estadoDescartado];
     if (filtro.cursor) {
       parametros.push(filtro.cursor);
       condiciones.push(`f.id > $${parametros.length}::bigint`);
@@ -153,6 +150,8 @@ export class FormularioSharedRepository {
   }
 
   async obtener(id: string, manager?: EntityManager) {
+    const adaptador = await this.adaptadores.buscarParaRegistro(id, manager);
+    if (adaptador) return adaptador.get(id, manager);
     const executor = manager ?? this.dataSource.manager;
     const rows = await executor.query<FormularioAreaRow[]>(
       `${this.selectFormularioSql()} WHERE f.id=$1::bigint`,
@@ -197,6 +196,14 @@ export class FormularioSharedRepository {
   }
 
   async crear(beneficiariaId: string, entrada: CrearFormularioDto) {
+    const adaptador = this.adaptadores.obtener(entrada.tipo);
+    if (adaptador)
+      return adaptador.create(
+        beneficiariaId,
+        entrada,
+        this.configuracionEstados(),
+        this.prepararAuditoria.bind(this),
+      );
     return this.dataSource.transaction(async (manager) => {
       const auditor = await this.prepararAuditoria(
         manager,
@@ -344,6 +351,14 @@ export class FormularioSharedRepository {
   }
 
   async actualizar(id: string, entrada: ActualizarFormularioDto) {
+    const adaptador = await this.adaptadores.buscarParaRegistro(id);
+    if (adaptador)
+      return adaptador.update(
+        id,
+        entrada,
+        this.configuracionEstados(),
+        this.prepararAuditoria.bind(this),
+      );
     return this.dataSource.transaction(async (manager) => {
       await this.prepararAuditoria(manager, entrada.motivo);
       const rows = await manager.query<
@@ -405,6 +420,16 @@ export class FormularioSharedRepository {
   }
 
   async confirmar(id: string, version: number, motivo: string) {
+    const adaptador = await this.adaptadores.buscarParaRegistro(id);
+    if (adaptador)
+      return adaptador.transition(
+        id,
+        version,
+        motivo,
+        "CONFIRMADO",
+        this.configuracionEstados(),
+        this.prepararAuditoria.bind(this),
+      );
     return this.dataSource.transaction(async (manager) => {
       await this.prepararAuditoria(manager, motivo);
       if (!(await this.estadoExiste(manager, this.estadoConfirmado)))
@@ -421,6 +446,15 @@ export class FormularioSharedRepository {
         return { estado: "YA_CONFIRMADO" as const };
       if (rows[0].version !== version)
         return { estado: "CONFLICTO_VERSION" as const };
+      const actual = await this.obtener(id, manager);
+      if (actual) {
+        const definicion: DefinicionTipoFormulario = TIPOS_FORMULARIO[actual.tipo];
+        this.adaptadores.validarConfirmacion(
+          actual.tipo,
+          actual.detalle,
+          Boolean(definicion.requiereValidacionConfirmacion),
+        );
+      }
       await manager.query(
         `UPDATE new_horizons.formulario_area
          SET estado_codigo=$2,motivo_cambio=$3 WHERE id=$1::bigint`,
@@ -428,6 +462,45 @@ export class FormularioSharedRepository {
       );
       return {
         estado: "CONFIRMADO" as const,
+        formulario: await this.obtener(id, manager),
+      };
+    });
+  }
+
+  async descartar(id: string, version: number, motivo: string) {
+    const adaptador = await this.adaptadores.buscarParaRegistro(id);
+    if (adaptador)
+      return adaptador.transition(
+        id,
+        version,
+        motivo,
+        "DESCARTADO",
+        this.configuracionEstados(),
+        this.prepararAuditoria.bind(this),
+      );
+    return this.dataSource.transaction(async (manager) => {
+      await this.prepararAuditoria(manager, motivo);
+      if (!(await this.estadoExiste(manager, this.estadoDescartado)))
+        return { estado: "CATALOGO_ESTADO_NO_CONFIGURADO" as const };
+      const rows = await manager.query<
+        Array<{ estado: string; version: number }>
+      >(
+        `SELECT estado_codigo AS estado,version
+         FROM new_horizons.formulario_area WHERE id=$1::bigint FOR UPDATE`,
+        [id],
+      );
+      if (!rows[0]) return { estado: "NO_ENCONTRADO" as const };
+      if (rows[0].estado !== this.estadoBorrador)
+        return { estado: "NO_ES_BORRADOR" as const };
+      if (rows[0].version !== version)
+        return { estado: "CONFLICTO_VERSION" as const };
+      await manager.query(
+        `UPDATE new_horizons.formulario_area
+         SET estado_codigo=$2,motivo_cambio=$3 WHERE id=$1::bigint`,
+        [id, this.estadoDescartado, motivo],
+      );
+      return {
+        estado: "DESCARTADO" as const,
         formulario: await this.obtener(id, manager),
       };
     });
@@ -455,8 +528,8 @@ export class FormularioSharedRepository {
       Array<{ codigo: string; descripcion: string }>
     >(
       `SELECT codigo,descripcion FROM new_horizons.estado_formulario
-       WHERE codigo IN ($1,$2) ORDER BY codigo`,
-      [this.estadoBorrador, this.estadoConfirmado],
+       WHERE codigo IN ($1,$2,$3) ORDER BY codigo`,
+      [this.estadoBorrador, this.estadoConfirmado, this.estadoDescartado],
     );
   }
 
@@ -464,6 +537,7 @@ export class FormularioSharedRepository {
     return {
       borrador: this.estadoBorrador,
       confirmado: this.estadoConfirmado,
+      descartado: this.estadoDescartado,
     };
   }
 }

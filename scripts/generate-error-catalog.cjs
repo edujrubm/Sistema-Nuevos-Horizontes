@@ -1,0 +1,1 @@
+const fs=require('node:fs');const {CATALOGO}=require('../src/common/errors/catalogo');fs.writeFileSync('frontend/src/shared/api/errores-catalogo.json',JSON.stringify(Object.fromEntries(Object.entries(CATALOGO).map(([k,v])=>[k,v.mensaje])),null,2)+'\n');

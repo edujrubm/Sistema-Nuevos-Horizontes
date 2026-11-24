@@ -3,7 +3,6 @@ export const SECCIONES_FICHA = [
   "residencia",
   "datos-generales",
   "salud",
-  "grupo-familiar",
   "agresores",
   "motivo-consulta",
   "tipos-violencia",
@@ -30,16 +29,14 @@ export const PAGINAS_FICHA = {
   identificacion: ["identificacion"],
   residencia: ["residencia"],
   "datos-salud": ["datos-generales", "salud"],
-  familia: ["grupo-familiar", "agresores"],
+  familia: ["agresores"],
   violencia: ["motivo-consulta", "tipos-violencia", "objetos-agresion"],
-  riesgo: [
-    "situaciones-riesgo",
+  riesgo: ["situaciones-riesgo"],
+  referencias: ["referencias", "apoyo-recibido"],
+  "entrevista-cierre": [
     "episodio-reciente",
     "analisis-riesgo",
     "plan-seguridad",
-  ],
-  referencias: ["referencias", "apoyo-recibido"],
-  "entrevista-cierre": [
     "evaluacion",
     "entrevista-inicial",
     "seguimiento",

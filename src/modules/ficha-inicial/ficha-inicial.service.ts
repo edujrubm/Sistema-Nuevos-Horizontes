@@ -41,6 +41,15 @@ export class FichaInicialService {
       fichaInicial: {
         lugar: entrada.lugar,
         fechaEntrevista: entrada.fechaEntrevista,
+        seccionesIniciales: {
+          identificacion: Object.fromEntries(
+            Object.entries({
+              tipoDocumento: entrada.tipoDocumento,
+              documentoAlternativo: entrada.documentoAlternativo,
+              otroTipoDocumento: entrada.otroTipoDocumento,
+            }).filter(([, valor]) => valor !== undefined),
+          ),
+        },
       },
     };
     return this.beneficiarias.crear(admision);
@@ -62,7 +71,13 @@ export class FichaInicialService {
   async consultar(id: string) {
     const resultado = await this.repository.obtener(id);
     if (!resultado) throw new NotFoundException("Ficha inicial no encontrada.");
-    return { data: { ...resultado.ficha, secciones: resultado.secciones } };
+    return {
+      data: {
+        ...resultado.ficha,
+        secciones: resultado.secciones,
+        hijos: resultado.hijos,
+      },
+    };
   }
 
   async guardarSeccion(
@@ -249,11 +264,15 @@ export class FichaInicialService {
         message: "La ficha cambió desde que fue consultada.",
       });
     if (resultado.estado === "INCOMPLETA")
-      throw new BadRequestException({
-        code: "INCOMPLETE_INITIAL_INTAKE",
-        message: "Faltan secciones obligatorias.",
-        missingSections: resultado.faltantes,
-      });
+      throw new ErrorPublicoException(
+        400,
+        "SOLICITUD_INCOMPLETA",
+        "Faltan secciones obligatorias por guardar antes de confirmar.",
+        resultado.faltantes.map((seccion) => ({
+          campo: seccion,
+          mensaje: `Completa y guarda la sección: ${seccion}.`,
+        })),
+      );
     return { data: resultado.ficha };
   }
 }

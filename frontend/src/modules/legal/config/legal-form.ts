@@ -1,0 +1,65 @@
+export const legal: Record<string, string> = {
+  demandadoNombreDeclarado: "Demandado",
+  relacionPartes: "Relación entre las partes",
+  diagnosticoJuridico: "Situación jurídica identificada",
+  normativaAplicable: "Normativa o vía aplicable",
+  objetivoLegal: "Objetivo",
+  planTratamiento: "Acciones propuestas",
+  referencia: "Referencia",
+  tipoJuicio: "Tipo de juicio",
+  estadoProceso: "Estado del proceso",
+  inicioProcesoFecha: "Fecha de inicio",
+  inicioProcesoDescripcion: "Inicio del proceso",
+  juzgado: "Juzgado",
+  numeroJuicio: "Número de proceso",
+  juezOficial: "Juez u oficial",
+  diligenciamiento: "Resultado de diligenciamiento",
+  proximaActuacionFecha: "Próxima actuación",
+  actuacionesRealizadas: "Actuaciones realizadas",
+  acuerdosProximosPasos: "Acuerdos y próximos pasos",
+  observaciones: "Observaciones",
+};
+export const referencia: Record<string, string> = {
+  destino: "Destino",
+  origen: "Origen",
+  motivoReferencia: "Motivo de referencia",
+  recomendaciones: "Recomendaciones",
+  medioEntrega: "Medio de entrega",
+};
+export const legalSections = [
+  {
+    titulo: "Partes y fecha",
+    tarjeta: "Partes",
+    campos: ["demandadoNombreDeclarado", "relacionPartes", "numeroJuicio"],
+  },
+  {
+    titulo: "Diagnóstico y plan",
+    tarjeta: "Diagnóstico jurídico y plan legal",
+    campos: [
+      "diagnosticoJuridico",
+      "normativaAplicable",
+      "objetivoLegal",
+      "planTratamiento",
+      "referencia",
+    ],
+  },
+  {
+    titulo: "Proceso judicial",
+    tarjeta: "Proceso y actuaciones",
+    campos: [
+      "inicioProcesoFecha",
+      "inicioProcesoDescripcion",
+      "juzgado",
+      "tipoJuicio",
+      "juezOficial",
+      "estadoProceso",
+      "proximaActuacionFecha",
+      "actuacionesRealizadas",
+    ],
+  },
+  {
+    titulo: "Diligenciamiento",
+    tarjeta: "Diligenciamiento y cierre",
+    campos: ["diligenciamiento", "acuerdosProximosPasos", "observaciones"],
+  },
+];

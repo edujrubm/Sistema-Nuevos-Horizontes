@@ -1,0 +1,110 @@
+{
+  "info": {
+    "name": "Documentos unificados · integración",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:3016/api/v1"
+    },
+    {
+      "key": "beneficiariaId",
+      "value": "100"
+    },
+    {
+      "key": "formularioId",
+      "value": "2"
+    },
+    {
+      "key": "documentoId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Listar documentos",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/documentos"
+      }
+    },
+    {
+      "name": "Consultar documento",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/documentos/{{documentoId}}"
+      }
+    },
+    {
+      "name": "Historial completo de versiones",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/documentos/{{documentoId}}/versiones"
+      }
+    },
+    {
+      "name": "Descargar PDF privado",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/documentos/{{documentoId}}/archivo"
+      }
+    },
+    {
+      "name": "Anular conservando archivo",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/documentos/{{documentoId}}/anular",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"version\": 1, \"motivo\": \"Corrección documental de prueba\"}"
+        }
+      }
+    },
+    {
+      "name": "Cargar PDF o nueva versión (sin fase completar)",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/beneficiarias/{{beneficiariaId}}/documentos/cargas",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "archivo",
+              "type": "file",
+              "src": ""
+            },
+            {
+              "key": "formularioId",
+              "value": "{{formularioId}}",
+              "type": "text"
+            },
+            {
+              "key": "categoria",
+              "value": "Documento legal",
+              "type": "text"
+            },
+            {
+              "key": "documentoAnteriorId",
+              "value": "{{documentoId}}",
+              "type": "text",
+              "disabled": true
+            },
+            {
+              "key": "motivoCambio",
+              "value": "Actualizar documento de prueba",
+              "type": "text",
+              "disabled": true
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

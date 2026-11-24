@@ -6,6 +6,7 @@ import { AuditoriaModule } from "./auditoria/auditoria.module";
 import { BeneficiariasModule } from "./beneficiarias/beneficiarias.module";
 import { CatalogosModule } from "./catalogos/catalogos.module";
 import { DocumentosModule } from "./documentos/documentos.module";
+import { EvolucionModule } from "./evolucion/evolucion.module";
 import { ExpedientesModule } from "./expedientes/expedientes.module";
 import { FichaInicialModule } from "./ficha-inicial/ficha-inicial.module";
 import { FormulariosModule } from "./formularios/formularios.module";
@@ -16,6 +17,7 @@ import { SeguridadModule } from "./seguridad/seguridad.module";
 /** Agrupa límites de dominio; los módulos no comparten repositorios directamente. */
 @Module({
   imports: [
+    EvolucionModule,
     AdministracionModule,
     AlbergueModule,
     AuditoriaModule,

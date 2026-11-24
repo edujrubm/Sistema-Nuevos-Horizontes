@@ -14,13 +14,13 @@
 
 Las ramas de área no cambian unilateralmente el núcleo `beneficiaria`, `expediente`, `nino`, `formulario_area`, autenticación ni migraciones compartidas. Esos cambios se proponen en una rama transversal y se revisan antes de integrarse.
 
-## Verificación mientras Actions no está disponible
+## Verificación local
 
-GitHub Actions queda documentado como no disponible temporalmente por una restricción de facturación. Esto no bloquea el flujo de trabajo. Antes de abrir o aprobar un Pull Request se ejecuta localmente:
+Antes de abrir o aprobar un Pull Request se ejecuta localmente:
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm run build
+pnpm run check
 ```
 
 La persona responsable debe reportar el resultado en la descripción del Pull Request. El merge requiere además revisión de código, ausencia de conflictos y confirmación de que no se incluyen credenciales ni datos personales.

@@ -1,3 +1,49 @@
+# Postman de la integración
+
+## Legal reconstruido
+
+Usar `Legal.postman_collection.json` para la ficha Legal y sus referencias.
+Incluye las seis rutas del módulo y las rutas compartidas de formularios que
+usa el frontend. Su URL predeterminada es `http://127.0.0.1:3000/api/v1`;
+ejecutar únicamente sobre una base local sintética preparada. Rechaza destinos
+fuera de loopback y encadena identificadores y versiones sin perder precisión.
+La configuración y las pruebas están en
+`src/modules/formularios/legal/README.md`.
+
+Las colecciones por integrante que siguen se conservan como contexto histórico
+y regresión de otras áreas; no definen la organización del código nuevo.
+
+## Social integrado
+
+Usar `Social.postman_collection.json` junto con
+`Social_Local.postman_environment.json`. La colección sólo acepta una URL
+`http` de loopback con puerto explícito y prefijo `/api/v1`; ejecutarla desde la
+petición 01 sobre PostgreSQL local sintético. Crea fichas, documentos y
+versiones sintéticas, y nunca debe dirigirse a Neon compartido o producción.
+
+Comprueba listado, resumen, borrador, edición, versión, confirmación, descarte,
+documentos y errores de contrato. Para regenerar y ejecutar la verificación
+local: `node scripts/generar-postman-social.cjs`, `pnpm run build:api`,
+`node --test test/postman-social.contract.test.cjs` y
+`./scripts/test-areas.ps1 -NodeExe node -Port 55487`. Los resultados de una
+ejecución se registran en `docs/HISTORIAL_DOCUMENTAL.md`, no en otro README.
+
+API local por defecto: http://127.0.0.1:3016/api/v1. Iniciar con pnpm start:areas (PostgreSQL local sintético); importar el entorno local. No usar fixtures en la BD del grupo.
+
+- registros-area.postman_collection.json: 14 rutas originales, flujo ejecutable con la semilla áreas.
+- Errores.postman_collection.json: 3 peticiones de errores de contrato.
+- CargaPDF.postman_collection.json: 1 PDF sintético; working-dir postman para Newman.
+- Documentos_Unificados.postman_collection.json: 6 plantillas del contrato documental único. Elegir archivo, formularioId, documentoId y versión vigentes. Para nueva versión activar documentoAnteriorId y motivoCambio. No tiene una fase completar.
+- Nuevos_Horizontes_Persona_1.postman_collection.json: colección de main, conservada; requiere sus catálogos y semilla específicos. No confundirla con una prueba completa ejecutada en esta entrega.
+
+Generación áreas: pnpm postman:areas. No vuelve a crear páginas HTML ni endpoints de laboratorio.
+
+Resultados comprobados el 4 de noviembre: las tres colecciones áreas/Errores/PDF sumaron 18 peticiones y 29 aserciones sin fallos. Las operaciones nuevas de listado/versiones/anulación/descarga se comprobaron mediante pruebas HTTP contra PostgreSQL; la colección nueva se entrega como plantillas configurables.
+
+Las áreas y autor se simulan en el servidor de pruebas. No cambiar AREA_TEST_NOMBRE desde el navegador. En producción será responsabilidad de la sesión autenticada.
+
+## Notas históricas de Persona 1
+
 # Pruebas Postman - Persona 1
 
 ## Archivos
@@ -56,3 +102,6 @@ La colección usa una sola fuente persistente para cada dato. Identidad, origen,
 - No ejecutarla contra producción.
 - No cambiar manualmente las variables de versión durante una corrida.
 - Si una corrida se interrumpe, iniciar una nueva desde la primera solicitud para generar otro conjunto de datos.
+# Persona 4 integrada — 11/11/2026
+
+`Persona4_Integrada.postman_collection.json` prueba PDF real, versiones, anulación, ingreso, salida, retorno, nacimiento, egreso e historial. Ejecutar desde la raíz con `pnpm exec newman run postman/Persona4_Integrada.postman_collection.json`. Incluye respuestas negativas esperadas (409). Utiliza las fixtures PDF del repositorio y solo datos sintéticos; revisar sus variables y preparar los estados Activo/Inactivo antes de correr. El egreso requiere motivo. Las decisiones de negocio pendientes están en `docs/DECISIONES_Y_DUDAS.md`.
