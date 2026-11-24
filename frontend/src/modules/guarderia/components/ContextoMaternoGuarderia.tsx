@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { useCallback } from "react";
 import type { BeneficiariaContexto } from "@/shared/context/area-record-context";
 import { consultaDesdeQuery } from "@/shared/api/query-result";
 import { ErrorVista } from "@/shared/components/feedback";

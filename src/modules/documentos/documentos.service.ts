@@ -30,8 +30,33 @@ export class DocumentosService {
     return f;
   }
   private presentar(d: Record<string, unknown>): Record<string, unknown> {
-    // Los campos históricos de revisión no definen el estado operativo del PDF.
-    const { objeto_privado, estado_revision_codigo, revisado_por, revisado_en, ...publico } = d;
+    // Una lista explícita evita publicar columnas internas o retiradas del esquema.
+    const campos = [
+      "id",
+      "formulario_id",
+      "categoria",
+      "mime",
+      "tamano_bytes",
+      "sha256",
+      "version_documento",
+      "documento_anterior_id",
+      "cargado_por",
+      "cargado_en",
+      "anulado_en",
+      "anulado_por",
+      "motivo_anulacion",
+      "fecha_documento",
+      "descripcion",
+      "nombre_documento",
+      "version_registro",
+      "autor_nombre",
+      "motivo_cambio",
+    ];
+    const publico = Object.fromEntries(
+      campos
+        .filter((campo) => Object.hasOwn(d, campo))
+        .map((campo) => [campo, d[campo]]),
+    );
     return { ...camel(publico), estado: d.anulado_en ? "ANULADO" : "VIGENTE" };
   }
   async obtener(id: string) {

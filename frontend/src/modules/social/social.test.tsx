@@ -13,6 +13,7 @@ import { socialApi } from "./api/social-api";
 import { SocialEditorPage } from "./pages/SocialEditorPage";
 import { SocialListPage } from "./pages/SocialListPage";
 import { AppLayout } from "@/app/layouts/AppLayout";
+import { AuthProvider } from "@/modules/auth/AuthContext";
 
 const caps = Object.fromEntries(
   Object.keys(soloLectura).map((key) => [key, true]),
@@ -76,8 +77,12 @@ describe("Social: páginas propias", () => {
       ],
       { initialEntries: ["/beneficiarias/100/social"] },
     );
-    render(<RouterProvider router={router} />);
-    expect(screen.getByText("Trabajo Social")).toBeVisible();
+    render(
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>,
+    );
+    expect(screen.getByText("Área Trabajo Social")).toBeVisible();
     expect(
       screen.queryByRole("link", { name: "Nueva ficha inicial" }),
     ).not.toBeInTheDocument();

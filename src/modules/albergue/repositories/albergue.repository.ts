@@ -22,11 +22,6 @@ import { MovimientoAlbergue } from "../entities/movimiento-albergue.entity";
 import { CrearSalidaTemporalDto } from "../dto/crear-salida-temporal.dto";
 import { CrearNacimientoDto } from "../dto/crear-nacimiento.dto";
 
-import {
-  ConsultaEstanciasDto,
-  HistorialAlbergueDto,
-} from "../dto/operacion.dto";
-
 /** Escrituras atómicas: conserva bloqueos, reloj de BD y auditoría en el mismo manager. */
 @Injectable()
 export class AlbergueRepository {

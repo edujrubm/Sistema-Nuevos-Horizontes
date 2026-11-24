@@ -157,7 +157,7 @@ guías técnicas afectados.
 - Responsable de decidir: Eduardo; autorización explícita del 2026-11-13 para continuar responsables sin afectar otros módulos.
 - Evidencia: respuestas «1. sí puede; 2. me parece» sobre autorización para recoger/trasladar y los cuatro datos; petición posterior de implementarlo siguiendo las reglas del repositorio.
 - Resolución: registrar nombre completo, CUI, relación o parentesco y teléfono en Guardería. El registro constituye autorización para recoger/trasladar; no se deduce de paternidad.
-- Implementación: tabla exclusiva guarderia_responsable vinculada a ficha_guarderia, creada mediante migración nueva 010. No se aplicó la propuesta 009_mockups_laboratorio ni se alteraron tablas de otros módulos.
+- Implementación: tabla exclusiva guarderia_responsable vinculada a ficha_guarderia, creada mediante migración nueva 010. La propuesta experimental de laboratorio no se aplicó y fue retirada del árbol vigente el 2026-11-24; su historial permanece en Git. No se alteraron tablas de otros módulos.
 - Contrato: GET y POST /api/v1/guarderia/beneficiarias/:beneficiariaId/fichas/:formularioId/responsables; PATCH en /:responsableId. Se usa la versión de la ficha, paginación y motivo. La API verifica caso, área y estado; identidad técnica habilitada solo en desarrollo/pruebas.
 - Flujo conservado: captura y corrección ordinaria en borrador; fichas confirmadas quedan en consulta conforme al motor actual. No se amplían permisos ni se resuelve la corrección posterior a confirmación pendiente en D-04.
 - Persistencia: repositorios TypeORM; auditoría y versión mediante mecanismos existentes, dentro de la misma transacción. Sin borrado físico ni cambio de formulario de origen.
@@ -179,7 +179,7 @@ Por petición de Eduardo se corrigieron validaciones de cabecera y la correspond
 - Resolución: nueva tabla padre_nino con nino_id, nombre, cui, telefono, direccion, fechas y version; tipo_vinculo distingue BIOLOGICO y LEGAL. Los datos personales son opcionales según la propuesta aprobada. No se presume identidad por agresor, convivencia o parentesco.
 - Límite: no se ha definido un máximo institucional de personas por tipo ni unicidad global de CUI; no se impone UNIQUE(nino_id) ni UNIQUE(nino_id,tipo_vinculo). La misma persona puede tener ambos tipos mediante registros diferenciados, y compartir paternidad con varios niños.
 - No concede autorización de recogida/traslado. La decisión de responsables de Guardería es independiente.
-- Archivos previstos: database/migrations/011_padre_nino.sql; src/modules/ninos/entities/padre-nino.entity.ts; pruebas y ejecutor local propios.
+- Archivos previstos: database/migrations/016_padre_nino.sql; src/modules/ninos/entities/padre-nino.entity.ts; pruebas y ejecutor local propios.
 - Se revoca la espera anterior solo para esta estructura aprobada. No se autoriza modificar la BD compartida, publicar a Git ni completar por inferencia reglas de captura/permisos aún pendientes.
 
 - Resultado de D-11: migración 011 aplicada primero en PostgreSQL desechable y luego exclusivamente en guarderia_qa_c4fa143d (loopback 55510). Nueve pruebas de paternidad y 24 de regresión Guardería aprobadas. Entidad ORM añadida sin cambiar módulos/controladores existentes. Informe: QA_PADRE_NINO.md.
@@ -242,3 +242,24 @@ Eduardo solicitó alinear Legal, Social y Guardería con los módulos del equipo
 - Compatibilidad: las columnas y migraciones históricas de revisión se conservan en BD sin utilizarlas para permitir o bloquear el flujo. No se marca artificialmente ningún archivo como revisado ni se inventa un aprobador; no se borra información histórica.
 - Alcance: sólo documentos. No cambia la confirmación de fichas de las áreas, su auditoría, los permisos definitivos o el proveedor de almacenamiento pendientes en D-02/D-03.
 - Sustituye la duda anterior sobre quién aprobaría PDFs. No es un requisito pendiente y no bloquea el PR.
+
+### Depuración autorizada de D-13 — 2026-11-24
+
+Eduardo solicita retirar restos sin uso de la implementación anterior. La entidad
+documental deja de mapear las tres columnas de aprobación retiradas. La migración
+024 conserva sus valores y el catálogo en archivo_revision_documental, fuera del
+flujo operativo, antes de quitar columnas, CHECK/FK e índice dependientes. No se
+borran documentos, versiones, actores ni auditoría. Esta resolución sustituye la
+conservación indefinida de esas columnas en la tabla operativa descrita en D-13.
+Su aplicación en un ambiente compartido sigue pendiente de respaldo y revisión
+del encargado. La API funciona antes y después de 024; no activa migraciones al
+arrancar. No se retiran funciones activas de serialización o protección documental.
+
+### Normalización final de inventario — 2026-11-24
+
+- Estado: autorizada por Eduardo; código verificado localmente, despliegue compartido pendiente del encargado.
+- Resolución: sustituir el PR 36 por una entrega conjunta en depuracion. Las migraciones incrementales se numeran 003–024 sin colisiones, manteniendo el orden histórico completo, incluidos los prerrequisitos de Seguridad.
+- Trazabilidad: manifest.json reconoce nombres y hashes anteriores, incluidos los nombres propuestos en el PR sustituido. Las referencias numéricas en acuerdos históricos describen la numeración de entonces; usar el manifiesto para localizar el archivo vigente.
+- Contenido: 21 scripts históricos conservan sus sentencias. Sólo se reemplaza un comentario de cabecera que nombraba la distribución personal anterior; se conserva su hash original en el manifiesto. No se reescriben migraciones aplicadas en ninguna base.
+- Operación: un renombre NO constituye una migración nueva. El verificador compara el registro aportado sin conectar a BD ni ejecutar SQL. El encargado debe cotejar los objetos reales y no reaplicar nombres equivalentes.
+- Depuración: se retira la propuesta experimental no aplicada; no se supone que sus tablas existan en el servidor ni se ejecutan borrados a ciegas.

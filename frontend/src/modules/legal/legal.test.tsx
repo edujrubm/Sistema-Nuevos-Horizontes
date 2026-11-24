@@ -13,6 +13,7 @@ import { legalApi } from "./api/legal-api";
 import { LegalEditorPage } from "./pages/LegalEditorPage";
 import { LegalListPage } from "./pages/LegalListPage";
 import { AppLayout } from "@/app/layouts/AppLayout";
+import { AuthProvider } from "@/modules/auth/AuthContext";
 
 const caps: Capacidades = Object.fromEntries(
   Object.keys(soloLectura).map((key) => [key, true]),
@@ -83,7 +84,11 @@ describe("Legal: formularios y rutas propias", () => {
       ],
       { initialEntries: ["/beneficiarias/100/legal"] },
     );
-    render(<RouterProvider router={router} />);
+    render(
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>,
+    );
     const sidebar = within(screen.getByLabelText("Navegación principal"));
     expect(sidebar.getByRole("link", { name: "Ficha Legal" })).toHaveAttribute(
       "href",

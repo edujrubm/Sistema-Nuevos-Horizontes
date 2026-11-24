@@ -1,4 +1,4 @@
--- Campos aprobables de los mockups de Persona 3.
+-- Campos complementarios de formularios por módulo.
 -- Migración aditiva: no reemplaza los scripts 001/002 ni impone obligatoriedad
 -- sobre borradores. Los catálogos de riesgos, autorizaciones de traslado,
 -- revisión documental, estado CERRADA y vínculo a ficha inicial quedan fuera

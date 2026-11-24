@@ -26,10 +26,5 @@ export class DocumentoArea {
   @Column({ type: "date", nullable: true }) fecha_documento!: string | null;
   @Column({ type: "text", nullable: true }) descripcion!: string | null;
   @Column({ type: "text", nullable: true }) nombre_documento!: string | null;
-  // Compatibilidad con el esquema histórico; no es un estado operativo ni exige aprobación.
-  @Column({ type: "text", default: "BORRADOR" })
-  estado_revision_codigo!: string;
-  @Column({ type: "bigint", nullable: true }) revisado_por!: string | null;
-  @Column({ type: "timestamptz", nullable: true }) revisado_en!: Date | null;
   @Column({ type: "integer", default: 1 }) version_registro!: number;
 }

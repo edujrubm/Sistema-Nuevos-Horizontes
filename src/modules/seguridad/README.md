@@ -32,7 +32,7 @@ El módulo debe estar registrado en `src/app.module.ts`. **Los Guards no son glo
 ## 3. Configuración y puesta en marcha
 
 1. Partir de la estructura SQL base del proyecto, incluida la estructura de autorización institucional (`database/03_autenticacion_autorizacion.sql` o la ruta que indique la documentación vigente del repositorio). Verificar también las migraciones previas que correspondan al entorno.
-2. Aplicar **una única vez y en orden**, tras revisar prerrequisitos y respaldar la base de datos, `database/migrations/008_...sql` hasta `014_...sql`.
+2. Aplicar **una única vez y en orden**, tras revisar prerrequisitos y respaldar la base de datos, las migraciones de Seguridad enumeradas en la sección 7, según el orden y las equivalencias de `database/migrations/manifest.json`.
 3. Configurar conexión a PostgreSQL de acuerdo con `src/database/` y establecer `JWT_SECRET` con un secreto fuerte y privado en el entorno. **No publicar `.env`, hashes, JWT ni contraseñas reales.**
 4. Instalar dependencias desde el lockfile: `pnpm install --frozen-lockfile`.
 5. Comprobar código: `pnpm run build`; iniciar: `pnpm run start:dev`.
@@ -40,7 +40,7 @@ El módulo debe estar registrado en `src/app.module.ts`. **Los Guards no son glo
 
 El archivo `pnpm-workspace.yaml` autoriza de forma específica scripts de instalación necesarios para las dependencias de este proyecto; revisar esas excepciones antes de cambiarlas.
 
-**No ejecutar indiscriminadamente migraciones en una base ya migrada:** la migración 011 añade una restricción `UNIQUE` no idempotente y puede fallar si la restricción ya existe o hay duplicados por empleado. Es necesario conocer qué migraciones ya se aplicaron.
+**No ejecutar indiscriminadamente migraciones en una base ya migrada:** la migración 017 añade una restricción `UNIQUE` no idempotente y puede fallar si la restricción ya existe o hay duplicados por empleado. Es necesario conocer qué migraciones ya se aplicaron.
 
 ## 4. Contrato HTTP: endpoints
 
@@ -204,17 +204,18 @@ Dependencias previas del esquema `new_horizons`: `usuario`, `empleado`, `rol`, `
 
 | Migración | Cambio |
 | --- | --- |
-| `008_sesiones_usuario.sql` | Tabla `sesion_usuario` (UUID, usuario, creación, expiración, revocación) e índices |
-| `009_habilitar_usuarios.sql` | Permiso `habilitar:usuarios` para `administrador_general` |
-| `010_auditoria_estado_usuarios.sql` | Auditoría de activación/desactivación con contexto de actor y motivo |
-| `011_usuario_empleado_unico.sql` | Restricción `UNIQUE (id_empleado)` en `usuario` |
-| `012_auditoria_creacion_usuarios.sql` | Extiende auditoría a INSERT y UPDATE de estado; no almacena hashes ni tokens |
-| `013_restringir_restablecimiento_usuarios.sql` | Reserva `restablecer:usuarios` para `administrador_general`; **no** agrega endpoint REST |
-| `014_cambio_contrasena_obligatorio.sql` | `usuario.debe_cambiar_contrasena` booleano, por defecto `FALSE` |
+| `010_sesiones_usuario.sql` | Tabla `sesion_usuario` (UUID, usuario, creación, expiración, revocación) e índices |
+| `012_habilitar_usuarios.sql` | Permiso `habilitar:usuarios` para `administrador_general` |
+| `013_usuario_estado_operativo.sql` | Columnas de estado de usuario requeridas antes de la auditoría |
+| `014_auditoria_estado_usuarios.sql` | Auditoría de activación/desactivación con contexto de actor y motivo |
+| `017_usuario_empleado_unico.sql` | Restricción `UNIQUE (id_empleado)` en `usuario` |
+| `019_auditoria_creacion_usuarios.sql` | Extiende auditoría a INSERT y UPDATE de estado; no almacena hashes ni tokens |
+| `020_restringir_restablecimiento_usuarios.sql` | Reserva `restablecer:usuarios` para `administrador_general`; **no** agrega endpoint REST |
+| `021_cambio_contrasena_obligatorio.sql` | `usuario.debe_cambiar_contrasena` booleano, por defecto `FALSE` |
 
-La migración `007_area_albergue.sql` no forma parte de esta entrega de autenticación. La `015_creador_ficha_inicial.sql` **se excluye deliberadamente**, porque corresponde a trabajo independiente sobre Ficha Inicial. No añadirla de forma implícita.
+Las propuestas históricas de área Albergue y de creador de ficha inicial no se incorporan por inferencia. El inventario vigente es `database/migrations/manifest.json`; no añadir SQL ausente de ese inventario.
 
-**Advertencias de aplicación:** la 011 puede fallar por duplicados o si ya existe la restricción. Las migraciones 010 y 012 modifican un trigger de auditoría: deben ejecutarse en orden, preservando el contexto `new_horizons.actor_id` y `new_horizons.motivo` usado por el servicio. Aplicar en una BD de prueba y confirmar los cambios antes de ejecutarlas sobre datos reales.
+**Advertencias de aplicación:** la 017 puede fallar por duplicados o si ya existe la restricción. Las migraciones 014 y 019 modifican un trigger de auditoría: deben ejecutarse en orden, preservando el contexto `new_horizons.actor_id` y `new_horizons.motivo` usado por el servicio. Aplicar en una BD de prueba y confirmar los cambios antes de ejecutarlas sobre datos reales.
 
 ## 8. Guía de integración frontend
 
@@ -264,7 +265,7 @@ La compilación (`pnpm run build`) y el arranque de NestJS ya se comprobaron dur
 
 **Objetivo de esta rama:** entregar al equipo un contrato de autenticación funcional para comenzar el frontend, sin fusionar cambios incompletos de permisos específicos de expedientes y Ficha Inicial.
 
-**Rama de referencia de desarrollo:** `autenticacion`. **Rama de entrega:** `entrega/autenticacion-frontend-v1`. La rama de entrega parte del `origin/main` observado al crearla y traslada deliberadamente solo Seguridad, dependencias y migraciones 008–014. Pueden existir commits posteriores en remoto: verificar Git antes de fusionar.
+**Rama de referencia de desarrollo:** `autenticacion`. **Rama de entrega:** `entrega/autenticacion-frontend-v1`. La rama de entrega parte del `origin/main` observado al crearla y traslada deliberadamente solo Seguridad, dependencias y migraciones de Seguridad (numeración histórica 008–014; consultar las equivalencias actuales). Pueden existir commits posteriores en remoto: verificar Git antes de fusionar.
 
 **Instrucciones operativas:**
 

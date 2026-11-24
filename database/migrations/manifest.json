@@ -1,0 +1,220 @@
+{
+  "version": 1,
+  "base": "f931ee70e13789134b0ecc73ea348747c23c6ad6",
+  "migraciones": [
+    {
+      "archivo": "003_persona1_soporte_operativo.sql",
+      "sha256": "91cb4fe15fa3066fab8d6af361baf2a1d15f581a02b3db3d525dbc0f7ad3835a",
+      "antecedentes": []
+    },
+    {
+      "archivo": "004_ninos_estado_operativo.sql",
+      "sha256": "0ed5fe421334e61ef88f1063887e24cae1209e9cf7cc3cfe3c3150fdbff369f1",
+      "antecedentes": []
+    },
+    {
+      "archivo": "005_ficha_inicial_borrador_unico.sql",
+      "sha256": "e7795363e201bf280c625b857ca26a3b9557b75d8e6f2a0171c3e62867cfe405",
+      "antecedentes": []
+    },
+    {
+      "archivo": "006_nino_cui_unico.sql",
+      "sha256": "fb3a8ee4d623d76ed3bd13fad5a7a90a802a71e998a323f6fade820416db42c5",
+      "antecedentes": []
+    },
+    {
+      "archivo": "007_estado_formulario_descartado.sql",
+      "sha256": "c21c74c2e890d60083a183026b8ca5f9bf546c25b0e7480d858727154e9fdd25",
+      "antecedentes": []
+    },
+    {
+      "archivo": "008_formularios_campos_complementarios.sql",
+      "sha256": "3167c25b5441a002fcec83c1c0be37593c3596896d0c6343a8c2e8605f402730",
+      "antecedentes": [
+        {
+          "archivo": "007_persona3_campos_mockups.sql",
+          "sha256": "c75802ccb30d098b3d0151696bb7bae40f5ce0239ce2d2351b13df69e3ab480c"
+        },
+        {
+          "archivo": "018_formularios_campos_complementarios.sql",
+          "sha256": "c75802ccb30d098b3d0151696bb7bae40f5ce0239ce2d2351b13df69e3ab480c"
+        }
+      ]
+    },
+    {
+      "archivo": "009_documentos_integracion.sql",
+      "sha256": "b38fc93ca993edc97aa70f05b977be8e616809e3dc20e6b6bfe74d8009b23754",
+      "antecedentes": [
+        {
+          "archivo": "008_documentos_integracion.sql",
+          "sha256": "b38fc93ca993edc97aa70f05b977be8e616809e3dc20e6b6bfe74d8009b23754"
+        },
+        {
+          "archivo": "019_documentos_integracion.sql",
+          "sha256": "b38fc93ca993edc97aa70f05b977be8e616809e3dc20e6b6bfe74d8009b23754"
+        }
+      ]
+    },
+    {
+      "archivo": "010_sesiones_usuario.sql",
+      "sha256": "286672a725d851915709602c4368539465cb0f85f81c39655dd8382931a57b34",
+      "antecedentes": [
+        {
+          "archivo": "008_sesiones_usuario.sql",
+          "sha256": "286672a725d851915709602c4368539465cb0f85f81c39655dd8382931a57b34"
+        }
+      ]
+    },
+    {
+      "archivo": "011_albergue_trazabilidad.sql",
+      "sha256": "9c8f4985a4e5931db621e3bb548b0d8d9254b2273dbffb7742f7842d0a1e40c6",
+      "antecedentes": [
+        {
+          "archivo": "009_albergue_trazabilidad.sql",
+          "sha256": "9c8f4985a4e5931db621e3bb548b0d8d9254b2273dbffb7742f7842d0a1e40c6"
+        },
+        {
+          "archivo": "020_albergue_trazabilidad.sql",
+          "sha256": "9c8f4985a4e5931db621e3bb548b0d8d9254b2273dbffb7742f7842d0a1e40c6"
+        }
+      ]
+    },
+    {
+      "archivo": "012_habilitar_usuarios.sql",
+      "sha256": "1530b962e5b2f82ec1064896656aea175de930eb54b23f791946912a65bb433c",
+      "antecedentes": [
+        {
+          "archivo": "009_habilitar_usuarios.sql",
+          "sha256": "1530b962e5b2f82ec1064896656aea175de930eb54b23f791946912a65bb433c"
+        }
+      ]
+    },
+    {
+      "archivo": "013_usuario_estado_operativo.sql",
+      "sha256": "440df37600e01e1a1d482a89c88c755a893ccd26246ebc798601b64e8e59984c",
+      "antecedentes": [
+        {
+          "archivo": "009_usuario_estado_operativo.sql",
+          "sha256": "440df37600e01e1a1d482a89c88c755a893ccd26246ebc798601b64e8e59984c"
+        }
+      ]
+    },
+    {
+      "archivo": "014_auditoria_estado_usuarios.sql",
+      "sha256": "8f49d32b754ac9196f2b344c6655f2540ac2b60b7fe06d599f7b85c7fc61687b",
+      "antecedentes": [
+        {
+          "archivo": "010_auditoria_estado_usuarios.sql",
+          "sha256": "8f49d32b754ac9196f2b344c6655f2540ac2b60b7fe06d599f7b85c7fc61687b"
+        }
+      ]
+    },
+    {
+      "archivo": "015_guarderia_responsables.sql",
+      "sha256": "cdbe0f88f64881c46faaa6a76c3e2edc337935f5e50c077340fd20e5a4f677ea",
+      "antecedentes": [
+        {
+          "archivo": "010_guarderia_responsables.sql",
+          "sha256": "cdbe0f88f64881c46faaa6a76c3e2edc337935f5e50c077340fd20e5a4f677ea"
+        },
+        {
+          "archivo": "021_guarderia_responsables.sql",
+          "sha256": "cdbe0f88f64881c46faaa6a76c3e2edc337935f5e50c077340fd20e5a4f677ea"
+        }
+      ]
+    },
+    {
+      "archivo": "016_padre_nino.sql",
+      "sha256": "f62a47aed09716cf7d00b493eaee471cb9d12ab6713b22d648b16b13cd7c491c",
+      "antecedentes": [
+        {
+          "archivo": "011_padre_nino.sql",
+          "sha256": "f62a47aed09716cf7d00b493eaee471cb9d12ab6713b22d648b16b13cd7c491c"
+        },
+        {
+          "archivo": "022_padre_nino.sql",
+          "sha256": "f62a47aed09716cf7d00b493eaee471cb9d12ab6713b22d648b16b13cd7c491c"
+        }
+      ]
+    },
+    {
+      "archivo": "017_usuario_empleado_unico.sql",
+      "sha256": "ec5e75e37abfc0fb5933e4e8b77e32c3e5793054ad7501191c1280792953eef5",
+      "antecedentes": [
+        {
+          "archivo": "011_usuario_empleado_unico.sql",
+          "sha256": "ec5e75e37abfc0fb5933e4e8b77e32c3e5793054ad7501191c1280792953eef5"
+        }
+      ]
+    },
+    {
+      "archivo": "018_albergue_estado_inactivo.sql",
+      "sha256": "274d5986702d51074f48c664ed50d095bf39fe116f365d939622ee47f0c92eea",
+      "antecedentes": [
+        {
+          "archivo": "012_albergue_estado_inactivo.sql",
+          "sha256": "274d5986702d51074f48c664ed50d095bf39fe116f365d939622ee47f0c92eea"
+        },
+        {
+          "archivo": "023_albergue_estado_inactivo.sql",
+          "sha256": "274d5986702d51074f48c664ed50d095bf39fe116f365d939622ee47f0c92eea"
+        }
+      ]
+    },
+    {
+      "archivo": "019_auditoria_creacion_usuarios.sql",
+      "sha256": "ba00d2b6910f304aa70980cc7b2b99b0c09b7c1d8f0db217593b76372bb52014",
+      "antecedentes": [
+        {
+          "archivo": "012_auditoria_creacion_usuarios.sql",
+          "sha256": "ba00d2b6910f304aa70980cc7b2b99b0c09b7c1d8f0db217593b76372bb52014"
+        }
+      ]
+    },
+    {
+      "archivo": "020_restringir_restablecimiento_usuarios.sql",
+      "sha256": "38dd3c3f8dd6496da615d06e204ab991819e19d081dc60c5ce91ab0d9bc103db",
+      "antecedentes": [
+        {
+          "archivo": "013_restringir_restablecimiento_usuarios.sql",
+          "sha256": "38dd3c3f8dd6496da615d06e204ab991819e19d081dc60c5ce91ab0d9bc103db"
+        }
+      ]
+    },
+    {
+      "archivo": "021_cambio_contrasena_obligatorio.sql",
+      "sha256": "6e3ff3d425f8e23cfd0631bb9fc025ea864fee9cde2c573038fa17c57224070d",
+      "antecedentes": [
+        {
+          "archivo": "014_cambio_contrasena_obligatorio.sql",
+          "sha256": "6e3ff3d425f8e23cfd0631bb9fc025ea864fee9cde2c573038fa17c57224070d"
+        }
+      ]
+    },
+    {
+      "archivo": "022_ficha_inicial_descarte_logico.sql",
+      "sha256": "e0920e35e880929555e7d54f5002a91e40189f16ae29a5ddceccf168801f3fa8",
+      "antecedentes": [
+        {
+          "archivo": "016_ficha_inicial_descarte_logico.sql",
+          "sha256": "e0920e35e880929555e7d54f5002a91e40189f16ae29a5ddceccf168801f3fa8"
+        }
+      ]
+    },
+    {
+      "archivo": "023_catalogo_geografico_guatemala.sql",
+      "sha256": "73e505bda10e3e2a8d790bba6f22645e2f3166f22adbf395c5519e035dde131e",
+      "antecedentes": [
+        {
+          "archivo": "017_catalogo_geografico_guatemala.sql",
+          "sha256": "73e505bda10e3e2a8d790bba6f22645e2f3166f22adbf395c5519e035dde131e"
+        }
+      ]
+    },
+    {
+      "archivo": "024_retirar_revision_documental.sql",
+      "sha256": "3d0a010f7c7a1aaedbc790cd6ae29a51fb6209e5bf2b3eb0fab4c9835f8ed104",
+      "antecedentes": []
+    }
+  ]
+}

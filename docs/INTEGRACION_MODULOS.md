@@ -27,7 +27,7 @@ interfaz invalida sólo las consultas necesarias.
 
 ## Base de datos
 
-Las migraciones `010_guarderia_responsables.sql` y `011_padre_nino.sql` forman
+Las migraciones `015_guarderia_responsables.sql` y `016_padre_nino.sql` forman
 parte del repositorio. Su presencia no acredita su ejecución: antes de un
 despliegue, revisar respaldo, orden, estado real del ambiente y las decisiones
 D-01 y D-04. Nunca activar `synchronize` ni `migrationsRun` para integrar un
@@ -55,3 +55,28 @@ Antes de fusionar revisar la base común y los consumidores; tras squash/rebase 
 ### Retiro del flujo de aprobación documental — 2026-11-18
 
 El cambio de aplicación se entrega únicamente en documentos. Albergue recibe sólo la actualización de estas guías para no conservar una duda ya resuelta. No hay migración ni cambio en las fichas de las áreas. El filtro VIGENTE usa ausencia de anulación; ANULADO usa su presencia. El API ya no publica campos de revisión como estado de trabajo ni ofrece BORRADOR como filtro de PDF. Los consumidores internos y las pruebas se actualizan juntos. Las columnas de revisión quedan como compatibilidad histórica de la BD, sin automatizar una aprobación ficticia.
+
+### Depuración del flujo retirado — 2026-11-24
+
+La entidad de Documentos ya no depende de columnas de aprobación. La presentación
+publica sólo campos expresos del contrato y mantiene fuera del API los metadatos
+históricos, con o sin 024 aplicada. La migración 024 mueve revisión y catálogo a un
+archivo histórico; no modifica versiones, PDFs, formulario ni auditoría. Mantener
+el respaldo hasta validar integridad del archivo y regresión documental. No se
+cambian autenticación ni los módulos de compañeros. La propuesta experimental de
+laboratorio se elimina; no se instala ni se sustituye por nuevas reglas de negocio.
+
+### Inventario unificado y sustitución del PR 36 — 2026-11-24
+
+Esta entrega reemplaza la propuesta separada del PR 36. Incluye el main actual:
+los SQL de Seguridad se mantienen en su orden previo y se renumeran junto con los
+otros scripts para evitar colisiones. manifest.json es la referencia vigente.
+No cambia el SQL ejecutable histórico ni el código de Seguridad, Niños o Admisión.
+
+Antes de publicar en un ambiente existente, el encargado compara sus nombres/hash
+aplicados y los objetos reales. No ejecutar el directorio completo ni considerar
+un nombre nuevo como pendiente si equivale a uno aplicado. 024 es el único DDL
+nuevo: se respalda, revisa y ejecuta una sola vez en ventana autorizada. El código
+nuevo se probó atendiendo la misma consulta HTTP antes y después de esa migración.
+La actualización conservó todos los datos operativos y su auditoría; se comparó
+su esquema final con una instalación nueva, incluidas restricciones y funciones.

@@ -80,3 +80,42 @@ El 12 de noviembre de 2026 se retiraron documentos de contexto duplicado,
 propuestas de esquema no aplicadas e informes puntuales de integración. Su
 contenido permanece recuperable desde Git si se necesita rastrear una entrega
 anterior.
+
+## Depuración local del legado — 2026-11-24
+
+Petición explícita de Eduardo. Base origin/main 520e1a3, copia local separada del
+PR 36. Se elimina la propuesta SQL de laboratorio, dos traducciones de FK que
+sólo pertenecían a esa propuesta y variables de activación sin consumidor. Se
+retira el mapeo ORM de revisión y se publica una lista expresa de campos del PDF.
+La migración nueva 024 archiva revisión antes de retirarla del esquema operativo.
+No se editan migraciones históricas ni se aplica nada a un ambiente compartido.
+Estado: cambios locales sin commit, push ni PR de esta depuración.
+
+La regresión incorpora el contexto de autenticación actual sólo en nuestras
+pruebas: JWT de ensayo en el ejecutor y AuthProvider en tres pruebas de navegación.
+No cambia el código de Seguridad, Admisión, Niños ni el layout del equipo.
+Resultados detallados en VERIFICACION_CALIDAD.md. 024 sólo se probó localmente;
+requiere revisión, respaldo y ejecución única por el encargado antes del despliegue.
+
+## Entrega conjunta de depuración e inventario — 2026-11-24
+
+Petición de Eduardo: revisar, reemplazar el PR 36 y abrir un único PR sin fusionar.
+Base final: origin/main f931ee70e13789134b0ecc73ea348747c23c6ad6. Rama de entrega:
+depuracion. Destino del push: origin/depuracion; base del PR: main.
+
+Incluye retirada del SQL experimental y referencias de FK sin consumidor,
+mapeo de revisión documental retirado, serialización explícita de campos públicos,
+imports y variables sin uso, y formato de Legal. No cambia diseño ni reglas de
+los módulos. Los únicos cambios en Seguridad son referencias documentales y los
+nombres de sus archivos SQL; no se modifican su implementación ni sus sentencias.
+
+El inventario 003–024 conserva orden y contenido SQL histórico, salvo un comentario
+de cabecera normalizado. Se agrega manifiesto con hashes/equivalencias y verificador
+sin conexión a BD, integrado en pnpm check. La única modificación nueva de esquema
+es 024: archiva revisión y catálogo antes de retirarlos de la tabla operativa.
+
+Validación: pnpm check; TypeScript sin imports/parámetros sin uso en API y web;
+84 comprobaciones integradas; Legal 31, Social 30, Guardería 31 y Paternidad 9.
+Hay 3 pruebas web previamente omitidas. No hay ejecución SQL en el servidor del
+equipo, despliegue ni fusión. El encargado conserva revisión del registro real,
+respaldo y ejecución única de 024 cuando corresponda. Ver VERIFICACION_CALIDAD.md.
