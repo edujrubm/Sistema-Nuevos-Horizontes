@@ -30,3 +30,8 @@ database/export/
 
 # Metadatos de compilación TypeScript
 *.tsbuildinfo
+
+# Respaldo defensivo: el inicializador exige guardar estos secretos fuera de Git.
+credenciales-demo.json
+credenciales-demo.pdf
+confirmacion-*.json

@@ -28,7 +28,8 @@
     "postman:areas": "node -r ts-node/register scripts/generate-registros-area.cjs",
     "start:areas": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-registros-area.ps1",
     "check:frontend": "pnpm --dir frontend check",
-    "test:core": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-areas.ps1"
+    "test:core": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-areas.ps1",
+    "test:usuarios-demo": "pnpm build:api && powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-usuarios-demo.ps1"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

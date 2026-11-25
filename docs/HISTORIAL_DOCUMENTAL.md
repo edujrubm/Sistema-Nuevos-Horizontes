@@ -28,6 +28,15 @@ de archivos: usar los enlaces de Git, el commit o el pull request.
 
 ## Entregas
 
+### 2026-11-25 — Inicializador manual de usuarios de demostración
+
+- Alcance: once cuentas ficticias con empleados propios, roles existentes asignados explícitamente, Argon2id, alta transaccional auditada, protección contra repetición y PDF/JSON privados fuera de Git. No cambia módulos, permisos, esquema, migraciones ni arranque.
+- Decisión: petición explícita de Eduardo; preparar, simular con todas las migraciones y abrir PR si resulta correcto. Acuerdo documentado en `DECISIONES_Y_DUDAS.md`.
+- Verificación: `pnpm check` aprobado (50 backend, 265 frontend, 3 omisiones existentes, tipos y compilación); ocho escenarios PostgreSQL/HTTP, once logins con perfil/logout, auditoría, concurrencia, rollback y PDF renderizado. Detalle en `VERIFICACION_CALIDAD.md`.
+- Rama: `usuarios-demo`, desde `origin/main` 88ce2a4.
+- Push: destino previsto `origin/usuarios-demo`; PR hacia `main`, sin fusión automática.
+- Pendiente: encargado revisa roles e historial del ambiente y ejecuta manualmente. No se crearon cuentas en la BD compartida; fusionar el PR no las crea. Las limitaciones actuales de autorización no cambian.
+
 ### 2026-11-18 — PDFs disponibles sin aprobación
 
 - Alcance: retiro del flujo de aprobación de PDF en Documentos: vigencia desde la carga, filtros VIGENTE/ANULADO y textos/indicadores acordes. Albergue recibe sólo la actualización documental de la decisión.

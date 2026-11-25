@@ -82,7 +82,61 @@ pnpm run test:core
 ejecutar migraciones de manera automática contra una base compartida: revisar
 primero su estado y alcance.
 
-## Cambios de negocio o infraestructura
+## Cuentas de demostración (ejecución manual)
+
+Este inicializador no es una migración ni se ejecuta al iniciar/desplegar la API.
+Sólo crea once usuarios `demo.*` y sus empleados ficticios; no modifica usuarios
+existentes ni crea roles o permisos. Requiere Node 24, dependencias instaladas,
+backend compilado y una BD con las migraciones necesarias ya revisadas por el
+encargado. Sólo admite `NODE_ENV=development` o `test`. No funciona en producción.
+
+1. Ejecutar `pnpm build:api`. Configurar `DATABASE_*` en un `.env` privado.
+2. Consultar los roles reales, sin escribir:
+   `node --env-file=.env scripts/usuarios-demo.cjs catalogo`.
+3. Copiar `scripts/usuarios-demo/roles.example.json` fuera del repositorio.
+   Para cada cuenta, completar `rolId`, `tipoRolEsperado` y
+   `areaIdEsperada` (ID como texto, o `null` si el rol no tiene área).
+   Copiar los valores exactos del catálogo. El operador debe comprobar que el
+   perfil corresponde a su rol institucional: el script verifica ID, código y
+   área, pero no inventa equivalencias entre nombres de roles.
+4. Validar la asignación sin escribir:
+   `node --env-file=.env scripts/usuarios-demo.cjs verificar --roles C:\Privado\roles.json`.
+5. Crear con el ID de un administrador activo que tenga `crear:usuarios`,
+   confirmando el nombre exacto de la BD. La carpeta padre de salida debe existir;
+   la carpeta de lote debe ser nueva y estar fuera de cualquier repositorio:
+
+```powershell
+node --env-file=.env scripts/usuarios-demo.cjs crear --roles C:\Privado\roles.json --actor ID_ADMIN --confirmar-base NOMBRE_BD --salida C:\Privado\lote-demo
+```
+
+Reemplazar las rutas e identificadores por los del ambiente; los ejemplos no
+incluyen credenciales reales. La salida muestra sólo cantidad, ruta de PDF y si
+se repitió el lote. La carpeta queda restringida al usuario del sistema operativo
+que lo ejecuta. `credenciales-demo.json` y `credenciales-demo.pdf` contienen las
+contraseñas: conservarlos privados, no subirlos ni proyectarlos en público.
+
+Las cuentas son: `demo.admin`, `demo.direccion`, `demo.admision`, `demo.legal`,
+`demo.social`, `demo.medicina`, `demo.psicologia`, `demo.guarderia`,
+`demo.albergue`, `demo.captura.legal` y `demo.apoyo.guarderia`.
+Los permisos del PDF proceden de la matriz de la BD destino; no prueban que
+todos los controles por área/caso de la aplicación estén implementados.
+Se respeta el valor institucional por defecto de cambio de contraseña.
+
+Todas las altas y su auditoría ocurren en una sola transacción. Un conflicto,
+rol ausente, asignación incompatible o cuenta parcial cancela la operación.
+No se sobrescribe ni se adopta una cuenta anterior. Repetir el comando exige
+la misma asignación, destino y carpeta original y verifica las contraseñas.
+Si falla después de intentar confirmar, conservar la carpeta con estado
+`PENDIENTE`: el siguiente intento comprueba las once cuentas antes de emitir el
+PDF. No interpretar ese archivo pendiente como prueba de cuentas creadas.
+Si hay cuentas parciales o contraseñas cambiadas, detenerse y revisar con el
+encargado; no borrarlas ni resetearlas para forzar el script.
+
+Ensayo reproducible, exclusivamente contra PostgreSQL local desechable:
+`pnpm test:usuarios-demo`. Carga los fixtures sintéticos y las migraciones del
+repositorio antes de comprobar creación, auditoría, repetición y login real.
+
+## Reglas de cambios
 
 Antes de añadir campos, estados, permisos, rutas o reportes, revisar
 `DECISIONES_Y_DUDAS.md`. Si no existe una decisión, agregar una duda con el

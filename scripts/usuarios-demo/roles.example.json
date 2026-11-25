@@ -1,0 +1,59 @@
+{
+  "roles": {
+    "demo.admin": {
+      "rolId": null,
+      "tipoRolEsperado": null,
+      "areaIdEsperada": null
+    },
+    "demo.direccion": {
+      "rolId": null,
+      "tipoRolEsperado": null,
+      "areaIdEsperada": null
+    },
+    "demo.admision": {
+      "rolId": null,
+      "tipoRolEsperado": null,
+      "areaIdEsperada": null
+    },
+    "demo.legal": {
+      "rolId": null,
+      "tipoRolEsperado": null,
+      "areaIdEsperada": null
+    },
+    "demo.social": {
+      "rolId": null,
+      "tipoRolEsperado": null,
+      "areaIdEsperada": null
+    },
+    "demo.medicina": {
+      "rolId": null,
+      "tipoRolEsperado": null,
+      "areaIdEsperada": null
+    },
+    "demo.psicologia": {
+      "rolId": null,
+      "tipoRolEsperado": null,
+      "areaIdEsperada": null
+    },
+    "demo.guarderia": {
+      "rolId": null,
+      "tipoRolEsperado": null,
+      "areaIdEsperada": null
+    },
+    "demo.albergue": {
+      "rolId": null,
+      "tipoRolEsperado": null,
+      "areaIdEsperada": null
+    },
+    "demo.captura.legal": {
+      "rolId": null,
+      "tipoRolEsperado": null,
+      "areaIdEsperada": null
+    },
+    "demo.apoyo.guarderia": {
+      "rolId": null,
+      "tipoRolEsperado": null,
+      "areaIdEsperada": null
+    }
+  }
+}
