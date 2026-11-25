@@ -49,6 +49,9 @@ export function AdmissionWizardPage() {
     [],
   );
   const [maxReachedIndex, setMaxReachedIndex] = useState(0);
+  const [revisitedPageKeys, setRevisitedPageKeys] = useState<Set<string>>(
+    () => new Set(),
+  );
   const [childNameErrors, setChildNameErrors] = useState<number[]>([]);
   const [childCuiErrors, setChildCuiErrors] = useState<number[]>([]);
   const [invalidDocumentFields, setInvalidDocumentFields] = useState<string[]>(
@@ -126,6 +129,7 @@ export function AdmissionWizardPage() {
         : firstPendingPage;
     setActiveIndex(resumeIndex);
     setMaxReachedIndex(resumeIndex);
+    setRevisitedPageKeys(new Set());
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [admissionQuery.data, startAtFirstPage]);
 
@@ -157,6 +161,7 @@ export function AdmissionWizardPage() {
   const pageWasSaved = page.sections.every((section) =>
     savedSectionKeys.has(section.key),
   );
+  const pageIsRevisited = revisitedPageKeys.has(page.key);
   const pageIsDirty =
     page.sections.some(
       (section) =>
@@ -275,18 +280,26 @@ export function AdmissionWizardPage() {
     }));
   }
 
-  function toggleFieldOption(section: string, field: string, option: string) {
+  function toggleFieldOption(
+    section: string,
+    field: string,
+    option: string,
+    exclusiveOptions: string[] = [],
+  ) {
     const current = values[section]?.[field];
     const selected = Array.isArray(current)
       ? current.filter((item): item is string => typeof item === "string")
       : [];
-    updateField(
-      section,
-      field,
-      selected.includes(option)
-        ? selected.filter((item) => item !== option)
-        : [...selected, option],
-    );
+    const optionIsExclusive = exclusiveOptions.includes(option);
+    const next = selected.includes(option)
+      ? selected.filter((item) => item !== option)
+      : optionIsExclusive
+        ? [option]
+        : [
+            ...selected.filter((item) => !exclusiveOptions.includes(item)),
+            option,
+          ];
+    updateField(section, field, next);
   }
 
   function addChild() {
@@ -474,6 +487,18 @@ export function AdmissionWizardPage() {
 
   function goForward() {
     if (!validateCurrentPage()) return;
+    if (!pageIsRevisited) {
+      if (!pageWasSaved || pageIsDirty) {
+        saveMutation.mutate({ advance: true });
+        return;
+      }
+      setActiveIndex((current) => {
+        const next = Math.min(current + 1, admissionPages.length - 1);
+        setMaxReachedIndex((reached) => Math.max(reached, next));
+        return next;
+      });
+      return;
+    }
     if (!pageWasSaved) {
       saveMutation.mutate({ advance: true });
       return;
@@ -485,6 +510,22 @@ export function AdmissionWizardPage() {
     setActiveIndex((current) =>
       Math.min(current + 1, admissionPages.length - 1),
     );
+  }
+
+  function navigateToPage(index: number) {
+    if (index === activeIndex) return;
+    const target = admissionPages[index];
+    const targetWasReached = index <= maxReachedIndex;
+    const targetWasSaved = target.sections.every((section) =>
+      savedSectionKeys.has(section.key),
+    );
+    if (targetWasReached && targetWasSaved) {
+      setRevisitedPageKeys((current) => new Set(current).add(target.key));
+    }
+    setActiveIndex(index);
+    setNotice(undefined);
+    setIncompleteSectionKeys([]);
+    setShowDiscardWarning(false);
   }
 
   function updateCurrentPage() {
@@ -507,9 +548,7 @@ export function AdmissionWizardPage() {
     }));
     if (page.key === "familia") setChildren(savedChildren);
     setShowDiscardWarning(false);
-    setActiveIndex((current) =>
-      Math.min(current + 1, admissionPages.length - 1),
-    );
+    navigateToPage(Math.min(activeIndex + 1, admissionPages.length - 1));
   }
 
   return (
@@ -536,11 +575,7 @@ export function AdmissionWizardPage() {
                 type="button"
                 className={`wizard-step${index === activeIndex ? " current" : ""}`}
                 disabled={index > maxReachedIndex}
-                onClick={() => {
-                  setActiveIndex(index);
-                  setNotice(undefined);
-                  setIncompleteSectionKeys([]);
-                }}
+                onClick={() => navigateToPage(index)}
               >
                 <span>{index + 1}</span>
                 <span>
@@ -707,6 +742,7 @@ export function AdmissionWizardPage() {
                                       section.key,
                                       field.name,
                                       option.value,
+                                      field.exclusiveOptions,
                                     )
                                   }
                                 />
@@ -900,11 +936,11 @@ export function AdmissionWizardPage() {
                 className="button secondary"
                 type="button"
                 disabled={activeIndex === 0}
-                onClick={() => setActiveIndex((current) => current - 1)}
+                onClick={() => navigateToPage(activeIndex - 1)}
               >
                 Anterior
               </button>
-              {pageWasSaved && (
+              {pageIsRevisited && pageWasSaved && (
                 <button
                   className="button primary"
                   type="button"

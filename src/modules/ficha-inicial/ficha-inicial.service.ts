@@ -21,6 +21,7 @@ import {
   SECCIONES_FICHA,
 } from "./ficha-inicial.constants";
 import { FichaInicialRepository } from "./repositories/ficha-inicial.repository";
+import { prepararCamposOtros } from "./normalizacion-otros";
 
 @Injectable()
 export class FichaInicialService {
@@ -28,6 +29,18 @@ export class FichaInicialService {
     private readonly repository: FichaInicialRepository,
     private readonly beneficiarias: BeneficiariasService,
   ) {}
+
+  private normalizarOtros(secciones: Record<string, Record<string, unknown>>) {
+    const resultado = prepararCamposOtros(secciones);
+    if (resultado.errores.length)
+      throw new ErrorPublicoException(
+        400,
+        "DATOS_INVALIDOS",
+        "Revisa los valores escritos en Otra u Otros.",
+        resultado.errores,
+      );
+    return resultado.secciones;
+  }
 
   iniciar(entrada: IniciarFichaInicialDto) {
     const admision: CrearBeneficiariaDto = {
@@ -42,7 +55,7 @@ export class FichaInicialService {
       fichaInicial: {
         lugar: entrada.lugar,
         fechaEntrevista: entrada.fechaEntrevista,
-        seccionesIniciales: {
+        seccionesIniciales: this.normalizarOtros({
           identificacion: Object.fromEntries(
             Object.entries({
               tipoDocumento: entrada.tipoDocumento,
@@ -50,7 +63,7 @@ export class FichaInicialService {
               otroTipoDocumento: entrada.otroTipoDocumento,
             }).filter(([, valor]) => valor !== undefined),
           ),
-        },
+        }),
       },
     };
     return this.beneficiarias.crear(admision);
@@ -95,7 +108,7 @@ export class FichaInicialService {
     const resultado = await this.repository.guardarSeccion(
       id,
       seccion,
-      entrada.contenido,
+      this.normalizarOtros({ [seccion]: entrada.contenido })[seccion],
       entrada.versionFicha,
       entrada.motivo,
     );
@@ -183,10 +196,11 @@ export class FichaInicialService {
         invalidSections: invalidas,
       });
 
+    const seccionesNormalizadas = this.normalizarOtros(entrada.secciones);
     const resultado = await this.repository.guardarPagina(
       id,
       pagina,
-      entrada.secciones,
+      seccionesNormalizadas,
       entrada.hijos ?? [],
       entrada.versionFicha,
       entrada.motivo,

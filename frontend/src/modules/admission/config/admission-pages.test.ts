@@ -49,16 +49,18 @@ describe("admissionPages", () => {
         ?.options?.map((item) => item.value),
     ).toEqual([
       "Casada",
+      "Divorciada",
+      "Separada",
       "Soltera",
       "Unida",
-      "Separada",
-      "Divorciada",
-      "Noviazgo",
-      "Otra",
+      "Viuda",
     ]);
     expect(
       fields?.find((field) => field.name === "ocupacionDeclarada")?.type,
-    ).toBeUndefined();
+    ).toBe("select");
+    expect(
+      fields?.find((field) => field.name === "situacionSocioeconomica")?.type,
+    ).toBe("checkboxGroup");
     expect(
       fields?.find((field) => field.name === "nivelEscolaridadDeclarado")
         ?.options,
@@ -84,7 +86,7 @@ describe("admissionPages", () => {
     );
     expect(
       identification?.find((field) => field.name === "idiomaAtencion")?.options,
-    ).toHaveLength(25);
+    ).toHaveLength(22);
     expect(health).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ name: "enGestacion" }),
@@ -100,5 +102,36 @@ describe("admissionPages", () => {
         ?.find((field) => field.name === "referenciasInternas")
         ?.options?.map((option) => option.value),
     ).toContain("Guardería");
+  });
+
+  it("incorpora los catálogos entregados por la institución", () => {
+    const violence = admissionPages.find((page) => page.key === "violencia");
+    const risk = admissionPages.find((page) => page.key === "riesgo");
+    const references = admissionPages.find(
+      (page) => page.key === "referencias",
+    );
+
+    expect(
+      violence?.sections
+        .find((section) => section.key === "motivo-consulta")
+        ?.fields.find((field) => field.name === "seleccion")?.options,
+    ).toHaveLength(13);
+    expect(
+      violence?.sections
+        .find((section) => section.key === "tipos-violencia")
+        ?.fields.find((field) => field.name === "seleccion")
+        ?.options?.map((option) => option.value),
+    ).toContain("Laboral");
+    expect(
+      risk?.sections[0].fields
+        .find((field) => field.name === "vinculosAgresores")
+        ?.options?.map((option) => option.value),
+    ).toEqual(expect.arrayContaining(["Ex compañero", "Concuño", "Yerno"]));
+    expect(
+      references?.sections
+        .find((section) => section.key === "apoyo-recibido")
+        ?.fields.find((field) => field.name === "externas")
+        ?.options?.map((option) => option.value),
+    ).toContain("INACIF");
   });
 });

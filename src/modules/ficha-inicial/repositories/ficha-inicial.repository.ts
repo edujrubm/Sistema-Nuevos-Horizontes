@@ -13,6 +13,11 @@ import { ListarFichasDto } from "../dto/listar-fichas.dto";
 import { FichaInicialEntity } from "../entities/ficha-inicial.entity";
 import { FichaSeccionEntity } from "../entities/ficha-seccion.entity";
 import { NinoEntity } from "../../ninos/entities/nino.entity";
+import {
+  CAMPOS_OTROS_FICHA,
+  campoEtiquetaReporteriaOtro,
+  campoNormalizadoOtro,
+} from "../normalizacion-otros";
 
 @Injectable()
 export class FichaInicialRepository {
@@ -40,6 +45,43 @@ export class FichaInicialRepository {
     await manager.query("SELECT set_config('new_horizons.motivo',$1,true)", [
       motivo,
     ]);
+  }
+
+  private async conservarEtiquetasReporteria(
+    manager: EntityManager,
+    fichaId: string,
+    secciones: Record<string, Record<string, unknown>>,
+  ) {
+    const nombres = Object.keys(secciones).filter(
+      (seccion) => CAMPOS_OTROS_FICHA[seccion]?.length,
+    );
+    if (!nombres.length) return secciones;
+    const guardadas = await manager.query<
+      Array<{ seccion: string; contenido: Record<string, unknown> }>
+    >(
+      `SELECT seccion,contenido
+       FROM new_horizons.ficha_inicial_seccion
+       WHERE ficha_inicial_id=$1::bigint AND seccion=ANY($2::text[])`,
+      [fichaId, nombres],
+    );
+    const anteriores = new Map(
+      guardadas.map((item) => [item.seccion, item.contenido]),
+    );
+    for (const seccion of nombres) {
+      const actual = secciones[seccion];
+      const anterior = anteriores.get(seccion);
+      if (!anterior) continue;
+      for (const campo of CAMPOS_OTROS_FICHA[seccion]) {
+        const normalizado = campoNormalizadoOtro(campo);
+        const etiqueta = campoEtiquetaReporteriaOtro(campo);
+        if (
+          actual[normalizado] === anterior[normalizado] &&
+          typeof anterior[etiqueta] === "string"
+        )
+          actual[etiqueta] = anterior[etiqueta];
+      }
+    }
+    return secciones;
   }
 
   async listar(filtro: ListarFichasDto) {
@@ -212,11 +254,16 @@ export class FichaInicialRepository {
       if (ficha.estado !== "BORRADOR") return { estado: "CONFIRMADA" as const };
       if (ficha.version !== version)
         return { estado: "CONFLICTO_VERSION" as const };
+      const contenidoSeguro = (
+        await this.conservarEtiquetasReporteria(manager, id, {
+          [seccion]: contenido,
+        })
+      )[seccion];
       await manager.query(
         `INSERT INTO new_horizons.ficha_inicial_seccion(ficha_inicial_id,seccion,contenido)
          VALUES ($1::bigint,$2,$3::jsonb)
          ON CONFLICT (ficha_inicial_id,seccion) DO UPDATE SET contenido=EXCLUDED.contenido`,
-        [id, seccion, JSON.stringify(contenido)],
+        [id, seccion, JSON.stringify(contenidoSeguro)],
       );
       await fichas.update({ id }, { actualizadoEn: new Date() });
       return {
@@ -253,6 +300,11 @@ export class FichaInicialRepository {
           ficha,
           pagina,
           secciones,
+        );
+        await this.conservarEtiquetasReporteria(
+          manager,
+          id,
+          seccionesSinDuplicados,
         );
 
         const ninos = manager.getRepository(NinoEntity);

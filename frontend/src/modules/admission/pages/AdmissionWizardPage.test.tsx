@@ -179,5 +179,65 @@ describe("AdmissionWizardPage", () => {
       await screen.findByRole("heading", { name: "Datos de identificación" }),
     ).toBeInTheDocument();
     expect(screen.getByText("Paso 1 de 8")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Actualizar" }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Lugar de nacimiento"), {
+      target: { value: "Quetzaltenango" },
+    });
+    expect(
+      screen.queryByRole("button", { name: "Actualizar" }),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Siguiente" }));
+
+    await waitFor(() =>
+      expect(apiMocks.saveAdmissionPage).toHaveBeenCalledWith(
+        "1",
+        "identificacion",
+        expect.objectContaining({
+          secciones: {
+            identificacion: expect.objectContaining({
+              lugarNacimiento: "Quetzaltenango",
+            }),
+          },
+        }),
+      ),
+    );
+    expect(
+      screen.queryByText(
+        "Los cambios de esta página todavía no están actualizados.",
+      ),
+    ).not.toBeInTheDocument();
+  });
+
+  it("impide combinar Ninguna con una discapacidad declarada", async () => {
+    apiMocks.getAdmission.mockResolvedValue(
+      admission([
+        {
+          seccion: "identificacion",
+          contenido: { lugarNacimiento: "Guatemala" },
+        },
+        {
+          seccion: "residencia",
+          contenido: { direccionActual: "Dirección de prueba" },
+        },
+      ]),
+    );
+
+    renderWizard();
+
+    const visual = await screen.findByLabelText("Discapacidad visual");
+    const ninguna = screen.getByLabelText("Ninguna");
+    const auditiva = screen.getByLabelText("Discapacidad auditiva");
+
+    fireEvent.click(visual);
+    expect(visual).toBeChecked();
+    fireEvent.click(ninguna);
+    expect(ninguna).toBeChecked();
+    expect(visual).not.toBeChecked();
+    fireEvent.click(auditiva);
+    expect(auditiva).toBeChecked();
+    expect(ninguna).not.toBeChecked();
   });
 });

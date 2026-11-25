@@ -75,6 +75,58 @@ describe("FichaInicialService", () => {
     });
   });
 
+  it("conserva el valor Otra original y envía su clave normalizada", async () => {
+    repository.guardarPagina.mockResolvedValue({
+      estado: "ACTUALIZADA",
+      ficha: { id: "1", estado: "BORRADOR", version: 4 },
+      hijos: [],
+    });
+
+    await service.guardarPagina("1", "datos-salud", {
+      secciones: {
+        "datos-generales": { otraEtnia: "  Térmo... " },
+        salud: { otraDiscapacidad: "FÍSICA." },
+      },
+      versionFicha: 3,
+      motivo: "Guardar valores normalizados",
+    });
+
+    expect(repository.guardarPagina).toHaveBeenCalledWith(
+      "1",
+      "datos-salud",
+      {
+        "datos-generales": {
+          otraEtnia: "  Térmo... ",
+          otraEtniaNormalizado: "termo",
+          otraEtniaEtiquetaReporteria: null,
+        },
+        salud: {
+          otraDiscapacidad: "FÍSICA.",
+          otraDiscapacidadNormalizado: "fisica",
+          otraDiscapacidadEtiquetaReporteria: null,
+        },
+      },
+      [],
+      3,
+      "Guardar valores normalizados",
+    );
+  });
+
+  it("rechaza una opción Otra formada solo por puntuación", async () => {
+    await expect(
+      service.guardarPagina("1", "violencia", {
+        secciones: {
+          "motivo-consulta": { relato: "Prueba" },
+          "tipos-violencia": { otra: " ... " },
+          "objetos-agresion": { seleccion: ["Manos"] },
+        },
+        versionFicha: 1,
+        motivo: "Probar validación de Otra",
+      }),
+    ).rejects.toMatchObject({ codigo: "DATOS_INVALIDOS" });
+    expect(repository.guardarPagina).not.toHaveBeenCalled();
+  });
+
   it("crea hijos dentro del guardado transaccional de la página Familia", async () => {
     repository.guardarPagina.mockResolvedValue({
       estado: "ACTUALIZADA",
