@@ -88,10 +88,23 @@ before(async () => {
       `SELECT setval(pg_get_serial_sequence('new_horizons.${table}','id_${table}'),(SELECT max(id_${table}) FROM new_horizons.${table}))`,
     );
   privado = fs.mkdtempSync(path.join(os.tmpdir(), "nh-demo-qa-"));
+  const importacion = path.join(privado, "usuarios-demo-preparados.json");
+  fs.writeFileSync(
+    importacion,
+    JSON.stringify({
+      cuentas: cuentas.map((c) => ({
+        usuario: c.usuario,
+        contrasena: require("node:crypto")
+          .randomBytes(18)
+          .toString("base64url"),
+      })),
+    }),
+  );
   opciones = {
     actor: "1",
     confirmarBase: process.env.DATABASE_NAME,
     salida: path.join(privado, "lote"),
+    credenciales: importacion,
     destino: {
       host: process.env.DATABASE_HOST,
       port: process.env.DATABASE_PORT,
@@ -145,6 +158,19 @@ test("Precondiciones fallidas y carpetas Git no crean usuarios", async () => {
     await assert.rejects(crearDemo(repo, config, { ...opciones, ...extra }));
   assert.equal((await repo.existentes()).length, 0);
 });
+test("Rechaza importaciones incompletas sin crear usuarios", async () => {
+  const archivo = path.join(privado, "incompleto.json");
+  fs.writeFileSync(
+    archivo,
+    JSON.stringify({
+      cuentas: [{ usuario: "demo.admin", contrasena: "invalida" }],
+    }),
+  );
+  await assert.rejects(
+    crearDemo(repo, config, { ...opciones, credenciales: archivo }),
+  );
+  assert.equal((await repo.existentes()).length, 0);
+});
 test("Un fallo a mitad del lote revierte usuarios, empleados y auditoría", async () => {
   const original = repo.insertar.bind(repo);
   const [antes] = await data.query(
@@ -169,10 +195,11 @@ test("Un fallo a mitad del lote revierte usuarios, empleados y auditoría", asyn
   );
   assert.equal(auditoria.total, 0);
 });
-test("Crea once cuentas con ORM, Argon2id y auditoría; genera PDF privado", async () => {
+test("Crea once cuentas con ORM, Argon2id y auditoría sin generar PDF", async () => {
   const paralelo = {
     ...opciones,
     salida: path.join(privado, "lote-concurrente"),
+    credenciales: undefined,
   };
   const intentos = await Promise.allSettled([
     crearDemo(repo, config, opciones),
@@ -195,8 +222,27 @@ test("Crea once cuentas con ORM, Argon2id y auditoría; genera PDF privado", asy
   );
   assert.equal(lote.estado, "CONFIRMADO");
   assert.equal(new Set(lote.cuentas.map((c) => c.contrasena)).size, 11);
-  const pdf = await require("pdf-lib").PDFDocument.load(fs.readFileSync(r.pdf));
-  assert.ok(pdf.getPageCount() > 0);
+  assert.equal(
+    r.credenciales,
+    path.join(opciones.salida, "credenciales-demo.json"),
+  );
+  assert.equal(Object.hasOwn(r, "pdf"), false);
+  assert.equal(
+    fs.readdirSync(opciones.salida).some((f) => f.endsWith(".pdf")),
+    false,
+  );
+  if (ganador === 0) {
+    const preparadas = JSON.parse(
+      fs.readFileSync(opciones.credenciales, "utf8"),
+    );
+    assert.ok(
+      lote.cuentas.every((c) =>
+        preparadas.cuentas.some(
+          (p) => p.usuario === c.usuario && p.contrasena === c.contrasena,
+        ),
+      ),
+    );
+  }
   const registros = await data.query(
     "SELECT actor_id::text,anterior,nuevo FROM new_horizons.revision_registro WHERE tabla='usuario' AND nuevo->>'nombre_usuario' LIKE 'demo.%'",
   );
@@ -204,7 +250,6 @@ test("Crea once cuentas con ORM, Argon2id y auditoría; genera PDF privado", asy
   assert.ok(registros.every((r) => r.actor_id === "1" && r.anterior === null));
   assert.ok(registros.every((r) => !JSON.stringify(r).includes("contrasena")));
   assert.deepEqual(await snapshot(), previo);
-  console.log("PDF de ensayo privado generado; cuentas únicamente locales.");
 });
 test("Reconcilia un lote pendiente sin reescribir usuarios y rechaza otro destino", async () => {
   const archivo = path.join(opciones.salida, "credenciales-demo.json");

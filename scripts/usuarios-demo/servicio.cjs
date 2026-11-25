@@ -4,7 +4,6 @@ const {
   abrirCredenciales,
   guardarConfirmacion,
 } = require("./credenciales.cjs");
-const { generarPdf } = require("./pdf.cjs");
 
 /** Nunca adopta cuentas preexistentes ni cambia una contraseña al repetir un lote. */
 async function comprobarExistentes(usuarios, plan, carpeta) {
@@ -29,7 +28,7 @@ async function comprobarExistentes(usuarios, plan, carpeta) {
   }
 }
 
-/** Las credenciales se conservan antes del COMMIT; el PDF sólo acredita un lote confirmado. */
+/** Las credenciales se conservan antes del COMMIT para reconciliar una respuesta perdida. */
 async function crearDemo(repo, config, opciones) {
   const destino = opciones.destino;
   if (opciones.confirmarBase !== destino.database)
@@ -42,12 +41,10 @@ async function crearDemo(repo, config, opciones) {
       "Existen cuentas parciales o colisiones; no se permite sobrescribirlas.",
     );
   const fingerprint = huella(plan, destino);
-  const carpeta = abrirCredenciales(
-    opciones.salida,
-    fingerprint,
-    plan,
-    !existentes.length,
-  );
+  const carpeta = abrirCredenciales(opciones.salida, fingerprint, plan, {
+    puedeCrear: !existentes.length,
+    archivoPreparado: opciones.credenciales,
+  });
   if (existentes.length) {
     await comprobarExistentes(existentes, plan, carpeta);
   } else {
@@ -93,7 +90,7 @@ async function crearDemo(repo, config, opciones) {
   guardarConfirmacion(carpeta, cuentas, destino);
   return {
     total: cuentas.length,
-    pdf: await generarPdf(carpeta),
+    credenciales: carpeta.archivo,
     repetido: existentes.length > 0,
   };
 }

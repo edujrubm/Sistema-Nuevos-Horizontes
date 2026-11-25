@@ -110,16 +110,24 @@ node --env-file=.env scripts/usuarios-demo.cjs crear --roles C:\Privado\roles.js
 ```
 
 Reemplazar las rutas e identificadores por los del ambiente; los ejemplos no
-incluyen credenciales reales. La salida muestra sólo cantidad, ruta de PDF y si
+incluyen credenciales reales. La salida muestra sólo cantidad, ruta del JSON privado y si
 se repitió el lote. La carpeta queda restringida al usuario del sistema operativo
-que lo ejecuta. `credenciales-demo.json` y `credenciales-demo.pdf` contienen las
-contraseñas: conservarlos privados, no subirlos ni proyectarlos en público.
+que lo ejecuta. `credenciales-demo.json` contiene las contraseñas: conservarlo
+privado, no subirlo ni proyectarlo en público. El inicializador no genera PDF.
+
+Si se entregó una tabla privada de contraseñas, añadir al comando de creación
+`--credenciales C:\Privado\usuarios-demo-preparados.json`. Ese archivo debe
+estar fuera de Git y contener un objeto con `cuentas`, una lista de once objetos
+`{ "usuario": "demo.…", "contrasena": "…" }`: las once cuentas aprobadas,
+claves distintas de 24 caracteres usando letras, dígitos, guion o guion bajo.
+El script importa esas claves sin cambiarlas; sin esa opción genera claves
+aleatorias. No transcribir claves al código ni incorporarlas al PR.
 
 Las cuentas son: `demo.admin`, `demo.direccion`, `demo.admision`, `demo.legal`,
 `demo.social`, `demo.medicina`, `demo.psicologia`, `demo.guarderia`,
 `demo.albergue`, `demo.captura.legal` y `demo.apoyo.guarderia`.
-Los permisos del PDF proceden de la matriz de la BD destino; no prueban que
-todos los controles por área/caso de la aplicación estén implementados.
+El JSON confirmado registra los permisos de la matriz de la BD destino;
+no prueba que todos los controles por área/caso estén implementados.
 Se respeta el valor institucional por defecto de cambio de contraseña.
 
 Todas las altas y su auditoría ocurren en una sola transacción. Un conflicto,
@@ -127,8 +135,8 @@ rol ausente, asignación incompatible o cuenta parcial cancela la operación.
 No se sobrescribe ni se adopta una cuenta anterior. Repetir el comando exige
 la misma asignación, destino y carpeta original y verifica las contraseñas.
 Si falla después de intentar confirmar, conservar la carpeta con estado
-`PENDIENTE`: el siguiente intento comprueba las once cuentas antes de emitir el
-PDF. No interpretar ese archivo pendiente como prueba de cuentas creadas.
+`PENDIENTE`: el siguiente intento comprueba las once cuentas antes de confirmar
+el lote privado. No interpretar ese archivo pendiente como prueba de cuentas creadas.
 Si hay cuentas parciales o contraseñas cambiadas, detenerse y revisar con el
 encargado; no borrarlas ni resetearlas para forzar el script.
 

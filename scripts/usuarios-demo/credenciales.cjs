@@ -43,8 +43,37 @@ function protegerCarpeta(dir) {
     );
   } else fs.chmodSync(dir, 0o700);
 }
+/** Importa sólo las once claves preparadas fuera de Git; no acepta cuentas adicionales. */
+function leerPreparadas(archivo, plan) {
+  if (!archivo) return null;
+  const data = JSON.parse(
+    fs.readFileSync(destinoPrivado(archivo), "utf8").replace(/^\uFEFF/, ""),
+  );
+  if (
+    !Array.isArray(data.cuentas) ||
+    data.cuentas.length !== plan.length ||
+    new Set(data.cuentas.map((c) => c.contrasena)).size !== plan.length ||
+    plan.some(
+      (c) =>
+        !data.cuentas.some(
+          (s) =>
+            s.usuario === c.usuario &&
+            typeof s.contrasena === "string" &&
+            /^[A-Za-z0-9_-]{24}$/.test(s.contrasena),
+        ),
+    )
+  )
+    throw new ErrorDemo(
+      "El archivo privado debe contener las once cuentas aprobadas y claves distintas de 24 caracteres.",
+    );
+  return plan.map((c) => ({
+    usuario: c.usuario,
+    contrasena: data.cuentas.find((s) => s.usuario === c.usuario).contrasena,
+  }));
+}
 /** Guarda el secreto antes del COMMIT para poder reconciliar una respuesta perdida. */
-function abrirCredenciales(dir, fingerprint, plan, puedeCrear) {
+function abrirCredenciales(dir, fingerprint, plan, opciones) {
+  const preparadas = leerPreparadas(opciones.archivoPreparado, plan);
   dir = destinoPrivado(dir);
   const archivo = path.join(dir, "credenciales-demo.json");
   if (fs.existsSync(dir)) {
@@ -70,9 +99,20 @@ function abrirCredenciales(dir, fingerprint, plan, puedeCrear) {
       throw new ErrorDemo(
         "La carpeta privada pertenece a otro destino o asignación.",
       );
+    if (
+      preparadas &&
+      preparadas.some(
+        (c) =>
+          data.cuentas.find((s) => s.usuario === c.usuario).contrasena !==
+          c.contrasena,
+      )
+    )
+      throw new ErrorDemo(
+        "Las claves preparadas no coinciden con el lote original; no se cambiarán contraseñas.",
+      );
     return { dir, archivo, data };
   }
-  if (!puedeCrear)
+  if (!opciones.puedeCrear)
     throw new ErrorDemo(
       "Las cuentas ya existen. Se necesita su carpeta original; no se recuperan ni cambian contraseñas.",
     );
@@ -83,10 +123,12 @@ function abrirCredenciales(dir, fingerprint, plan, puedeCrear) {
     huella: fingerprint,
     lote: randomUUID(),
     generadoEn: new Date().toISOString(),
-    cuentas: plan.map((c) => ({
-      usuario: c.usuario,
-      contrasena: randomBytes(18).toString("base64url"),
-    })),
+    cuentas:
+      preparadas ||
+      plan.map((c) => ({
+        usuario: c.usuario,
+        contrasena: randomBytes(18).toString("base64url"),
+      })),
   };
   fs.writeFileSync(archivo, JSON.stringify(data, null, 2), {
     flag: "wx",

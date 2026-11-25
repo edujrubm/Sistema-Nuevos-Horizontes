@@ -7,14 +7,18 @@ async function main() {
   const [comando, ...args] = process.argv.slice(2);
   if (!["catalogo", "verificar", "crear"].includes(comando))
     throw new ErrorDemo(
-      "Uso: usuarios-demo.cjs catalogo | verificar --roles archivo.json | crear --roles archivo.json --actor ID --confirmar-base BASE --salida CARPETA_PRIVADA",
+      "Uso: usuarios-demo.cjs catalogo | verificar --roles archivo.json | crear --roles archivo.json --actor ID --confirmar-base BASE --salida CARPETA_PRIVADA [--credenciales ARCHIVO_PRIVADO]",
     );
   const opciones = {};
   for (let i = 0; i < args.length; i += 2) {
     if (
-      !["--roles", "--actor", "--confirmar-base", "--salida"].includes(
-        args[i],
-      ) ||
+      ![
+        "--roles",
+        "--actor",
+        "--confirmar-base",
+        "--salida",
+        "--credenciales",
+      ].includes(args[i]) ||
       !args[i + 1] ||
       opciones[args[i]]
     )
@@ -74,6 +78,7 @@ async function main() {
       actor: opciones["--actor"],
       confirmarBase: opciones["--confirmar-base"],
       salida: opciones["--salida"],
+      credenciales: opciones["--credenciales"],
     });
     console.log(JSON.stringify(resultado, null, 2));
   } finally {

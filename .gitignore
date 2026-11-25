@@ -34,4 +34,5 @@ database/export/
 # Respaldo defensivo: el inicializador exige guardar estos secretos fuera de Git.
 credenciales-demo.json
 credenciales-demo.pdf
+usuarios-demo-preparados.json
 confirmacion-*.json
