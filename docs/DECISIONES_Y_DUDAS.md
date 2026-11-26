@@ -30,10 +30,16 @@ pendiente: deben elevar su pregunta al equipo responsable.
 
 ### D-01 — Estado de migraciones por ambiente
 
-- Estado: pendiente, prioridad crítica.
-- Decisión requerida: mantener un registro verificable de qué migraciones se aplicaron en local, Neon/pruebas y producción; validar también funciones, triggers y catálogos requeridos.
-- Impacto: errores de PostgreSQL como función inexistente y diferencias entre código y esquema.
-- Evidencia: `database/migrations/` contiene scripts, pero Git no acredita su aplicación.
+- Estado: confirmada.
+- Responsable de decidir: Julio Tzicap, por instrucción explícita del equipo.
+- Fecha de resolución: 2026-11-26.
+- Contexto: Git conserva los scripts, pero no acredita qué se ejecutó realmente en cada base remota ni el resultado de su aplicación.
+- Resolución: cualquier integrante del equipo puede aplicar una migración aprobada a Neon; no se reserva esta operación a una sola persona. Cada aplicación a Neon debe quedar registrada de inmediato en `docs/HISTORIAL_DOCUMENTAL.md`, que será la bitácora canónica de despliegues de migración.
+- Auditoría obligatoria por aplicación: responsable, fecha y hora en `America/Guatemala`, ambiente y proyecto Neon identificables, rama o commit de origen, archivo y SHA-256 del manifiesto, respaldo o referencia verificable, ventana de intervención, resultado, verificación posterior de tablas/funciones/triggers/índices/catálogos afectados y cualquier incidencia o reversión. No incluir secretos, URLs con credenciales ni datos personales.
+- Control previo: ejecutar `node scripts/verificar-migraciones.cjs`, comparar el registro real del ambiente con `database/migrations/manifest.json`, verificar que el SQL no se hubiera aplicado con un nombre histórico equivalente y revisar los prerrequisitos u objetos que cambie. Una diferencia se investiga antes de ejecutar; no se reaplican scripts ni se editan migraciones históricas.
+- Control posterior: registrar solamente la migración ejecutada y el resultado observado; una ejecución con error también se documenta. La evidencia no sustituye la inspección del esquema ni autoriza cambios automáticos adicionales.
+- Impacto: permite operación distribuida con trazabilidad verificable y evita diferencias silenciosas de PostgreSQL entre código y Neon.
+- Evidencia: `database/migrations/README.md`, `database/migrations/manifest.json`, `docs/HISTORIAL_DOCUMENTAL.md` y `scripts/verificar-migraciones.cjs`.
 
 ### D-02 — Identidad, sesión y autorización
 
@@ -272,3 +278,17 @@ arrancar. No se retiran funciones activas de serialización o protección docume
 - Contenido: 21 scripts históricos conservan sus sentencias. Sólo se reemplaza un comentario de cabecera que nombraba la distribución personal anterior; se conserva su hash original en el manifiesto. No se reescriben migraciones aplicadas en ninguna base.
 - Operación: un renombre NO constituye una migración nueva. El verificador compara el registro aportado sin conectar a BD ni ejecutar SQL. El encargado debe cotejar los objetos reales y no reaplicar nombres equivalentes.
 - Depuración: se retira la propuesta experimental no aplicada; no se supone que sus tablas existan en el servidor ni se ejecutan borrados a ciegas.
+
+### D-14 — Semántica y alcance del tablero de reportes administrativos
+
+- Estado: parcialmente resuelta; pendiente de normalización de catálogos e indicadores derivados.
+- Responsable de decidir: equipo de proyecto y responsable institucional de Administración.
+- Fecha de registro: 2026-11-25.
+- Contexto: se recibió la especificación del tablero administrativo con 17 bloques de indicadores, filtros por año y mes, y agrupaciones demográficas, de atención, violencia, referencias y acciones. El módulo `reportes` no tiene todavía contratos ni consultas implementadas.
+- Decisión requerida: definir la fuente, la fecha de corte, la unidad de conteo y el tratamiento de registros incompletos para cada indicador antes de presentar cifras institucionales.
+- Opciones consideradas: contar expedientes, fichas iniciales confirmadas, formularios de área, entradas de hoja evolutiva o personas distintas. Cada opción altera totales, especialmente cuando una beneficiaria tiene atención inicial y seguimientos durante el mismo período.
+- Impacto: consultas, índices, contratos HTTP, controles de autorización, interfaz, exportación, pruebas y documentación de indicadores.
+- Evidencia: especificación recibida el 2026-11-25; `src/modules/reportes/`; `test/fixtures/01_new_horizons_postgresql.sql`; `test/fixtures/02_ampliacion_formularios.sql`; D-06.
+- Pregunta para el equipo: para los bloques restantes, confirmar el límite de rangos de edad, el tratamiento de categorías sin dato y la relación exacta entre los catálogos de motivos, acciones, referencias y los registros existentes.
+- Resolución parcial (2026-11-25, responsable: Julio Tzicap, alcance explícito recibido en el chat): una mujer atendida es una beneficiaria única que tenga, en el período filtrado, una ficha inicial confirmada o una ficha de seguimiento confirmada. El filtro de año y mes se aplica únicamente a la fecha de creación del registro, no a la fecha de atención, actualización ni confirmación. La gestación es un dato institucional de la ficha inicial. Los listados aportados para estado civil, escolaridad, ocupación, etnia, referencias, parentesco de agresor, tipos de violencia, motivos y acciones son los catálogos objetivo del tablero y deben existir en la persistencia institucional correspondiente.
+- Pendiente técnico: el esquema actual conserva parte de los catálogos como tablas sin carga institucional; gestación y varios datos de ficha inicial se conservan en `ficha_inicial_seccion.contenido` JSONB; motivo de visita y acciones de seguimiento no tienen catálogo relacional vigente. No se crean tablas, migraciones ni índices hasta definir su mapeo y el contrato de captura/consulta.
