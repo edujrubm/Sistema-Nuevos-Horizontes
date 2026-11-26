@@ -69,14 +69,38 @@ reaplicar el SQL. No conecta a PostgreSQL ni ejecuta comandos de migración.
 
 ## Antes de aplicar en un ambiente compartido
 
-1. Identificar ambiente, respaldo, ventana de intervención y encargado.
+1. Identificar ambiente, respaldo y ventana de intervención. Cualquier integrante puede aplicar la migración aprobada a Neon; quien la ejecute asume el registro completo de la operación.
 2. Cotejar su registro real con el manifiesto y comprobar los objetos existentes.
 3. Si un nombre anterior ya se aplicó, NO ejecutar su renombre. No cambiar registros
    operativos automáticamente ni volver a lanzar todo el directorio.
 4. Si el historial es incompleto, verificar el esquema con el encargado antes de
    decidir qué falta; la salida del verificador no sustituye esa inspección.
-5. Ejecutar únicamente el SQL faltante aprobado y registrar su resultado en
-   docs/DECISIONES_Y_DUDAS.md y en el registro real del ambiente.
+5. Ejecutar únicamente el SQL faltante aprobado. Una migración aplicada no se
+   vuelve a ejecutar por otra persona.
+
+## Bitácora obligatoria de Neon
+
+Cada aplicación, intento fallido o reversión de una migración en Neon se registra
+de inmediato en `docs/HISTORIAL_DOCUMENTAL.md`; no crear un Markdown por ambiente
+ni guardar secretos en la bitácora. Añadir la entrada al inicio de `## Entregas`
+con esta información:
+
+```md
+### AAAA-MM-DD — Migración Neon: <archivo>
+
+- Ambiente: identificador no sensible del proyecto/base Neon.
+- Responsable: persona que ejecutó la operación.
+- Momento: AAAA-MM-DD HH:MM `America/Guatemala`.
+- Origen: rama y commit revisados.
+- Migración: archivo y SHA-256 de `manifest.json`; indicar si existen nombres históricos equivalentes ya aplicados.
+- Previo: respaldo o referencia verificable, ventana y resultado de `node scripts/verificar-migraciones.cjs`.
+- Resultado: aplicada | no aplicada | fallida | revertida; incluir el error resumido si corresponde, sin secretos ni datos personales.
+- Verificación posterior: tablas, funciones, triggers, índices y catálogos afectados, con el resultado de la comprobación.
+- Incidencias y siguiente acción: ninguna o acción aprobada; nunca reaplicar ni editar un script histórico como corrección.
+```
+
+La bitácora acredita la operación, pero no reemplaza la revisión del esquema
+real ni el manifiesto. Consultar la resolución D-01 para la regla vigente.
 
 ## Retiro de revisión documental
 
