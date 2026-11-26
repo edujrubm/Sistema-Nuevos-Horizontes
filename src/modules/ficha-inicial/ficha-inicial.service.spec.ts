@@ -25,6 +25,12 @@ describe("FichaInicialService", () => {
   it("inicia la ficha y la beneficiaria como una sola admisión", async () => {
     const entrada = {
       nombre: "Beneficiaria sintética",
+      tipoDocumento: "SIN_DOCUMENTO",
+      fechaNacimiento: "1990-01-01",
+      paisOrigenId: "1",
+      departamentoOrigenId: "1",
+      municipioOrigenId: "1",
+      fechaEntrevista: "2026-11-25",
       fichaInicial: { lugar: "Sede de prueba" },
     };
     beneficiarias.crear.mockResolvedValue({
@@ -61,7 +67,12 @@ describe("FichaInicialService", () => {
     await expect(
       service.guardarPagina("1", "datos-salud", {
         secciones: {
-          "datos-generales": { alfabetismo: true },
+          "datos-generales": {
+            estadoCivilDeclarado: "Soltera",
+            etniaDeclarada: "Maya",
+            ocupacionDeclarada: "Comerciante",
+            nivelEscolaridadDeclarado: "Primaria completa",
+          },
           salud: { enfermedadPermanente: false },
         },
         versionFicha: 3,
@@ -75,6 +86,25 @@ describe("FichaInicialService", () => {
     });
   });
 
+  it("rechaza desde la API una página sin datos fuente de reportería", async () => {
+    await expect(
+      service.guardarPagina("1", "identificacion", {
+        secciones: { identificacion: { idiomaAtencion: "Español" } },
+        versionFicha: 1,
+        motivo: "Intento incompleto de prueba",
+      }),
+    ).rejects.toMatchObject({
+      codigo: "DATOS_INVALIDOS",
+      erroresPublicos: expect.arrayContaining([
+        expect.objectContaining({ campo: "identificacion.sexoDeclarado" }),
+        expect.objectContaining({
+          campo: "identificacion.nacionalidadDeclarada",
+        }),
+      ]),
+    });
+    expect(repository.guardarPagina).not.toHaveBeenCalled();
+  });
+
   it("conserva el valor Otra original y envía su clave normalizada", async () => {
     repository.guardarPagina.mockResolvedValue({
       estado: "ACTUALIZADA",
@@ -84,7 +114,13 @@ describe("FichaInicialService", () => {
 
     await service.guardarPagina("1", "datos-salud", {
       secciones: {
-        "datos-generales": { otraEtnia: "  Térmo... " },
+        "datos-generales": {
+          estadoCivilDeclarado: "Soltera",
+          etniaDeclarada: "Otra",
+          otraEtnia: "  Térmo... ",
+          ocupacionDeclarada: "Comerciante",
+          nivelEscolaridadDeclarado: "Primaria completa",
+        },
         salud: { otraDiscapacidad: "FÍSICA." },
       },
       versionFicha: 3,
@@ -96,9 +132,13 @@ describe("FichaInicialService", () => {
       "datos-salud",
       {
         "datos-generales": {
+          estadoCivilDeclarado: "Soltera",
+          etniaDeclarada: "Otra",
           otraEtnia: "  Térmo... ",
           otraEtniaNormalizado: "termo",
           otraEtniaEtiquetaReporteria: null,
+          ocupacionDeclarada: "Comerciante",
+          nivelEscolaridadDeclarado: "Primaria completa",
         },
         salud: {
           otraDiscapacidad: "FÍSICA.",
@@ -116,8 +156,8 @@ describe("FichaInicialService", () => {
     await expect(
       service.guardarPagina("1", "violencia", {
         secciones: {
-          "motivo-consulta": { relato: "Prueba" },
-          "tipos-violencia": { otra: " ... " },
+          "motivo-consulta": { seleccion: ["Violencia contra la mujer"] },
+          "tipos-violencia": { seleccion: ["Otra"], otra: " ... " },
           "objetos-agresion": { seleccion: ["Manos"] },
         },
         versionFicha: 1,
@@ -135,9 +175,15 @@ describe("FichaInicialService", () => {
     });
     const entrada = {
       secciones: {
-        agresores: { personasAgresoras: [] },
+        agresores: { relacionParentesco: "Ex conviviente" },
       },
-      hijos: [{ nombre: "Hija sintética", genero: "F" }],
+      hijos: [
+        {
+          nombre: "Hija sintética",
+          fechaNacimiento: "2018-01-01",
+          genero: "F",
+        },
+      ],
       versionFicha: 4,
       motivo: "Guardar familia de prueba",
     };

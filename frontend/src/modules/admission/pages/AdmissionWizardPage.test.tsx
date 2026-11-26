@@ -68,6 +68,15 @@ function renderWizard(startAtFirstPage = false) {
   );
 }
 
+function completeRequiredIdentification() {
+  fireEvent.change(screen.getByLabelText(/Sexo/), {
+    target: { value: "F" },
+  });
+  fireEvent.change(screen.getByLabelText(/Nacionalidad declarada/), {
+    target: { value: "Guatemalteca" },
+  });
+}
+
 describe("AdmissionWizardPage", () => {
   afterEach(cleanup);
 
@@ -92,10 +101,13 @@ describe("AdmissionWizardPage", () => {
     expect(
       await screen.findByRole("heading", { name: "Datos de identificación" }),
     ).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Sexo/)).toBeRequired();
+    expect(screen.getByLabelText(/^Nacionalidad declarada/)).toBeRequired();
 
     fireEvent.change(screen.getByLabelText("Lugar de nacimiento"), {
       target: { value: "Guatemala" },
     });
+    completeRequiredIdentification();
     fireEvent.click(screen.getByRole("button", { name: "Siguiente" }));
 
     await waitFor(() =>
@@ -138,7 +150,11 @@ describe("AdmissionWizardPage", () => {
       admission([
         {
           seccion: "identificacion",
-          contenido: { lugarNacimiento: "Guatemala" },
+          contenido: {
+            lugarNacimiento: "Guatemala",
+            sexoDeclarado: "F",
+            nacionalidadDeclarada: "Guatemalteca",
+          },
         },
       ]),
     );
@@ -168,7 +184,11 @@ describe("AdmissionWizardPage", () => {
       admission([
         {
           seccion: "identificacion",
-          contenido: { tipoDocumento: "DPI_CUI" },
+          contenido: {
+            tipoDocumento: "DPI_CUI",
+            sexoDeclarado: "F",
+            nacionalidadDeclarada: "Guatemalteca",
+          },
         },
       ]),
     );
@@ -216,7 +236,11 @@ describe("AdmissionWizardPage", () => {
       admission([
         {
           seccion: "identificacion",
-          contenido: { lugarNacimiento: "Guatemala" },
+          contenido: {
+            lugarNacimiento: "Guatemala",
+            sexoDeclarado: "F",
+            nacionalidadDeclarada: "Guatemalteca",
+          },
         },
         {
           seccion: "residencia",

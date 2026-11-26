@@ -31,6 +31,12 @@ function contentIsPresent(value: Record<string, unknown> | undefined) {
   );
 }
 
+function fieldValueIsPresent(value: unknown) {
+  if (typeof value === "string") return value.trim().length > 0;
+  if (Array.isArray(value)) return value.length > 0;
+  return value !== undefined && value !== null;
+}
+
 export function AdmissionWizardPage() {
   const { id = "" } = useParams();
   const location = useLocation();
@@ -54,7 +60,12 @@ export function AdmissionWizardPage() {
   );
   const [childNameErrors, setChildNameErrors] = useState<number[]>([]);
   const [childCuiErrors, setChildCuiErrors] = useState<number[]>([]);
+  const [childBirthErrors, setChildBirthErrors] = useState<number[]>([]);
+  const [childGenderErrors, setChildGenderErrors] = useState<number[]>([]);
   const [invalidDocumentFields, setInvalidDocumentFields] = useState<string[]>(
+    [],
+  );
+  const [missingRequiredFields, setMissingRequiredFields] = useState<string[]>(
     [],
   );
   const initialized = useRef(false);
@@ -262,6 +273,9 @@ export function AdmissionWizardPage() {
     setInvalidDocumentFields((current) =>
       current.filter((key) => key !== `${section}.${field}`),
     );
+    setMissingRequiredFields((current) =>
+      current.filter((key) => key !== `${section}.${field}`),
+    );
     setValues((current) => ({
       ...current,
       [section]: {
@@ -321,6 +335,16 @@ export function AdmissionWizardPage() {
         item === index ? [] : [item > index ? item - 1 : item],
       ),
     );
+    setChildBirthErrors((current) =>
+      current.flatMap((item) =>
+        item === index ? [] : [item > index ? item - 1 : item],
+      ),
+    );
+    setChildGenderErrors((current) =>
+      current.flatMap((item) =>
+        item === index ? [] : [item > index ? item - 1 : item],
+      ),
+    );
   }
 
   function updateChild(
@@ -333,6 +357,14 @@ export function AdmissionWizardPage() {
       setChildNameErrors((current) => current.filter((item) => item !== index));
     if (field === "cui")
       setChildCuiErrors((current) => current.filter((item) => item !== index));
+    if (field === "fechaNacimiento")
+      setChildBirthErrors((current) =>
+        current.filter((item) => item !== index),
+      );
+    if (field === "genero")
+      setChildGenderErrors((current) =>
+        current.filter((item) => item !== index),
+      );
     setChildren((current) =>
       current.map((child, childIndex) =>
         childIndex === index ? { ...child, [field]: value } : child,
@@ -424,6 +456,14 @@ export function AdmissionWizardPage() {
   }
 
   function validateCurrentPage() {
+    const missingFields = page.sections.flatMap((section) =>
+      section.fields.flatMap((field) => {
+        if (!field.required || !fieldIsVisible(section.key, field)) return [];
+        return fieldValueIsPresent(values[section.key]?.[field.name])
+          ? []
+          : [`${section.key}.${field.name}`];
+      }),
+    );
     const incomplete = page.sections
       .filter((section) => !contentIsPresent(values[section.key]))
       .map((section) => section.key);
@@ -440,6 +480,16 @@ export function AdmissionWizardPage() {
             const length = child.cui?.trim().length ?? 0;
             return length === 0 || (length >= 4 && length <= 20) ? [] : [index];
           })
+        : [];
+    const invalidChildBirths =
+      page.key === "familia"
+        ? children.flatMap((child, index) =>
+            child.fechaNacimiento ? [] : [index],
+          )
+        : [];
+    const invalidChildGenders =
+      page.key === "familia"
+        ? children.flatMap((child, index) => (child.genero ? [] : [index]))
         : [];
     const invalidDocuments = page.sections.flatMap((section) =>
       section.fields.flatMap((field) => {
@@ -461,11 +511,17 @@ export function AdmissionWizardPage() {
     setIncompleteSectionKeys(incomplete);
     setChildNameErrors(invalidChildren);
     setChildCuiErrors(invalidChildCuis);
+    setChildBirthErrors(invalidChildBirths);
+    setChildGenderErrors(invalidChildGenders);
     setInvalidDocumentFields(invalidDocuments);
+    setMissingRequiredFields(missingFields);
     if (
       incomplete.length === 0 &&
+      missingFields.length === 0 &&
       invalidChildren.length === 0 &&
       invalidChildCuis.length === 0 &&
+      invalidChildBirths.length === 0 &&
+      invalidChildGenders.length === 0 &&
       invalidDocuments.length === 0
     )
       return true;
@@ -473,13 +529,19 @@ export function AdmissionWizardPage() {
     setShowDiscardWarning(false);
     requestAnimationFrame(() => {
       const targetId =
-        incomplete.length > 0
-          ? `${incomplete[0]}-title`
-          : invalidChildren.length > 0
-            ? `child-name-${invalidChildren[0]}`
-            : invalidChildCuis.length > 0
-              ? `child-cui-${invalidChildCuis[0]}`
-              : invalidDocuments[0]?.replace(".", "-");
+        missingFields.length > 0
+          ? missingFields[0].replace(".", "-")
+          : incomplete.length > 0
+            ? `${incomplete[0]}-title`
+            : invalidChildren.length > 0
+              ? `child-name-${invalidChildren[0]}`
+              : invalidChildCuis.length > 0
+                ? `child-cui-${invalidChildCuis[0]}`
+                : invalidChildBirths.length > 0
+                  ? `child-birth-${invalidChildBirths[0]}`
+                  : invalidChildGenders.length > 0
+                    ? `child-gender-${invalidChildGenders[0]}`
+                    : invalidDocuments[0]?.replace(".", "-");
       document.getElementById(targetId)?.focus();
     });
     return false;
@@ -682,6 +744,15 @@ export function AdmissionWizardPage() {
                     >
                       <label htmlFor={`${section.key}-${field.name}`}>
                         {field.label}
+                        {field.required && visible ? (
+                          <span className="required-marker" aria-hidden="true">
+                            {" "}
+                            *
+                          </span>
+                        ) : null}
+                        {field.required && visible ? (
+                          <span className="sr-only"> (obligatorio)</span>
+                        ) : null}
                       </label>
                       {field.type === "textarea" ? (
                         <textarea
@@ -697,6 +768,12 @@ export function AdmissionWizardPage() {
                             )
                           }
                           rows={4}
+                          required={field.required && visible}
+                          aria-invalid={
+                            missingRequiredFields.includes(
+                              `${section.key}.${field.name}`,
+                            ) || undefined
+                          }
                         />
                       ) : field.type === "select" ? (
                         <select
@@ -711,6 +788,12 @@ export function AdmissionWizardPage() {
                               event.target.value,
                             )
                           }
+                          required={field.required && visible}
+                          aria-invalid={
+                            missingRequiredFields.includes(
+                              `${section.key}.${field.name}`,
+                            ) || undefined
+                          }
                         >
                           <option value="">Seleccionar</option>
                           {optionsForField(field).map((option) => (
@@ -723,6 +806,13 @@ export function AdmissionWizardPage() {
                         <div
                           className="checkbox-group"
                           id={`${section.key}-${field.name}`}
+                          role="group"
+                          aria-required={field.required && visible}
+                          aria-invalid={
+                            missingRequiredFields.includes(
+                              `${section.key}.${field.name}`,
+                            ) || undefined
+                          }
                         >
                           {field.options?.map((option) => {
                             const selected = values[section.key]?.[field.name];
@@ -787,12 +877,25 @@ export function AdmissionWizardPage() {
                                 : event.target.value,
                             );
                           }}
-                          aria-invalid={invalidDocumentFields.includes(
-                            `${section.key}.${field.name}`,
-                          )}
+                          aria-invalid={
+                            invalidDocumentFields.includes(
+                              `${section.key}.${field.name}`,
+                            ) ||
+                            missingRequiredFields.includes(
+                              `${section.key}.${field.name}`,
+                            )
+                          }
+                          required={field.required && visible}
                         />
                       )}
                       {field.hint && <small>{field.hint}</small>}
+                      {missingRequiredFields.includes(
+                        `${section.key}.${field.name}`,
+                      ) && (
+                        <small className="field-error">
+                          Este campo es obligatorio para la reportería.
+                        </small>
+                      )}
                       {invalidDocumentFields.includes(
                         `${section.key}.${field.name}`,
                       ) && (
@@ -824,7 +927,13 @@ export function AdmissionWizardPage() {
               {children.map((child, index) => (
                 <div className="child-row" key={index}>
                   <div className="field">
-                    <label htmlFor={`child-name-${index}`}>Nombre</label>
+                    <label htmlFor={`child-name-${index}`}>
+                      Nombre{" "}
+                      <span className="required-marker" aria-hidden="true">
+                        *
+                      </span>
+                      <span className="sr-only"> (obligatorio)</span>
+                    </label>
                     <input
                       id={`child-name-${index}`}
                       value={child.nombre ?? ""}
@@ -857,12 +966,18 @@ export function AdmissionWizardPage() {
                   </div>
                   <div className="field">
                     <label htmlFor={`child-birth-${index}`}>
-                      Fecha de nacimiento
+                      Fecha de nacimiento{" "}
+                      <span className="required-marker" aria-hidden="true">
+                        *
+                      </span>
+                      <span className="sr-only"> (obligatorio)</span>
                     </label>
                     <input
                       id={`child-birth-${index}`}
                       type="date"
+                      required
                       value={child.fechaNacimiento ?? ""}
+                      aria-invalid={childBirthErrors.includes(index)}
                       onChange={(event) =>
                         updateChild(
                           index,
@@ -871,12 +986,25 @@ export function AdmissionWizardPage() {
                         )
                       }
                     />
+                    {childBirthErrors.includes(index) && (
+                      <small className="field-error">
+                        La fecha de nacimiento es obligatoria.
+                      </small>
+                    )}
                   </div>
                   <div className="field">
-                    <label htmlFor={`child-gender-${index}`}>Sexo</label>
+                    <label htmlFor={`child-gender-${index}`}>
+                      Sexo{" "}
+                      <span className="required-marker" aria-hidden="true">
+                        *
+                      </span>
+                      <span className="sr-only"> (obligatorio)</span>
+                    </label>
                     <select
                       id={`child-gender-${index}`}
                       value={child.genero ?? ""}
+                      required
+                      aria-invalid={childGenderErrors.includes(index)}
                       onChange={(event) =>
                         updateChild(index, "genero", event.target.value)
                       }
@@ -886,6 +1014,11 @@ export function AdmissionWizardPage() {
                       <option value="M">Masculino</option>
                       <option value="O">Otro</option>
                     </select>
+                    {childGenderErrors.includes(index) && (
+                      <small className="field-error">
+                        Selecciona el sexo para la reportería.
+                      </small>
+                    )}
                   </div>
                   <div className="field">
                     <label htmlFor={`child-recognized-${index}`}>

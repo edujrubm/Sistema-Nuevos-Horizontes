@@ -18,9 +18,9 @@ export class IniciarFichaInicialDto {
   @IsDefined()
   @Matches(/^\d{13}$/)
   cui?: string;
-  @IsOptional()
+  @IsDefined()
   @Matches(/^(DPI_CUI|PASAPORTE|OTRO|SIN_DOCUMENTO)$/)
-  tipoDocumento?: string;
+  tipoDocumento!: string;
   @ValidateIf(
     (entrada: IniciarFichaInicialDto) =>
       entrada.tipoDocumento === "PASAPORTE" || entrada.tipoDocumento === "OTRO",
@@ -36,12 +36,12 @@ export class IniciarFichaInicialDto {
   @IsString()
   @Length(2, 40)
   otroTipoDocumento?: string;
-  @IsOptional() @IsDateString({ strict: true }) fechaNacimiento?: string;
+  @IsDefined() @IsDateString({ strict: true }) fechaNacimiento!: string;
   @IsOptional() @Matches(/^\d+$/) paisCuiId?: string;
   @IsOptional() @Matches(/^\d+$/) tipoAcompananteId?: string;
-  @IsOptional() @Matches(/^\d+$/) paisOrigenId?: string;
-  @IsOptional() @Matches(/^\d+$/) departamentoOrigenId?: string;
-  @IsOptional() @Matches(/^\d+$/) municipioOrigenId?: string;
+  @IsDefined() @Matches(/^\d+$/) paisOrigenId!: string;
+  @IsDefined() @Matches(/^\d+$/) departamentoOrigenId!: string;
+  @IsDefined() @Matches(/^\d+$/) municipioOrigenId!: string;
   @IsOptional() @IsString() @Length(2, 100) lugar?: string;
-  @IsOptional() @IsDateString({ strict: true }) fechaEntrevista?: string;
+  @IsDefined() @IsDateString({ strict: true }) fechaEntrevista!: string;
 }

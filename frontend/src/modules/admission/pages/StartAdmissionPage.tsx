@@ -23,12 +23,14 @@ const schema = z
     cui: z.string().trim(),
     documentoAlternativo: z.string().trim().max(40),
     otroTipoDocumento: z.string().trim().max(40),
-    fechaNacimiento: z.string(),
+    fechaNacimiento: z.string().min(1, "Selecciona la fecha de nacimiento."),
     paisCuiId: z.string(),
     tipoAcompananteId: z.string(),
-    paisOrigenId: z.string(),
-    departamentoOrigenId: z.string(),
-    municipioOrigenId: z.string(),
+    paisOrigenId: z.string().min(1, "Selecciona el país de origen."),
+    departamentoOrigenId: z
+      .string()
+      .min(1, "Selecciona el departamento de origen."),
+    municipioOrigenId: z.string().min(1, "Selecciona el municipio de origen."),
     lugar: z
       .string()
       .trim()
@@ -36,7 +38,7 @@ const schema = z
         (value) => value === "" || value.length >= 2,
         "Escribe al menos 2 caracteres.",
       ),
-    fechaEntrevista: z.string(),
+    fechaEntrevista: z.string().min(1, "Selecciona la fecha de atención."),
   })
   .superRefine((values, context) => {
     if (values.tipoDocumento === "DPI_CUI" && !/^\d{13}$/.test(values.cui)) {
@@ -282,7 +284,9 @@ export function StartAdmissionPage() {
             )}
           </div>
           <div className="field">
-            <label htmlFor="documentType">Tipo de documento</label>
+            <label htmlFor="documentType">
+              Tipo de documento <span aria-hidden="true">*</span>
+            </label>
             <select id="documentType" {...form.register("tipoDocumento")}>
               <option value="DPI_CUI">DPI/CUI</option>
               <option value="PASAPORTE">Pasaporte</option>
@@ -292,7 +296,9 @@ export function StartAdmissionPage() {
           </div>
           {documentType === "DPI_CUI" && (
             <div className="field">
-              <label htmlFor="cui">DPI/CUI</label>
+              <label htmlFor="cui">
+                DPI/CUI <span aria-hidden="true">*</span>
+              </label>
               <input
                 id="cui"
                 {...form.register("cui")}
@@ -317,7 +323,7 @@ export function StartAdmissionPage() {
           {(documentType === "PASAPORTE" || documentType === "OTRO") && (
             <div className="field">
               <label htmlFor="alternativeDocument">
-                Número o identificador
+                Número o identificador <span aria-hidden="true">*</span>
               </label>
               <input
                 id="alternativeDocument"
@@ -333,7 +339,9 @@ export function StartAdmissionPage() {
           )}
           {documentType === "OTRO" && (
             <div className="field">
-              <label htmlFor="otherDocumentType">Especificar otro tipo</label>
+              <label htmlFor="otherDocumentType">
+                Especificar otro tipo <span aria-hidden="true">*</span>
+              </label>
               <input
                 id="otherDocumentType"
                 {...form.register("otroTipoDocumento")}
@@ -346,12 +354,20 @@ export function StartAdmissionPage() {
             </div>
           )}
           <div className="field">
-            <label htmlFor="birthDate">Fecha de nacimiento</label>
+            <label htmlFor="birthDate">
+              Fecha de nacimiento <span aria-hidden="true">*</span>
+            </label>
             <input
               id="birthDate"
               type="date"
               {...form.register("fechaNacimiento")}
+              aria-invalid={!!form.formState.errors.fechaNacimiento}
             />
+            {form.formState.errors.fechaNacimiento && (
+              <span className="field-error">
+                {form.formState.errors.fechaNacimiento.message}
+              </span>
+            )}
           </div>
           <div className="field">
             <label htmlFor="cuiCountry">País de emisión del DPI/CUI</label>
@@ -376,7 +392,9 @@ export function StartAdmissionPage() {
             </select>
           </div>
           <div className="field">
-            <label htmlFor="originCountry">País de origen</label>
+            <label htmlFor="originCountry">
+              País de origen <span aria-hidden="true">*</span>
+            </label>
             <select
               id="originCountry"
               {...form.register("paisOrigenId", {
@@ -393,9 +411,16 @@ export function StartAdmissionPage() {
                 </option>
               ))}
             </select>
+            {form.formState.errors.paisOrigenId && (
+              <span className="field-error">
+                {form.formState.errors.paisOrigenId.message}
+              </span>
+            )}
           </div>
           <div className="field">
-            <label htmlFor="originDepartment">Departamento de origen</label>
+            <label htmlFor="originDepartment">
+              Departamento de origen <span aria-hidden="true">*</span>
+            </label>
             <select
               id="originDepartment"
               disabled={!countryId}
@@ -410,9 +435,16 @@ export function StartAdmissionPage() {
                 </option>
               ))}
             </select>
+            {form.formState.errors.departamentoOrigenId && (
+              <span className="field-error">
+                {form.formState.errors.departamentoOrigenId.message}
+              </span>
+            )}
           </div>
           <div className="field">
-            <label htmlFor="originMunicipality">Municipio de origen</label>
+            <label htmlFor="originMunicipality">
+              Municipio de origen <span aria-hidden="true">*</span>
+            </label>
             <select
               id="originMunicipality"
               disabled={!departmentId}
@@ -425,6 +457,11 @@ export function StartAdmissionPage() {
                 </option>
               ))}
             </select>
+            {form.formState.errors.municipioOrigenId && (
+              <span className="field-error">
+                {form.formState.errors.municipioOrigenId.message}
+              </span>
+            )}
           </div>
           <div className="field">
             <label htmlFor="place">Lugar de entrevista</label>
@@ -436,12 +473,20 @@ export function StartAdmissionPage() {
             )}
           </div>
           <div className="field">
-            <label htmlFor="interviewDate">Fecha de entrevista</label>
+            <label htmlFor="interviewDate">
+              Fecha de atención <span aria-hidden="true">*</span>
+            </label>
             <input
               id="interviewDate"
               type="date"
               {...form.register("fechaEntrevista")}
+              aria-invalid={!!form.formState.errors.fechaEntrevista}
             />
+            {form.formState.errors.fechaEntrevista && (
+              <span className="field-error">
+                {form.formState.errors.fechaEntrevista.message}
+              </span>
+            )}
           </div>
         </div>
         <div className="form-actions">

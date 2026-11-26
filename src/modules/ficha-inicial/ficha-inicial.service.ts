@@ -22,6 +22,7 @@ import {
 } from "./ficha-inicial.constants";
 import { FichaInicialRepository } from "./repositories/ficha-inicial.repository";
 import { prepararCamposOtros } from "./normalizacion-otros";
+import { validarCamposReporteriaPagina } from "./validacion-reporteria";
 
 @Injectable()
 export class FichaInicialService {
@@ -195,6 +196,19 @@ export class FichaInicialService {
         allowedSections: permitidas,
         invalidSections: invalidas,
       });
+
+    const erroresReporteria = validarCamposReporteriaPagina(
+      pagina,
+      entrada.secciones,
+      entrada.hijos ?? [],
+    );
+    if (erroresReporteria.length)
+      throw new ErrorPublicoException(
+        400,
+        "DATOS_INVALIDOS",
+        "Completa los datos obligatorios para la reportería.",
+        erroresReporteria,
+      );
 
     const seccionesNormalizadas = this.normalizarOtros(entrada.secciones);
     const resultado = await this.repository.guardarPagina(

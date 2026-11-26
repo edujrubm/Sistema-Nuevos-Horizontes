@@ -1,6 +1,8 @@
 export interface AdmissionField {
   name: string;
   label: string;
+  /** Dato fuente requerido para completar la reportería institucional. */
+  required?: boolean;
   type?:
     | "text"
     | "textarea"
@@ -56,6 +58,17 @@ export const admissionPages: AdmissionPageDefinition[] = [
           "Los datos maestros de la beneficiaria se mantienen en su perfil estructurado.",
         fields: [
           {
+            name: "sexoDeclarado",
+            label: "Sexo",
+            type: "select",
+            required: true,
+            options: [
+              { value: "F", label: "Femenino" },
+              { value: "M", label: "Masculino" },
+              { value: "O", label: "Otro" },
+            ],
+          },
+          {
             name: "idiomaAtencion",
             label: "Idioma en el que se brindó la atención",
             type: "select",
@@ -98,7 +111,11 @@ export const admissionPages: AdmissionPageDefinition[] = [
             hint: "Registra la situación migratoria declarada por la usuaria.",
           },
           { name: "lugarNacimiento", label: "Lugar de nacimiento" },
-          { name: "nacionalidadDeclarada", label: "Nacionalidad declarada" },
+          {
+            name: "nacionalidadDeclarada",
+            label: "Nacionalidad declarada",
+            required: true,
+          },
           { name: "personaAcompanante", label: "Persona acompañante" },
           {
             name: "parentescoAcompanante",
@@ -136,23 +153,27 @@ export const admissionPages: AdmissionPageDefinition[] = [
             label: "País de residencia",
             type: "select",
             catalog: "countries",
+            required: true,
           },
           {
             name: "departamentoResidenciaId",
             label: "Departamento de residencia",
             type: "select",
             catalog: "departments",
+            required: true,
           },
           {
             name: "municipioResidenciaId",
             label: "Municipio de residencia",
             type: "select",
             catalog: "municipalities",
+            required: true,
           },
           {
             name: "direccionActual",
             label: "Dirección actual",
             type: "textarea",
+            required: true,
           },
           { name: "telefonoCasa", label: "Teléfono de casa", type: "tel" },
           { name: "telefonoCelular", label: "Celular", type: "tel" },
@@ -180,6 +201,7 @@ export const admissionPages: AdmissionPageDefinition[] = [
             name: "areaResidencial",
             label: "Tipo de área residencial",
             type: "select",
+            required: true,
             options: [
               { value: "URBANA", label: "Área urbana" },
               { value: "RURAL", label: "Área rural" },
@@ -208,6 +230,7 @@ export const admissionPages: AdmissionPageDefinition[] = [
             name: "estadoCivilDeclarado",
             label: "Estado civil",
             type: "select",
+            required: true,
             options: [
               "Casada",
               "Divorciada",
@@ -221,6 +244,7 @@ export const admissionPages: AdmissionPageDefinition[] = [
             name: "etniaDeclarada",
             label: "Etnia",
             type: "select",
+            required: true,
             options: ["Mestiza", "Maya", "Garífuna", "Xinca", "Otra"].map(
               (label) => ({ value: label, label }),
             ),
@@ -228,12 +252,14 @@ export const admissionPages: AdmissionPageDefinition[] = [
           {
             name: "otraEtnia",
             label: "Especificar otra etnia",
+            required: true,
             showWhen: { field: "etniaDeclarada", equals: "Otra" },
           },
           {
             name: "ocupacionDeclarada",
             label: "Ocupación",
             type: "select",
+            required: true,
             options: [
               "Trabajo de casa no remunerado",
               "Comerciante",
@@ -326,6 +352,7 @@ export const admissionPages: AdmissionPageDefinition[] = [
             name: "nivelEscolaridadDeclarado",
             label: "Nivel de escolaridad alcanzado",
             type: "select",
+            required: true,
             options: [
               "Sin escolaridad",
               "Primaria incompleta",
@@ -342,6 +369,7 @@ export const admissionPages: AdmissionPageDefinition[] = [
           {
             name: "otroNivelEscolaridad",
             label: "Especificar otro nivel de escolaridad",
+            required: true,
             showWhen: { field: "nivelEscolaridadDeclarado", equals: "Otros" },
           },
         ],
@@ -472,7 +500,11 @@ export const admissionPages: AdmissionPageDefinition[] = [
               { value: "DESCONOCIDA", label: "Desconocida" },
             ],
           },
-          { name: "relacionParentesco", label: "Relación o parentesco" },
+          {
+            name: "relacionParentesco",
+            label: "Relación o parentesco",
+            required: true,
+          },
         ],
       },
     ],
@@ -490,6 +522,7 @@ export const admissionPages: AdmissionPageDefinition[] = [
             name: "seleccion",
             label: "Motivo de la visita",
             type: "checkboxGroup",
+            required: true,
             options: [
               "Orientación",
               "Pensión alimenticia",
@@ -521,6 +554,7 @@ export const admissionPages: AdmissionPageDefinition[] = [
             name: "seleccion",
             label: "Selecciona todas las opciones que correspondan",
             type: "checkboxGroup",
+            required: true,
             options: [
               "Física",
               "Psicológica",
@@ -540,6 +574,7 @@ export const admissionPages: AdmissionPageDefinition[] = [
           {
             name: "otra",
             label: "Especificar otra",
+            required: true,
             showWhen: { field: "seleccion", includes: "Otra" },
           },
         ],
@@ -703,6 +738,7 @@ export const admissionPages: AdmissionPageDefinition[] = [
             name: "origen",
             label: "Institución o medio que refirió",
             type: "select",
+            required: true,
             options: [
               "Juzgado de la Niñez",
               "Juzgado de paz",

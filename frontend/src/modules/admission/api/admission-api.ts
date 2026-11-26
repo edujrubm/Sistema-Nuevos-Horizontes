@@ -36,10 +36,18 @@ export interface ChildDraft {
 
 export interface StartAdmissionInput {
   nombre: string;
+  tipoDocumento: "DPI_CUI" | "PASAPORTE" | "OTRO" | "SIN_DOCUMENTO";
   cui?: string;
-  fechaNacimiento?: string;
+  documentoAlternativo?: string;
+  otroTipoDocumento?: string;
+  fechaNacimiento: string;
+  paisCuiId?: string;
+  tipoAcompananteId?: string;
+  paisOrigenId: string;
+  departamentoOrigenId: string;
+  municipioOrigenId: string;
   lugar?: string;
-  fechaEntrevista?: string;
+  fechaEntrevista: string;
 }
 
 interface StartAdmissionResponse {

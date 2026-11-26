@@ -134,4 +134,34 @@ describe("admissionPages", () => {
         ?.options?.map((option) => option.value),
     ).toContain("INACIF");
   });
+
+  it("marca como obligatorios los datos fuente de la reportería", () => {
+    const required = admissionPages.flatMap((page) =>
+      page.sections.flatMap((section) =>
+        section.fields
+          .filter((field) => field.required)
+          .map((field) => `${section.key}.${field.name}`),
+      ),
+    );
+
+    expect(required).toEqual(
+      expect.arrayContaining([
+        "identificacion.sexoDeclarado",
+        "identificacion.nacionalidadDeclarada",
+        "residencia.paisResidenciaId",
+        "residencia.departamentoResidenciaId",
+        "residencia.municipioResidenciaId",
+        "residencia.direccionActual",
+        "residencia.areaResidencial",
+        "datos-generales.estadoCivilDeclarado",
+        "datos-generales.etniaDeclarada",
+        "datos-generales.ocupacionDeclarada",
+        "datos-generales.nivelEscolaridadDeclarado",
+        "agresores.relacionParentesco",
+        "motivo-consulta.seleccion",
+        "tipos-violencia.seleccion",
+        "referencias.origen",
+      ]),
+    );
+  });
 });
