@@ -105,7 +105,7 @@ describe("FichaInicialService", () => {
     expect(repository.guardarPagina).not.toHaveBeenCalled();
   });
 
-  it("conserva el valor Otra original y envía su clave normalizada", async () => {
+  it("conserva únicamente el valor Otra original en el JSON", async () => {
     repository.guardarPagina.mockResolvedValue({
       estado: "ACTUALIZADA",
       ficha: { id: "1", estado: "BORRADOR", version: 4 },
@@ -135,15 +135,11 @@ describe("FichaInicialService", () => {
           estadoCivilDeclarado: "Soltera",
           etniaDeclarada: "Otra",
           otraEtnia: "  Térmo... ",
-          otraEtniaNormalizado: "termo",
-          otraEtniaEtiquetaReporteria: null,
           ocupacionDeclarada: "Comerciante",
           nivelEscolaridadDeclarado: "Primaria completa",
         },
         salud: {
           otraDiscapacidad: "FÍSICA.",
-          otraDiscapacidadNormalizado: "fisica",
-          otraDiscapacidadEtiquetaReporteria: null,
         },
       },
       [],

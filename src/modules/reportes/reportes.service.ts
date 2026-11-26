@@ -7,8 +7,6 @@ import { DataSource } from "typeorm";
 
 import {
   CAMPOS_OTROS_FICHA,
-  campoEtiquetaReporteriaOtro,
-  campoNormalizadoOtro,
   esCampoOtroFicha,
   normalizarTextoOtro,
 } from "../ficha-inicial/normalizacion-otros";
@@ -20,18 +18,32 @@ interface SeccionFichaRow {
   contenido: Record<string, unknown>;
 }
 
+interface ValorOtroRow {
+  seccion: string;
+  campo: string;
+  valorNormalizado: string;
+  etiquetaReporteria: string | null;
+}
+
 @Injectable()
 export class ReportesService {
   constructor(private readonly dataSource: DataSource) {}
 
   async listarValoresOtros() {
     const secciones = Object.keys(CAMPOS_OTROS_FICHA);
-    const rows = await this.dataSource.query<SeccionFichaRow[]>(
-      `SELECT id::text,seccion,contenido
+    const [catalogo, rows] = await Promise.all([
+      this.dataSource.query<ValorOtroRow[]>(
+        `SELECT seccion,campo,valor_normalizado AS "valorNormalizado",
+                etiqueta_reporteria AS "etiquetaReporteria"
+         FROM new_horizons.valor_otro_ficha_inicial`,
+      ),
+      this.dataSource.query<SeccionFichaRow[]>(
+        `SELECT id::text,seccion,contenido
        FROM new_horizons.ficha_inicial_seccion
        WHERE seccion=ANY($1::text[])`,
-      [secciones],
-    );
+        [secciones],
+      ),
+    ]);
     const grupos = new Map<
       string,
       {
@@ -50,7 +62,12 @@ export class ReportesService {
         const valorNormalizado = normalizarTextoOtro(original);
         if (!valorNormalizado) continue;
         const key = `${row.seccion}\u0000${campo}\u0000${valorNormalizado}`;
-        const etiqueta = row.contenido[campoEtiquetaReporteriaOtro(campo)];
+        const etiqueta = catalogo.find(
+          (item) =>
+            item.seccion === row.seccion &&
+            item.campo === campo &&
+            item.valorNormalizado === valorNormalizado,
+        )?.etiquetaReporteria;
         const grupo = grupos.get(key) ?? {
           seccion: row.seccion,
           campo,
@@ -65,6 +82,17 @@ export class ReportesService {
           grupo.etiquetaReporteria = etiqueta;
         grupos.set(key, grupo);
       }
+    }
+    // Incluye también valores ya catalogados que dejaron de aparecer en fichas
+    // activas, sin duplicar las variantes observadas actualmente.
+    for (const item of catalogo) {
+      const key = `${item.seccion}\u0000${item.campo}\u0000${item.valorNormalizado}`;
+      if (!grupos.has(key))
+        grupos.set(key, {
+          ...item,
+          vecesObservado: 0,
+          variantes: new Set<string>(),
+        });
     }
     const data = [...grupos.values()]
       .map((grupo) => ({
@@ -89,54 +117,44 @@ export class ReportesService {
         "El campo indicado no corresponde a una opción Otra u Otros de Ficha Inicial.",
       );
     const valorNormalizado = normalizarTextoOtro(entrada.valorNormalizado);
-    const campoNormalizado = campoNormalizadoOtro(entrada.campo);
-    const campoEtiqueta = campoEtiquetaReporteriaOtro(entrada.campo);
     return this.dataSource.transaction(async (manager) => {
       await manager.query(
         `SELECT set_config('new_horizons.actor_id',$1,true),
                 set_config('new_horizons.motivo',$2,true)`,
         [administradorId, "Corrección de etiqueta para reportería"],
       );
-      const candidatas = await manager.query<SeccionFichaRow[]>(
-        `SELECT id::text,seccion,contenido
-         FROM new_horizons.ficha_inicial_seccion
-         WHERE seccion=$1
-         FOR UPDATE`,
-        [entrada.seccion],
+      const actualizadas = await manager.query<Array<{ id: string }>>(
+        `UPDATE new_horizons.valor_otro_ficha_inicial
+         SET etiqueta_reporteria=$4,actualizado_por=$5::bigint,
+             actualizado_en=clock_timestamp(),version=version+1
+         WHERE seccion=$1 AND campo=$2 AND valor_normalizado=$3
+         RETURNING id::text`,
+        [
+          entrada.seccion,
+          entrada.campo,
+          valorNormalizado,
+          entrada.etiqueta.trim(),
+          administradorId,
+        ],
       );
-      const coincidentes = candidatas.filter((row) => {
-        const original = row.contenido[entrada.campo];
-        return (
-          typeof original === "string" &&
-          normalizarTextoOtro(original) === valorNormalizado
-        );
-      });
-      for (const row of coincidentes) {
-        await manager.query(
-          `UPDATE new_horizons.ficha_inicial_seccion
-           SET contenido=$2::jsonb
-           WHERE id=$1::bigint`,
-          [
-            row.id,
-            JSON.stringify({
-              ...row.contenido,
-              [campoNormalizado]: valorNormalizado,
-              [campoEtiqueta]: entrada.etiqueta.trim(),
-            }),
-          ],
-        );
-      }
-      if (!coincidentes.length)
+      if (!actualizadas.length)
         throw new NotFoundException(
-          "No se encontraron fichas con el valor normalizado indicado.",
+          "No se encontró el valor normalizado indicado.",
         );
+      const [{ total }] = await manager.query<Array<{ total: string }>>(
+        `SELECT count(*)::text AS total
+         FROM new_horizons.ficha_inicial_seccion
+         WHERE seccion=$1 AND contenido ? $2
+           AND new_horizons.normalizar_valor_otro(contenido ->> $2)=$3`,
+        [entrada.seccion, entrada.campo, valorNormalizado],
+      );
       return {
         data: {
           seccion: entrada.seccion,
           campo: entrada.campo,
           valorNormalizado,
           etiquetaReporteria: entrada.etiqueta.trim(),
-          fichasActualizadas: coincidentes.length,
+          fichasActualizadas: Number(total),
         },
       };
     });

@@ -21,10 +21,6 @@ export interface ErrorValorOtro {
   mensaje: string;
 }
 
-export const campoNormalizadoOtro = (campo: string) => `${campo}Normalizado`;
-export const campoEtiquetaReporteriaOtro = (campo: string) =>
-  `${campo}EtiquetaReporteria`;
-
 export function esCampoOtroFicha(seccion: string, campo: string) {
   return CAMPOS_OTROS_FICHA[seccion]?.includes(campo) ?? false;
 }
@@ -51,9 +47,10 @@ export function prepararCamposOtros(
     const contenido = secciones[seccion];
     if (!contenido) continue;
     for (const campo of campos) {
-      const campoNormalizado = campoNormalizadoOtro(campo);
-      delete contenido[campoNormalizado];
-      delete contenido[campoEtiquetaReporteriaOtro(campo)];
+      // Las claves de versiones anteriores se descartan: la normalización y su
+      // etiqueta oficial viven en la tabla relacional de reportería.
+      delete contenido[`${campo}Normalizado`];
+      delete contenido[`${campo}EtiquetaReporteria`];
       const original = contenido[campo];
       if (original === undefined || original === null || original === "")
         continue;
@@ -79,8 +76,6 @@ export function prepararCamposOtros(
         });
         continue;
       }
-      contenido[campoNormalizado] = normalizado;
-      contenido[campoEtiquetaReporteriaOtro(campo)] = null;
       valores.push({ seccion, campo, original, normalizado });
     }
   }
