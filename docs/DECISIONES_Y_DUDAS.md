@@ -8,6 +8,15 @@ pendiente: deben elevar su pregunta al equipo responsable.
 
 ## Decisiones confirmadas
 
+### Usuarios ficticios para presentación — 2026-11-25
+
+- Responsable: Eduardo, petición explícita en el chat: preparar y comprobar las once cuentas propuestas; abrir PR si las pruebas resultan correctas.
+- Alcance: inicializador manual de cuentas `demo.*`, con empleados ficticios propios. Asignar únicamente roles y áreas existentes elegidos por el operador; no crear ni modificar catálogos, permisos, autenticación, tablas ni migraciones.
+- Secretos: contraseñas aleatorias con Argon2id y JSON privado fuera de cualquier repositorio. Por corrección explícita de Eduardo, el PR sólo incorpora el inicializador, sus pruebas e instrucciones; no genera PDF. El PDF se entrega fuera de Git, con un JSON privado importable mediante `--credenciales` para conservar exactamente esas claves. Una repetición conserva usuarios y contraseñas y exige la carpeta original.
+- Ambiente: ensayo desechable con todas las migraciones. La BD compartida no se ha conectado ni modificado; la ejecución real depende del encargado y de verificar sus roles y migraciones.
+- Límite: el catálogo de permisos asignados no acredita autorización integral por área/caso; las limitaciones de Seguridad siguen vigentes. Las cuentas no resuelven D-02.
+- Archivos: `scripts/usuarios-demo.cjs`, auxiliares en `scripts/usuarios-demo/`, ensayo `test/usuarios-demo.integration.cjs` y guía operativa en `GUIA_TECNICA.md`.
+
 | Tema | Decisión | Evidencia principal |
 | --- | --- | --- |
 | Estructura | Monorepo con backend NestJS en `src/` y frontend React/Vite en `frontend/`. | `package.json`, `frontend/package.json` |
