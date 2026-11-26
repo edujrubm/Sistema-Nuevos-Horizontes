@@ -11,12 +11,14 @@ interface FormStepNavigationProps {
   steps: FormStep[];
   onStepChange: (stepId: string) => void;
   label?: string;
+  numberedLabels?: boolean;
 }
 
 export function FormStepNavigation({
   steps,
   onStepChange,
   label = "Pasos del formulario",
+  numberedLabels = false,
 }: FormStepNavigationProps) {
   return (
     <nav className="form-step-navigation" aria-label={label}>
@@ -27,6 +29,9 @@ export function FormStepNavigation({
               type="button"
               className={`form-step ${step.status}`}
               aria-current={step.status === "current" ? "step" : undefined}
+              aria-label={
+                numberedLabels ? `${index + 1} ${step.label}` : undefined
+              }
               disabled={step.disabled}
               onClick={() => onStepChange(step.id)}
             >

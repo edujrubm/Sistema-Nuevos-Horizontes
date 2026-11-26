@@ -1,1 +1,1 @@
-export { MarcoFicha, PestañasArea } from "../area-forms/components";
+export { MarcoFicha } from "../area-forms/components";
