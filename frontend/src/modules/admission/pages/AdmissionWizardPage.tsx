@@ -31,6 +31,12 @@ function contentIsPresent(value: Record<string, unknown> | undefined) {
   );
 }
 
+function fieldValueIsPresent(value: unknown) {
+  if (typeof value === "string") return value.trim().length > 0;
+  if (Array.isArray(value)) return value.length > 0;
+  return value !== undefined && value !== null;
+}
+
 export function AdmissionWizardPage() {
   const { id = "" } = useParams();
   const location = useLocation();
@@ -49,9 +55,17 @@ export function AdmissionWizardPage() {
     [],
   );
   const [maxReachedIndex, setMaxReachedIndex] = useState(0);
+  const [revisitedPageKeys, setRevisitedPageKeys] = useState<Set<string>>(
+    () => new Set(),
+  );
   const [childNameErrors, setChildNameErrors] = useState<number[]>([]);
   const [childCuiErrors, setChildCuiErrors] = useState<number[]>([]);
+  const [childBirthErrors, setChildBirthErrors] = useState<number[]>([]);
+  const [childGenderErrors, setChildGenderErrors] = useState<number[]>([]);
   const [invalidDocumentFields, setInvalidDocumentFields] = useState<string[]>(
+    [],
+  );
+  const [missingRequiredFields, setMissingRequiredFields] = useState<string[]>(
     [],
   );
   const initialized = useRef(false);
@@ -126,6 +140,7 @@ export function AdmissionWizardPage() {
         : firstPendingPage;
     setActiveIndex(resumeIndex);
     setMaxReachedIndex(resumeIndex);
+    setRevisitedPageKeys(new Set());
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [admissionQuery.data, startAtFirstPage]);
 
@@ -157,6 +172,7 @@ export function AdmissionWizardPage() {
   const pageWasSaved = page.sections.every((section) =>
     savedSectionKeys.has(section.key),
   );
+  const pageIsRevisited = revisitedPageKeys.has(page.key);
   const pageIsDirty =
     page.sections.some(
       (section) =>
@@ -257,6 +273,9 @@ export function AdmissionWizardPage() {
     setInvalidDocumentFields((current) =>
       current.filter((key) => key !== `${section}.${field}`),
     );
+    setMissingRequiredFields((current) =>
+      current.filter((key) => key !== `${section}.${field}`),
+    );
     setValues((current) => ({
       ...current,
       [section]: {
@@ -275,18 +294,26 @@ export function AdmissionWizardPage() {
     }));
   }
 
-  function toggleFieldOption(section: string, field: string, option: string) {
+  function toggleFieldOption(
+    section: string,
+    field: string,
+    option: string,
+    exclusiveOptions: string[] = [],
+  ) {
     const current = values[section]?.[field];
     const selected = Array.isArray(current)
       ? current.filter((item): item is string => typeof item === "string")
       : [];
-    updateField(
-      section,
-      field,
-      selected.includes(option)
-        ? selected.filter((item) => item !== option)
-        : [...selected, option],
-    );
+    const optionIsExclusive = exclusiveOptions.includes(option);
+    const next = selected.includes(option)
+      ? selected.filter((item) => item !== option)
+      : optionIsExclusive
+        ? [option]
+        : [
+            ...selected.filter((item) => !exclusiveOptions.includes(item)),
+            option,
+          ];
+    updateField(section, field, next);
   }
 
   function addChild() {
@@ -308,6 +335,16 @@ export function AdmissionWizardPage() {
         item === index ? [] : [item > index ? item - 1 : item],
       ),
     );
+    setChildBirthErrors((current) =>
+      current.flatMap((item) =>
+        item === index ? [] : [item > index ? item - 1 : item],
+      ),
+    );
+    setChildGenderErrors((current) =>
+      current.flatMap((item) =>
+        item === index ? [] : [item > index ? item - 1 : item],
+      ),
+    );
   }
 
   function updateChild(
@@ -320,6 +357,14 @@ export function AdmissionWizardPage() {
       setChildNameErrors((current) => current.filter((item) => item !== index));
     if (field === "cui")
       setChildCuiErrors((current) => current.filter((item) => item !== index));
+    if (field === "fechaNacimiento")
+      setChildBirthErrors((current) =>
+        current.filter((item) => item !== index),
+      );
+    if (field === "genero")
+      setChildGenderErrors((current) =>
+        current.filter((item) => item !== index),
+      );
     setChildren((current) =>
       current.map((child, childIndex) =>
         childIndex === index ? { ...child, [field]: value } : child,
@@ -411,6 +456,14 @@ export function AdmissionWizardPage() {
   }
 
   function validateCurrentPage() {
+    const missingFields = page.sections.flatMap((section) =>
+      section.fields.flatMap((field) => {
+        if (!field.required || !fieldIsVisible(section.key, field)) return [];
+        return fieldValueIsPresent(values[section.key]?.[field.name])
+          ? []
+          : [`${section.key}.${field.name}`];
+      }),
+    );
     const incomplete = page.sections
       .filter((section) => !contentIsPresent(values[section.key]))
       .map((section) => section.key);
@@ -427,6 +480,16 @@ export function AdmissionWizardPage() {
             const length = child.cui?.trim().length ?? 0;
             return length === 0 || (length >= 4 && length <= 20) ? [] : [index];
           })
+        : [];
+    const invalidChildBirths =
+      page.key === "familia"
+        ? children.flatMap((child, index) =>
+            child.fechaNacimiento ? [] : [index],
+          )
+        : [];
+    const invalidChildGenders =
+      page.key === "familia"
+        ? children.flatMap((child, index) => (child.genero ? [] : [index]))
         : [];
     const invalidDocuments = page.sections.flatMap((section) =>
       section.fields.flatMap((field) => {
@@ -448,11 +511,17 @@ export function AdmissionWizardPage() {
     setIncompleteSectionKeys(incomplete);
     setChildNameErrors(invalidChildren);
     setChildCuiErrors(invalidChildCuis);
+    setChildBirthErrors(invalidChildBirths);
+    setChildGenderErrors(invalidChildGenders);
     setInvalidDocumentFields(invalidDocuments);
+    setMissingRequiredFields(missingFields);
     if (
       incomplete.length === 0 &&
+      missingFields.length === 0 &&
       invalidChildren.length === 0 &&
       invalidChildCuis.length === 0 &&
+      invalidChildBirths.length === 0 &&
+      invalidChildGenders.length === 0 &&
       invalidDocuments.length === 0
     )
       return true;
@@ -460,13 +529,19 @@ export function AdmissionWizardPage() {
     setShowDiscardWarning(false);
     requestAnimationFrame(() => {
       const targetId =
-        incomplete.length > 0
-          ? `${incomplete[0]}-title`
-          : invalidChildren.length > 0
-            ? `child-name-${invalidChildren[0]}`
-            : invalidChildCuis.length > 0
-              ? `child-cui-${invalidChildCuis[0]}`
-              : invalidDocuments[0]?.replace(".", "-");
+        missingFields.length > 0
+          ? missingFields[0].replace(".", "-")
+          : incomplete.length > 0
+            ? `${incomplete[0]}-title`
+            : invalidChildren.length > 0
+              ? `child-name-${invalidChildren[0]}`
+              : invalidChildCuis.length > 0
+                ? `child-cui-${invalidChildCuis[0]}`
+                : invalidChildBirths.length > 0
+                  ? `child-birth-${invalidChildBirths[0]}`
+                  : invalidChildGenders.length > 0
+                    ? `child-gender-${invalidChildGenders[0]}`
+                    : invalidDocuments[0]?.replace(".", "-");
       document.getElementById(targetId)?.focus();
     });
     return false;
@@ -474,6 +549,18 @@ export function AdmissionWizardPage() {
 
   function goForward() {
     if (!validateCurrentPage()) return;
+    if (!pageIsRevisited) {
+      if (!pageWasSaved || pageIsDirty) {
+        saveMutation.mutate({ advance: true });
+        return;
+      }
+      setActiveIndex((current) => {
+        const next = Math.min(current + 1, admissionPages.length - 1);
+        setMaxReachedIndex((reached) => Math.max(reached, next));
+        return next;
+      });
+      return;
+    }
     if (!pageWasSaved) {
       saveMutation.mutate({ advance: true });
       return;
@@ -485,6 +572,22 @@ export function AdmissionWizardPage() {
     setActiveIndex((current) =>
       Math.min(current + 1, admissionPages.length - 1),
     );
+  }
+
+  function navigateToPage(index: number) {
+    if (index === activeIndex) return;
+    const target = admissionPages[index];
+    const targetWasReached = index <= maxReachedIndex;
+    const targetWasSaved = target.sections.every((section) =>
+      savedSectionKeys.has(section.key),
+    );
+    if (targetWasReached && targetWasSaved) {
+      setRevisitedPageKeys((current) => new Set(current).add(target.key));
+    }
+    setActiveIndex(index);
+    setNotice(undefined);
+    setIncompleteSectionKeys([]);
+    setShowDiscardWarning(false);
   }
 
   function updateCurrentPage() {
@@ -507,9 +610,7 @@ export function AdmissionWizardPage() {
     }));
     if (page.key === "familia") setChildren(savedChildren);
     setShowDiscardWarning(false);
-    setActiveIndex((current) =>
-      Math.min(current + 1, admissionPages.length - 1),
-    );
+    navigateToPage(Math.min(activeIndex + 1, admissionPages.length - 1));
   }
 
   return (
@@ -536,11 +637,7 @@ export function AdmissionWizardPage() {
                 type="button"
                 className={`wizard-step${index === activeIndex ? " current" : ""}`}
                 disabled={index > maxReachedIndex}
-                onClick={() => {
-                  setActiveIndex(index);
-                  setNotice(undefined);
-                  setIncompleteSectionKeys([]);
-                }}
+                onClick={() => navigateToPage(index)}
               >
                 <span>{index + 1}</span>
                 <span>
@@ -647,6 +744,15 @@ export function AdmissionWizardPage() {
                     >
                       <label htmlFor={`${section.key}-${field.name}`}>
                         {field.label}
+                        {field.required && visible ? (
+                          <span className="required-marker" aria-hidden="true">
+                            {" "}
+                            *
+                          </span>
+                        ) : null}
+                        {field.required && visible ? (
+                          <span className="sr-only"> (obligatorio)</span>
+                        ) : null}
                       </label>
                       {field.type === "textarea" ? (
                         <textarea
@@ -662,6 +768,12 @@ export function AdmissionWizardPage() {
                             )
                           }
                           rows={4}
+                          required={field.required && visible}
+                          aria-invalid={
+                            missingRequiredFields.includes(
+                              `${section.key}.${field.name}`,
+                            ) || undefined
+                          }
                         />
                       ) : field.type === "select" ? (
                         <select
@@ -676,6 +788,12 @@ export function AdmissionWizardPage() {
                               event.target.value,
                             )
                           }
+                          required={field.required && visible}
+                          aria-invalid={
+                            missingRequiredFields.includes(
+                              `${section.key}.${field.name}`,
+                            ) || undefined
+                          }
                         >
                           <option value="">Seleccionar</option>
                           {optionsForField(field).map((option) => (
@@ -688,6 +806,13 @@ export function AdmissionWizardPage() {
                         <div
                           className="checkbox-group"
                           id={`${section.key}-${field.name}`}
+                          role="group"
+                          aria-required={field.required && visible}
+                          aria-invalid={
+                            missingRequiredFields.includes(
+                              `${section.key}.${field.name}`,
+                            ) || undefined
+                          }
                         >
                           {field.options?.map((option) => {
                             const selected = values[section.key]?.[field.name];
@@ -707,6 +832,7 @@ export function AdmissionWizardPage() {
                                       section.key,
                                       field.name,
                                       option.value,
+                                      field.exclusiveOptions,
                                     )
                                   }
                                 />
@@ -751,12 +877,25 @@ export function AdmissionWizardPage() {
                                 : event.target.value,
                             );
                           }}
-                          aria-invalid={invalidDocumentFields.includes(
-                            `${section.key}.${field.name}`,
-                          )}
+                          aria-invalid={
+                            invalidDocumentFields.includes(
+                              `${section.key}.${field.name}`,
+                            ) ||
+                            missingRequiredFields.includes(
+                              `${section.key}.${field.name}`,
+                            )
+                          }
+                          required={field.required && visible}
                         />
                       )}
                       {field.hint && <small>{field.hint}</small>}
+                      {missingRequiredFields.includes(
+                        `${section.key}.${field.name}`,
+                      ) && (
+                        <small className="field-error">
+                          Este campo es obligatorio para la reportería.
+                        </small>
+                      )}
                       {invalidDocumentFields.includes(
                         `${section.key}.${field.name}`,
                       ) && (
@@ -788,7 +927,13 @@ export function AdmissionWizardPage() {
               {children.map((child, index) => (
                 <div className="child-row" key={index}>
                   <div className="field">
-                    <label htmlFor={`child-name-${index}`}>Nombre</label>
+                    <label htmlFor={`child-name-${index}`}>
+                      Nombre{" "}
+                      <span className="required-marker" aria-hidden="true">
+                        *
+                      </span>
+                      <span className="sr-only"> (obligatorio)</span>
+                    </label>
                     <input
                       id={`child-name-${index}`}
                       value={child.nombre ?? ""}
@@ -821,12 +966,18 @@ export function AdmissionWizardPage() {
                   </div>
                   <div className="field">
                     <label htmlFor={`child-birth-${index}`}>
-                      Fecha de nacimiento
+                      Fecha de nacimiento{" "}
+                      <span className="required-marker" aria-hidden="true">
+                        *
+                      </span>
+                      <span className="sr-only"> (obligatorio)</span>
                     </label>
                     <input
                       id={`child-birth-${index}`}
                       type="date"
+                      required
                       value={child.fechaNacimiento ?? ""}
+                      aria-invalid={childBirthErrors.includes(index)}
                       onChange={(event) =>
                         updateChild(
                           index,
@@ -835,12 +986,25 @@ export function AdmissionWizardPage() {
                         )
                       }
                     />
+                    {childBirthErrors.includes(index) && (
+                      <small className="field-error">
+                        La fecha de nacimiento es obligatoria.
+                      </small>
+                    )}
                   </div>
                   <div className="field">
-                    <label htmlFor={`child-gender-${index}`}>Sexo</label>
+                    <label htmlFor={`child-gender-${index}`}>
+                      Sexo{" "}
+                      <span className="required-marker" aria-hidden="true">
+                        *
+                      </span>
+                      <span className="sr-only"> (obligatorio)</span>
+                    </label>
                     <select
                       id={`child-gender-${index}`}
                       value={child.genero ?? ""}
+                      required
+                      aria-invalid={childGenderErrors.includes(index)}
                       onChange={(event) =>
                         updateChild(index, "genero", event.target.value)
                       }
@@ -850,6 +1014,11 @@ export function AdmissionWizardPage() {
                       <option value="M">Masculino</option>
                       <option value="O">Otro</option>
                     </select>
+                    {childGenderErrors.includes(index) && (
+                      <small className="field-error">
+                        Selecciona el sexo para la reportería.
+                      </small>
+                    )}
                   </div>
                   <div className="field">
                     <label htmlFor={`child-recognized-${index}`}>
@@ -900,11 +1069,11 @@ export function AdmissionWizardPage() {
                 className="button secondary"
                 type="button"
                 disabled={activeIndex === 0}
-                onClick={() => setActiveIndex((current) => current - 1)}
+                onClick={() => navigateToPage(activeIndex - 1)}
               >
                 Anterior
               </button>
-              {pageWasSaved && (
+              {pageIsRevisited && pageWasSaved && (
                 <button
                   className="button primary"
                   type="button"
