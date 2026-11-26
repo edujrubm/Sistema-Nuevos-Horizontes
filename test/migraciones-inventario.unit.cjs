@@ -8,7 +8,7 @@ const root = path.resolve(__dirname, "..");
 test("Migraciones: inventario íntegro, numeración única y consecutiva", () => {
   assert.deepEqual(verificar(root), {
     inventarioValido: true,
-    total: 22,
+    total: 23,
     estadoBD: "NO_VERIFICADO",
   });
 });

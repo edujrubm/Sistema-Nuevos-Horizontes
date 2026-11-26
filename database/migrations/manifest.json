@@ -215,6 +215,11 @@
       "archivo": "024_retirar_revision_documental.sql",
       "sha256": "3d0a010f7c7a1aaedbc790cd6ae29a51fb6209e5bf2b3eb0fab4c9835f8ed104",
       "antecedentes": []
+    },
+    {
+      "archivo": "025_valores_otros_reporteria.sql",
+      "sha256": "33d271d8698cfdb0fee36e5799c516e79b1807e417a9782256aa30c8dc3f6795",
+      "antecedentes": []
     }
   ]
 }

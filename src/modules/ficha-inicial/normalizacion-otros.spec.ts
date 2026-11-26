@@ -19,9 +19,14 @@ describe("normalización de valores Otra u Otros", () => {
     expect(resultado.errores).toEqual([]);
     expect(resultado.secciones.salud).toEqual({
       otraDiscapacidad: "  Término   compuesto...  ",
-      otraDiscapacidadNormalizado: "termino compuesto",
-      otraDiscapacidadEtiquetaReporteria: null,
     });
+    expect(resultado.valores).toEqual([
+      expect.objectContaining({
+        seccion: "salud",
+        campo: "otraDiscapacidad",
+        normalizado: "termino compuesto",
+      }),
+    ]);
   });
 
   it("ignora una clave normalizada enviada por el cliente", () => {
@@ -32,12 +37,10 @@ describe("normalización de valores Otra u Otros", () => {
       },
     });
 
-    expect(resultado.secciones["tipos-violencia"].otraNormalizado).toBe(
-      "labor comunitaria",
-    );
-    expect(
-      resultado.secciones["tipos-violencia"].otraEtiquetaReporteria,
-    ).toBeNull();
+    expect(resultado.secciones["tipos-violencia"]).toEqual({
+      otra: "Labor comunitaria.",
+    });
+    expect(resultado.valores[0].normalizado).toBe("labor comunitaria");
   });
 
   it("rechaza un valor compuesto solamente por espacios y puntos", () => {
