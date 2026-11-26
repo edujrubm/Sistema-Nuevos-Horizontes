@@ -1,5 +1,5 @@
 import { RiesgosCampo } from "./RiesgosCampo";
-import { MarcoFicha, PestañasArea } from "./MarcoFicha";
+import { MarcoFicha } from "./MarcoFicha";
 import { secciones } from "./secciones";
 import { useBeneficiaria, BarraBeneficiaria, useAreaFicha } from "./contexto";
 import { useCambiosPendientes } from "./useCambiosPendientes";
@@ -582,11 +582,6 @@ export function Editor({
           {mensaje}
         </p>
       )}
-      <PestañasArea
-        beneficiariaId={beneficiariaId}
-        area={tipo}
-        referencia={esReferencia}
-      />
       {esReferencia ? (
         <div className="reference-layout">
           <section>{formulario}</section>
