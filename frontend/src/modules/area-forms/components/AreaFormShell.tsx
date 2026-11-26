@@ -13,6 +13,15 @@ interface AreaFormShellProps {
   discardedStateCode?: string;
   subjectLabel?: string;
   canConfirm?: boolean;
+  newRecord?: { type: string; area: string };
+  title?: string;
+  readOnlyOverride?: boolean;
+  saveDisabled?: boolean;
+  showSave?: boolean;
+  showConfirm?: boolean;
+  saveLabel?: string;
+  allowReadOnlyNavigation?: boolean;
+  showFeedback?: boolean;
   children: ReactNode;
   onSave: (reason: string) => void | Promise<void>;
   onConfirm: (reason: string) => void | Promise<void>;
@@ -41,6 +50,15 @@ export function AreaFormShell({
   discardedStateCode = "DESCARTADO",
   subjectLabel,
   canConfirm = false,
+  newRecord,
+  title,
+  readOnlyOverride,
+  saveDisabled = false,
+  showSave = true,
+  showConfirm = true,
+  saveLabel = "Guardar borrador",
+  allowReadOnlyNavigation = false,
+  showFeedback = true,
   children,
   onSave,
   onConfirm,
@@ -49,7 +67,7 @@ export function AreaFormShell({
 }: AreaFormShellProps) {
   const [confirming, setConfirming] = useState(false);
 
-  if (state === "loading" || !form) {
+  if (state === "loading" || (!form && !newRecord)) {
     return (
       <p className="status-message" role="status">
         Cargando formulario…
@@ -57,8 +75,9 @@ export function AreaFormShell({
     );
   }
 
-  const discarded = form.estado === discardedStateCode;
-  const readOnly = form.estado !== draftStateCode;
+  const discarded = form?.estado === discardedStateCode;
+  const readOnly =
+    readOnlyOverride ?? (form ? form.estado !== draftStateCode : false);
   const busy = state === "saving";
 
   function save() {
@@ -73,11 +92,13 @@ export function AreaFormShell({
     <section className="area-form-shell">
       <header className="panel area-form-context">
         <div>
-          <span>{form.area}</span>
-          <h1>{form.tipo}</h1>
+          <span>{form?.area ?? newRecord?.area}</span>
+          <h1>{title ?? form?.tipo ?? newRecord?.type}</h1>
           <p>
-            {subjectLabel ? `${subjectLabel} · ` : ""}Formulario #{form.id} ·
-            Versión {form.version}
+            {subjectLabel ? `${subjectLabel} · ` : ""}
+            {form
+              ? `Formulario #${form.id} · Versión ${form.version}`
+              : "Nuevo borrador"}
           </p>
         </div>
         <span className={`status ${readOnly ? "active" : "draft"}`}>
@@ -85,7 +106,7 @@ export function AreaFormShell({
         </span>
       </header>
 
-      {state === "conflict" ? (
+      {showFeedback && state === "conflict" ? (
         <div className="alert warning" role="alert">
           <strong>El formulario cambió desde que lo abriste.</strong>
           <span>Recarga la versión vigente antes de continuar.</span>
@@ -101,7 +122,7 @@ export function AreaFormShell({
         </div>
       ) : null}
 
-      {state === "error" ? (
+      {showFeedback && state === "error" ? (
         <div className="alert error" role="alert">
           <strong>{error ?? stateMessages.error}</strong>
         </div>
@@ -120,7 +141,9 @@ export function AreaFormShell({
 
       <fieldset
         className="area-form-editor"
-        disabled={readOnly || busy || state === "conflict"}
+        disabled={
+          (!allowReadOnlyNavigation && readOnly) || busy || state === "conflict"
+        }
       >
         <legend className="sr-only">Contenido del formulario</legend>
         {children}
@@ -170,32 +193,36 @@ export function AreaFormShell({
                 >
                   Cancelar
                 </button>
-                <button
-                  className="button secondary"
-                  type="button"
-                  disabled={busy || state !== "dirty"}
-                  onClick={save}
-                >
-                  Guardar borrador
-                </button>
-                <button
-                  className="button primary"
-                  type="button"
-                  disabled={
-                    busy ||
-                    state === "dirty" ||
-                    state === "conflict" ||
-                    !canConfirm
-                  }
-                  title={
-                    canConfirm
-                      ? undefined
-                      : "Completa y guarda los campos obligatorios antes de confirmar."
-                  }
-                  onClick={() => setConfirming(true)}
-                >
-                  Revisar y confirmar
-                </button>
+                {showSave && (
+                  <button
+                    className="button secondary"
+                    type="button"
+                    disabled={busy || state !== "dirty" || saveDisabled}
+                    onClick={save}
+                  >
+                    {saveLabel}
+                  </button>
+                )}
+                {showConfirm && (
+                  <button
+                    className="button primary"
+                    type="button"
+                    disabled={
+                      busy ||
+                      state === "dirty" ||
+                      state === "conflict" ||
+                      !canConfirm
+                    }
+                    title={
+                      canConfirm
+                        ? undefined
+                        : "Completa y guarda los campos obligatorios antes de confirmar."
+                    }
+                    onClick={() => setConfirming(true)}
+                  >
+                    Revisar y confirmar
+                  </button>
+                )}
               </div>
             </footer>
           )}

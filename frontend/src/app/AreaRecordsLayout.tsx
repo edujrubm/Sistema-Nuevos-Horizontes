@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { Link, Outlet, useParams, useLocation } from "react-router-dom";
+import { Outlet, useParams } from "react-router-dom";
 import { api } from "../shared/api/area-records";
 import { useConsulta } from "../shared/hooks/useConsulta";
 import {
@@ -32,30 +32,11 @@ export function AreaRecordsLayout() {
       [beneficiariaId],
     ),
   );
-  const base = `/beneficiarias/${beneficiariaId}`;
-  const location = useLocation();
-  const legal = /^\/beneficiarias\/[^/]+\/(legal|referencias)(\/|$)/.test(
-    location.pathname,
-  );
   return (
     <CapacidadesContext.Provider value={capacidades}>
       <AreaFichaContext.Provider value={{ area, setArea }}>
         <BeneficiariaContext.Provider value={q.datos}>
           <div className="area-records">
-            {!legal &&
-              !/^\/beneficiarias\/[^/]+\/(?:social|guarderia)(\/|$)/.test(
-                location.pathname,
-              ) && (
-                <nav aria-label="Áreas del expediente" className="tabs">
-                  <Link to={base}>Expediente</Link>{" "}
-                  <Link to={`${base}/social`}>Trabajo Social</Link>{" "}
-                  <Link to={`${base}/legal`}>Legal</Link>{" "}
-                  <Link to={`${base}/referencias`}>Referencias</Link>{" "}
-                  <Link to={`${base}/guarderia`}>Guardería</Link>{" "}
-                  <Link to={`${base}/evolucion`}>Evolución</Link>
-                  <Link to={`${base}/documentos`}>Documentos</Link>
-                </nav>
-              )}
             {!!q.error && (
               <ErrorVista error={q.error} reintentar={q.recargar} />
             )}
