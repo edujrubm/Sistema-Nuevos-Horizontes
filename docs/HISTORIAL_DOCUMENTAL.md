@@ -28,6 +28,15 @@ de archivos: usar los enlaces de Git, el commit o el pull request.
 
 ## Entregas
 
+### 2026-11-25 — Inicializador manual de usuarios de demostración
+
+- Alcance: once cuentas ficticias con empleados propios, roles existentes asignados explícitamente, Argon2id, alta transaccional auditada y protección contra repetición. Por corrección de Eduardo, se retira el generador PDF del PR; la entrega PDF y las claves preparadas quedan exclusivamente fuera de Git. `--credenciales` permite importar ese lote privado. No cambia módulos, permisos, esquema, migraciones ni arranque.
+- Decisión: petición explícita de Eduardo; preparar, simular con todas las migraciones y abrir PR si resulta correcto. Acuerdo documentado en `DECISIONES_Y_DUDAS.md`.
+- Verificación: `pnpm check` aprobado en la entrega inicial (50 backend, 265 frontend, 3 omisiones existentes, tipos y compilación); tras esta corrección, nueve escenarios PostgreSQL/HTTP aprobados, once logins con perfil/logout, auditoría, concurrencia, rollback, importación privada y ausencia de generación PDF. Detalle en `VERIFICACION_CALIDAD.md`.
+- Rama: `usuarios-demo`, desde `origin/main` 88ce2a4.
+- Push verificado: `origin/usuarios-demo`, commit funcional `aa13006`; [PR 39 hacia main](https://github.com/edujrubm/Sistema-Nuevos-Horizontes/pull/39), sin fusión automática.
+- Pendiente: encargado revisa roles e historial del ambiente y ejecuta manualmente. No se crearon cuentas en la BD compartida; fusionar el PR no las crea. Las limitaciones actuales de autorización no cambian.
+
 ### 2026-11-18 — PDFs disponibles sin aprobación
 
 - Alcance: retiro del flujo de aprobación de PDF en Documentos: vigencia desde la carga, filtros VIGENTE/ANULADO y textos/indicadores acordes. Albergue recibe sólo la actualización documental de la decisión.

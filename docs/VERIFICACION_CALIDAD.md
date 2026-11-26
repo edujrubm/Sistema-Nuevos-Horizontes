@@ -1,5 +1,16 @@
 # Verificación y calidad
 
+## Ensayo de cuentas de demostración — 2026-11-25
+
+- Base de código: `origin/main` 88ce2a4, rama `usuarios-demo`. No se modifica código de los módulos ni DDL.
+- `pnpm check`: aprobado; inventario/hash de 22 migraciones y 4 pruebas de inventario; tipos; 50 pruebas backend, 265 frontend y compilación API/web. Se conservan 3 omisiones existentes del frontend.
+- `scripts/test-usuarios-demo.ps1`: PostgreSQL 18 desechable en loopback, esquema/fixtures sintéticos y las 22 migraciones 003–024 aplicadas sin errores; 9 escenarios aprobados tras retirar el generador PDF e incorporar la importación privada de claves. La creación comprueba además que no genera PDF.
+- Cobertura nueva: asignación explícita de roles reales; rechazo de ID/código/área incompatibles, actor inexistente, destino incorrecto, carpeta Git y producción; rollback tras una alta parcial, incluidas auditoría y empleados; dos creaciones simultáneas sin duplicados; repetición sin reset; reconciliación de estado pendiente; rechazo de colisiones; CLI sin contraseñas en salida.
+- Once cuentas con Argon2id y once altas auditadas; login, perfil, logout y revocación comprobados por HTTP real para las once. En el fixture, sólo administración tiene `crear:usuarios`: la API devuelve 403 a los otros diez perfiles y conserva su validación de datos para administración. No se incorporan estos permisos sintéticos a la aplicación ni a las migraciones.
+- Roles, matriz de permisos, usuario/empleado anteriores y formularios se comparan antes/después y permanecen idénticos. No se prueba que toda autorización por área/caso esté completa.
+- PDF entregado exclusivamente fuera de Git, generado de forma independiente al inicializador y revisado visualmente con Poppler. Presenta claves preparadas de once cuentas todavía no creadas en la BD compartida. Su JSON privado puede importarse con `--credenciales`; ni el PDF, ni ese JSON, ni un generador PDF forman parte del PR.
+- Límite: no hay evidencia de conexión/ejecución en BD compartida. Git acredita los scripts disponibles, no las migraciones efectivamente aplicadas allí. El operador debe cotejar catálogo e historial antes de ejecutar.
+
 Esta es la guía única para QA y evidencia de verificación. No crear reportes de
 pruebas por módulo, navegador, entrega o pull request. Registrar el resumen de
 una ejecución publicada en `HISTORIAL_DOCUMENTAL.md`.
