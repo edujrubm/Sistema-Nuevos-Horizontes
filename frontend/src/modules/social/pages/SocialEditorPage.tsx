@@ -1,16 +1,20 @@
-import { RecordEditorShell } from "@/modules/area-forms/components/RecordEditorShell";
 import { ApiError } from "@/shared/api/api-error";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import { useCapacidades } from "@/app/capacidades";
 import {
+  BarraBeneficiaria,
   useAreaFicha,
   useBeneficiaria,
 } from "@/shared/context/area-record-context";
-import { Cargando, ErrorVista } from "@/shared/components/feedback";
+import {
+  Cargando,
+  ErrorVista,
+  estadoTexto,
+} from "@/shared/components/feedback";
 import { FormErrorSummary } from "@/shared/components/forms";
-import { MarcoFicha } from "@/modules/area-forms/components";
+import { MarcoFicha, PestañasArea } from "@/modules/area-forms/components";
 import { socialFields, socialSections } from "../social-form.config";
 import { useSocialEditor } from "../hooks/useSocialEditor";
 
@@ -35,6 +39,7 @@ export function SocialEditorPage() {
   }, [setArea]);
   const caps = useCapacidades();
   const [page, setPage] = useState(0);
+  const [reviewed, setReviewed] = useState(false);
   const canEdit =
     editor.draft && (editor.record ? caps.editarFicha : caps.crearFicha);
   const editable =
@@ -59,6 +64,7 @@ export function SocialEditorPage() {
   };
   const fieldError = (field: string) => grouped.get(field)?.join(" ");
   function change(field: string, value: string) {
+    setReviewed(false);
     editor.change(field, value);
   }
   const accessibility = (field: string) => ({
@@ -86,17 +92,18 @@ export function SocialEditorPage() {
   if (editor.error && !editor.record && fichaId)
     return <ErrorVista error={editor.error} reintentar={editor.reload} />;
   return (
-    <RecordEditorShell
-      editor={editor}
-      title="Ficha social"
-      area="Trabajo Social"
-      type="SOCIAL"
-      subject={person?.nombre}
-      back={`/beneficiarias/${beneficiariaId}/social`}
-      editable={editable}
-      canSave={canEdit}
-      canConfirm={caps.confirmarFicha}
-    >
+    <>
+      <header className="page-head">
+        <div>
+          <p className="eyebrow">Trabajo Social</p>
+          <h1>Ficha social</h1>
+        </div>
+        <span className="badge">
+          {estadoTexto(editor.record?.estadoCodigo ?? editor.record?.estado)}
+        </span>
+      </header>
+      <BarraBeneficiaria />
+      <PestañasArea beneficiariaId={beneficiariaId} area="SOCIAL" />
       <FormErrorSummary
         errors={[...grouped].map(([field, messages]) => ({
           fieldId: fieldId(field),
@@ -116,6 +123,8 @@ export function SocialEditorPage() {
           editor.conflict || editor.uncertain ? editor.reload : undefined
         }
       />
+      {editor.message && <p role="status">{editor.message}</p>}
+      {!editor.draft && <p className="alert">Registro en modo de consulta.</p>}
       {(editor.record?.estadoCodigo ?? editor.record?.estado ?? "").endsWith(
         "CONFIRMADO",
       ) && (
@@ -130,11 +139,11 @@ export function SocialEditorPage() {
       )}
       <MarcoFicha paginas={socialSections} pagina={page} cambiar={setPage}>
         <form
-          id="social-record-form"
           className="ficha-form"
           onSubmit={(event) => {
             event.preventDefault();
             if (editable) {
+              setReviewed(false);
               void editor.submit();
             }
           }}
@@ -169,6 +178,7 @@ export function SocialEditorPage() {
                   {...accessibility("fechaAtencion")}
                   value={editor.attention}
                   onChange={(event) => {
+                    setReviewed(false);
                     editor.setAttention(event.target.value);
                   }}
                 />
@@ -182,6 +192,7 @@ export function SocialEditorPage() {
                   {...accessibility("profesionalId")}
                   value={editor.professional}
                   onChange={(event) => {
+                    setReviewed(false);
                     editor.setProfessional(event.target.value);
                   }}
                 />
@@ -247,8 +258,42 @@ export function SocialEditorPage() {
               ))}
             </div>
           </fieldset>
+          {canEdit && (
+            <div className="actions">
+              <button className="primary" type="submit" disabled={!editable}>
+                Guardar borrador
+              </button>
+            </div>
+          )}
         </form>
-
+        {page === socialSections.length - 1 &&
+          editor.record &&
+          editor.draft &&
+          caps.confirmarFicha && (
+            <section className="card">
+              <h2>Revisar y confirmar</h2>
+              <label className="check">
+                <input
+                  type="checkbox"
+                  checked={reviewed}
+                  onChange={(event) => setReviewed(event.target.checked)}
+                />
+                He revisado la información y deseo confirmar esta ficha.
+              </label>
+              <button
+                disabled={
+                  !reviewed ||
+                  editor.dirty ||
+                  editor.busy ||
+                  editor.conflict ||
+                  editor.uncertain
+                }
+                onClick={() => void editor.submit(true)}
+              >
+                Confirmar ficha
+              </button>
+            </section>
+          )}
         <div className="actions">
           <button
             disabled={page === 0}
@@ -263,6 +308,9 @@ export function SocialEditorPage() {
           )}
         </div>
       </MarcoFicha>
-    </RecordEditorShell>
+      <Link to={`/beneficiarias/${beneficiariaId}/social`}>
+        Volver al listado
+      </Link>
+    </>
   );
 }

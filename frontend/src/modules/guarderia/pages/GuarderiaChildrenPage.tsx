@@ -8,6 +8,7 @@ import {
 } from "@/shared/context/area-record-context";
 import { consultaDesdeQuery } from "@/shared/api/query-result";
 import { Cargando, ErrorVista, Paginacion } from "@/shared/components/feedback";
+import { PestañasArea } from "@/modules/area-forms/components";
 import { guarderiaApi } from "../api/guarderia-api";
 
 export function GuarderiaChildrenPage() {
@@ -42,7 +43,7 @@ export function GuarderiaChildrenPage() {
         </div>
       </header>
       <BarraBeneficiaria />
-
+      <PestañasArea beneficiariaId={beneficiariaId} area="GUARDERIA" />
       {query.cargando ? (
         <Cargando />
       ) : query.error ? (

@@ -38,3 +38,12 @@ export function MarcoFicha({
     </>
   );
 }
+
+/** Compatibilidad durante la integración independiente de las áreas; no dibuja enlaces adicionales. */
+export function PestañasArea(_props: {
+  beneficiariaId: string;
+  area: string;
+  referencia?: boolean;
+}) {
+  return null;
+}
