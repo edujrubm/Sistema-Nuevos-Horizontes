@@ -1,3 +1,4 @@
+import { RecordEditorShell } from "@/modules/area-forms/components/RecordEditorShell";
 import { useQuery } from "@tanstack/react-query";
 import { ApiError } from "@/shared/api/api-error";
 import { NumeroFichaInicialMadre } from "../components/NumeroFichaInicialMadre";
@@ -9,17 +10,12 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 
 import { useCapacidades } from "@/app/capacidades";
 import {
-  BarraBeneficiaria,
   useAreaFicha,
   useBeneficiaria,
 } from "@/shared/context/area-record-context";
-import {
-  Cargando,
-  ErrorVista,
-  estadoTexto,
-} from "@/shared/components/feedback";
+import { Cargando, ErrorVista } from "@/shared/components/feedback";
 import { FormErrorSummary } from "@/shared/components/forms";
-import { MarcoFicha, PestañasArea } from "@/modules/area-forms/components";
+import { MarcoFicha } from "@/modules/area-forms/components";
 import {
   guarderiaFields,
   guarderiaSections,
@@ -93,7 +89,6 @@ export function GuarderiaEditorPage() {
   }, [setArea]);
   const caps = useCapacidades();
   const [page, setPage] = useState(0);
-  const [reviewed, setReviewed] = useState(false);
   const [responsablesDirty, setResponsablesDirty] = useState(false);
   const [padresDirty, setPadresDirty] = useState(false);
   useEffect(
@@ -128,7 +123,6 @@ export function GuarderiaEditorPage() {
   };
   const fieldError = (field: string) => grouped.get(field)?.join(" ");
   function change(field: string, value: string) {
-    setReviewed(false);
     editor.change(field, value);
   }
   const accessibility = (field: string) => ({
@@ -156,18 +150,18 @@ export function GuarderiaEditorPage() {
   if (editor.error && !editor.record && fichaId)
     return <ErrorVista error={editor.error} reintentar={editor.reload} />;
   return (
-    <>
-      <header className="page-head">
-        <div>
-          <p className="eyebrow">Guardería</p>
-          <h1>Ficha de Guardería</h1>
-        </div>
-        <span className="badge">
-          {estadoTexto(editor.record?.estadoCodigo ?? editor.record?.estado)}
-        </span>
-      </header>
-      <BarraBeneficiaria />
-      <PestañasArea beneficiariaId={beneficiariaId} area="GUARDERIA" />
+    <RecordEditorShell
+      editor={editor}
+      title="Ficha de Guardería"
+      area="Guardería"
+      type="GUARDERIA"
+      subject={person?.nombre}
+      back={`/beneficiarias/${beneficiariaId}/guarderia`}
+      editable={editable}
+      canSave={canEdit}
+      canConfirm={caps.confirmarFicha}
+      auxiliaryDirty={editor.auxiliaryDirty}
+    >
       {editor.auxiliaryDirty && (
         <div className="alert" role="status">
           Hay una captura pendiente en{" "}
@@ -197,8 +191,6 @@ export function GuarderiaEditorPage() {
           editor.conflict || editor.uncertain ? editor.reload : undefined
         }
       />
-      {editor.message && <p role="status">{editor.message}</p>}
-      {!editor.draft && <p className="alert">Registro en modo de consulta.</p>}
       {(editor.record?.estadoCodigo ?? editor.record?.estado ?? "").endsWith(
         "CONFIRMADO",
       ) && (
@@ -249,11 +241,11 @@ export function GuarderiaEditorPage() {
       )}
       <MarcoFicha paginas={guarderiaSections} pagina={page} cambiar={setPage}>
         <form
+          id="guarderia-record-form"
           className="ficha-form"
           onSubmit={(event) => {
             event.preventDefault();
             if (editable) {
-              setReviewed(false);
               void editor.submit();
             }
           }}
@@ -317,7 +309,6 @@ export function GuarderiaEditorPage() {
                   {...accessibility("fechaAtencion")}
                   value={editor.attention}
                   onChange={(event) => {
-                    setReviewed(false);
                     editor.setAttention(event.target.value);
                   }}
                 />
@@ -331,7 +322,6 @@ export function GuarderiaEditorPage() {
                   {...accessibility("profesionalId")}
                   value={editor.professional}
                   onChange={(event) => {
-                    setReviewed(false);
                     editor.setProfessional(event.target.value);
                   }}
                 />
@@ -421,17 +411,6 @@ export function GuarderiaEditorPage() {
               </div>
             ))}
           </fieldset>
-          {canEdit && (
-            <div className="actions">
-              <button
-                className="primary"
-                type="submit"
-                disabled={!editable || editor.auxiliaryDirty}
-              >
-                Guardar borrador
-              </button>
-            </div>
-          )}
         </form>
         {editor.record && (
           <ResponsablesGuarderia
@@ -467,35 +446,7 @@ export function GuarderiaEditorPage() {
             padre.
           </p>
         )}
-        {page === guarderiaSections.length - 1 &&
-          editor.record &&
-          editor.draft &&
-          caps.confirmarFicha && (
-            <section className="card">
-              <h2>Revisar y confirmar</h2>
-              <label className="check">
-                <input
-                  type="checkbox"
-                  checked={reviewed}
-                  onChange={(event) => setReviewed(event.target.checked)}
-                />
-                He revisado la información y deseo confirmar esta ficha.
-              </label>
-              <button
-                disabled={
-                  editor.auxiliaryDirty ||
-                  !reviewed ||
-                  editor.dirty ||
-                  editor.busy ||
-                  editor.conflict ||
-                  editor.uncertain
-                }
-                onClick={() => void editor.submit(true)}
-              >
-                Confirmar ficha
-              </button>
-            </section>
-          )}
+
         <div className="actions">
           <button
             disabled={page === 0}
@@ -510,9 +461,6 @@ export function GuarderiaEditorPage() {
           )}
         </div>
       </MarcoFicha>
-      <Link to={`/beneficiarias/${beneficiariaId}/guarderia`}>
-        Volver al listado
-      </Link>
-    </>
+    </RecordEditorShell>
   );
 }
