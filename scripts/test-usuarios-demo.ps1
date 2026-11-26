@@ -13,7 +13,6 @@ $previousPgOptions = $env:PGOPTIONS
 # Windows PowerShell trata NOTICE en stderr como error terminante; no ocultar errores SQL.
 $env:PGOPTIONS = '-c client_min_messages=warning'
 $settings = @{
-  QA_POSTGRES_BIN=$PostgresBin
   LEGAL_TEST_HOST='127.0.0.1'; LEGAL_TEST_PORT="$Port"; LEGAL_TEST_DATABASE=$database; LEGAL_TEST_USER='legal_test'; LEGAL_TEST_PASSWORD='local-test'
   DATABASE_HOST='127.0.0.1'; DATABASE_PORT="$Port"; DATABASE_NAME=$database; DATABASE_USER='legal_test'; DATABASE_PASSWORD='local-test'; DATABASE_SSL='false'
   NODE_ENV='test'; AREA_TEST_NOMBRE='Legal'; AREA_TEST_ROL='COORDINACION'; JWT_SECRET=([guid]::NewGuid().ToString('N')+[guid]::NewGuid().ToString('N'))
