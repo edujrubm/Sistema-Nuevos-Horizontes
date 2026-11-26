@@ -1,0 +1,12 @@
+.record-editor-shell .area-form-editor > .actions {
+  margin: 20px 0;
+}
+.record-editor-shell .area-form-shell > .area-form-actions {
+  margin-top: 20px;
+}
+.record-editor-shell .ficha-form fieldset > .grid + .grid {
+  margin-top: 20px;
+}
+.record-editor-shell .ficha-form + .actions {
+  margin: 20px 0;
+}
