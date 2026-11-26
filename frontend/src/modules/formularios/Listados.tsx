@@ -1,5 +1,4 @@
 import { BarraBeneficiaria } from "./contexto";
-import { PestañasArea } from "./MarcoFicha";
 import { useCallback, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api } from "../../shared/api/area-records";
@@ -65,17 +64,7 @@ export function ListadoFichas({
         )}
       </div>
       <BarraBeneficiaria />
-      <PestañasArea
-        beneficiariaId={beneficiariaId}
-        area={
-          area === "legal"
-            ? "LEGAL"
-            : area === "guarderia"
-              ? "GUARDERIA"
-              : "SOCIAL"
-        }
-        referencia={area === "referencias"}
-      />
+
       {area === "trabajo-social" && <ResumenSocial id={beneficiariaId} />}
       {q.cargando ? (
         <Cargando />
@@ -176,7 +165,7 @@ export function Guarderia() {
       <h1>Guardería</h1>
       <p>Solo se pueden abrir fichas de niñas y niños inscritos.</p>
       <BarraBeneficiaria />
-      <PestañasArea beneficiariaId={beneficiariaId} area="GUARDERIA" />
+
       {q.cargando ? (
         <Cargando />
       ) : q.error ? (

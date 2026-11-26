@@ -1,20 +1,13 @@
+import { RecordEditorShell } from "@/modules/area-forms/components/RecordEditorShell";
 import { ApiError } from "@/shared/api/api-error";
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import { FormErrorSummary } from "@/shared/components/forms";
 import { useCapacidades } from "@/app/capacidades";
-import {
-  BarraBeneficiaria,
-  useBeneficiaria,
-} from "@/shared/context/area-record-context";
-import {
-  Cargando,
-  ErrorVista,
-  estadoTexto,
-  fecha,
-} from "@/shared/components/feedback";
-import { MarcoFicha, PestañasArea } from "@/modules/area-forms/components";
+import { useBeneficiaria } from "@/shared/context/area-record-context";
+import { Cargando, ErrorVista, fecha } from "@/shared/components/feedback";
+import { MarcoFicha } from "@/modules/area-forms/components";
 import { legal, legalSections, referencia } from "../config/legal-form";
 import { useLegalEditor } from "../hooks/useLegalEditor";
 
@@ -28,7 +21,6 @@ export function LegalEditorPage({
   const person = useBeneficiaria();
   const capabilities = useCapacidades();
   const [page, setPage] = useState(0);
-  const [reviewed, setReviewed] = useState(false);
   const canCreate = reference
     ? capabilities.crearReferencia
     : capabilities.crearFicha;
@@ -127,11 +119,11 @@ export function LegalEditorPage({
   const content = (
     <>
       <form
+        id="legal-record-form"
         className={reference ? "card" : "ficha-form"}
         onSubmit={(event) => {
           event.preventDefault();
           if (editable) {
-            setReviewed(false);
             void editor.submit();
           }
         }}
@@ -225,20 +217,14 @@ export function LegalEditorPage({
                       type="date"
                       {...accesibilidadCampo(`detalle.${field}`)}
                       value={String(editor.detail[field] ?? "")}
-                      onChange={(e) => (
-                        setReviewed(false),
-                        editor.change(field, e.target.value)
-                      )}
+                      onChange={(e) => editor.change(field, e.target.value)}
                     />
                   ) : short.has(field) ? (
                     <input
                       maxLength={20000}
                       {...accesibilidadCampo(`detalle.${field}`)}
                       value={String(editor.detail[field] ?? "")}
-                      onChange={(e) => (
-                        setReviewed(false),
-                        editor.change(field, e.target.value)
-                      )}
+                      onChange={(e) => editor.change(field, e.target.value)}
                     />
                   ) : (
                     <textarea
@@ -246,10 +232,7 @@ export function LegalEditorPage({
                       rows={field === "diligenciamiento" ? 6 : 3}
                       {...accesibilidadCampo(`detalle.${field}`)}
                       value={String(editor.detail[field] ?? "")}
-                      onChange={(e) => (
-                        setReviewed(false),
-                        editor.change(field, e.target.value)
-                      )}
+                      onChange={(e) => editor.change(field, e.target.value)}
                     />
                   )
                 ) : (
@@ -275,51 +258,8 @@ export function LegalEditorPage({
             </label>
           )}
         </fieldset>
-        {canEdit && (
-          <div className="actions">
-            <button
-              className="primary"
-              type="submit"
-              disabled={
-                !editable ||
-                (Boolean(editor.record) && !editor.dirty) ||
-                (editor.correction && !editor.reason.trim())
-              }
-            >
-              {editor.busy ? "Guardando…" : "Guardar cambios"}
-            </button>
-          </div>
-        )}
       </form>
-      {editor.record &&
-        editor.draft &&
-        canConfirm &&
-        (reference || page === legalSections.length - 1) && (
-          <section className="card">
-            <h2>Revisar y confirmar</h2>
-            <label className="check">
-              <input
-                type="checkbox"
-                checked={reviewed}
-                onChange={(e) => setReviewed(e.target.checked)}
-              />
-              He revisado la información y deseo confirmar esta ficha.
-            </label>
-            <button
-              disabled={
-                !reviewed ||
-                editor.dirty ||
-                editor.busy ||
-                editor.conflict ||
-                editor.uncertain ||
-                !completeReference
-              }
-              onClick={() => void editor.submit(true)}
-            >
-              Confirmar ficha
-            </button>
-          </section>
-        )}
+
       {reference && (
         <p>
           La firma se incorpora al documento impreso conforme al procedimiento
@@ -329,22 +269,19 @@ export function LegalEditorPage({
     </>
   );
   return (
-    <>
-      <header className="page-head">
-        <div>
-          <p className="eyebrow">Área Legal</p>
-          <h1>{reference ? "Hoja de referencia" : "Ficha Legal"}</h1>
-        </div>
-        <span className="badge">
-          {estadoTexto(editor.record?.estadoCodigo ?? editor.record?.estado)}
-        </span>
-      </header>
-      <BarraBeneficiaria />
-      <PestañasArea
-        beneficiariaId={beneficiariaId}
-        area="LEGAL"
-        referencia={reference}
-      />
+    <RecordEditorShell
+      editor={editor}
+      title={reference ? "Hoja de referencia" : "Ficha Legal"}
+      area="Área Legal"
+      type={reference ? "REFERENCIA_LEGAL" : "LEGAL"}
+      subject={person?.nombre}
+      back={`/beneficiarias/${beneficiariaId}/${reference ? "referencias" : "legal"}`}
+      editable={editable}
+      canSave={canEdit}
+      canConfirm={canConfirm && completeReference}
+      correction={editor.correction}
+      saveDisabled={editor.correction && !editor.reason.trim()}
+    >
       <FormErrorSummary
         errors={detallesError.map((error) => ({
           fieldId: idCampo(error.campo),
@@ -362,10 +299,6 @@ export function LegalEditorPage({
         error={detallesError.length ? undefined : editor.error}
         reintentar={editor.record ? editor.reload : undefined}
       />
-      {editor.message && <p role="status">{editor.message}</p>}
-      {!editor.draft && !editor.correction && (
-        <p className="alert">Registro en modo de consulta.</p>
-      )}
       {reference &&
         editor.confirmed &&
         capabilities.corregirReferencia &&
@@ -394,11 +327,6 @@ export function LegalEditorPage({
           </div>
         </MarcoFicha>
       )}
-      <Link
-        to={`/beneficiarias/${beneficiariaId}/${reference ? "referencias" : "legal"}`}
-      >
-        Volver al listado
-      </Link>
-    </>
+    </RecordEditorShell>
   );
 }
